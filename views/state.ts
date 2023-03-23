@@ -1,0 +1,74 @@
+import produce from "immer";
+import { Set } from "../model";
+
+export enum ActionType {
+    ChangeWeight = "change-weight",
+    ChangeReps = "change-reps",
+    FinishSet = "finish-set",
+    RemoveSet = "remove-set",
+    AddSet = "add-set",
+}
+
+export const workoutProducer = produce((draft, action) => {
+    switch (action.type) {
+        case ActionType.ChangeWeight:
+            draft.exercises[action.exerciseIdx].sets[action.setIdx].weight =
+                action.weight;
+            break;
+        case ActionType.ChangeReps:
+            draft.exercises[action.exerciseIdx].sets[action.setIdx].reps =
+                action.reps;
+            break;
+        case ActionType.FinishSet:
+            draft.exercises[action.exerciseIdx].sets[action.setIdx].finished =
+                !draft.exercises[action.exerciseIdx].sets[action.setIdx]
+                    .finished;
+            break;
+        case ActionType.RemoveSet:
+            draft.exercises[action.exerciseIdx].sets.splice(action.setIdx, 1);
+            break;
+        case ActionType.AddSet: {
+            const newSet: Set = {
+                id: generateGuid(),
+                weight: "0",
+                reps: "1",
+                finished: false,
+            };
+
+            const lastSet =
+                draft.exercises[action.exerciseIdx].sets[
+                    draft.exercises[action.exerciseIdx].sets.length - 1
+                ];
+
+            if (lastSet !== undefined) {
+                newSet.weight = lastSet.weight;
+                newSet.reps = lastSet.reps;
+            }
+
+            draft.exercises[action.exerciseIdx].sets.push(newSet);
+            break;
+        }
+        default:
+            break;
+    }
+});
+
+function generateGuid(): string {
+    const S4 = function () {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    };
+    return (
+        S4() +
+        S4() +
+        "-" +
+        S4() +
+        "-" +
+        S4() +
+        "-" +
+        S4() +
+        "-" +
+        S4() +
+        S4() +
+        S4()
+    );
+}
