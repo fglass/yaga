@@ -21,8 +21,6 @@ export default (props: Props) => {
 
     if (props.colour) {
         buttonStyle.push(styles[props.colour]);
-    } else {
-        buttonStyle.push(styles.info);
     }
 
     return (

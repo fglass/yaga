@@ -1,14 +1,14 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import WorkoutView from "./views/WorkoutView";
 
-// open -a Simulator
 export default function App() {
     return (
-        <View style={styles.container}>
+        <GestureHandlerRootView style={styles.container}>
             <WorkoutView />
             <StatusBar style="auto" />
-        </View>
+        </GestureHandlerRootView>
     );
 }
 

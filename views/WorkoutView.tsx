@@ -1,8 +1,9 @@
 import { useCallback, useReducer } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { dummyWorkout, Exercise, Set } from "../model";
-import Timer from "../components/Timer";
 import Button from "../components/Button";
+import Deletable from "../components/Deletable";
+import Timer from "../components/Timer";
 import { ActionType, workoutProducer } from "./state";
 
 export default function WorkoutView() {
@@ -54,7 +55,6 @@ export default function WorkoutView() {
                         <Text style={styles.th}>Weight</Text>
                         <Text style={styles.th}>Reps</Text>
                         <Text style={[styles.th, styles.narrow]}>✅</Text>
-                        <Text style={[styles.th, styles.narrow]}>❎</Text>
                     </View>
                     {exercise.sets.map((set: Set, setIdx: number) =>
                         renderSet(set, setIdx, exerciseIdx)
@@ -62,6 +62,7 @@ export default function WorkoutView() {
                 </View>
                 <Button
                     label="+"
+                    colour="info"
                     style={styles.addSetBtn}
                     onPress={() =>
                         onAddSet({
@@ -74,68 +75,66 @@ export default function WorkoutView() {
     );
 
     const renderSet = (set: Set, setIdx: number, exerciseIdx: number) => (
-        <View key={set.id} style={[styles.tr, set.finished && styles.finished]}>
-            <TextInput
-                style={[
-                    styles.td,
-                    styles.narrow,
-                    set.finished && styles.finished,
-                ]}
-            >
-                {setIdx + 1}
-            </TextInput>
-            <TextInput
-                style={[styles.td, set.finished && styles.finished]}
-                value={set.weight}
-                onChangeText={(text: string) =>
-                    onChangeWeight({
-                        exerciseIdx: exerciseIdx,
-                        setIdx: setIdx,
-                        weight: text,
-                    })
-                }
-                inputMode="numeric"
-            />
-            <TextInput
-                style={[styles.td, set.finished && styles.finished]}
-                value={set.reps}
-                onChangeText={(text: string) =>
-                    onChangeRep({
-                        exerciseIdx: exerciseIdx,
-                        setIdx: setIdx,
-                        reps: text,
-                    })
-                }
-                inputMode="numeric"
-            />
-            <Button
-                label=""
-                colour={set.finished ? "error" : "success"}
-                style={styles.tdBtn}
-                onPress={() =>
-                    onFinishSet({
-                        exerciseIdx: exerciseIdx,
-                        setIdx: setIdx,
-                    })
-                }
-            />
-            <Button
-                label=""
-                colour="error"
-                style={styles.tdBtn}
-                onPress={() =>
-                    onRemoveSet({
-                        exerciseIdx: exerciseIdx,
-                        setIdx: setIdx,
-                    })
-                }
-            />
-        </View>
+        <Deletable
+            key={set.id}
+            onDelete={() =>
+                onRemoveSet({
+                    exerciseIdx: exerciseIdx,
+                    setIdx: setIdx,
+                })
+            }
+        >
+            <View style={[styles.tr, set.finished && styles.finished]}>
+                <TextInput
+                    style={[
+                        styles.td,
+                        styles.narrow,
+                        set.finished && styles.finished,
+                    ]}
+                >
+                    {setIdx + 1}
+                </TextInput>
+                <TextInput
+                    style={[styles.td, set.finished && styles.finished]}
+                    value={set.weight}
+                    onChangeText={(text: string) =>
+                        onChangeWeight({
+                            exerciseIdx: exerciseIdx,
+                            setIdx: setIdx,
+                            weight: text,
+                        })
+                    }
+                    inputMode="numeric"
+                />
+                <TextInput
+                    style={[styles.td, set.finished && styles.finished]}
+                    value={set.reps}
+                    onChangeText={(text: string) =>
+                        onChangeRep({
+                            exerciseIdx: exerciseIdx,
+                            setIdx: setIdx,
+                            reps: text,
+                        })
+                    }
+                    inputMode="numeric"
+                />
+                <Button
+                    label={set.finished ? "✅" : "⬜️️"}
+                    style={styles.tdBtn}
+                    onPress={() =>
+                        onFinishSet({
+                            exerciseIdx: exerciseIdx,
+                            setIdx: setIdx,
+                        })
+                    }
+                />
+            </View>
+        </Deletable>
     );
 
     const renderFooter = () => (
         <View style={styles.footer}>
-            <Button label="Add" onPress={() => alert("add")} />
+            <Button label="Add" colour="info" onPress={() => alert("add")} />
             <Button
                 label="Finish"
                 colour="success"
