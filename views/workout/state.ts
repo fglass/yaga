@@ -1,5 +1,5 @@
 import produce from "immer";
-import { Set } from "../model";
+import { Exercise, Set } from "../../model";
 
 export enum ActionType {
     ChangeWeight = "change-weight",
@@ -7,6 +7,7 @@ export enum ActionType {
     FinishSet = "finish-set",
     RemoveSet = "remove-set",
     AddSet = "add-set",
+    AddExercise = "add-exercise",
 }
 
 export const workoutProducer = produce((draft, action) => {
@@ -28,12 +29,7 @@ export const workoutProducer = produce((draft, action) => {
             draft.exercises[action.exerciseIdx].sets.splice(action.setIdx, 1);
             break;
         case ActionType.AddSet: {
-            const newSet: Set = {
-                id: generateGuid(),
-                weight: "0",
-                reps: "1",
-                finished: false,
-            };
+            const newSet = createNewSet();
 
             const lastSet =
                 draft.exercises[action.exerciseIdx].sets[
@@ -48,10 +44,32 @@ export const workoutProducer = produce((draft, action) => {
             draft.exercises[action.exerciseIdx].sets.push(newSet);
             break;
         }
+        case ActionType.AddExercise: {
+            draft.exercises.push(createNewExercise(action.exerciseId));
+            break;
+        }
         default:
             break;
     }
 });
+
+function createNewExercise(exerciseId: string): Exercise {
+    return {
+        id: generateGuid(),
+        exerciseId: exerciseId,
+        notes: "",
+        sets: [createNewSet()],
+    };
+}
+
+function createNewSet(): Set {
+    return {
+        id: generateGuid(),
+        weight: "0",
+        reps: "1",
+        finished: false,
+    };
+}
 
 function generateGuid(): string {
     const S4 = function () {

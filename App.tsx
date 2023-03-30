@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import WorkoutView from "./views/WorkoutView";
+import WorkoutView from "./views/workout/WorkoutView";
 
 export default function App() {
     return (

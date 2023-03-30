@@ -1,12 +1,14 @@
-import { useCallback, useReducer } from "react";
+import { useCallback, useReducer, useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
-import { dummyWorkout, Exercise, Set } from "../model";
-import Button from "../components/Button";
-import Deletable from "../components/Deletable";
-import Timer from "../components/Timer";
+import { dummyWorkout, exerciseDefs, Exercise, Set } from "../../model";
+import ExerciseModal from "./ExerciseModal";
+import Button from "../../components/Button";
+import Deletable from "../../components/Deletable";
+import Timer from "../../components/Timer";
 import { ActionType, workoutProducer } from "./state";
 
 export default function WorkoutView() {
+    const [exerciseModalVisible, setExerciseModalVisible] = useState(false);
     const [workout, dispatch] = useReducer(workoutProducer, dummyWorkout);
 
     const onChangeWeight = useCallback(
@@ -34,6 +36,11 @@ export default function WorkoutView() {
         []
     );
 
+    const onAddExercise = useCallback(
+        (args) => dispatch({ type: ActionType.AddExercise, ...args }),
+        []
+    );
+
     const renderHeader = () => (
         <View style={styles.header}>
             <Text style={styles.title}>{workout.name}</Text>
@@ -45,7 +52,9 @@ export default function WorkoutView() {
     const renderExercise = (exercise: Exercise, exerciseIdx: number) => (
         <View key={exercise.id} style={styles.card}>
             <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>{exercise.name}</Text>
+                <Text style={styles.cardTitle}>
+                    {exerciseDefs[exercise.exerciseId].name}
+                </Text>
                 {exercise.notes && (
                     <Text style={styles.cardSubtitle}>{exercise.notes}</Text>
                 )}
@@ -134,7 +143,11 @@ export default function WorkoutView() {
 
     const renderFooter = () => (
         <View style={styles.footer}>
-            <Button label="Add" colour="info" onPress={() => alert("add")} />
+            <Button
+                label="Add"
+                colour="info"
+                onPress={() => setExerciseModalVisible(true)}
+            />
             <Button
                 label="Finish"
                 colour="success"
@@ -150,8 +163,13 @@ export default function WorkoutView() {
 
     return (
         <View style={styles.container}>
+            {renderHeader()}
+            <ExerciseModal
+                isVisible={exerciseModalVisible}
+                onClose={() => setExerciseModalVisible(false)}
+                onSelect={(exerciseId) => onAddExercise({ exerciseId })}
+            />
             <ScrollView style={styles.content}>
-                {renderHeader()}
                 {workout.exercises.map(renderExercise)}
                 {renderFooter()}
             </ScrollView>
@@ -169,6 +187,8 @@ const styles = StyleSheet.create({
     header: {
         marginTop: 50,
         padding: 10,
+        borderBottomColor: "#58A5F9",
+        borderBottomWidth: 1,
     },
     footer: {
         marginBottom: 20,
