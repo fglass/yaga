@@ -2,6 +2,7 @@ import React from "react";
 import { Animated, StyleSheet, Text } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/Swipeable";
+import * as Haptics from "expo-haptics";
 
 interface Props {
     children: React.ReactNode;
@@ -23,7 +24,12 @@ export default (props: Props) => {
     return (
         <Swipeable
             renderRightActions={renderRightActions}
-            onSwipeableOpen={props.onDelete}
+            onSwipeableOpen={() => {
+                props.onDelete();
+                Haptics.notificationAsync(
+                    Haptics.NotificationFeedbackType.Success
+                );
+            }}
         >
             {props.children}
         </Swipeable>

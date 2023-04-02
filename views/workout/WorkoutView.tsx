@@ -7,12 +7,13 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { dummyWorkout, exerciseDefs, Exercise, Set } from "../../model";
 import ExerciseModal from "./ExerciseModal";
 import Button from "../../components/Button";
 import Timer from "../../components/Timer";
 import Deletable from "../../components/Deletable";
+import { dummyWorkout, exerciseDefs, Exercise, Set } from "../../model";
 import { ActionType, workoutProducer } from "./state";
 
 export default function WorkoutView() {
@@ -77,11 +78,8 @@ export default function WorkoutView() {
                 </View>
                 <View style={styles.cardHeaderRight}>
                     <TouchableOpacity
-                        onPress={() =>
-                            onAddSet({
-                                exerciseIdx,
-                            })
-                        }
+                        style={styles.cardHeaderBtn}
+                        onPress={() => onAddSet({ exerciseIdx })}
                     >
                         <Ionicons
                             name="ios-add-circle"
@@ -93,24 +91,22 @@ export default function WorkoutView() {
                         style={styles.cardHeaderBtn}
                         onPress={() => onRemoveExercise({ exerciseIdx })}
                     >
-                        <Ionicons
-                            name="ios-trash-outline"
-                            color="white"
-                            size={24}
-                        />
+                        <Ionicons name="ios-trash" color="white" size={24} />
                     </TouchableOpacity>
                 </View>
             </View>
-            <View style={styles.table}>
+            <View>
                 <View style={styles.thead}>
                     <Text style={[styles.th, styles.narrow]}>Set</Text>
                     <Text style={styles.th}>Weight</Text>
                     <Text style={styles.th}>Reps</Text>
                     <Text style={[styles.th, styles.narrow]} />
                 </View>
-                {exercise.sets.map((set: Set, setIdx: number) =>
-                    renderSet(set, setIdx, exerciseIdx)
-                )}
+                <View style={styles.trs}>
+                    {exercise.sets.map((set: Set, setIdx: number) =>
+                        renderSet(set, setIdx, exerciseIdx)
+                    )}
+                </View>
             </View>
         </View>
     );
@@ -161,12 +157,15 @@ export default function WorkoutView() {
                 />
                 <TouchableOpacity
                     style={styles.tdBtn}
-                    onPress={() =>
+                    onPress={() => {
                         onFinishSet({
                             exerciseIdx,
                             setIdx,
-                        })
-                    }
+                        });
+                        Haptics.notificationAsync(
+                            Haptics.NotificationFeedbackType.Success
+                        );
+                    }}
                 >
                     <Ionicons
                         name={
@@ -190,12 +189,12 @@ export default function WorkoutView() {
             <Button
                 label="Finish"
                 colour="success"
-                onPress={() => alert("finish")}
+                onPress={() => alert("Finished")}
             />
             <Button
                 label="Cancel"
                 colour="error"
-                onPress={() => alert("cancel")}
+                onPress={() => alert("Cancelled")}
             />
         </View>
     );
@@ -255,7 +254,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
     },
     cardHeaderBtn: {
-        marginLeft: 5,
+        marginLeft: 7,
     },
     cardTitle: {
         fontSize: 16,
@@ -268,7 +267,6 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         color: "white",
     },
-    table: {},
     thead: {
         flexDirection: "row",
         paddingVertical: 10,
@@ -278,6 +276,10 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontWeight: "bold",
         color: "white",
+    },
+    trs: {
+        overflow: "hidden",
+        borderRadius: 5,
     },
     tr: {
         flexDirection: "row",
@@ -298,15 +300,11 @@ const styles = StyleSheet.create({
         marginHorizontal: 0,
         marginBottom: 0,
     },
-    addSetBtn: {
-        width: 40,
-        marginTop: 5,
-        marginHorizontal: 0,
-    },
     narrow: {
+        marginLeft: 5,
         maxWidth: 30,
     },
     finished: {
-        backgroundColor: "#65CA79",
+        backgroundColor: "rgba(101,202,121,0.3)",
     },
 });
