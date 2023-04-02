@@ -1,17 +1,7 @@
 import React from "react";
-import {
-    PanGestureHandler,
-    PanGestureHandlerGestureEvent,
-} from "react-native-gesture-handler";
-import Animated, {
-    runOnJS,
-    useAnimatedGestureHandler,
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-} from "react-native-reanimated";
-
-const SWIPE_THRESHOLD_X = -100;
+import { Animated, StyleSheet, Text } from "react-native";
+import { RectButton } from "react-native-gesture-handler";
+import Swipeable from "react-native-gesture-handler/Swipeable";
 
 interface Props {
     children: React.ReactNode;
@@ -19,35 +9,37 @@ interface Props {
 }
 
 export default (props: Props) => {
-    const translateX = useSharedValue(0);
-    const opacity = useSharedValue(1);
-
-    const onSwipe = useAnimatedGestureHandler<PanGestureHandlerGestureEvent>({
-        onActive: (event) => {
-            translateX.value = Math.min(event.translationX, 0); // Only R2L
-            opacity.value = translateX.value < SWIPE_THRESHOLD_X ? 0.5 : 1;
-        },
-        onEnd: () => {
-            if (translateX.value < SWIPE_THRESHOLD_X) {
-                runOnJS(props.onDelete)();
-            } else {
-                translateX.value = withSpring(0);
-            }
-        },
-    });
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ translateX: translateX.value }],
-            opacity: opacity.value,
-        };
-    });
+    const renderRightActions = (
+        _progress: Animated.AnimatedInterpolation<number>,
+        dragX: Animated.AnimatedInterpolation<number>
+    ) => {
+        return (
+            <RectButton style={styles.rightAction}>
+                <Text style={styles.rightActionText}>Delete</Text>
+            </RectButton>
+        );
+    };
 
     return (
-        <PanGestureHandler onGestureEvent={onSwipe}>
-            <Animated.View style={animatedStyle}>
-                {props.children}
-            </Animated.View>
-        </PanGestureHandler>
+        <Swipeable
+            renderRightActions={renderRightActions}
+            onSwipeableOpen={props.onDelete}
+        >
+            {props.children}
+        </Swipeable>
     );
 };
+
+const styles = StyleSheet.create({
+    rightAction: {
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-end",
+        backgroundColor: "#EC6569",
+    },
+    rightActionText: {
+        color: "white",
+        padding: 10,
+    },
+});

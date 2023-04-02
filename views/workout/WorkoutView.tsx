@@ -1,10 +1,18 @@
-import { useCallback, useReducer, useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import React, { useCallback, useReducer, useState } from "react";
+import {
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { dummyWorkout, exerciseDefs, Exercise, Set } from "../../model";
 import ExerciseModal from "./ExerciseModal";
 import Button from "../../components/Button";
-import Deletable from "../../components/Deletable";
 import Timer from "../../components/Timer";
+import Deletable from "../../components/Deletable";
 import { ActionType, workoutProducer } from "./state";
 
 export default function WorkoutView() {
@@ -51,34 +59,53 @@ export default function WorkoutView() {
 
     const renderExercise = (exercise: Exercise, exerciseIdx: number) => (
         <View key={exercise.id} style={styles.card}>
-            <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>
-                    {exerciseDefs[exercise.exerciseId].name}
-                </Text>
-                {exercise.notes && (
-                    <Text style={styles.cardSubtitle}>{exercise.notes}</Text>
-                )}
-                <View style={styles.table}>
-                    <View style={styles.thead}>
-                        <Text style={[styles.th, styles.narrow]}>Set</Text>
-                        <Text style={styles.th}>Weight</Text>
-                        <Text style={styles.th}>Reps</Text>
-                        <Text style={[styles.th, styles.narrow]}>✅</Text>
-                    </View>
-                    {exercise.sets.map((set: Set, setIdx: number) =>
-                        renderSet(set, setIdx, exerciseIdx)
+            <View style={styles.cardHeader}>
+                <View>
+                    <Text style={styles.cardTitle}>
+                        {exerciseDefs[exercise.exerciseId].name}
+                    </Text>
+                    {exercise.notes && (
+                        <Text style={styles.cardSubtitle}>
+                            {exercise.notes}
+                        </Text>
                     )}
                 </View>
-                <Button
-                    label="+"
-                    colour="info"
-                    style={styles.addSetBtn}
-                    onPress={() =>
-                        onAddSet({
-                            exerciseIdx: exerciseIdx,
-                        })
-                    }
-                />
+                <View style={styles.cardHeaderRight}>
+                    <TouchableOpacity
+                        onPress={() =>
+                            onAddSet({
+                                exerciseIdx: exerciseIdx,
+                            })
+                        }
+                    >
+                        <Ionicons
+                            name="ios-add-circle"
+                            color="white"
+                            size={24}
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.cardHeaderBtn}
+                        onPress={() => console.warn("delete")}
+                    >
+                        <Ionicons
+                            name="ios-trash-outline"
+                            color="white"
+                            size={24}
+                        />
+                    </TouchableOpacity>
+                </View>
+            </View>
+            <View style={styles.table}>
+                <View style={styles.thead}>
+                    <Text style={[styles.th, styles.narrow]}>Set</Text>
+                    <Text style={styles.th}>Weight</Text>
+                    <Text style={styles.th}>Reps</Text>
+                    <Text style={[styles.th, styles.narrow]} />
+                </View>
+                {exercise.sets.map((set: Set, setIdx: number) =>
+                    renderSet(set, setIdx, exerciseIdx)
+                )}
             </View>
         </View>
     );
@@ -127,8 +154,7 @@ export default function WorkoutView() {
                     }
                     inputMode="numeric"
                 />
-                <Button
-                    label={set.finished ? "✅" : "⬜️️"}
+                <TouchableOpacity
                     style={styles.tdBtn}
                     onPress={() =>
                         onFinishSet({
@@ -136,7 +162,15 @@ export default function WorkoutView() {
                             setIdx: setIdx,
                         })
                     }
-                />
+                >
+                    <Ionicons
+                        name={
+                            set.finished ? "ios-checkbox" : "ios-square-outline"
+                        }
+                        color="white"
+                        size={24}
+                    />
+                </TouchableOpacity>
             </View>
         </Deletable>
     );
@@ -206,11 +240,17 @@ const styles = StyleSheet.create({
     },
     card: {
         flex: 1,
-        flexDirection: "row",
         padding: 10,
     },
-    cardContent: {
-        flex: 1,
+    cardHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
+    cardHeaderRight: {
+        flexDirection: "row",
+    },
+    cardHeaderBtn: {
+        marginLeft: 5,
     },
     cardTitle: {
         fontSize: 16,

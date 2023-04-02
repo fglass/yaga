@@ -30,11 +30,7 @@ export default (props: Props) => {
                         style={styles.closeButton}
                         onPress={props.onClose}
                     >
-                        <Ionicons
-                            name="ios-close-circle-outline"
-                            color="white"
-                            size={24}
-                        />
+                        <Ionicons name="ios-close" color="white" size={24} />
                     </TouchableOpacity>
                     <FlatList
                         data={Object.entries(exerciseDefs)}
