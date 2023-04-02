@@ -8,6 +8,7 @@ export enum ActionType {
     RemoveSet = "remove-set",
     AddSet = "add-set",
     AddExercise = "add-exercise",
+    RemoveExercise = "remove-exercise",
 }
 
 export const workoutProducer = produce((draft, action) => {
@@ -46,6 +47,10 @@ export const workoutProducer = produce((draft, action) => {
         }
         case ActionType.AddExercise: {
             draft.exercises.push(createNewExercise(action.exerciseId));
+            break;
+        }
+        case ActionType.RemoveExercise: {
+            draft.exercises.splice(action.exerciseIdx, 1); // TODO: confirmation
             break;
         }
         default:

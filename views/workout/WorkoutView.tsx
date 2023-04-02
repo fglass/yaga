@@ -49,6 +49,11 @@ export default function WorkoutView() {
         []
     );
 
+    const onRemoveExercise = useCallback(
+        (args) => dispatch({ type: ActionType.RemoveExercise, ...args }),
+        []
+    );
+
     const renderHeader = () => (
         <View style={styles.header}>
             <Text style={styles.title}>{workout.name}</Text>
@@ -74,7 +79,7 @@ export default function WorkoutView() {
                     <TouchableOpacity
                         onPress={() =>
                             onAddSet({
-                                exerciseIdx: exerciseIdx,
+                                exerciseIdx,
                             })
                         }
                     >
@@ -86,7 +91,7 @@ export default function WorkoutView() {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.cardHeaderBtn}
-                        onPress={() => console.warn("delete")}
+                        onPress={() => onRemoveExercise({ exerciseIdx })}
                     >
                         <Ionicons
                             name="ios-trash-outline"
@@ -115,8 +120,8 @@ export default function WorkoutView() {
             key={set.id}
             onDelete={() =>
                 onRemoveSet({
-                    exerciseIdx: exerciseIdx,
-                    setIdx: setIdx,
+                    exerciseIdx,
+                    setIdx,
                 })
             }
         >
@@ -135,8 +140,8 @@ export default function WorkoutView() {
                     value={set.weight}
                     onChangeText={(text: string) =>
                         onChangeWeight({
-                            exerciseIdx: exerciseIdx,
-                            setIdx: setIdx,
+                            exerciseIdx,
+                            setIdx,
                             weight: text,
                         })
                     }
@@ -147,8 +152,8 @@ export default function WorkoutView() {
                     value={set.reps}
                     onChangeText={(text: string) =>
                         onChangeRep({
-                            exerciseIdx: exerciseIdx,
-                            setIdx: setIdx,
+                            exerciseIdx,
+                            setIdx,
                             reps: text,
                         })
                     }
@@ -158,8 +163,8 @@ export default function WorkoutView() {
                     style={styles.tdBtn}
                     onPress={() =>
                         onFinishSet({
-                            exerciseIdx: exerciseIdx,
-                            setIdx: setIdx,
+                            exerciseIdx,
+                            setIdx,
                         })
                     }
                 >
