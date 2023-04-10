@@ -11,7 +11,7 @@ type Colour = "info" | "success" | "error" | "warning";
 
 interface Props {
     label: string;
-    onPress: (event: GestureResponderEvent) => void;
+    onPress?: (event: GestureResponderEvent) => void;
     colour?: Colour;
     style?: StyleProp<ViewStyle>;
 }

@@ -1,5 +1,6 @@
 import React, { useCallback, useReducer, useState } from "react";
 import {
+    Alert,
     ScrollView,
     StyleSheet,
     Text,
@@ -21,39 +22,65 @@ export default function WorkoutView() {
     const [workout, dispatch] = useReducer(workoutProducer, dummyWorkout);
 
     const onChangeWeight = useCallback(
-        (args) => dispatch({ type: ActionType.ChangeWeight, ...args }),
+        (args: { exerciseIdx: number; setIdx: number; weight: string }) =>
+            dispatch({ type: ActionType.ChangeWeight, ...args }),
         []
     );
 
     const onChangeRep = useCallback(
-        (args) => dispatch({ type: ActionType.ChangeReps, ...args }),
+        (args: { exerciseIdx: number; setIdx: number; reps: string }) =>
+            dispatch({ type: ActionType.ChangeReps, ...args }),
         []
     );
 
     const onFinishSet = useCallback(
-        (args) => dispatch({ type: ActionType.FinishSet, ...args }),
+        (args: { exerciseIdx: number; setIdx: number }) => {
+            dispatch({ type: ActionType.FinishSet, ...args });
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        },
         []
     );
 
     const onRemoveSet = useCallback(
-        (args) => dispatch({ type: ActionType.RemoveSet, ...args }),
+        (args: { exerciseIdx: number; setIdx: number }) => {
+            dispatch({ type: ActionType.RemoveSet, ...args });
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        },
         []
     );
 
-    const onAddSet = useCallback(
-        (args) => dispatch({ type: ActionType.AddSet, ...args }),
-        []
-    );
+    const onAddSet = useCallback((args: { exerciseIdx: number }) => {
+        dispatch({ type: ActionType.AddSet, ...args });
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }, []);
 
-    const onAddExercise = useCallback(
-        (args) => dispatch({ type: ActionType.AddExercise, ...args }),
-        []
-    );
+    const onAddExercise = useCallback((args: { exerciseId: string }) => {
+        dispatch({ type: ActionType.AddExercise, ...args });
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }, []);
 
-    const onRemoveExercise = useCallback(
-        (args) => dispatch({ type: ActionType.RemoveExercise, ...args }),
-        []
-    );
+    const onRemoveExercise = useCallback((args: { exerciseIdx: number }) => {
+        Alert.alert(
+            "️️Warning",
+            "This action cannot be undone",
+            [
+                {
+                    text: "Confirm",
+                    onPress: () => {
+                        dispatch({ type: ActionType.RemoveExercise, ...args });
+                        Haptics.notificationAsync(
+                            Haptics.NotificationFeedbackType.Success
+                        );
+                    },
+                },
+                {
+                    text: "Cancel",
+                    style: "cancel",
+                },
+            ],
+            { cancelable: false }
+        );
+    }, []);
 
     const renderHeader = () => (
         <View style={styles.header}>
@@ -87,12 +114,18 @@ export default function WorkoutView() {
                             size={24}
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.cardHeaderBtn}
-                        onPress={() => onRemoveExercise({ exerciseIdx })}
-                    >
-                        <Ionicons name="ios-trash" color="white" size={24} />
-                    </TouchableOpacity>
+                    {workout.exercises.length > 1 && (
+                        <TouchableOpacity
+                            style={styles.cardHeaderBtn}
+                            onPress={() => onRemoveExercise({ exerciseIdx })}
+                        >
+                            <Ionicons
+                                name="ios-trash"
+                                color="white"
+                                size={24}
+                            />
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
             <View>
@@ -162,16 +195,13 @@ export default function WorkoutView() {
                             exerciseIdx,
                             setIdx,
                         });
-                        Haptics.notificationAsync(
-                            Haptics.NotificationFeedbackType.Success
-                        );
                     }}
                 >
                     <Ionicons
                         name={
                             set.finished ? "ios-checkbox" : "ios-square-outline"
                         }
-                        color="white"
+                        color={set.finished ? "#65CA79" : "white"}
                         size={24}
                     />
                 </TouchableOpacity>

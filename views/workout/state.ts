@@ -1,5 +1,6 @@
 import produce from "immer";
 import { Exercise, Set } from "../../model";
+import { Alert } from "react-native";
 
 export enum ActionType {
     ChangeWeight = "change-weight",
@@ -50,7 +51,7 @@ export const workoutProducer = produce((draft, action) => {
             break;
         }
         case ActionType.RemoveExercise: {
-            draft.exercises.splice(action.exerciseIdx, 1); // TODO: confirmation
+            draft.exercises.splice(action.exerciseIdx, 1);
             break;
         }
         default:
