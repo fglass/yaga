@@ -21,6 +21,11 @@ export default function WorkoutView() {
     const [exerciseModalVisible, setExerciseModalVisible] = useState(false);
     const [workout, dispatch] = useReducer(workoutProducer, dummyWorkout);
 
+    const onChangeNotes = useCallback(
+        (notes: string) => dispatch({ type: ActionType.ChangeNotes, notes }),
+        []
+    );
+
     const onChangeWeight = useCallback(
         (args: { exerciseIdx: number; setIdx: number; weight: string }) =>
             dispatch({ type: ActionType.ChangeWeight, ...args }),
@@ -86,7 +91,11 @@ export default function WorkoutView() {
         <View style={styles.header}>
             <Text style={styles.title}>{workout.name}</Text>
             <Timer style={styles.subtitle} />
-            <Text style={styles.subtitle}>{workout.notes}</Text>
+            <TextInput
+                style={styles.subtitle}
+                value={workout.notes}
+                onChangeText={onChangeNotes}
+            />
         </View>
     );
 

@@ -5,6 +5,7 @@ Yet Another Gym App
 ### Workout View
 - [ ] Custom exercise
 - [ ] Rest timer
+- [ ] Notes
 - [ ] Persistence
 
 ### Plan View

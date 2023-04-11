@@ -1,8 +1,8 @@
 import produce from "immer";
 import { Exercise, Set } from "../../model";
-import { Alert } from "react-native";
 
 export enum ActionType {
+    ChangeNotes = "change-notes",
     ChangeWeight = "change-weight",
     ChangeReps = "change-reps",
     FinishSet = "finish-set",
@@ -14,6 +14,9 @@ export enum ActionType {
 
 export const workoutProducer = produce((draft, action) => {
     switch (action.type) {
+        case ActionType.ChangeNotes:
+            draft.notes = action.notes;
+            break;
         case ActionType.ChangeWeight:
             draft.exercises[action.exerciseIdx].sets[action.setIdx].weight =
                 action.weight;
