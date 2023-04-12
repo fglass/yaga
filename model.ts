@@ -12,7 +12,7 @@ export interface Workout {
 export interface Exercise {
     id: string;
     exerciseId: string; // Foreign key to ExerciseDef
-    notes: string;
+    notes: string[];
     sets: Set[];
 }
 
@@ -42,7 +42,7 @@ const dummyExercises: Exercise[] = [
     {
         id: "6bb456eb-e10a-4328-8d89-eabc78eacba1",
         exerciseId: "0",
-        notes: "5x5",
+        notes: ["5x5"],
         sets: [
             { id: "0", weight: "140", reps: "5", finished: false },
             { id: "1", weight: "140", reps: "5", finished: false },
@@ -52,7 +52,7 @@ const dummyExercises: Exercise[] = [
     {
         id: "2f40e9c3-c7a3-49b7-a053-d41489c487fc",
         exerciseId: "1",
-        notes: "1 - 0 - 3",
+        notes: ["1 - 0 - 3"],
         sets: [
             { id: "0", weight: "66", reps: "12", finished: false },
             { id: "1", weight: "66", reps: "10", finished: false },
@@ -62,7 +62,7 @@ const dummyExercises: Exercise[] = [
     {
         id: "ba3aed70-494b-4a47-91c6-d96438711784",
         exerciseId: "2",
-        notes: "",
+        notes: [],
         sets: [
             { id: "0", weight: "138", reps: "20", finished: false },
             { id: "1", weight: "138", reps: "15", finished: false },
@@ -74,5 +74,5 @@ const dummyExercises: Exercise[] = [
 export const dummyWorkout: Workout = {
     name: "Legs #1",
     exercises: dummyExercises,
-    notes: "Notes",
+    notes: "",
 };

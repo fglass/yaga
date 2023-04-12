@@ -21,8 +21,15 @@ export default function WorkoutView() {
     const [exerciseModalVisible, setExerciseModalVisible] = useState(false);
     const [workout, dispatch] = useReducer(workoutProducer, dummyWorkout);
 
-    const onChangeNotes = useCallback(
-        (notes: string) => dispatch({ type: ActionType.ChangeNotes, notes }),
+    const onChangeWorkoutNotes = useCallback(
+        (notes: string) =>
+            dispatch({ type: ActionType.ChangeWorkoutNotes, notes }),
+        []
+    );
+
+    const onChangeExerciseNotes = useCallback(
+        (args: { exerciseIdx: number; noteIdx: number; notes: string }) =>
+            dispatch({ type: ActionType.ChangeExerciseNotes, ...args }),
         []
     );
 
@@ -56,6 +63,11 @@ export default function WorkoutView() {
 
     const onAddSet = useCallback((args: { exerciseIdx: number }) => {
         dispatch({ type: ActionType.AddSet, ...args });
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }, []);
+
+    const onAddExerciseNote = useCallback((args: { exerciseIdx: number }) => {
+        dispatch({ type: ActionType.AddExerciseNote, ...args });
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }, []);
 
@@ -94,7 +106,8 @@ export default function WorkoutView() {
             <TextInput
                 style={styles.subtitle}
                 value={workout.notes}
-                onChangeText={onChangeNotes}
+                placeholder="Notes"
+                onChangeText={onChangeWorkoutNotes}
             />
         </View>
     );
@@ -106,11 +119,21 @@ export default function WorkoutView() {
                     <Text style={styles.cardTitle}>
                         {exerciseDefs[exercise.exerciseId].name}
                     </Text>
-                    {exercise.notes && (
-                        <Text style={styles.cardSubtitle}>
-                            {exercise.notes}
-                        </Text>
-                    )}
+                    {exercise.notes.map((note: string, noteIdx: number) => (
+                        <TextInput
+                            key={noteIdx}
+                            style={styles.cardSubtitle}
+                            value={note}
+                            placeholder="Note"
+                            onChangeText={(text: string) =>
+                                onChangeExerciseNotes({
+                                    exerciseIdx,
+                                    noteIdx,
+                                    notes: text,
+                                })
+                            }
+                        />
+                    ))}
                 </View>
                 <View style={styles.cardHeaderRight}>
                     <TouchableOpacity
@@ -122,6 +145,12 @@ export default function WorkoutView() {
                             color="white"
                             size={24}
                         />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.cardHeaderBtn}
+                        onPress={() => onAddExerciseNote({ exerciseIdx })}
+                    >
+                        <Ionicons name="ios-attach" color="white" size={24} />
                     </TouchableOpacity>
                     {workout.exercises.length > 1 && (
                         <TouchableOpacity

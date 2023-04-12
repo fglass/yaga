@@ -2,20 +2,26 @@ import produce from "immer";
 import { Exercise, Set } from "../../model";
 
 export enum ActionType {
-    ChangeNotes = "change-notes",
+    ChangeWorkoutNotes = "change-workout-notes",
+    ChangeExerciseNotes = "change-exercise-notes",
     ChangeWeight = "change-weight",
     ChangeReps = "change-reps",
     FinishSet = "finish-set",
     RemoveSet = "remove-set",
     AddSet = "add-set",
+    AddExerciseNote = "add-exercise-note",
     AddExercise = "add-exercise",
     RemoveExercise = "remove-exercise",
 }
 
 export const workoutProducer = produce((draft, action) => {
     switch (action.type) {
-        case ActionType.ChangeNotes:
+        case ActionType.ChangeWorkoutNotes:
             draft.notes = action.notes;
+            break;
+        case ActionType.ChangeExerciseNotes:
+            draft.exercises[action.exerciseIdx].notes[action.noteIdx] =
+                action.notes;
             break;
         case ActionType.ChangeWeight:
             draft.exercises[action.exerciseIdx].sets[action.setIdx].weight =
@@ -49,6 +55,9 @@ export const workoutProducer = produce((draft, action) => {
             draft.exercises[action.exerciseIdx].sets.push(newSet);
             break;
         }
+        case ActionType.AddExerciseNote:
+            draft.exercises[action.exerciseIdx].notes.push("");
+            break;
         case ActionType.AddExercise: {
             draft.exercises.push(createNewExercise(action.exerciseId));
             break;
@@ -66,7 +75,7 @@ function createNewExercise(exerciseId: string): Exercise {
     return {
         id: generateGuid(),
         exerciseId: exerciseId,
-        notes: "",
+        notes: [],
         sets: [createNewSet()],
     };
 }
