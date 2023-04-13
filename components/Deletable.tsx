@@ -40,6 +40,6 @@ const styles = StyleSheet.create({
     },
     rightActionText: {
         color: "white",
-        padding: 10,
+        paddingRight: 10,
     },
 });

@@ -3,11 +3,12 @@ import { Exercise, Set } from "../../model";
 
 export enum ActionType {
     ChangeWorkoutNotes = "change-workout-notes",
-    ChangeExerciseNotes = "change-exercise-notes",
+    ChangeExerciseNote = "change-exercise-note",
     ChangeWeight = "change-weight",
     ChangeReps = "change-reps",
     FinishSet = "finish-set",
     RemoveSet = "remove-set",
+    RemoveExerciseNote = "remove-exercise-note",
     AddSet = "add-set",
     AddExerciseNote = "add-exercise-note",
     AddExercise = "add-exercise",
@@ -19,7 +20,7 @@ export const workoutProducer = produce((draft, action) => {
         case ActionType.ChangeWorkoutNotes:
             draft.notes = action.notes;
             break;
-        case ActionType.ChangeExerciseNotes:
+        case ActionType.ChangeExerciseNote:
             draft.exercises[action.exerciseIdx].notes[action.noteIdx] =
                 action.notes;
             break;
@@ -38,6 +39,9 @@ export const workoutProducer = produce((draft, action) => {
             break;
         case ActionType.RemoveSet:
             draft.exercises[action.exerciseIdx].sets.splice(action.setIdx, 1);
+            break;
+        case ActionType.RemoveExerciseNote:
+            draft.exercises[action.exerciseIdx].notes.splice(action.noteIdx, 1);
             break;
         case ActionType.AddSet: {
             const newSet = createNewSet();

@@ -29,7 +29,7 @@ export default function WorkoutView() {
 
     const onChangeExerciseNotes = useCallback(
         (args: { exerciseIdx: number; noteIdx: number; notes: string }) =>
-            dispatch({ type: ActionType.ChangeExerciseNotes, ...args }),
+            dispatch({ type: ActionType.ChangeExerciseNote, ...args }),
         []
     );
 
@@ -56,6 +56,14 @@ export default function WorkoutView() {
     const onRemoveSet = useCallback(
         (args: { exerciseIdx: number; setIdx: number }) => {
             dispatch({ type: ActionType.RemoveSet, ...args });
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        },
+        []
+    );
+
+    const onRemoveExerciseNote = useCallback(
+        (args: { exerciseIdx: number; noteIdx: number }) => {
+            dispatch({ type: ActionType.RemoveExerciseNote, ...args });
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         },
         []
@@ -119,21 +127,6 @@ export default function WorkoutView() {
                     <Text style={styles.cardTitle}>
                         {exerciseDefs[exercise.exerciseId].name}
                     </Text>
-                    {exercise.notes.map((note: string, noteIdx: number) => (
-                        <TextInput
-                            key={noteIdx}
-                            style={styles.cardSubtitle}
-                            value={note}
-                            placeholder="Note"
-                            onChangeText={(text: string) =>
-                                onChangeExerciseNotes({
-                                    exerciseIdx,
-                                    noteIdx,
-                                    notes: text,
-                                })
-                            }
-                        />
-                    ))}
                 </View>
                 <View style={styles.cardHeaderRight}>
                     <TouchableOpacity
@@ -165,6 +158,29 @@ export default function WorkoutView() {
                         </TouchableOpacity>
                     )}
                 </View>
+            </View>
+            <View>
+                {exercise.notes.map((note: string, noteIdx: number) => (
+                    <Deletable
+                        key={noteIdx}
+                        onDelete={() =>
+                            onRemoveExerciseNote({ exerciseIdx, noteIdx })
+                        }
+                    >
+                        <TextInput
+                            style={styles.cardSubtitle}
+                            value={note}
+                            placeholder="Note"
+                            onChangeText={(text: string) =>
+                                onChangeExerciseNotes({
+                                    exerciseIdx,
+                                    noteIdx,
+                                    notes: text,
+                                })
+                            }
+                        />
+                    </Deletable>
+                ))}
             </View>
             <View>
                 <View style={styles.thead}>
