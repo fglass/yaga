@@ -161,25 +161,26 @@ export default function WorkoutView() {
             </View>
             <View>
                 {exercise.notes.map((note: string, noteIdx: number) => (
-                    <Deletable
-                        key={noteIdx}
-                        onDelete={() =>
-                            onRemoveExerciseNote({ exerciseIdx, noteIdx })
-                        }
-                    >
-                        <TextInput
-                            style={styles.cardSubtitle}
-                            value={note}
-                            placeholder="Note"
-                            onChangeText={(text: string) =>
-                                onChangeExerciseNotes({
-                                    exerciseIdx,
-                                    noteIdx,
-                                    notes: text,
-                                })
+                    <View key={noteIdx} style={styles.noteContainer}>
+                        <Deletable
+                            onDelete={() =>
+                                onRemoveExerciseNote({ exerciseIdx, noteIdx })
                             }
-                        />
-                    </Deletable>
+                        >
+                            <TextInput
+                                style={styles.note}
+                                placeholder="Note"
+                                value={note}
+                                onChangeText={(text: string) =>
+                                    onChangeExerciseNotes({
+                                        exerciseIdx,
+                                        noteIdx,
+                                        notes: text,
+                                    })
+                                }
+                            />
+                        </Deletable>
+                    </View>
                 ))}
             </View>
             <View>
@@ -346,9 +347,14 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         color: "#58A5F9",
     },
-    cardSubtitle: {
-        fontSize: 14,
-        marginBottom: 5,
+    noteContainer: {
+        marginTop: 5,
+        borderRadius: 5,
+        overflow: "hidden",
+    },
+    note: {
+        paddingVertical: 3,
+        backgroundColor: "#2A3135",
         color: "white",
     },
     thead: {
@@ -366,6 +372,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     tr: {
+        backgroundColor: "#2A3135",
         flexDirection: "row",
         paddingVertical: 10,
     },
