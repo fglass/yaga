@@ -42,7 +42,7 @@ const dummyExercises: Exercise[] = [
     {
         id: "6bb456eb-e10a-4328-8d89-eabc78eacba1",
         exerciseId: "0",
-        notes: [],
+        notes: ["1 - 0 - 3"],
         sets: [
             { id: "0", weight: "140", reps: "5", finished: false },
             { id: "1", weight: "140", reps: "5", finished: false },

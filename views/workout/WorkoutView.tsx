@@ -214,13 +214,13 @@ export default function WorkoutView() {
                     style={[
                         styles.td,
                         styles.narrow,
-                        set.finished && styles.finished,
+                        set.finished && styles.tdFinished,
                     ]}
                 >
                     {setIdx + 1}
                 </TextInput>
                 <TextInput
-                    style={[styles.td, set.finished && styles.finished]}
+                    style={[styles.td, set.finished && styles.tdFinished]}
                     value={set.weight}
                     onChangeText={(text: string) =>
                         onChangeWeight({
@@ -232,7 +232,7 @@ export default function WorkoutView() {
                     inputMode="numeric"
                 />
                 <TextInput
-                    style={[styles.td, set.finished && styles.finished]}
+                    style={[styles.td, set.finished && styles.tdFinished]}
                     value={set.reps}
                     onChangeText={(text: string) =>
                         onChangeRep({
@@ -349,13 +349,15 @@ const styles = StyleSheet.create({
     },
     noteContainer: {
         marginTop: 5,
+        padding: 0,
         borderRadius: 5,
         overflow: "hidden",
     },
     note: {
-        paddingVertical: 3,
-        backgroundColor: "#2A3135",
-        color: "white",
+        paddingLeft: 5,
+        paddingVertical: 5,
+        backgroundColor: "#5C5736",
+        color: "#CEAF46",
     },
     thead: {
         flexDirection: "row",
@@ -396,6 +398,9 @@ const styles = StyleSheet.create({
         maxWidth: 30,
     },
     finished: {
-        backgroundColor: "rgba(101,202,121,0.3)",
+        backgroundColor: "#445E4C",
+    },
+    tdFinished: {
+        backgroundColor: "#597E5D",
     },
 });
