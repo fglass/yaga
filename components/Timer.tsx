@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { StyleProp, Text, ViewStyle } from "react-native";
+import { formatTime } from "../util";
 
 interface Props {
     style?: StyleProp<ViewStyle>;
@@ -16,11 +17,5 @@ export default (props: Props) => {
         return () => clearInterval(intervalId);
     }, [time]);
 
-    const seconds = time % 60;
-    const minutes = Math.floor(time / 60);
-    const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds
-        .toString()
-        .padStart(2, "0")}`;
-
-    return <Text style={props.style}>{formattedTime}</Text>;
+    return <Text style={props.style}>{formatTime(time)}</Text>;
 };

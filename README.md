@@ -1,12 +1,16 @@
 # YAGA
+
 Yet Another Gym App
 
 ## TODO
+
 ### Workout View
-- [ ] Custom exercise
-- [ ] Rest timer
-- [ ] Notes
-- [ ] Persistence
+
+-   [ ] Custom exercise
+-   [x] Rest timer
+-   [x] Notes
+-   [ ] Persistence
 
 ### Plan View
-- [ ] Workout creation
+
+-   [ ] Workout creation

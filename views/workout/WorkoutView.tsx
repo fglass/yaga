@@ -12,14 +12,22 @@ import * as Haptics from "expo-haptics";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import ExerciseModal from "./ExerciseModal";
 import Button from "../../components/Button";
+import CountdownTimer from "../../components/CountdownTimer";
 import Timer from "../../components/Timer";
 import Deletable from "../../components/Deletable";
 import { dummyWorkout, exerciseDefs, Exercise, Set } from "../../model";
 import { ActionType, workoutProducer } from "./state";
 
+const DEFAULT_REST_DURATION_S = 90;
+
 export default function WorkoutView() {
     const [exerciseModalVisible, setExerciseModalVisible] = useState(false);
     const [workout, dispatch] = useReducer(workoutProducer, dummyWorkout);
+    const [restTimerResetKey, setRestTimerResetKey] = useState(0);
+
+    const resetRestTimer = () => {
+        setRestTimerResetKey((prevKey: number) => prevKey + 1);
+    };
 
     const onChangeWorkoutNotes = useCallback(
         (notes: string) =>
@@ -46,9 +54,16 @@ export default function WorkoutView() {
     );
 
     const onFinishSet = useCallback(
-        (args: { exerciseIdx: number; setIdx: number }) => {
+        (args: {
+            exerciseIdx: number;
+            setIdx: number;
+            isFinished: boolean;
+        }) => {
             dispatch({ type: ActionType.FinishSet, ...args });
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            if (args.isFinished) {
+                resetRestTimer();
+            }
         },
         []
     );
@@ -109,13 +124,21 @@ export default function WorkoutView() {
 
     const renderHeader = () => (
         <View style={styles.header}>
-            <Text style={styles.title}>{workout.name}</Text>
-            <Timer style={styles.subtitle} />
-            <TextInput
+            <View>
+                <Text style={styles.title}>{workout.name}</Text>
+                <Timer style={styles.subtitle} />
+                <TextInput
+                    style={styles.subtitle}
+                    value={workout.notes}
+                    placeholder="Notes"
+                    onChangeText={onChangeWorkoutNotes}
+                />
+            </View>
+            <CountdownTimer
                 style={styles.subtitle}
-                value={workout.notes}
-                placeholder="Notes"
-                onChangeText={onChangeWorkoutNotes}
+                durationS={DEFAULT_REST_DURATION_S}
+                resetKey={restTimerResetKey}
+                onFinish={() => alert("Rest finished!")}
             />
         </View>
     );
@@ -249,6 +272,7 @@ export default function WorkoutView() {
                         onFinishSet({
                             exerciseIdx,
                             setIdx,
+                            isFinished: !set.finished,
                         });
                     }}
                 >
@@ -308,6 +332,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
+        flexDirection: "row",
+        justifyContent: "space-between",
         marginTop: 50,
         padding: 10,
         borderBottomColor: "#58A5F9",
