@@ -7,7 +7,7 @@ import {
     FlatList,
     Modal,
 } from "react-native";
-import { exerciseDefs } from "../../model";
+import { getExerciseDefs } from "../../database";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 interface Props {
@@ -33,7 +33,7 @@ export default (props: Props) => {
                         <Ionicons name="ios-close" color="white" size={24} />
                     </TouchableOpacity>
                     <FlatList
-                        data={Object.entries(exerciseDefs)}
+                        data={Object.entries(getExerciseDefs())}
                         keyExtractor={(item) => item[0]}
                         renderItem={({ item }) => (
                             <TouchableOpacity

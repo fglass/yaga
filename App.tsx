@@ -1,14 +1,25 @@
-import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { StatusBar } from "expo-status-bar";
+import { initDatabase } from "./database";
 import WorkoutView from "./views/workout/WorkoutView";
 
+const queryClient = new QueryClient();
+
 export default function App() {
+    useEffect(() => {
+        initDatabase();
+    }, []);
+
     return (
-        <GestureHandlerRootView style={styles.container}>
-            <WorkoutView />
-            <StatusBar style="auto" />
-        </GestureHandlerRootView>
+        <QueryClientProvider client={queryClient}>
+            <GestureHandlerRootView style={styles.container}>
+                <WorkoutView />
+                <StatusBar style="auto" />
+            </GestureHandlerRootView>
+        </QueryClientProvider>
     );
 }
 

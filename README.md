@@ -9,7 +9,8 @@ Yet Another Gym App
 -   [ ] Custom exercise
 -   [x] Rest timer
 -   [x] Notes
--   [ ] Persistence
+-   [x] Persistence
+-   [ ] Database export
 
 ### Plan View
 

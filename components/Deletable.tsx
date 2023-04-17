@@ -1,5 +1,5 @@
 import React from "react";
-import { Animated, StyleSheet, Text } from "react-native";
+import { StyleSheet, Text } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 
@@ -9,10 +9,7 @@ interface Props {
 }
 
 export default (props: Props) => {
-    const renderRightActions = (
-        progress: Animated.AnimatedInterpolation<number>,
-        dragX: Animated.AnimatedInterpolation<number>
-    ) => {
+    const renderRightActions = () => {
         return (
             <RectButton style={styles.rightAction}>
                 <Text style={styles.rightActionText}>Delete</Text>

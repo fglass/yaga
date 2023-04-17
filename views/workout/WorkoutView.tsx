@@ -15,14 +15,16 @@ import Button from "../../components/Button";
 import CountdownTimer from "../../components/CountdownTimer";
 import Timer from "../../components/Timer";
 import Deletable from "../../components/Deletable";
-import { dummyWorkout, exerciseDefs, Exercise, Set } from "../../model";
 import { ActionType, workoutProducer } from "./state";
+import { getExerciseDefs } from "../../database";
+import { dummyWorkout, Exercise, Set } from "../../model";
 
 const DEFAULT_REST_DURATION_S = 90;
 
 export default function WorkoutView() {
-    const [exerciseModalVisible, setExerciseModalVisible] = useState(false);
+    const exerciseDefs = getExerciseDefs();
     const [workout, dispatch] = useReducer(workoutProducer, dummyWorkout);
+    const [exerciseModalVisible, setExerciseModalVisible] = useState(false);
     const [restTimerResetKey, setRestTimerResetKey] = useState(0);
 
     const resetRestTimer = () => {
@@ -148,7 +150,7 @@ export default function WorkoutView() {
             <View style={styles.cardHeader}>
                 <View>
                     <Text style={styles.cardTitle}>
-                        {exerciseDefs[exercise.exerciseId].name}
+                        {exerciseDefs[exercise.exerciseId]?.name}
                     </Text>
                 </View>
                 <View style={styles.cardHeaderRight}>
