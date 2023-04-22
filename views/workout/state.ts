@@ -1,5 +1,6 @@
 import produce from "immer";
 import { Exercise, Set } from "../../model";
+import { generateGuid } from "../../util";
 
 export enum ActionType {
     ChangeWorkoutNotes = "change-workout-notes",
@@ -91,24 +92,4 @@ function createNewSet(): Set {
         reps: "1",
         finished: false,
     };
-}
-
-function generateGuid(): string {
-    const S4 = function () {
-        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-    };
-    return (
-        S4() +
-        S4() +
-        "-" +
-        S4() +
-        "-" +
-        S4() +
-        "-" +
-        S4() +
-        "-" +
-        S4() +
-        S4() +
-        S4()
-    );
 }

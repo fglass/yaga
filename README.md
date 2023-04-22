@@ -6,11 +6,13 @@ Yet Another Gym App
 
 ### Workout View
 
--   [ ] Custom exercise
+-   [x] Custom exercise
 -   [x] Rest timer
 -   [x] Notes
 -   [x] Persistence
+-   [ ] Finishing
 -   [ ] Database export
+-   [ ] SQLite?
 
 ### Plan View
 

@@ -8,24 +8,32 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useQueryClient } from "react-query";
 import * as Haptics from "expo-haptics";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import ExerciseModal from "./ExerciseModal";
+import ExerciseListModal from "./ExerciseListModal";
+import NewExerciseModal from "./NewExerciseModal";
 import Button from "../../components/Button";
 import CountdownTimer from "../../components/CountdownTimer";
 import Timer from "../../components/Timer";
 import Deletable from "../../components/Deletable";
 import { ActionType, workoutProducer } from "./state";
-import { getExerciseDefs } from "../../database";
+import { createExerciseDef, useExerciseDefs } from "../../database";
 import { dummyWorkout, Exercise, Set } from "../../model";
 
 const DEFAULT_REST_DURATION_S = 90;
 
 export default function WorkoutView() {
-    const exerciseDefs = getExerciseDefs();
+    const queryClient = useQueryClient();
+    const exerciseDefs = useExerciseDefs();
     const [workout, dispatch] = useReducer(workoutProducer, dummyWorkout);
-    const [exerciseModalVisible, setExerciseModalVisible] = useState(false);
     const [restTimerResetKey, setRestTimerResetKey] = useState(0);
+
+    const [exerciseListModalVisible, setExerciseListModalVisible] =
+        useState(false);
+
+    const [newExerciseModalVisible, setNewExerciseModalVisible] =
+        useState(false);
 
     const resetRestTimer = () => {
         setRestTimerResetKey((prevKey: number) => prevKey + 1);
@@ -295,7 +303,7 @@ export default function WorkoutView() {
             <Button
                 label="Add"
                 colour="info"
-                onPress={() => setExerciseModalVisible(true)}
+                onPress={() => setExerciseListModalVisible(true)}
             />
             <Button
                 label="Finish"
@@ -313,10 +321,29 @@ export default function WorkoutView() {
     return (
         <View style={styles.container}>
             {renderHeader()}
-            <ExerciseModal
-                isVisible={exerciseModalVisible}
-                onClose={() => setExerciseModalVisible(false)}
+            <NewExerciseModal
+                isVisible={newExerciseModalVisible}
+                onClose={() => {
+                    setExerciseListModalVisible(true);
+                    setNewExerciseModalVisible(false);
+                }}
+                onCreate={(name: string, category: string) => {
+                    setNewExerciseModalVisible(false);
+                    createExerciseDef(name, category).then((exerciseId) =>
+                        queryClient
+                            .invalidateQueries("exerciseDefs")
+                            .then(() => onAddExercise({ exerciseId }))
+                    );
+                }}
+            />
+            <ExerciseListModal
+                isVisible={exerciseListModalVisible}
+                onClose={() => setExerciseListModalVisible(false)}
                 onSelect={(exerciseId) => onAddExercise({ exerciseId })}
+                onNew={() => {
+                    setExerciseListModalVisible(false);
+                    setNewExerciseModalVisible(true);
+                }}
             />
             <ScrollView style={styles.content}>
                 {workout.exercises.map(renderExercise)}

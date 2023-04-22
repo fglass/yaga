@@ -1,19 +1,12 @@
 import React from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    FlatList,
-    Modal,
-} from "react-native";
-import { getExerciseDefs } from "../../database";
+import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 interface Props {
+    title: string;
     isVisible: boolean;
+    children: React.ReactNode;
     onClose: () => void;
-    onSelect: (exerciseId: string) => void;
 }
 
 export default (props: Props) => {
@@ -25,30 +18,14 @@ export default (props: Props) => {
         >
             <View style={styles.container}>
                 <View style={styles.modal}>
-                    <Text style={styles.title}>Add Exercise</Text>
+                    <Text style={styles.title}>{props.title}</Text>
                     <TouchableOpacity
                         style={styles.closeButton}
                         onPress={props.onClose}
                     >
                         <Ionicons name="ios-close" color="white" size={24} />
                     </TouchableOpacity>
-                    <FlatList
-                        data={Object.entries(getExerciseDefs())}
-                        keyExtractor={(item) => item[0]}
-                        renderItem={({ item }) => (
-                            <TouchableOpacity
-                                style={styles.exerciseItem}
-                                onPress={() => {
-                                    props.onClose();
-                                    props.onSelect(item[0]);
-                                }}
-                            >
-                                <Text style={styles.exerciseText}>
-                                    {item[1].name}
-                                </Text>
-                            </TouchableOpacity>
-                        )}
-                    />
+                    {props.children}
                 </View>
             </View>
         </Modal>
@@ -78,13 +55,5 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: 5,
         right: 5,
-    },
-    exerciseItem: {
-        padding: 10,
-        borderBottomColor: "white",
-        borderBottomWidth: 1,
-    },
-    exerciseText: {
-        color: "white",
     },
 });
