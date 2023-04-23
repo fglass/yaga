@@ -18,15 +18,19 @@ import CountdownTimer from "../../components/CountdownTimer";
 import Timer from "../../components/Timer";
 import Deletable from "../../components/Deletable";
 import { ActionType, workoutProducer } from "./state";
-import { createExerciseDef, useExerciseDefs } from "../../database";
-import { dummyWorkout, Exercise, Set } from "../../model";
+import { createExerciseDef, useExerciseDefs } from "../../model/database";
+import { Exercise, Set, Workout } from "../../model/types";
 
 const DEFAULT_REST_DURATION_S = 90;
 
-export default function WorkoutView() {
+interface Props {
+    workout: Workout;
+}
+
+export default (props: Props) => {
     const queryClient = useQueryClient();
     const exerciseDefs = useExerciseDefs();
-    const [workout, dispatch] = useReducer(workoutProducer, dummyWorkout);
+    const [workout, dispatch] = useReducer(workoutProducer, props.workout);
     const [restTimerResetKey, setRestTimerResetKey] = useState(0);
 
     const [exerciseListModalVisible, setExerciseListModalVisible] =
@@ -111,7 +115,7 @@ export default function WorkoutView() {
 
     const onRemoveExercise = useCallback((args: { exerciseIdx: number }) => {
         Alert.alert(
-            "️️Warning",
+            "Warning",
             "This action cannot be undone",
             [
                 {
@@ -151,6 +155,35 @@ export default function WorkoutView() {
                 onFinish={() => alert("Rest finished!")}
             />
         </View>
+    );
+
+    const renderModals = () => (
+        <>
+            <NewExerciseModal
+                isVisible={newExerciseModalVisible}
+                onClose={() => {
+                    setExerciseListModalVisible(true);
+                    setNewExerciseModalVisible(false);
+                }}
+                onCreate={(name: string, category: string) => {
+                    setNewExerciseModalVisible(false);
+                    createExerciseDef(name, category).then((exerciseId) =>
+                        queryClient
+                            .invalidateQueries("exerciseDefs")
+                            .then(() => onAddExercise({ exerciseId }))
+                    );
+                }}
+            />
+            <ExerciseListModal
+                isVisible={exerciseListModalVisible}
+                onClose={() => setExerciseListModalVisible(false)}
+                onSelect={(exerciseId) => onAddExercise({ exerciseId })}
+                onNew={() => {
+                    setExerciseListModalVisible(false);
+                    setNewExerciseModalVisible(true);
+                }}
+            />
+        </>
     );
 
     const renderExercise = (exercise: Exercise, exerciseIdx: number) => (
@@ -321,37 +354,14 @@ export default function WorkoutView() {
     return (
         <View style={styles.container}>
             {renderHeader()}
-            <NewExerciseModal
-                isVisible={newExerciseModalVisible}
-                onClose={() => {
-                    setExerciseListModalVisible(true);
-                    setNewExerciseModalVisible(false);
-                }}
-                onCreate={(name: string, category: string) => {
-                    setNewExerciseModalVisible(false);
-                    createExerciseDef(name, category).then((exerciseId) =>
-                        queryClient
-                            .invalidateQueries("exerciseDefs")
-                            .then(() => onAddExercise({ exerciseId }))
-                    );
-                }}
-            />
-            <ExerciseListModal
-                isVisible={exerciseListModalVisible}
-                onClose={() => setExerciseListModalVisible(false)}
-                onSelect={(exerciseId) => onAddExercise({ exerciseId })}
-                onNew={() => {
-                    setExerciseListModalVisible(false);
-                    setNewExerciseModalVisible(true);
-                }}
-            />
+            {renderModals()}
             <ScrollView style={styles.content}>
                 {workout.exercises.map(renderExercise)}
                 {renderFooter()}
             </ScrollView>
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {

@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
-import { useExerciseDefs } from "../../database";
+import { useExerciseDefs } from "../../model/database";
 import ModalDialog from "../../components/ModalDialog";
 
 interface Props {

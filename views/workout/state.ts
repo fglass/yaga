@@ -1,5 +1,5 @@
 import produce from "immer";
-import { Exercise, Set } from "../../model";
+import { Exercise, Set } from "../../model/types";
 import { generateGuid } from "../../util";
 
 export enum ActionType {
