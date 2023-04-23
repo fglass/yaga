@@ -373,7 +373,6 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginTop: 50,
         padding: 10,
         borderBottomColor: "#58A5F9",
         borderBottomWidth: 1,

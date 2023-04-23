@@ -10,6 +10,7 @@ enum Key {
 }
 
 export const initDatabase = async () => {
+    // AsyncStorage.clear();
     const version = await select(Key.Version);
     if (version == null) {
         await insert(Key.Version, 1);
@@ -134,6 +135,12 @@ const workouts: Workout[] = [
                 ],
             },
         ],
+        notes: "",
+    },
+    {
+        id: "8727d104-b53f-463d-8b84-3ce66ba3d9a4",
+        name: "Legs #2",
+        exercises: [],
         notes: "",
     },
 ];

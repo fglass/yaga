@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { initDatabase, useWorkouts } from "../model/database";
 import { Workout } from "../model/types";
 import WorkoutView from "./workout/WorkoutView";
+import PlanView from "./plan/PlanView";
 
 export default () => {
     const [activeWorkout, setActiveWorkout] = useState<Workout | undefined>();
@@ -14,15 +15,13 @@ export default () => {
         initDatabase();
     }, []);
 
-    useEffect(() => {
-        if (workouts.length > 0) {
-            setActiveWorkout(workouts[0]);
-        }
-    }, [workouts]);
-
     return (
         <GestureHandlerRootView style={styles.container}>
-            {activeWorkout && <WorkoutView workout={activeWorkout} />}
+            {activeWorkout ? (
+                <WorkoutView workout={activeWorkout} />
+            ) : (
+                <PlanView workouts={workouts} onSelect={setActiveWorkout} />
+            )}
             <StatusBar style="auto" />
         </GestureHandlerRootView>
     );
@@ -31,6 +30,7 @@ export default () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        paddingTop: 50,
         backgroundColor: "#2A3135",
     },
 });
