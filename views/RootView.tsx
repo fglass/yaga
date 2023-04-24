@@ -15,14 +15,14 @@ export default () => {
         initDatabase();
     }, []);
 
-    const onFinish = () => {
+    const onEnd = () => {
         setActiveWorkout(null);
     };
 
     return (
         <GestureHandlerRootView style={styles.container}>
             {activeWorkout ? (
-                <WorkoutView workout={activeWorkout} onFinish={onFinish} />
+                <WorkoutView workout={activeWorkout} onEnd={onEnd} />
             ) : (
                 <PlanView workouts={workouts} onSelect={setActiveWorkout} />
             )}

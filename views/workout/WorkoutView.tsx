@@ -18,14 +18,18 @@ import CountdownTimer from "../../components/CountdownTimer";
 import Timer from "../../components/Timer";
 import Deletable from "../../components/Deletable";
 import { ActionType, workoutProducer } from "./state";
-import { createExerciseDef, useExerciseDefs } from "../../model/database";
+import {
+    completeWorkout,
+    createExerciseDef,
+    useExerciseDefs,
+} from "../../model/database";
 import { Exercise, Note, Set, Workout } from "../../model/types";
 
 const DEFAULT_REST_DURATION_S = 90;
 
 interface Props {
     workout: Workout;
-    onFinish: () => void;
+    onEnd: () => void;
 }
 
 export default (props: Props) => {
@@ -75,10 +79,10 @@ export default (props: Props) => {
             isFinished: boolean;
         }) => {
             dispatch({ type: ActionType.FinishSet, ...args });
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             if (args.isFinished) {
                 resetRestTimer();
             }
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         },
         []
     );
@@ -339,8 +343,19 @@ export default (props: Props) => {
                 colour="info"
                 onPress={() => setExerciseListModalVisible(true)}
             />
-            <Button label="Finish" colour="success" onPress={props.onFinish} />
-            <Button label="Cancel" colour="error" onPress={props.onFinish} />
+            <Button
+                label="Finish"
+                colour="success"
+                onPress={() =>
+                    completeWorkout(workout).then(() => {
+                        props.onEnd();
+                        Haptics.notificationAsync(
+                            Haptics.NotificationFeedbackType.Success
+                        );
+                    })
+                }
+            />
+            <Button label="Cancel" colour="error" onPress={props.onEnd} />
         </View>
     );
 

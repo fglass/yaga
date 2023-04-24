@@ -9,6 +9,7 @@ enum Key {
     ExerciseDefs = "exerciseDefs",
     Version = "version",
     Workouts = "workouts",
+    CompletedWorkouts = "completedWorkouts",
 }
 
 export const initDatabase = async () => {
@@ -21,6 +22,7 @@ export const initDatabase = async () => {
     if (version == null) {
         await insert(Key.Version, 1);
         await insert(Key.Workouts, workouts);
+        await insert(Key.CompletedWorkouts, []);
         await insert(Key.ExerciseDefs, exerciseDefs);
     }
 };
@@ -59,6 +61,12 @@ export const createExerciseDef = async (
 
     await insert(Key.ExerciseDefs, exerciseDefs);
     return exerciseId;
+};
+
+export const completeWorkout = async (workout: Workout) => {
+    const completedWorkouts = await select(Key.CompletedWorkouts);
+    completedWorkouts.push(workout);
+    await insert(Key.CompletedWorkouts, completedWorkouts);
 };
 
 const useSelect = (key: string) => {
