@@ -3,6 +3,8 @@ import { useQuery } from "react-query";
 import { ExerciseDef, Workout } from "./types";
 import { generateGuid } from "../util";
 
+const RESET_DATABASE = false;
+
 enum Key {
     ExerciseDefs = "exerciseDefs",
     Version = "version",
@@ -10,7 +12,11 @@ enum Key {
 }
 
 export const initDatabase = async () => {
-    // AsyncStorage.clear();
+    if (RESET_DATABASE) {
+        AsyncStorage.clear();
+        console.warn("Database reset");
+    }
+
     const version = await select(Key.Version);
     if (version == null) {
         await insert(Key.Version, 1);
@@ -107,7 +113,13 @@ const workouts: Workout[] = [
             {
                 id: "6bb456eb-e10a-4328-8d89-eabc78eacba1",
                 exerciseId: "6a001abb-1a20-4ccc-bf81-d5825923f8c8",
-                notes: ["1 - 0 - 3"],
+                notes: [
+                    {
+                        id: "783973a1-e6b2-49ae-80c8-36387cbbc932",
+                        value: "1 - 0 - 3",
+                    },
+                ],
+
                 sets: [
                     { id: "0", weight: "", reps: "", finished: false },
                     { id: "1", weight: "", reps: "", finished: false },
@@ -127,7 +139,12 @@ const workouts: Workout[] = [
             {
                 id: "ba3aed70-494b-4a47-91c6-d96438711784",
                 exerciseId: "fb87dc04-da1c-4481-a3df-1776662c4a01",
-                notes: ["5x5"],
+                notes: [
+                    {
+                        id: "e86d9397-46bd-4b47-a774-816001a62060",
+                        value: "5x5",
+                    },
+                ],
                 sets: [
                     { id: "0", weight: "", reps: "", finished: false },
                     { id: "1", weight: "", reps: "", finished: false },

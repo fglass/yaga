@@ -12,6 +12,7 @@ type Colour = "info" | "success" | "error" | "warning";
 interface Props {
     label: string;
     onPress?: (event: GestureResponderEvent) => void;
+    disabled?: boolean;
     colour?: Colour;
     style?: StyleProp<ViewStyle>;
 }
@@ -23,8 +24,16 @@ export default (props: Props) => {
         buttonStyle.push(styles[props.colour]);
     }
 
+    if (props.disabled) {
+        buttonStyle.push({ opacity: 0.5 });
+    }
+
     return (
-        <TouchableOpacity style={buttonStyle} onPress={props.onPress}>
+        <TouchableOpacity
+            style={buttonStyle}
+            onPress={props.onPress}
+            disabled={props.disabled}
+        >
             <Text style={styles.label}>{props.label}</Text>
         </TouchableOpacity>
     );

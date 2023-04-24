@@ -8,17 +8,21 @@ import WorkoutView from "./workout/WorkoutView";
 import PlanView from "./plan/PlanView";
 
 export default () => {
-    const [activeWorkout, setActiveWorkout] = useState<Workout | undefined>();
+    const [activeWorkout, setActiveWorkout] = useState<Workout | null>();
     const workouts = useWorkouts();
 
     useEffect(() => {
         initDatabase();
     }, []);
 
+    const onFinish = () => {
+        setActiveWorkout(null);
+    };
+
     return (
         <GestureHandlerRootView style={styles.container}>
             {activeWorkout ? (
-                <WorkoutView workout={activeWorkout} />
+                <WorkoutView workout={activeWorkout} onFinish={onFinish} />
             ) : (
                 <PlanView workouts={workouts} onSelect={setActiveWorkout} />
             )}

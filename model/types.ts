@@ -13,7 +13,7 @@ export interface Workout {
 export interface Exercise {
     id: string;
     exerciseId: string; // FK to ExerciseDef
-    notes: string[];
+    notes: Note[];
     sets: Set[];
 }
 
@@ -22,4 +22,9 @@ export interface Set {
     weight: string;
     reps: string;
     finished: boolean;
+}
+
+export interface Note {
+    id: string;
+    value: string;
 }

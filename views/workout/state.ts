@@ -22,7 +22,7 @@ export const workoutProducer = produce((draft, action) => {
             draft.notes = action.notes;
             break;
         case ActionType.ChangeExerciseNote:
-            draft.exercises[action.exerciseIdx].notes[action.noteIdx] =
+            draft.exercises[action.exerciseIdx].notes[action.noteIdx].value =
                 action.notes;
             break;
         case ActionType.ChangeWeight:
@@ -61,16 +61,17 @@ export const workoutProducer = produce((draft, action) => {
             break;
         }
         case ActionType.AddExerciseNote:
-            draft.exercises[action.exerciseIdx].notes.push("");
+            draft.exercises[action.exerciseIdx].notes.push({
+                id: generateGuid(),
+                value: "",
+            });
             break;
-        case ActionType.AddExercise: {
+        case ActionType.AddExercise:
             draft.exercises.push(createNewExercise(action.exerciseId));
             break;
-        }
-        case ActionType.RemoveExercise: {
+        case ActionType.RemoveExercise:
             draft.exercises.splice(action.exerciseIdx, 1);
             break;
-        }
         default:
             break;
     }

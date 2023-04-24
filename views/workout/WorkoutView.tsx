@@ -19,12 +19,13 @@ import Timer from "../../components/Timer";
 import Deletable from "../../components/Deletable";
 import { ActionType, workoutProducer } from "./state";
 import { createExerciseDef, useExerciseDefs } from "../../model/database";
-import { Exercise, Set, Workout } from "../../model/types";
+import { Exercise, Note, Set, Workout } from "../../model/types";
 
 const DEFAULT_REST_DURATION_S = 90;
 
 interface Props {
     workout: Workout;
+    onFinish: () => void;
 }
 
 export default (props: Props) => {
@@ -226,8 +227,8 @@ export default (props: Props) => {
                 </View>
             </View>
             <View>
-                {exercise.notes.map((note: string, noteIdx: number) => (
-                    <View key={noteIdx} style={styles.noteContainer}>
+                {exercise.notes.map((note: Note, noteIdx: number) => (
+                    <View key={note.id} style={styles.noteContainer}>
                         <Deletable
                             onDelete={() =>
                                 onRemoveExerciseNote({ exerciseIdx, noteIdx })
@@ -236,7 +237,7 @@ export default (props: Props) => {
                             <TextInput
                                 style={styles.note}
                                 placeholder="Note"
-                                value={note}
+                                value={note.value}
                                 onChangeText={(text: string) =>
                                     onChangeExerciseNotes({
                                         exerciseIdx,
@@ -338,16 +339,8 @@ export default (props: Props) => {
                 colour="info"
                 onPress={() => setExerciseListModalVisible(true)}
             />
-            <Button
-                label="Finish"
-                colour="success"
-                onPress={() => alert("Finished")}
-            />
-            <Button
-                label="Cancel"
-                colour="error"
-                onPress={() => alert("Cancelled")}
-            />
+            <Button label="Finish" colour="success" onPress={props.onFinish} />
+            <Button label="Cancel" colour="error" onPress={props.onFinish} />
         </View>
     );
 

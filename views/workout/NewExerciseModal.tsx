@@ -34,6 +34,7 @@ export default (props: Props) => {
                 label="Add"
                 colour="info"
                 onPress={() => props.onCreate(name, category)}
+                disabled={name === "" || category === ""}
                 style={{ marginTop: 20 }}
             />
         </ModalDialog>
@@ -42,14 +43,14 @@ export default (props: Props) => {
 
 const styles = StyleSheet.create({
     input: {
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
         marginHorizontal: 10,
         marginTop: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
         color: "white",
         backgroundColor: "rgba(255, 255, 255, 0.1)",
         borderColor: "rgba(255, 255, 255, 0.3)",
         borderWidth: 1,
+        borderRadius: 8,
     },
 });
