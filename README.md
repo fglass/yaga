@@ -10,10 +10,12 @@ Yet Another Gym App
 -   [x] Rest timer
 -   [x] Notes
 -   [x] Persistence
--   [ ] Finishing
+-   [x] Finishing
+-   [ ] In progress workout
 -   [ ] Database export
 -   [ ] SQLite?
 
 ### Plan View
 
+-   [x] Workout list
 -   [ ] Workout creation

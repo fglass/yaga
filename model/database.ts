@@ -75,8 +75,9 @@ const useSelect = (key: string) => {
 
 /* Database operations */
 // TODO: https://docs.expo.dev/versions/latest/sdk/sqlite/
+// TODO: type DatabaseKey<Str extends string> = `@yaga_${Str}`
 
-const getPrefixedKey = (key: string) => `$@yaga_${key}`;
+const getPrefixedKey = (key: string) => `@yaga_${key}`;
 
 const select = async (key: string) => {
     try {
