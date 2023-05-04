@@ -1,5 +1,6 @@
 import React from "react";
 import {
+    ActivityIndicator,
     ScrollView,
     Text,
     TextInput,
@@ -235,7 +236,7 @@ export default (props: Props) => {
         </View>
     );
 
-    return (
+    return !vm.isLoading ? (
         <View style={styles.container}>
             {renderHeader()}
             {renderModals()}
@@ -244,5 +245,7 @@ export default (props: Props) => {
                 {renderFooter()}
             </ScrollView>
         </View>
+    ) : (
+        <ActivityIndicator style={styles.loading} color="white" size="large" />
     );
 };

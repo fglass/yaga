@@ -104,4 +104,7 @@ export const styles = StyleSheet.create({
     tdFinished: {
         backgroundColor: "#597E5D",
     },
+    loading: {
+        height: "100%",
+    },
 });

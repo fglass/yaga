@@ -10,13 +10,14 @@ import {
 } from "../../model/database";
 import * as Haptics from "expo-haptics";
 
-interface WorkoutViewModelProps {
+interface Props {
     workout: Workout;
     onEnd: () => void;
 }
 
 interface WorkoutViewModel {
     // TODO: remove `args`
+    isLoading: boolean;
     workout: Workout;
     exerciseDefs: Record<string, ExerciseDef>;
     restTimerResetKey: number;
@@ -58,9 +59,7 @@ interface WorkoutViewModel {
     onFinishWorkout: () => void;
 }
 
-export const useWorkoutViewModel = (
-    props: WorkoutViewModelProps
-): WorkoutViewModel => {
+export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
     const queryClient = useQueryClient(); // TODO: remove use
     const exerciseDefs = useExerciseDefs();
     const [workout, dispatch] = useReducer(workoutProducer, props.workout);
@@ -70,8 +69,26 @@ export const useWorkoutViewModel = (
     const [newExerciseModalVisible, setNewExerciseModalVisible] =
         useState(false);
 
+    const isLoading = Object.keys(exerciseDefs).length === 0;
+
     const resetRestTimer = () => {
         setRestTimerResetKey((prevKey: number) => prevKey + 1);
+    };
+
+    const onCreateExerciseDef = (name: string, category: string) => {
+        setNewExerciseModalVisible(false);
+        createExerciseDef(name, category).then((exerciseId) =>
+            queryClient
+                .invalidateQueries("exerciseDefs")
+                .then(() => onAddExercise({ exerciseId }))
+        );
+    };
+
+    const onFinishWorkout = () => {
+        completeWorkout(workout).then(() => {
+            props.onEnd();
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        });
     };
 
     const onChangeWorkoutNotes = useCallback(
@@ -167,23 +184,8 @@ export const useWorkoutViewModel = (
         );
     }, []);
 
-    const onCreateExerciseDef = (name: string, category: string) => {
-        setNewExerciseModalVisible(false);
-        createExerciseDef(name, category).then((exerciseId) =>
-            queryClient
-                .invalidateQueries("exerciseDefs")
-                .then(() => onAddExercise({ exerciseId }))
-        );
-    };
-
-    const onFinishWorkout = () => {
-        completeWorkout(workout).then(() => {
-            props.onEnd();
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        });
-    };
-
     return {
+        isLoading,
         workout,
         exerciseDefs,
         restTimerResetKey,
