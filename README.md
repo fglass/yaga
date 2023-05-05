@@ -11,7 +11,7 @@ Yet Another Gym App
 -   [x] Notes
 -   [x] Persistence
 -   [x] Finishing
--   [ ] In progress workout
+-   [x] Active workout
 -   [ ] Database export
 -   [ ] SQLite?
 

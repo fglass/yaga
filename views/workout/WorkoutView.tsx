@@ -21,8 +21,8 @@ import { styles } from "./styles";
 const DEFAULT_REST_DURATION_S = 90;
 
 interface Props {
-    workout: Workout;
-    onEnd: () => void;
+    initialWorkout: Workout;
+    onEnd: () => Promise<void>;
 }
 
 export default (props: Props) => {

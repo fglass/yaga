@@ -1,18 +1,20 @@
-import { useCallback, useReducer, useState } from "react";
+import { useCallback, useEffect, useReducer, useState } from "react";
 import { Alert } from "react-native";
 import { useQueryClient } from "react-query";
 import { ExerciseDef, Workout } from "../../model/types";
 import { workoutProducer, ActionType } from "./producer";
 import {
+    Key,
     completeWorkout,
     createExerciseDef,
+    saveActiveWorkout,
     useExerciseDefs,
 } from "../../model/database";
 import * as Haptics from "expo-haptics";
 
 interface Props {
-    workout: Workout;
-    onEnd: () => void;
+    initialWorkout: Workout;
+    onEnd: () => Promise<void>;
 }
 
 interface WorkoutViewModel {
@@ -60,14 +62,22 @@ interface WorkoutViewModel {
 }
 
 export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
-    const queryClient = useQueryClient(); // TODO: remove use
+    const queryClient = useQueryClient(); // TODO: move use?
     const exerciseDefs = useExerciseDefs();
-    const [workout, dispatch] = useReducer(workoutProducer, props.workout);
+    const [workout, dispatch] = useReducer(
+        workoutProducer,
+        props.initialWorkout
+    );
     const [restTimerResetKey, setRestTimerResetKey] = useState(0);
     const [exerciseListModalVisible, setExerciseListModalVisible] =
         useState(false);
     const [newExerciseModalVisible, setNewExerciseModalVisible] =
         useState(false);
+
+    useEffect(() => {
+        // Do not invalidate queries to avoid re-rendering
+        saveActiveWorkout(workout);
+    }, [workout]);
 
     const isLoading = Object.keys(exerciseDefs).length === 0;
 
@@ -75,20 +85,17 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
         setRestTimerResetKey((prevKey: number) => prevKey + 1);
     };
 
-    const onCreateExerciseDef = (name: string, category: string) => {
+    const onCreateExerciseDef = async (name: string, category: string) => {
         setNewExerciseModalVisible(false);
-        createExerciseDef(name, category).then((exerciseId) =>
-            queryClient
-                .invalidateQueries("exerciseDefs")
-                .then(() => onAddExercise({ exerciseId }))
-        );
+        const exerciseId = await createExerciseDef(name, category);
+        await queryClient.invalidateQueries(Key.ExerciseDefs);
+        onAddExercise({ exerciseId });
     };
 
-    const onFinishWorkout = () => {
-        completeWorkout(workout).then(() => {
-            props.onEnd();
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        });
+    const onFinishWorkout = async () => {
+        await completeWorkout(workout);
+        await props.onEnd();
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     };
 
     const onChangeWorkoutNotes = useCallback(

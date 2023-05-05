@@ -1,26 +1,44 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
-import { initDatabase, useWorkouts } from "../model/database";
-import { Workout } from "../model/types";
 import WorkoutView from "./workout/WorkoutView";
 import PlanView from "./plan/PlanView";
+import {
+    Key,
+    initDatabase,
+    saveActiveWorkout,
+    useActiveWorkout,
+    useWorkouts,
+} from "../model/database";
+import { Workout } from "../model/types";
+import { useQueryClient } from "react-query";
 
 export default () => {
-    const [activeWorkout, setActiveWorkout] = useState<Workout | null>();
-    const workouts = useWorkouts();
-
     useEffect(() => {
         initDatabase();
     }, []);
+
+    // TODO: view model? move query client?
+    const queryClient = useQueryClient();
+    const activeWorkout = useActiveWorkout();
+    const workouts = useWorkouts();
+
+    const setActiveWorkout = async (workout: Workout | null) => {
+        await saveActiveWorkout(workout);
+        await queryClient.invalidateQueries(Key.ActiveWorkout);
+    };
+
+    const onEndWorkout = async () => {
+        await setActiveWorkout(null);
+    };
 
     return (
         <GestureHandlerRootView style={styles.container}>
             {activeWorkout ? (
                 <WorkoutView
-                    workout={activeWorkout}
-                    onEnd={() => setActiveWorkout(null)}
+                    initialWorkout={activeWorkout}
+                    onEnd={onEndWorkout}
                 />
             ) : (
                 <PlanView workouts={workouts} onSelect={setActiveWorkout} />

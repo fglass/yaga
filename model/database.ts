@@ -5,10 +5,11 @@ import { generateGuid } from "../util";
 
 const RESET_DATABASE = false;
 
-enum Key {
+export enum Key {
     ExerciseDefs = "exerciseDefs",
     Version = "version",
     Workouts = "workouts",
+    ActiveWorkout = "activeWorkout",
     CompletedWorkouts = "completedWorkouts",
 }
 
@@ -28,6 +29,17 @@ export const initDatabase = async () => {
 };
 
 /* Hooks */
+// TODO: RQ mutations
+
+export const useActiveWorkout = (): Workout | null => {
+    const { isLoading, error, data } = useSelect(Key.ActiveWorkout);
+
+    if (error) {
+        console.error(error);
+    }
+
+    return isLoading ? null : data;
+};
 
 export const useWorkouts = (): Workout[] => {
     const { isLoading, error, data } = useSelect(Key.Workouts);
@@ -49,7 +61,10 @@ export const useExerciseDefs = (): Record<string, ExerciseDef> => {
     return isLoading ? {} : data;
 };
 
-// TODO: refactor, RQ mutation?
+const useSelect = (key: Key) => {
+    return useQuery(key, async () => await select(key));
+};
+
 export const createExerciseDef = async (
     name: string,
     category: string
@@ -63,14 +78,14 @@ export const createExerciseDef = async (
     return exerciseId;
 };
 
+export const saveActiveWorkout = async (workout: Workout | null) => {
+    await insert(Key.ActiveWorkout, workout);
+};
+
 export const completeWorkout = async (workout: Workout) => {
     const completedWorkouts = await select(Key.CompletedWorkouts);
     completedWorkouts.push(workout);
     await insert(Key.CompletedWorkouts, completedWorkouts);
-};
-
-const useSelect = (key: string) => {
-    return useQuery(key, async () => await select(key));
 };
 
 /* Database operations */
