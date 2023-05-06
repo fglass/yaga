@@ -1,9 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery } from "react-query";
 import { ExerciseDef, Workout } from "./types";
-import { generateGuid } from "../util";
-
-const RESET_DATABASE = false;
+import { generateGuid, withWarning } from "../util";
 
 export enum Key {
     ExerciseDefs = "exerciseDefs",
@@ -14,11 +12,6 @@ export enum Key {
 }
 
 export const initDatabase = async () => {
-    if (RESET_DATABASE) {
-        AsyncStorage.clear();
-        console.warn("Database reset");
-    }
-
     const version = await select(Key.Version);
     if (version == null) {
         await insert(Key.Version, 1);
@@ -26,6 +19,24 @@ export const initDatabase = async () => {
         await insert(Key.CompletedWorkouts, []);
         await insert(Key.ExerciseDefs, exerciseDefs);
     }
+};
+
+export const exportDatabase = async () => {
+    // TODO: implement
+    const keys = await AsyncStorage.getAllKeys();
+    const items = await AsyncStorage.multiGet(keys);
+    const data = items.map(([key, value]) => {
+        return { key, value };
+    });
+    console.log(data);
+    console.warn("Database exported");
+};
+
+export const resetDatabase = () => {
+    withWarning(async () => {
+        await AsyncStorage.clear();
+        console.warn("Database reset");
+    });
 };
 
 /* Hooks */

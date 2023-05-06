@@ -13,9 +13,9 @@ Yet Another Gym App
 -   [x] Finishing
 -   [x] Active workout
 -   [ ] Database export
--   [ ] SQLite?
 
 ### Plan View
 
 -   [x] Workout list
 -   [ ] Workout creation
+-   [x] Admin panel

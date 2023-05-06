@@ -1,3 +1,5 @@
+import { Alert } from "react-native";
+
 export const formatTime = (time: number): string => {
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
@@ -22,5 +24,23 @@ export const generateGuid = (): string => {
         S4() +
         S4() +
         S4()
+    );
+};
+
+export const withWarning = (onPress: () => void) => {
+    Alert.alert(
+        "Warning",
+        "This action cannot be undone",
+        [
+            {
+                text: "Confirm",
+                onPress: onPress,
+            },
+            {
+                text: "Cancel",
+                style: "cancel",
+            },
+        ],
+        { cancelable: false }
     );
 };

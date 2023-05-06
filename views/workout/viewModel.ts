@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
-import { Alert } from "react-native";
 import { useQueryClient } from "react-query";
 import { ExerciseDef, ModalType, Workout } from "../../model/types";
 import { workoutProducer, ActionType } from "./producer";
@@ -10,6 +9,7 @@ import {
     saveActiveWorkout,
     useExerciseDefs,
 } from "../../model/database";
+import { withWarning } from "../../util";
 import * as Haptics from "expo-haptics";
 
 interface Props {
@@ -17,9 +17,9 @@ interface Props {
     onEnd: () => Promise<void>;
 }
 
-interface WorkoutViewModel {
+interface ViewModel {
     isLoading: boolean;
-    workout: Workout;
+    workout: Workout; // TODO: flatten?
     exerciseDefs: Record<string, ExerciseDef>;
     restTimerResetKey: number;
     activeModal: ModalType;
@@ -52,7 +52,7 @@ interface WorkoutViewModel {
     onFinishWorkout: () => void;
 }
 
-export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
+export const useWorkoutViewModel = (props: Props): ViewModel => {
     const queryClient = useQueryClient(); // TODO: move use?
     const exerciseDefs = useExerciseDefs(); // TODO: move up?
     const [workout, dispatch] = useReducer(
@@ -66,10 +66,10 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
         saveActiveWorkout(workout); // Fire-and-forget
     }, [workout]);
 
+    const isLoading = Object.keys(exerciseDefs).length === 0;
+
     const isModalActive = (modalType: ModalType) =>
         (activeModal & modalType) === modalType;
-
-    const isLoading = Object.keys(exerciseDefs).length === 0;
 
     const resetRestTimer = () => {
         setRestTimerResetKey((prevKey: number) => prevKey + 1);
@@ -176,29 +176,13 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
     }, []);
 
     const onRemoveExercise = useCallback((exerciseIdx: number) => {
-        Alert.alert(
-            "Warning",
-            "This action cannot be undone",
-            [
-                {
-                    text: "Confirm",
-                    onPress: () => {
-                        dispatch({
-                            type: ActionType.RemoveExercise,
-                            exerciseIdx,
-                        });
-                        Haptics.notificationAsync(
-                            Haptics.NotificationFeedbackType.Success
-                        );
-                    },
-                },
-                {
-                    text: "Cancel",
-                    style: "cancel",
-                },
-            ],
-            { cancelable: false }
-        );
+        withWarning(() => {
+            dispatch({
+                type: ActionType.RemoveExercise,
+                exerciseIdx,
+            });
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        });
     }, []);
 
     return {
