@@ -75,7 +75,7 @@ export default (props: Props) => {
                 <View style={styles.cardHeaderRight}>
                     <TouchableOpacity
                         style={styles.cardHeaderBtn}
-                        onPress={() => vm.onAddSet({ exerciseIdx })}
+                        onPress={() => vm.onAddSet(exerciseIdx)}
                     >
                         <Ionicons
                             name="ios-add-circle"
@@ -85,14 +85,14 @@ export default (props: Props) => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.cardHeaderBtn}
-                        onPress={() => vm.onAddExerciseNote({ exerciseIdx })}
+                        onPress={() => vm.onAddExerciseNote(exerciseIdx)}
                     >
                         <Ionicons name="ios-attach" color="white" size={24} />
                     </TouchableOpacity>
                     {vm.workout.exercises.length > 1 && (
                         <TouchableOpacity
                             style={styles.cardHeaderBtn}
-                            onPress={() => vm.onRemoveExercise({ exerciseIdx })}
+                            onPress={() => vm.onRemoveExercise(exerciseIdx)}
                         >
                             <Ionicons
                                 name="ios-trash"
@@ -108,10 +108,7 @@ export default (props: Props) => {
                     <View key={note.id} style={styles.noteContainer}>
                         <Deletable
                             onDelete={() =>
-                                vm.onRemoveExerciseNote({
-                                    exerciseIdx,
-                                    noteIdx,
-                                })
+                                vm.onRemoveExerciseNote(exerciseIdx, noteIdx)
                             }
                         >
                             <TextInput
@@ -119,11 +116,11 @@ export default (props: Props) => {
                                 placeholder="Note"
                                 value={note.value}
                                 onChangeText={(text: string) =>
-                                    vm.onChangeExerciseNotes({
+                                    vm.onChangeExerciseNotes(
                                         exerciseIdx,
                                         noteIdx,
-                                        notes: text,
-                                    })
+                                        text
+                                    )
                                 }
                             />
                         </Deletable>
@@ -149,12 +146,7 @@ export default (props: Props) => {
     const renderSet = (set: Set, setIdx: number, exerciseIdx: number) => (
         <Deletable
             key={set.id}
-            onDelete={() =>
-                vm.onRemoveSet({
-                    exerciseIdx,
-                    setIdx,
-                })
-            }
+            onDelete={() => vm.onRemoveSet(exerciseIdx, setIdx)}
         >
             <View style={[styles.tr, set.finished && styles.finished]}>
                 <TextInput
@@ -170,11 +162,7 @@ export default (props: Props) => {
                     style={[styles.td, set.finished && styles.tdFinished]}
                     value={set.weight}
                     onChangeText={(text: string) =>
-                        vm.onChangeWeight({
-                            exerciseIdx,
-                            setIdx,
-                            weight: text,
-                        })
+                        vm.onChangeWeight(exerciseIdx, setIdx, text)
                     }
                     inputMode="numeric"
                 />
@@ -182,22 +170,14 @@ export default (props: Props) => {
                     style={[styles.td, set.finished && styles.tdFinished]}
                     value={set.reps}
                     onChangeText={(text: string) =>
-                        vm.onChangeRep({
-                            exerciseIdx,
-                            setIdx,
-                            reps: text,
-                        })
+                        vm.onChangeRep(exerciseIdx, setIdx, text)
                     }
                     inputMode="numeric"
                 />
                 <TouchableOpacity
                     style={styles.tdBtn}
                     onPress={() => {
-                        vm.onFinishSet({
-                            exerciseIdx,
-                            setIdx,
-                            isFinished: !set.finished,
-                        });
+                        vm.onFinishSet(exerciseIdx, setIdx, !set.finished);
                     }}
                 >
                     <Ionicons

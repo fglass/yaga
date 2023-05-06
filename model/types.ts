@@ -29,7 +29,7 @@ export interface Note {
     value: string;
 }
 
-export enum ModalType { // Bit flags
+export enum ModalType { // Bit field
     None = 0,
     ExerciseList = 1,
     NewExercise = 2,

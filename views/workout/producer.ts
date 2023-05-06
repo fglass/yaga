@@ -1,6 +1,11 @@
 import produce from "immer";
-import { Exercise, Set } from "../../model/types";
+import { Exercise, Set, Workout } from "../../model/types";
 import { generateGuid } from "../../util";
+
+type Action = {
+    type: ActionType;
+    [key: string]: any;
+};
 
 export enum ActionType {
     ChangeWorkoutNotes = "change-workout-notes",
@@ -16,7 +21,7 @@ export enum ActionType {
     RemoveExercise = "remove-exercise",
 }
 
-export const workoutProducer = produce((draft, action) => {
+export const workoutProducer = produce((draft: Workout, action: Action) => {
     switch (action.type) {
         case ActionType.ChangeWorkoutNotes:
             draft.notes = action.notes;
@@ -73,6 +78,7 @@ export const workoutProducer = produce((draft, action) => {
             draft.exercises.splice(action.exerciseIdx, 1);
             break;
         default:
+            console.error("Unknown action type: ", action.type);
             break;
     }
 });

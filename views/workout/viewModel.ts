@@ -18,7 +18,6 @@ interface Props {
 }
 
 interface WorkoutViewModel {
-    // TODO: remove `args`
     isLoading: boolean;
     workout: Workout;
     exerciseDefs: Record<string, ExerciseDef>;
@@ -27,35 +26,28 @@ interface WorkoutViewModel {
     setActiveModal: (modalType: ModalType) => void;
     isModalActive: (modalType: ModalType) => boolean;
     onChangeWorkoutNotes: (notes: string) => void;
-    onChangeExerciseNotes: (args: {
-        exerciseIdx: number;
-        noteIdx: number;
-        notes: string;
-    }) => void;
-    onChangeWeight: (args: {
-        exerciseIdx: number;
-        setIdx: number;
-        weight: string;
-    }) => void;
-    onChangeRep: (args: {
-        exerciseIdx: number;
-        setIdx: number;
-        reps: string;
-    }) => void;
-    onFinishSet: (args: {
-        exerciseIdx: number;
-        setIdx: number;
-        isFinished: boolean;
-    }) => void;
-    onRemoveSet: (args: { exerciseIdx: number; setIdx: number }) => void;
-    onRemoveExerciseNote: (args: {
-        exerciseIdx: number;
-        noteIdx: number;
-    }) => void;
-    onAddSet: (args: { exerciseIdx: number }) => void;
-    onAddExerciseNote: (args: { exerciseIdx: number }) => void;
+    onChangeExerciseNotes: (
+        exerciseIdx: number,
+        noteIdx: number,
+        notes: string
+    ) => void;
+    onChangeWeight: (
+        exerciseIdx: number,
+        setIdx: number,
+        weight: string
+    ) => void;
+    onChangeRep: (exerciseIdx: number, setIdx: number, reps: string) => void;
+    onFinishSet: (
+        exerciseIdx: number,
+        setIdx: number,
+        isFinished: boolean
+    ) => void;
+    onRemoveSet: (exerciseIdx: number, setIdx: number) => void;
+    onRemoveExerciseNote: (exerciseIdx: number, noteIdx: number) => void;
+    onAddSet: (exerciseIdx: number) => void;
+    onAddExerciseNote: (exerciseIdx: number) => void;
     onAddExercise: (exerciseId: string) => void;
-    onRemoveExercise: (args: { exerciseIdx: number }) => void;
+    onRemoveExercise: (exerciseIdx: number) => void;
     onCreateExerciseDef: (name: string, category: string) => void;
     onFinishWorkout: () => void;
 }
@@ -71,8 +63,7 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
     const [activeModal, setActiveModal] = useState(ModalType.None);
 
     useEffect(() => {
-        // Do not invalidate queries to avoid re-rendering
-        saveActiveWorkout(workout);
+        saveActiveWorkout(workout); // Fire-and-forget
     }, [workout]);
 
     const isModalActive = (modalType: ModalType) =>
@@ -104,31 +95,47 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
     );
 
     const onChangeExerciseNotes = useCallback(
-        (args: { exerciseIdx: number; noteIdx: number; notes: string }) =>
-            dispatch({ type: ActionType.ChangeExerciseNote, ...args }),
+        (exerciseIdx: number, noteIdx: number, notes: string) =>
+            dispatch({
+                type: ActionType.ChangeExerciseNote,
+                exerciseIdx,
+                noteIdx,
+                notes,
+            }),
         []
     );
 
     const onChangeWeight = useCallback(
-        (args: { exerciseIdx: number; setIdx: number; weight: string }) =>
-            dispatch({ type: ActionType.ChangeWeight, ...args }),
+        (exerciseIdx: number, setIdx: number, weight: string) =>
+            dispatch({
+                type: ActionType.ChangeWeight,
+                exerciseIdx,
+                setIdx,
+                weight,
+            }),
         []
     );
 
     const onChangeRep = useCallback(
-        (args: { exerciseIdx: number; setIdx: number; reps: string }) =>
-            dispatch({ type: ActionType.ChangeReps, ...args }),
+        (exerciseIdx: number, setIdx: number, reps: string) =>
+            dispatch({
+                type: ActionType.ChangeReps,
+                exerciseIdx,
+                setIdx,
+                reps,
+            }),
         []
     );
 
     const onFinishSet = useCallback(
-        (args: {
-            exerciseIdx: number;
-            setIdx: number;
-            isFinished: boolean;
-        }) => {
-            dispatch({ type: ActionType.FinishSet, ...args });
-            if (args.isFinished) {
+        (exerciseIdx: number, setIdx: number, isFinished: boolean) => {
+            dispatch({
+                type: ActionType.FinishSet,
+                exerciseIdx,
+                setIdx,
+                isFinished,
+            });
+            if (isFinished) {
                 resetRestTimer();
             }
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -136,29 +143,30 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
         []
     );
 
-    const onRemoveSet = useCallback(
-        (args: { exerciseIdx: number; setIdx: number }) => {
-            dispatch({ type: ActionType.RemoveSet, ...args });
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        },
-        []
-    );
+    const onRemoveSet = useCallback((exerciseIdx: number, setIdx: number) => {
+        dispatch({ type: ActionType.RemoveSet, exerciseIdx, setIdx });
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }, []);
 
     const onRemoveExerciseNote = useCallback(
-        (args: { exerciseIdx: number; noteIdx: number }) => {
-            dispatch({ type: ActionType.RemoveExerciseNote, ...args });
+        (exerciseIdx: number, noteIdx: number) => {
+            dispatch({
+                type: ActionType.RemoveExerciseNote,
+                exerciseIdx,
+                noteIdx,
+            });
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         },
         []
     );
 
-    const onAddSet = useCallback((args: { exerciseIdx: number }) => {
-        dispatch({ type: ActionType.AddSet, ...args });
+    const onAddSet = useCallback((exerciseIdx: number) => {
+        dispatch({ type: ActionType.AddSet, exerciseIdx });
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }, []);
 
-    const onAddExerciseNote = useCallback((args: { exerciseIdx: number }) => {
-        dispatch({ type: ActionType.AddExerciseNote, ...args });
+    const onAddExerciseNote = useCallback((exerciseIdx: number) => {
+        dispatch({ type: ActionType.AddExerciseNote, exerciseIdx });
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }, []);
 
@@ -167,7 +175,7 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }, []);
 
-    const onRemoveExercise = useCallback((args: { exerciseIdx: number }) => {
+    const onRemoveExercise = useCallback((exerciseIdx: number) => {
         Alert.alert(
             "Warning",
             "This action cannot be undone",
@@ -175,7 +183,10 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
                 {
                     text: "Confirm",
                     onPress: () => {
-                        dispatch({ type: ActionType.RemoveExercise, ...args });
+                        dispatch({
+                            type: ActionType.RemoveExercise,
+                            exerciseIdx,
+                        });
                         Haptics.notificationAsync(
                             Haptics.NotificationFeedbackType.Success
                         );
