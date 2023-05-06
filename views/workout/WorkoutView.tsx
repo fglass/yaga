@@ -14,7 +14,7 @@ import Button from "../../components/Button";
 import CountdownTimer from "../../components/CountdownTimer";
 import Timer from "../../components/Timer";
 import Deletable from "../../components/Deletable";
-import { Exercise, Note, Set, Workout } from "../../model/types";
+import { Exercise, ModalType, Note, Set, Workout } from "../../model/types";
 import { useWorkoutViewModel } from "./viewModel";
 import { styles } from "./styles";
 
@@ -48,26 +48,18 @@ export default (props: Props) => {
             />
         </View>
     );
-
-    // TODO: modal system
     const renderModals = () => (
         <>
-            <NewExerciseModal
-                isVisible={vm.newExerciseModalVisible}
-                onClose={() => {
-                    vm.setExerciseListModalVisible(true);
-                    vm.setNewExerciseModalVisible(false);
-                }}
-                onCreate={vm.onCreateExerciseDef}
-            />
             <ExerciseListModal
-                isVisible={vm.exerciseListModalVisible}
-                onClose={() => vm.setExerciseListModalVisible(false)}
-                onSelect={(exerciseId) => vm.onAddExercise({ exerciseId })}
-                onNew={() => {
-                    vm.setExerciseListModalVisible(false);
-                    vm.setNewExerciseModalVisible(true);
-                }}
+                isVisible={vm.isModalActive(ModalType.ExerciseList)}
+                onSelect={vm.onAddExercise}
+                onNew={() => vm.setActiveModal(ModalType.NewExercise)}
+                onClose={() => vm.setActiveModal(ModalType.None)}
+            />
+            <NewExerciseModal
+                isVisible={vm.isModalActive(ModalType.NewExercise)}
+                onCreate={vm.onCreateExerciseDef}
+                onClose={() => vm.setActiveModal(ModalType.ExerciseList)}
             />
         </>
     );
@@ -225,7 +217,7 @@ export default (props: Props) => {
             <Button
                 label="Add"
                 colour="info"
-                onPress={() => vm.setExerciseListModalVisible(true)}
+                onPress={() => vm.setActiveModal(ModalType.ExerciseList)}
             />
             <Button
                 label="Finish"

@@ -5,8 +5,8 @@ import Button from "../../components/Button";
 
 interface Props {
     isVisible: boolean;
-    onClose: () => void;
     onCreate: (name: string, category: string) => void;
+    onClose: () => void;
 }
 
 export default (props: Props) => {

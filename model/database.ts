@@ -29,7 +29,6 @@ export const initDatabase = async () => {
 };
 
 /* Hooks */
-// TODO: RQ mutations
 
 export const useActiveWorkout = (): Workout | null => {
     const { isLoading, error, data } = useSelect(Key.ActiveWorkout);
@@ -64,6 +63,9 @@ export const useExerciseDefs = (): Record<string, ExerciseDef> => {
 const useSelect = (key: Key) => {
     return useQuery(key, async () => await select(key));
 };
+
+/* Functions */
+// TODO: RQ mutations
 
 export const createExerciseDef = async (
     name: string,

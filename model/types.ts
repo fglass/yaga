@@ -28,3 +28,9 @@ export interface Note {
     id: string;
     value: string;
 }
+
+export enum ModalType { // Bit flags
+    None = 0,
+    ExerciseList = 1,
+    NewExercise = 2,
+}

@@ -5,9 +5,9 @@ import ModalDialog from "../../components/ModalDialog";
 
 interface Props {
     isVisible: boolean;
-    onClose: () => void;
     onSelect: (exerciseId: string) => void;
     onNew: () => void;
+    onClose: () => void;
 }
 
 export default (props: Props) => {
@@ -24,8 +24,8 @@ export default (props: Props) => {
                     <TouchableOpacity
                         style={styles.exerciseItem}
                         onPress={() => {
-                            props.onClose();
                             props.onSelect(item[0]);
+                            props.onClose();
                         }}
                     >
                         <Text style={styles.exerciseText}>{item[1].name}</Text>

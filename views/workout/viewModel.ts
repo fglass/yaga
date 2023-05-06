@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
 import { Alert } from "react-native";
 import { useQueryClient } from "react-query";
-import { ExerciseDef, Workout } from "../../model/types";
+import { ExerciseDef, ModalType, Workout } from "../../model/types";
 import { workoutProducer, ActionType } from "./producer";
 import {
     Key,
@@ -23,10 +23,9 @@ interface WorkoutViewModel {
     workout: Workout;
     exerciseDefs: Record<string, ExerciseDef>;
     restTimerResetKey: number;
-    exerciseListModalVisible: boolean;
-    newExerciseModalVisible: boolean;
-    setExerciseListModalVisible: (visible: boolean) => void;
-    setNewExerciseModalVisible: (visible: boolean) => void;
+    activeModal: ModalType;
+    setActiveModal: (modalType: ModalType) => void;
+    isModalActive: (modalType: ModalType) => boolean;
     onChangeWorkoutNotes: (notes: string) => void;
     onChangeExerciseNotes: (args: {
         exerciseIdx: number;
@@ -55,7 +54,7 @@ interface WorkoutViewModel {
     }) => void;
     onAddSet: (args: { exerciseIdx: number }) => void;
     onAddExerciseNote: (args: { exerciseIdx: number }) => void;
-    onAddExercise: (args: { exerciseId: string }) => void;
+    onAddExercise: (exerciseId: string) => void;
     onRemoveExercise: (args: { exerciseIdx: number }) => void;
     onCreateExerciseDef: (name: string, category: string) => void;
     onFinishWorkout: () => void;
@@ -63,21 +62,21 @@ interface WorkoutViewModel {
 
 export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
     const queryClient = useQueryClient(); // TODO: move use?
-    const exerciseDefs = useExerciseDefs();
+    const exerciseDefs = useExerciseDefs(); // TODO: move up?
     const [workout, dispatch] = useReducer(
         workoutProducer,
         props.initialWorkout
     );
     const [restTimerResetKey, setRestTimerResetKey] = useState(0);
-    const [exerciseListModalVisible, setExerciseListModalVisible] =
-        useState(false);
-    const [newExerciseModalVisible, setNewExerciseModalVisible] =
-        useState(false);
+    const [activeModal, setActiveModal] = useState(ModalType.None);
 
     useEffect(() => {
         // Do not invalidate queries to avoid re-rendering
         saveActiveWorkout(workout);
     }, [workout]);
+
+    const isModalActive = (modalType: ModalType) =>
+        (activeModal & modalType) === modalType;
 
     const isLoading = Object.keys(exerciseDefs).length === 0;
 
@@ -86,10 +85,10 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
     };
 
     const onCreateExerciseDef = async (name: string, category: string) => {
-        setNewExerciseModalVisible(false);
         const exerciseId = await createExerciseDef(name, category);
         await queryClient.invalidateQueries(Key.ExerciseDefs);
-        onAddExercise({ exerciseId });
+        onAddExercise(exerciseId);
+        setActiveModal(ModalType.None);
     };
 
     const onFinishWorkout = async () => {
@@ -163,8 +162,8 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }, []);
 
-    const onAddExercise = useCallback((args: { exerciseId: string }) => {
-        dispatch({ type: ActionType.AddExercise, ...args });
+    const onAddExercise = useCallback((exerciseId: string) => {
+        dispatch({ type: ActionType.AddExercise, exerciseId });
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }, []);
 
@@ -196,10 +195,9 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
         workout,
         exerciseDefs,
         restTimerResetKey,
-        exerciseListModalVisible,
-        newExerciseModalVisible,
-        setExerciseListModalVisible,
-        setNewExerciseModalVisible,
+        activeModal,
+        setActiveModal,
+        isModalActive,
         onChangeWorkoutNotes,
         onChangeExerciseNotes,
         onChangeWeight,
