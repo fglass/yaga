@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
 import { useQueryClient } from "react-query";
 import { ExerciseDef, ModalType, Workout } from "../../model/types";
-import { workoutProducer, ActionType } from "./producer";
+import { workoutProducer, ActionType } from "./reducer";
 import {
-    Key,
+    QueryKey,
     completeWorkout,
     createExerciseDef,
     saveActiveWorkout,
@@ -62,6 +62,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const [restTimerResetKey, setRestTimerResetKey] = useState(0);
     const [activeModal, setActiveModal] = useState(ModalType.None);
 
+    // TODO: wrap actions in function instead: `withSave/Persist`
     useEffect(() => {
         saveActiveWorkout(workout); // Fire-and-forget
     }, [workout]);
@@ -77,7 +78,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
     const onCreateExerciseDef = async (name: string, category: string) => {
         const exerciseId = await createExerciseDef(name, category);
-        await queryClient.invalidateQueries(Key.ExerciseDefs);
+        await queryClient.invalidateQueries(QueryKey.ExerciseDefs);
         onAddExercise(exerciseId);
         setActiveModal(ModalType.None);
     };

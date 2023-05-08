@@ -1,9 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery } from "react-query";
 import { ExerciseDef, Workout } from "./types";
-import { generateGuid, withWarning } from "../util";
+import { generateGuid, shareText, withWarning } from "../util";
 
-export enum Key {
+export enum QueryKey {
     ExerciseDefs = "exerciseDefs",
     Version = "version",
     Workouts = "workouts",
@@ -12,24 +12,26 @@ export enum Key {
 }
 
 export const initDatabase = async () => {
-    const version = await select(Key.Version);
+    const version = await select(QueryKey.Version);
     if (version == null) {
-        await insert(Key.Version, 1);
-        await insert(Key.Workouts, workouts);
-        await insert(Key.CompletedWorkouts, []);
-        await insert(Key.ExerciseDefs, exerciseDefs);
+        await insert(QueryKey.Version, 1);
+        await insert(QueryKey.Workouts, workouts);
+        await insert(QueryKey.CompletedWorkouts, []);
+        await insert(QueryKey.ExerciseDefs, exerciseDefs);
     }
 };
 
 export const exportDatabase = async () => {
-    // TODO: implement
     const keys = await AsyncStorage.getAllKeys();
     const items = await AsyncStorage.multiGet(keys);
-    const data = items.map(([key, value]) => {
+
+    const payload = items.map(([key, value]) => {
         return { key, value };
     });
-    console.log(data);
-    console.warn("Database exported");
+    const file = JSON.stringify(payload); // TODO: sanitise
+
+    await shareText(file);
+    console.log(file);
 };
 
 export const resetDatabase = () => {
@@ -42,7 +44,7 @@ export const resetDatabase = () => {
 /* Hooks */
 
 export const useActiveWorkout = (): Workout | null => {
-    const { isLoading, error, data } = useSelect(Key.ActiveWorkout);
+    const { isLoading, error, data } = useSelect(QueryKey.ActiveWorkout);
 
     if (error) {
         console.error(error);
@@ -52,7 +54,7 @@ export const useActiveWorkout = (): Workout | null => {
 };
 
 export const useWorkouts = (): Workout[] => {
-    const { isLoading, error, data } = useSelect(Key.Workouts);
+    const { isLoading, error, data } = useSelect(QueryKey.Workouts);
 
     if (error) {
         console.error(error);
@@ -62,7 +64,7 @@ export const useWorkouts = (): Workout[] => {
 };
 
 export const useExerciseDefs = (): Record<string, ExerciseDef> => {
-    const { isLoading, error, data } = useSelect(Key.ExerciseDefs);
+    const { isLoading, error, data } = useSelect(QueryKey.ExerciseDefs);
 
     if (error) {
         console.error(error);
@@ -71,7 +73,7 @@ export const useExerciseDefs = (): Record<string, ExerciseDef> => {
     return isLoading ? {} : data;
 };
 
-const useSelect = (key: Key) => {
+const useSelect = (key: QueryKey) => {
     return useQuery(key, async () => await select(key));
 };
 
@@ -82,28 +84,26 @@ export const createExerciseDef = async (
     name: string,
     category: string
 ): Promise<string> => {
-    const exerciseDefs = await select(Key.ExerciseDefs);
+    const exerciseDefs = await select(QueryKey.ExerciseDefs);
 
     const exerciseId = generateGuid();
     exerciseDefs[exerciseId] = { name, category };
 
-    await insert(Key.ExerciseDefs, exerciseDefs);
+    await insert(QueryKey.ExerciseDefs, exerciseDefs);
     return exerciseId;
 };
 
 export const saveActiveWorkout = async (workout: Workout | null) => {
-    await insert(Key.ActiveWorkout, workout);
+    await insert(QueryKey.ActiveWorkout, workout);
 };
 
 export const completeWorkout = async (workout: Workout) => {
-    const completedWorkouts = await select(Key.CompletedWorkouts);
+    const completedWorkouts = await select(QueryKey.CompletedWorkouts);
     completedWorkouts.push(workout);
-    await insert(Key.CompletedWorkouts, completedWorkouts);
+    await insert(QueryKey.CompletedWorkouts, completedWorkouts);
 };
 
 /* Database operations */
-// TODO: https://docs.expo.dev/versions/latest/sdk/sqlite/
-// TODO: type DatabaseKey<Str extends string> = `@yaga_${Str}`
 
 const getPrefixedKey = (key: string) => `@yaga_${key}`;
 

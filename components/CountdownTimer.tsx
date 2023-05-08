@@ -6,34 +6,30 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 interface Props {
     style?: StyleProp<ViewStyle>;
     durationS: number;
-    resetKey: number;
     onFinish: () => void;
 }
 
-export default (props: Props) => {
+const CountdownTimer = (props: Props) => {
     const [remainingTime, setRemainingTime] = useState(props.durationS);
 
-    useEffect(() => setRemainingTime(props.durationS), [props.resetKey]);
-
     useEffect(() => {
-        if (props.resetKey == 0) {
-            setRemainingTime(0);
-            return;
-        }
-
         const intervalId = setInterval(() => {
-            setRemainingTime(remainingTime - 1);
+            setRemainingTime((time) => {
+                if (time === 0) {
+                    clearInterval(intervalId);
+                }
+                return time - 1;
+            });
         }, 1000);
-
-        if (remainingTime === 0) {
-            props.onFinish();
-            clearInterval(intervalId);
-        }
-
         return () => clearInterval(intervalId);
-    }, [remainingTime]);
+    }, []);
 
-    if (props.resetKey == 0 || remainingTime == 0) {
+    // TODO: refactor?
+    if (remainingTime === 0) {
+        props.onFinish();
+    }
+
+    if (remainingTime <= 0) {
         return null;
     }
 
@@ -56,3 +52,5 @@ const styles = StyleSheet.create({
         paddingLeft: 3,
     },
 });
+
+export default CountdownTimer;

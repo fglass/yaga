@@ -25,7 +25,7 @@ interface Props {
     onEnd: () => Promise<void>;
 }
 
-export default (props: Props) => {
+const WorkoutView = (props: Props) => {
     const vm = useWorkoutViewModel({ ...props });
 
     const renderHeader = () => (
@@ -40,14 +40,17 @@ export default (props: Props) => {
                     onChangeText={vm.onChangeWorkoutNotes}
                 />
             </View>
-            <CountdownTimer
-                style={styles.subtitle}
-                durationS={DEFAULT_REST_DURATION_S}
-                resetKey={vm.restTimerResetKey}
-                onFinish={() => alert("Rest finished!")}
-            />
+            {vm.restTimerResetKey > 0 && (
+                <CountdownTimer
+                    key={vm.restTimerResetKey}
+                    style={styles.subtitle}
+                    durationS={DEFAULT_REST_DURATION_S}
+                    onFinish={() => alert("Rest finished!")}
+                />
+            )}
         </View>
     );
+
     const renderModals = () => (
         <>
             <ExerciseListModal
@@ -221,3 +224,5 @@ export default (props: Props) => {
         <ActivityIndicator style={styles.loading} color="white" size="large" />
     );
 };
+
+export default WorkoutView;

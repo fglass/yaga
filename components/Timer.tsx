@@ -6,16 +6,15 @@ interface Props {
     style?: StyleProp<ViewStyle>;
 }
 
-export default (props: Props) => {
+const Timer = (props: Props) => {
     const [time, setTime] = useState(0);
 
     useEffect(() => {
-        const intervalId = setInterval(() => {
-            setTime(time + 1);
-        }, 1000);
-
+        const intervalId = setInterval(() => setTime((t) => t + 1), 1000);
         return () => clearInterval(intervalId);
-    }, [time]);
+    }, []);
 
     return <Text style={props.style}>{formatTime(time)}</Text>;
 };
+
+export default Timer;

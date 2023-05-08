@@ -1,11 +1,10 @@
-import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 import WorkoutView from "./workout/WorkoutView";
 import PlanView from "./plan/PlanView";
 import {
-    Key,
+    QueryKey,
     initDatabase,
     saveActiveWorkout,
     useActiveWorkout,
@@ -14,11 +13,12 @@ import {
 import { Workout } from "../model/types";
 import { useQueryClient } from "react-query";
 
-export default () => {
-    useEffect(() => {
-        initDatabase();
-    }, []);
+// Run during module initialisation, before view renders
+if (typeof window !== "undefined") {
+    initDatabase();
+}
 
+const RootView = () => {
     // TODO: view model? move query client?
     const queryClient = useQueryClient();
     const activeWorkout = useActiveWorkout();
@@ -26,7 +26,7 @@ export default () => {
 
     const setActiveWorkout = async (workout: Workout | null) => {
         await saveActiveWorkout(workout);
-        await queryClient.invalidateQueries(Key.ActiveWorkout);
+        await queryClient.invalidateQueries(QueryKey.ActiveWorkout);
     };
 
     const onEndWorkout = async () => {
@@ -55,3 +55,5 @@ const styles = StyleSheet.create({
         backgroundColor: "#2A3135",
     },
 });
+
+export default RootView;

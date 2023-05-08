@@ -16,7 +16,7 @@ interface Props {
     onSelect: (workout: Workout) => void;
 }
 
-export default (props: Props) => {
+const PlanView = (props: Props) => {
     const onAdminSettings = () =>
         ActionSheetIOS.showActionSheetWithOptions(
             {
@@ -81,3 +81,5 @@ const styles = StyleSheet.create({
         right: 10,
     },
 });
+
+export default PlanView;
