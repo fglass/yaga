@@ -19,11 +19,7 @@ export const withWarning = (onPress: () => void) => {
 };
 
 export const shareText = async (text: string) => {
-    try {
-        await Share.share({ message: text });
-    } catch (error: any) {
-        console.error(error.message);
-    }
+    await Share.share({ message: text });
 };
 
 export const formatTime = (time: number): string => {

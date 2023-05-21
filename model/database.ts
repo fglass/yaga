@@ -26,13 +26,13 @@ export const exportDatabase = async () => {
     const keys = await AsyncStorage.getAllKeys();
     const items = await AsyncStorage.multiGet(keys);
 
-    const payload = items.map(([key, value]) => {
-        return { key, value };
+    const payload: Record<string, object> = {};
+    items.forEach(([key, value]) => {
+        payload[key] = value != null ? JSON.parse(value) : "";
     });
-    const file = JSON.stringify(payload); // TODO: sanitise
 
+    const file = JSON.stringify(payload);
     await shareText(file);
-    console.log(file);
 };
 
 export const resetDatabase = () => {

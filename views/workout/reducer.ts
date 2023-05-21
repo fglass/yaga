@@ -4,6 +4,7 @@ import { generateGuid } from "../../util";
 
 type Action = {
     type: ActionType;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
 };
 
