@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
-import { useQueryClient } from "react-query";
 import { ExerciseDef, ModalType, Workout } from "../../model/types";
 import { workoutProducer, ActionType } from "./reducer";
 import {
-    QueryKey,
-    completeWorkout,
-    createExerciseDef,
     saveActiveWorkout,
+    useDatabaseWriter,
     useExerciseDefs,
 } from "../../model/database";
 import { withWarning } from "../../util";
@@ -50,11 +47,12 @@ interface ViewModel {
     onRemoveExercise: (exerciseIdx: number) => void;
     onCreateExerciseDef: (name: string, category: string) => void;
     onFinishWorkout: () => void;
+    onCancelWorkout: () => void;
 }
 
 export const useWorkoutViewModel = (props: Props): ViewModel => {
-    const queryClient = useQueryClient(); // TODO: move use?
     const exerciseDefs = useExerciseDefs(); // TODO: move up?
+    const { completeWorkout, createExerciseDef } = useDatabaseWriter();
     const [workout, dispatch] = useReducer(
         workoutProducer,
         props.initialWorkout
@@ -62,9 +60,8 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const [restTimerResetKey, setRestTimerResetKey] = useState(0);
     const [activeModal, setActiveModal] = useState(ModalType.None);
 
-    // TODO: wrap actions in function instead: `withSave/Persist`
     useEffect(() => {
-        saveActiveWorkout(workout); // Fire-and-forget
+        saveActiveWorkout(workout); // No hook, fire-and-forget
     }, [workout]);
 
     const isLoading = Object.keys(exerciseDefs).length === 0;
@@ -77,8 +74,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     };
 
     const onCreateExerciseDef = async (name: string, category: string) => {
-        const exerciseId = await createExerciseDef(name, category);
-        await queryClient.invalidateQueries(QueryKey.ExerciseDefs);
+        const exerciseId = await createExerciseDef({ name, category });
         onAddExercise(exerciseId);
         setActiveModal(ModalType.None);
     };
@@ -88,6 +84,13 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         await props.onEnd();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     };
+
+    const onCancelWorkout = async () => {
+        await props.onEnd();
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    };
+
+    /* Local state change handlers */
 
     const onChangeWorkoutNotes = useCallback(
         (notes: string) =>
@@ -206,6 +209,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onAddExercise,
         onRemoveExercise,
         onCreateExerciseDef,
+        onCancelWorkout,
         onFinishWorkout,
     };
 };

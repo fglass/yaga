@@ -11,6 +11,7 @@ interface Props {
 
 const CountdownTimer = (props: Props) => {
     const [remainingTime, setRemainingTime] = useState(props.durationS);
+    const isFinished = remainingTime === 0;
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -25,7 +26,7 @@ const CountdownTimer = (props: Props) => {
     }, []);
 
     // TODO: refactor?
-    if (remainingTime === 0) {
+    if (isFinished) {
         props.onFinish();
     }
 

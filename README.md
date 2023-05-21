@@ -19,3 +19,7 @@ Yet Another Gym App
 -   [x] Workout list
 -   [ ] Workout creation
 -   [x] Admin panel
+
+### History View
+
+-   [ ] Show completed

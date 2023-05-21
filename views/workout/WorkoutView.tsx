@@ -207,7 +207,11 @@ const WorkoutView = (props: Props) => {
                 colour="success"
                 onPress={vm.onFinishWorkout}
             />
-            <Button label="Cancel" colour="error" onPress={props.onEnd} />
+            <Button
+                label="Cancel"
+                colour="error"
+                onPress={vm.onCancelWorkout}
+            />
         </View>
     );
 

@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { ExerciseDef, Workout } from "./types";
 import { generateGuid, shareText, withWarning } from "../util";
 
@@ -77,33 +77,63 @@ const useSelect = (key: QueryKey) => {
     return useQuery(key, async () => await select(key));
 };
 
-/* Functions */
-// TODO: RQ mutations
+export const useDatabaseWriter = () => {
+    const queryClient = useQueryClient();
 
-export const createExerciseDef = async (
-    name: string,
-    category: string
-): Promise<string> => {
-    const exerciseDefs = await select(QueryKey.ExerciseDefs);
+    const saveWorkoutMutation = useMutation({
+        mutationFn: saveActiveWorkout,
+        onSuccess: () => {
+            queryClient.invalidateQueries(QueryKey.ActiveWorkout);
+        },
+    });
 
-    const exerciseId = generateGuid();
-    exerciseDefs[exerciseId] = { name, category };
+    const completeWorkoutMutation = useMutation({
+        mutationFn: completeWorkout,
+        onSuccess: () => {
+            queryClient.invalidateQueries(QueryKey.CompletedWorkouts);
+        },
+    });
 
-    await insert(QueryKey.ExerciseDefs, exerciseDefs);
-    return exerciseId;
+    const createDefMutation = useMutation({
+        mutationFn: createExerciseDef,
+        onSuccess: () => {
+            queryClient.invalidateQueries(QueryKey.ExerciseDefs);
+        },
+    });
+
+    return {
+        saveActiveWorkout: async (workout: Workout | null) =>
+            await saveWorkoutMutation.mutateAsync(workout),
+        completeWorkout: async (workout: Workout) =>
+            await completeWorkoutMutation.mutateAsync(workout),
+        createExerciseDef: async (def: ExerciseDef) =>
+            await createDefMutation.mutateAsync(def),
+    };
 };
+
+/* Write functions */
 
 export const saveActiveWorkout = async (workout: Workout | null) => {
     await insert(QueryKey.ActiveWorkout, workout);
 };
 
-export const completeWorkout = async (workout: Workout) => {
+const completeWorkout = async (workout: Workout) => {
     const completedWorkouts = await select(QueryKey.CompletedWorkouts);
     completedWorkouts.push(workout);
     await insert(QueryKey.CompletedWorkouts, completedWorkouts);
 };
 
-/* Database operations */
+const createExerciseDef = async (def: ExerciseDef): Promise<string> => {
+    const exerciseDefs = await select(QueryKey.ExerciseDefs);
+
+    const exerciseId = generateGuid();
+    exerciseDefs[exerciseId] = def;
+
+    await insert(QueryKey.ExerciseDefs, exerciseDefs);
+    return exerciseId;
+};
+
+/* Raw database operations */
 
 const getPrefixedKey = (key: string) => `@yaga_${key}`;
 

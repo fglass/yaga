@@ -1,5 +1,5 @@
 import produce from "immer";
-import { Exercise, Set, Workout } from "../../model/types";
+import { Exercise, Note, Set, Workout } from "../../model/types";
 import { generateGuid } from "../../util";
 
 type Action = {
@@ -66,10 +66,7 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
             break;
         }
         case ActionType.AddExerciseNote:
-            draft.exercises[action.exerciseIdx].notes.push({
-                id: generateGuid(),
-                value: "",
-            });
+            draft.exercises[action.exerciseIdx].notes.push(createNewNote());
             break;
         case ActionType.AddExercise:
             draft.exercises.push(createNewExercise(action.exerciseId));
@@ -83,20 +80,21 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
     }
 });
 
-function createNewExercise(exerciseId: string): Exercise {
-    return {
-        id: generateGuid(),
-        exerciseId: exerciseId,
-        notes: [],
-        sets: [createNewSet()],
-    };
-}
+const createNewExercise = (exerciseId: string): Exercise => ({
+    id: generateGuid(),
+    exerciseId: exerciseId,
+    notes: [],
+    sets: [createNewSet()],
+});
 
-function createNewSet(): Set {
-    return {
-        id: generateGuid(),
-        weight: "0",
-        reps: "1",
-        finished: false,
-    };
-}
+const createNewSet = (): Set => ({
+    id: generateGuid(),
+    weight: "0",
+    reps: "1",
+    finished: false,
+});
+
+const createNewNote = (): Note => ({
+    id: generateGuid(),
+    value: "",
+});
