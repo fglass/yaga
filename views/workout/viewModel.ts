@@ -87,7 +87,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
     const onCancelWorkout = async () => {
         await props.onEnd();
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        Haptics.im(Haptics.ImpactFeedbackStyle.Light);
     };
 
     /* Local state change handlers */
@@ -209,7 +209,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onAddExercise,
         onRemoveExercise,
         onCreateExerciseDef,
-        onCancelWorkout,
         onFinishWorkout,
+        onCancelWorkout,
     };
 };
