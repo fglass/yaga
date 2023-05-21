@@ -12,7 +12,7 @@ Yet Another Gym App
 -   [x] Persistence
 -   [x] Finishing
 -   [x] Active workout
--   [ ] Database export
+-   [x] Database export
 
 ### Plan View
 

@@ -1,0 +1,62 @@
+import React from "react";
+import { Text, StyleSheet, FlatList, View } from "react-native";
+import { useCompletedWorkouts } from "../../model/database";
+import { Workout } from "../../model/types";
+import { formatTime } from "../../util";
+
+const HistoryView = () => {
+    const completedWorkouts = useCompletedWorkouts();
+
+    if (completedWorkouts.length === 0) {
+        return null;
+    }
+
+    const renderCompletedWorkout = (workout: Workout) => {
+        const nSets = workout.exercises.reduce(
+            (count, exercise) =>
+                count + exercise.sets.filter((s) => s.finished).length,
+            0
+        );
+        return (
+            <View key={workout.id} style={styles.workout}>
+                <Text style={styles.text}>{workout.name}</Text>
+                <Text style={styles.subtext}>
+                    {workout.date ?? "??/??/??"} –{" "}
+                    {formatTime(workout.duration ?? 0)} – Sets: {nSets}
+                </Text>
+            </View>
+        );
+    };
+
+    return (
+        <>
+            <Text style={styles.title}>History</Text>
+            <FlatList
+                data={completedWorkouts}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => renderCompletedWorkout(item)}
+            />
+        </>
+    );
+};
+
+const styles = StyleSheet.create({
+    title: {
+        marginLeft: 10,
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "white",
+    },
+    workout: {
+        padding: 10,
+    },
+    text: {
+        color: "white",
+    },
+    subtext: {
+        color: "white",
+        opacity: 0.5,
+    },
+});
+
+export default HistoryView;

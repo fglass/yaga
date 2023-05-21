@@ -10,6 +10,7 @@ import {
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Workout } from "../../model/types";
 import { exportDatabase, resetDatabase } from "../../model/database";
+import HistoryView from "./HistoryView";
 
 interface Props {
     workouts: Workout[];
@@ -36,6 +37,12 @@ const PlanView = (props: Props) => {
     return (
         <View>
             <Text style={styles.title}>Plan</Text>
+            <TouchableOpacity
+                style={styles.adminButton}
+                onPress={onAdminSettings}
+            >
+                <Ionicons name="ios-settings-sharp" color="white" size={20} />
+            </TouchableOpacity>
             <FlatList
                 data={props.workouts}
                 keyExtractor={(item) => item.id}
@@ -50,12 +57,9 @@ const PlanView = (props: Props) => {
                     </TouchableOpacity>
                 )}
             />
-            <TouchableOpacity
-                style={styles.adminButton}
-                onPress={onAdminSettings}
-            >
-                <Ionicons name="ios-settings-sharp" color="white" size={20} />
-            </TouchableOpacity>
+            <View style={styles.historyView}>
+                <HistoryView />
+            </View>
         </View>
     );
 };
@@ -79,6 +83,9 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: 5,
         right: 10,
+    },
+    historyView: {
+        marginTop: 20,
     },
 });
 

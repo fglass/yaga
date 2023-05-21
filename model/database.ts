@@ -64,6 +64,16 @@ export const useWorkouts = (): Workout[] => {
     return isLoading ? [] : data;
 };
 
+export const useCompletedWorkouts = (): Workout[] => {
+    const { isLoading, error, data } = useSelect(QueryKey.CompletedWorkouts);
+
+    if (error) {
+        console.error(error);
+    }
+
+    return isLoading ? [] : data;
+};
+
 export const useExerciseDefs = (): Record<string, ExerciseDef> => {
     const { isLoading, error, data } = useSelect(QueryKey.ExerciseDefs);
 

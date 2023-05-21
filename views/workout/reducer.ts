@@ -10,7 +10,7 @@ type Action = {
 
 export enum ActionType {
     ChangeWorkoutNotes = "change-workout-notes",
-    ChangeExerciseNote = "change-exercise-note",
+    ChangeExerciseNote = "change-exçercise-note",
     ChangeWeight = "change-weight",
     ChangeReps = "change-reps",
     FinishSet = "finish-set",

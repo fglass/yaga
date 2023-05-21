@@ -8,6 +8,8 @@ export interface Workout {
     name: string;
     exercises: Exercise[];
     notes: string;
+    date?: string;
+    duration?: number;
 }
 
 export interface Exercise {

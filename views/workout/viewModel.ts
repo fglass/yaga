@@ -6,7 +6,7 @@ import {
     useDatabaseWriter,
     useExerciseDefs,
 } from "../../model/database";
-import { withWarning } from "../../util";
+import { generateGuid, withWarning } from "../../util";
 import * as Haptics from "expo-haptics";
 
 interface Props {
@@ -80,7 +80,15 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     };
 
     const onFinishWorkout = async () => {
-        await completeWorkout(workout);
+        const completedWorkout = {
+            // TODO: new type
+            ...workout,
+            id: generateGuid(),
+            date: new Date().toLocaleString(),
+            duration: 1000, // TODO: set duration
+        };
+
+        await completeWorkout(completedWorkout);
         await props.onEnd();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     };
@@ -90,7 +98,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     };
 
-    /* Local state change handlers */
+    /* Workout change handlers */
 
     const onChangeWorkoutNotes = useCallback(
         (notes: string) =>
