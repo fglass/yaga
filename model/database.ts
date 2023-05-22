@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { CompletedWorkout, ExerciseDef, Workout } from "./types";
 import { generateGuid, shareText, withWarning } from "../util";
-import { EXERCISE_DEFS, WORKOUTS } from "./init";
+import { EXERCISE_DEFS, WORKOUTS } from "./data";
 
 export enum QueryKey {
     ExerciseDefs = "exerciseDefs",

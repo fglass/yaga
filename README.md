@@ -22,4 +22,4 @@ Yet Another Gym App
 
 ### History View
 
--   [ ] Show completed
+-   [x] Show completed
