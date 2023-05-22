@@ -81,7 +81,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
     const onFinishWorkout = async () => {
         const completedWorkout = {
-            // TODO: new type
             ...workout,
             id: generateGuid(),
             date: new Date().toLocaleString(),

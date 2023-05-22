@@ -1,7 +1,7 @@
 import React from "react";
 import { Text, StyleSheet, FlatList, View } from "react-native";
 import { useCompletedWorkouts } from "../../model/database";
-import { Workout } from "../../model/types";
+import { CompletedWorkout } from "../../model/types";
 import { formatTime } from "../../util";
 
 const HistoryView = () => {
@@ -11,7 +11,7 @@ const HistoryView = () => {
         return null;
     }
 
-    const renderCompletedWorkout = (workout: Workout) => {
+    const renderCompletedWorkout = (workout: CompletedWorkout) => {
         const nSets = workout.exercises.reduce(
             (count, exercise) =>
                 count + exercise.sets.filter((s) => s.finished).length,
@@ -21,8 +21,8 @@ const HistoryView = () => {
             <View key={workout.id} style={styles.workout}>
                 <Text style={styles.text}>{workout.name}</Text>
                 <Text style={styles.subtext}>
-                    {workout.date ?? "??/??/??"} –{" "}
-                    {formatTime(workout.duration ?? 0)} – Sets: {nSets}
+                    {workout.date} – {formatTime(workout.duration)} – Sets:{" "}
+                    {nSets}
                 </Text>
             </View>
         );

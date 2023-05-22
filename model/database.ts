@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { ExerciseDef, Workout } from "./types";
+import { CompletedWorkout, ExerciseDef, Workout } from "./types";
 import { generateGuid, shareText, withWarning } from "../util";
 import { EXERCISE_DEFS, WORKOUTS } from "./init";
 
@@ -64,7 +64,7 @@ export const useWorkouts = (): Workout[] => {
     return isLoading ? [] : data;
 };
 
-export const useCompletedWorkouts = (): Workout[] => {
+export const useCompletedWorkouts = (): CompletedWorkout[] => {
     const { isLoading, error, data } = useSelect(QueryKey.CompletedWorkouts);
 
     if (error) {
@@ -115,7 +115,7 @@ export const useDatabaseWriter = () => {
     return {
         saveActiveWorkout: async (workout: Workout | null) =>
             await saveWorkoutMutation.mutateAsync(workout),
-        completeWorkout: async (workout: Workout) =>
+        completeWorkout: async (workout: CompletedWorkout) =>
             await completeWorkoutMutation.mutateAsync(workout),
         createExerciseDef: async (def: ExerciseDef) =>
             await createDefMutation.mutateAsync(def),
@@ -128,7 +128,7 @@ export const saveActiveWorkout = async (workout: Workout | null) => {
     await insert(QueryKey.ActiveWorkout, workout);
 };
 
-const completeWorkout = async (workout: Workout) => {
+const completeWorkout = async (workout: CompletedWorkout) => {
     const completedWorkouts = await select(QueryKey.CompletedWorkouts);
     completedWorkouts.push(workout);
     await insert(QueryKey.CompletedWorkouts, completedWorkouts);
