@@ -12,9 +12,9 @@ import ExerciseListModal from "./ExerciseListModal";
 import NewExerciseModal from "./NewExerciseModal";
 import Button from "../../components/Button";
 import CountdownTimer from "../../components/CountdownTimer";
-import Timer from "../../components/Timer";
 import Deletable from "../../components/Deletable";
 import { Exercise, ModalType, Note, Set, Workout } from "../../model/types";
+import { formatTime } from "../../util";
 import { useWorkoutViewModel } from "./viewModel";
 import { styles } from "./styles";
 
@@ -32,7 +32,7 @@ const WorkoutView = (props: Props) => {
         <View style={styles.header}>
             <View>
                 <Text style={styles.title}>{vm.workout.name}</Text>
-                <Timer style={styles.subtitle} />
+                <Text style={styles.subtitle}>{formatTime(vm.durationS)}</Text>
                 <TextInput
                     style={styles.subtitle}
                     value={vm.workout.notes}

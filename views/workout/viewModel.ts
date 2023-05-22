@@ -17,6 +17,7 @@ interface Props {
 interface ViewModel {
     isLoading: boolean;
     workout: Workout; // TODO: flatten?
+    durationS: number;
     exerciseDefs: Record<string, ExerciseDef>;
     restTimerResetKey: number;
     activeModal: ModalType;
@@ -57,8 +58,14 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         workoutProducer,
         props.initialWorkout
     );
+    const [durationS, setDuration] = useState(0);
     const [restTimerResetKey, setRestTimerResetKey] = useState(0);
     const [activeModal, setActiveModal] = useState(ModalType.None);
+
+    useEffect(() => {
+        const intervalId = setInterval(() => setDuration((d) => d + 1), 1000);
+        return () => clearInterval(intervalId);
+    }, []);
 
     useEffect(() => {
         saveActiveWorkout(workout); // No hook, fire-and-forget
@@ -84,7 +91,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             ...workout,
             id: generateGuid(),
             date: new Date().toLocaleString(),
-            duration: 1000, // TODO: set duration
+            duration: durationS,
         };
 
         await completeWorkout(completedWorkout);
@@ -199,6 +206,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     return {
         isLoading,
         workout,
+        durationS,
         exerciseDefs,
         restTimerResetKey,
         activeModal,
