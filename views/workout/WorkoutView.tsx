@@ -167,7 +167,7 @@ const WorkoutView = (props: Props) => {
                     onChangeText={(text: string) =>
                         vm.onChangeWeight(exerciseIdx, setIdx, text)
                     }
-                    inputMode="numeric"
+                    inputMode="decimal"
                 />
                 <TextInput
                     style={[styles.td, set.finished && styles.tdFinished]}
@@ -175,7 +175,7 @@ const WorkoutView = (props: Props) => {
                     onChangeText={(text: string) =>
                         vm.onChangeRep(exerciseIdx, setIdx, text)
                     }
-                    inputMode="numeric"
+                    inputMode="decimal"
                 />
                 <TouchableOpacity
                     style={styles.tdBtn}

@@ -23,3 +23,12 @@ Yet Another Gym App
 ### History View
 
 -   [x] Show completed
+
+### Feedback
+
+-   [ ] Timers in background
+-   [ ] Exercise reordering
+-   [ ] Force cursor at end
+-   [x] Decimal points
+-   [ ] Add exercise height
+-   [ ] Keyboard at bottom
