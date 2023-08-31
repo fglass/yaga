@@ -21,8 +21,8 @@ const HistoryView = () => {
             <View key={workout.id} style={styles.workout}>
                 <Text style={styles.text}>{workout.name}</Text>
                 <Text style={styles.subtext}>
-                    {workout.date} – {formatTime(workout.duration)} – Sets:{" "}
-                    {nSets}
+                    {workout.date} | Duration: {formatTime(workout.duration)} |
+                    Sets: {nSets}
                 </Text>
             </View>
         );

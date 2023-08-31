@@ -27,6 +27,7 @@ Yet Another Gym App
 ### Feedback
 
 -   [ ] Timers in background
+    -   https://docs.expo.dev/versions/latest/sdk/background-fetch/?redirected
 -   [ ] Exercise reordering
 -   [ ] Force cursor at end
 -   [x] Decimal points

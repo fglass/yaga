@@ -1,5 +1,5 @@
-import { generateGuid } from "../util";
-import { ExerciseDef, Workout } from "./types";
+import { generateGuid } from "../../util";
+import { ExerciseDef, Workout } from "../types";
 
 enum Exercise {
     LatPulldown = "a03954ed-477f-4cc7-8d30-7fc2ac82635a",
