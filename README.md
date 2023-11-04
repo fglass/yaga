@@ -2,7 +2,11 @@
 
 Yet Another Gym App
 
-## TODO
+## Backlog
+
+### General
+
+-   [ ] Sessions
 
 ### Workout View
 
@@ -13,6 +17,7 @@ Yet Another Gym App
 -   [x] Finishing
 -   [x] Active workout
 -   [x] Database export
+-   [ ] Set intervals
 
 ### Plan View
 
@@ -23,11 +28,11 @@ Yet Another Gym App
 ### History View
 
 -   [x] Show completed
+-   [ ] View completed
 
 ### Feedback
 
--   [ ] Timers in background
-    -   https://docs.expo.dev/versions/latest/sdk/background-fetch/?redirected
+-   [x] Timers in background
 -   [ ] Exercise reordering
 -   [ ] Force cursor at end
 -   [x] Decimal points

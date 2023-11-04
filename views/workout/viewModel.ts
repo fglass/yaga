@@ -8,6 +8,7 @@ import {
 } from "../../model/database";
 import { generateGuid, withWarning } from "../../util";
 import * as Haptics from "expo-haptics";
+import { useTimers } from "./hooks";
 
 interface Props {
     initialWorkout: Workout;
@@ -17,9 +18,9 @@ interface Props {
 interface ViewModel {
     isLoading: boolean;
     workout: Workout; // TODO: flatten?
-    durationS: number;
+    workoutDurationS: number;
+    remainingRestTimeS: number;
     exerciseDefs: Record<string, ExerciseDef>;
-    restTimerResetKey: number;
     activeModal: ModalType;
     setActiveModal: (modalType: ModalType) => void;
     isModalActive: (modalType: ModalType) => boolean;
@@ -49,36 +50,30 @@ interface ViewModel {
     onCreateExerciseDef: (name: string, category: string) => void;
     onFinishWorkout: () => void;
     onCancelWorkout: () => void;
+    onRestFinish: () => void;
 }
 
 export const useWorkoutViewModel = (props: Props): ViewModel => {
-    const exerciseDefs = useExerciseDefs(); // TODO: move up?
-    const { completeWorkout, createExerciseDef } = useDatabaseWriter();
     const [workout, dispatch] = useReducer(
         workoutProducer,
         props.initialWorkout
     );
-    const [durationS, setDuration] = useState(0);
-    const [restTimerResetKey, setRestTimerResetKey] = useState(0);
+
+    const exerciseDefs = useExerciseDefs(); // TODO: lift up?
+    const { workoutDurationS, remainingRestTimeS, resetRestTimer } =
+        useTimers();
+
+    const { completeWorkout, createExerciseDef } = useDatabaseWriter();
     const [activeModal, setActiveModal] = useState(ModalType.None);
 
     useEffect(() => {
-        const intervalId = setInterval(() => setDuration((d) => d + 1), 1000);
-        return () => clearInterval(intervalId);
-    }, []);
-
-    useEffect(() => {
-        saveActiveWorkout(workout); // No hook, fire-and-forget
+        saveActiveWorkout(workout); // Fire-and-forget
     }, [workout]);
 
     const isLoading = Object.keys(exerciseDefs).length === 0;
 
     const isModalActive = (modalType: ModalType) =>
         (activeModal & modalType) === modalType;
-
-    const resetRestTimer = () => {
-        setRestTimerResetKey((prevKey: number) => prevKey + 1);
-    };
 
     const onCreateExerciseDef = async (name: string, category: string) => {
         const exerciseId = await createExerciseDef({ name, category });
@@ -91,7 +86,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             ...workout,
             id: generateGuid(),
             date: new Date().toLocaleString(),
-            duration: durationS,
+            duration: workoutDurationS,
         };
 
         await completeWorkout(completedWorkout);
@@ -158,7 +153,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             }
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         },
-        []
+        [resetRestTimer]
     );
 
     const onRemoveSet = useCallback((exerciseIdx: number, setIdx: number) => {
@@ -203,12 +198,17 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         });
     }, []);
 
+    const onRestFinish = () => {
+        alert("Rest finished!");
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    };
+
     return {
         isLoading,
         workout,
-        durationS,
+        workoutDurationS,
+        remainingRestTimeS,
         exerciseDefs,
-        restTimerResetKey,
         activeModal,
         setActiveModal,
         isModalActive,
@@ -226,5 +226,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onCreateExerciseDef,
         onFinishWorkout,
         onCancelWorkout,
+        onRestFinish,
     };
 };

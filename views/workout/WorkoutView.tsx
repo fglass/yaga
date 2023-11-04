@@ -18,21 +18,21 @@ import { formatTime } from "../../util";
 import { useWorkoutViewModel } from "./viewModel";
 import { styles } from "./styles";
 
-const DEFAULT_REST_DURATION_S = 90;
-
 interface Props {
     initialWorkout: Workout;
     onEnd: () => Promise<void>;
 }
 
 const WorkoutView = (props: Props) => {
-    const vm = useWorkoutViewModel({ ...props });
+    const vm = useWorkoutViewModel(props);
 
     const renderHeader = () => (
         <View style={styles.header}>
             <View>
                 <Text style={styles.title}>{vm.workout.name}</Text>
-                <Text style={styles.subtitle}>{formatTime(vm.durationS)}</Text>
+                <Text style={styles.subtitle}>
+                    {formatTime(vm.workoutDurationS)}
+                </Text>
                 <TextInput
                     style={styles.subtitle}
                     value={vm.workout.notes}
@@ -40,14 +40,11 @@ const WorkoutView = (props: Props) => {
                     onChangeText={vm.onChangeWorkoutNotes}
                 />
             </View>
-            {vm.restTimerResetKey > 0 && (
-                <CountdownTimer
-                    key={vm.restTimerResetKey}
-                    style={styles.subtitle}
-                    durationS={DEFAULT_REST_DURATION_S}
-                    onFinish={() => alert("Rest finished!")}
-                />
-            )}
+            <CountdownTimer
+                style={styles.subtitle}
+                remainingTime={vm.remainingRestTimeS}
+                onFinish={vm.onRestFinish}
+            />
         </View>
     );
 
