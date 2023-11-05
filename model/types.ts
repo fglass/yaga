@@ -26,7 +26,7 @@ export interface Set {
     id: string;
     weight: string;
     reps: string;
-    finished: boolean;
+    finishTime: number | undefined;
 }
 
 export interface Note {

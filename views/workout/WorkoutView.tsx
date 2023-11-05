@@ -136,61 +136,95 @@ const WorkoutView = (props: Props) => {
                 </View>
                 <View style={styles.trs}>
                     {exercise.sets.map((set: Set, setIdx: number) =>
-                        renderSet(set, setIdx, exerciseIdx)
+                        renderSet({
+                            set,
+                            setIdx,
+                            exerciseIdx,
+                            prevSet: exercise.sets[setIdx - 1],
+                        })
                     )}
                 </View>
             </View>
         </View>
     );
 
-    const renderSet = (set: Set, setIdx: number, exerciseIdx: number) => (
-        <Deletable
-            key={set.id}
-            onDelete={() => vm.onRemoveSet(exerciseIdx, setIdx)}
-        >
-            <View style={[styles.tr, set.finished && styles.finished]}>
-                <TextInput
-                    style={[
-                        styles.td,
-                        styles.narrow,
-                        set.finished && styles.tdFinished,
-                    ]}
-                >
-                    {setIdx + 1}
-                </TextInput>
-                <TextInput
-                    style={[styles.td, set.finished && styles.tdFinished]}
-                    value={set.weight}
-                    onChangeText={(text: string) =>
-                        vm.onChangeWeight(exerciseIdx, setIdx, text)
-                    }
-                    inputMode="decimal"
-                />
-                <TextInput
-                    style={[styles.td, set.finished && styles.tdFinished]}
-                    value={set.reps}
-                    onChangeText={(text: string) =>
-                        vm.onChangeRep(exerciseIdx, setIdx, text)
-                    }
-                    inputMode="decimal"
-                />
-                <TouchableOpacity
-                    style={styles.tdBtn}
-                    onPress={() => {
-                        vm.onFinishSet(exerciseIdx, setIdx, !set.finished);
-                    }}
-                >
-                    <Ionicons
-                        name={
-                            set.finished ? "ios-checkbox" : "ios-square-outline"
+    const renderSet = ({
+        set,
+        setIdx,
+        exerciseIdx,
+        prevSet,
+    }: {
+        set: Set;
+        setIdx: number;
+        exerciseIdx: number;
+        prevSet: Set | undefined;
+    }) => {
+        const isFinished = set.finishTime !== undefined;
+        const durationS = vm.calculateSetDuration(setIdx, exerciseIdx);
+        return (
+            <Deletable
+                key={set.id}
+                onDelete={() => vm.onRemoveSet(exerciseIdx, setIdx)}
+            >
+                <View style={[styles.tr, isFinished && styles.finished]}>
+                    {durationS ? (
+                        <Text
+                            style={[
+                                styles.td,
+                                styles.narrow,
+                                styles.tdFinished,
+                                styles.subtitle,
+                            ]}
+                        >
+                            {durationS}
+                        </Text>
+                    ) : (
+                        <TextInput
+                            style={[
+                                styles.td,
+                                styles.narrow,
+                                isFinished && styles.tdFinished,
+                            ]}
+                        >
+                            {setIdx + 1}
+                        </TextInput>
+                    )}
+                    <TextInput
+                        style={[styles.td, isFinished && styles.tdFinished]}
+                        value={set.weight}
+                        onChangeText={(text: string) =>
+                            vm.onChangeWeight(exerciseIdx, setIdx, text)
                         }
-                        color={set.finished ? "#65CA79" : "white"}
-                        size={24}
+                        inputMode="decimal"
                     />
-                </TouchableOpacity>
-            </View>
-        </Deletable>
-    );
+                    <TextInput
+                        style={[styles.td, isFinished && styles.tdFinished]}
+                        value={set.reps}
+                        onChangeText={(text: string) =>
+                            vm.onChangeRep(exerciseIdx, setIdx, text)
+                        }
+                        inputMode="decimal"
+                    />
+                    <TouchableOpacity
+                        style={styles.tdBtn}
+                        onPress={() => {
+                            vm.onFinishSet(exerciseIdx, setIdx, !isFinished);
+                        }}
+                    >
+                        <Ionicons
+                            name={
+                                isFinished
+                                    ? "ios-checkbox"
+                                    : "ios-square-outline"
+                            }
+                            color={isFinished ? "#65CA79" : "white"}
+                            size={24}
+                        />
+                    </TouchableOpacity>
+                </View>
+            </Deletable>
+        );
+    };
 
     const renderFooter = () => (
         <View style={styles.footer}>

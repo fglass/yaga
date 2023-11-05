@@ -40,9 +40,8 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
                 action.reps;
             break;
         case ActionType.FinishSet:
-            draft.exercises[action.exerciseIdx].sets[action.setIdx].finished =
-                !draft.exercises[action.exerciseIdx].sets[action.setIdx]
-                    .finished;
+            draft.exercises[action.exerciseIdx].sets[action.setIdx].finishTime =
+                action.isFinished ? Date.now() : undefined;
             break;
         case ActionType.RemoveSet:
             draft.exercises[action.exerciseIdx].sets.splice(action.setIdx, 1);
@@ -92,7 +91,7 @@ const createNewSet = (): Set => ({
     id: generateGuid(),
     weight: "0",
     reps: "1",
-    finished: false,
+    finishTime: undefined,
 });
 
 const createNewNote = (): Note => ({

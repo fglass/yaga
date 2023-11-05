@@ -96,7 +96,7 @@ export const styles = StyleSheet.create({
     },
     narrow: {
         marginLeft: 5,
-        maxWidth: 30,
+        maxWidth: 33,
     },
     finished: {
         backgroundColor: "#445E4C",

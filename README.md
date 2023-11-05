@@ -17,7 +17,7 @@ Yet Another Gym App
 -   [x] Finishing
 -   [x] Active workout
 -   [x] Database export
--   [ ] Set intervals
+-   [x] Set intervals
 
 ### Plan View
 

@@ -51,6 +51,10 @@ interface ViewModel {
     onFinishWorkout: () => void;
     onCancelWorkout: () => void;
     onRestFinish: () => void;
+    calculateSetDuration: (
+        setIdx: number,
+        exerciseIdx: number
+    ) => string | null;
 }
 
 export const useWorkoutViewModel = (props: Props): ViewModel => {
@@ -60,8 +64,12 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     );
 
     const exerciseDefs = useExerciseDefs(); // TODO: lift up?
-    const { workoutDurationS, remainingRestTimeS, resetRestTimer } =
-        useTimers();
+    const {
+        workoutStartTime,
+        workoutDurationS,
+        remainingRestTimeS,
+        resetRestTimer,
+    } = useTimers();
 
     const { completeWorkout, createExerciseDef } = useDatabaseWriter();
     const [activeModal, setActiveModal] = useState(ModalType.None);
@@ -203,6 +211,41 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     };
 
+    const calculateSetDuration = (setIdx: number, exerciseIdx: number) => {
+        const exercise = workout.exercises[exerciseIdx];
+        const set = exercise.sets[setIdx];
+
+        if (set.finishTime === undefined) {
+            return null;
+        }
+
+        let prevFinishTime = null;
+
+        if (setIdx > 0) {
+            prevFinishTime = exercise.sets[setIdx - 1].finishTime;
+        } else if (exerciseIdx > 0) {
+            const prevExercise = workout.exercises[exerciseIdx - 1];
+            prevFinishTime =
+                prevExercise.sets[prevExercise.sets.length - 1].finishTime;
+        } else {
+            prevFinishTime = workoutStartTime;
+        }
+
+        if (prevFinishTime == null) {
+            return null;
+        }
+
+        const duration = Math.ceil((set.finishTime - prevFinishTime) / 1000);
+
+        if (duration <= 0) {
+            return "-";
+        }
+        if (duration >= 100) {
+            return "!";
+        }
+        return duration.toString();
+    };
+
     return {
         isLoading,
         workout,
@@ -227,5 +270,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onFinishWorkout,
         onCancelWorkout,
         onRestFinish,
+        calculateSetDuration,
     };
 };

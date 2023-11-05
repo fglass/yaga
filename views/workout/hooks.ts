@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
 
-const DEFAULT_REST_DURATION_S = 20;
+const DEFAULT_REST_DURATION_S = 90;
 
 export const useTimers = () => {
     const workoutStartTime = useMemo(() => Date.now(), []);
@@ -25,6 +25,7 @@ export const useTimers = () => {
     }, [workoutStartTime, restStartTime]); // TODO: remove rest depdendency
 
     return {
+        workoutStartTime,
         workoutDurationS,
         remainingRestTimeS,
         resetRestTimer: useCallback(() => {
