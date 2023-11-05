@@ -14,7 +14,8 @@ const HistoryView = () => {
     const renderCompletedWorkout = (workout: CompletedWorkout) => {
         const nSets = workout.exercises.reduce(
             (count, exercise) =>
-                count + exercise.sets.filter((s) => s.finished).length,
+                count +
+                exercise.sets.filter((s) => s.finishTime !== undefined).length,
             0
         );
         return (

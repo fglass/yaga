@@ -240,7 +240,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         if (duration <= 0) {
             return "-";
         }
-        if (duration >= 100) {
+        if (duration >= 1000) {
             return "!";
         }
         return duration.toString();

@@ -1,36 +1,37 @@
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 const DEFAULT_REST_DURATION_S = 90;
 
 export const useTimers = () => {
-    const workoutStartTime = useMemo(() => Date.now(), []);
+    const workoutStartTimeRef = useRef(Date.now());
     const [workoutDurationS, setWorkoutDurationS] = useState(0);
 
-    const [restStartTime, setRestStartTime] = useState(
-        Date.now() - DEFAULT_REST_DURATION_S * 1000
+    const restStartTimeRef = useRef(
+        Date.now() - DEFAULT_REST_DURATION_S * 1000 // Init before workout start
     );
     const [remainingRestTimeS, setRemainingRestTimeS] = useState(-1);
 
     useEffect(() => {
         const intervalId = setInterval(() => {
             setWorkoutDurationS(
-                Math.round((Date.now() - workoutStartTime) / 1000)
+                Math.round((Date.now() - workoutStartTimeRef.current) / 1000)
             );
             setRemainingRestTimeS(
                 DEFAULT_REST_DURATION_S -
-                    Math.floor((Date.now() - restStartTime) / 1000)
+                    Math.ceil((Date.now() - restStartTimeRef.current) / 1000) -
+                    1
             );
         }, 1000);
         return () => clearInterval(intervalId);
-    }, [workoutStartTime, restStartTime]); // TODO: remove rest depdendency
+    }, []);
 
     return {
-        workoutStartTime,
+        workoutStartTime: workoutStartTimeRef.current,
         workoutDurationS,
         remainingRestTimeS,
         resetRestTimer: useCallback(() => {
-            setRestStartTime(Date.now());
-            setRemainingRestTimeS(DEFAULT_REST_DURATION_S); // Skip effect wait
+            restStartTimeRef.current = Date.now();
+            setRemainingRestTimeS(DEFAULT_REST_DURATION_S); // Skip interval wait
         }, []),
     };
 };

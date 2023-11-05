@@ -2,6 +2,11 @@
 
 Yet Another Gym App
 
+```
+npm run ios
+eas update --auto
+```
+
 ## Backlog
 
 ### General
@@ -18,6 +23,11 @@ Yet Another Gym App
 -   [x] Active workout
 -   [x] Database export
 -   [x] Set intervals
+-   [ ] Set timer
+-   [ ] Exercise reordering
+-   [ ] Double tap "ditto"
+-   [ ] View mode
+    -   Default, set intervals, progressive overload
 
 ### Plan View
 
@@ -33,8 +43,7 @@ Yet Another Gym App
 ### Feedback
 
 -   [x] Timers in background
--   [ ] Exercise reordering
 -   [ ] Force cursor at end
 -   [x] Decimal points
--   [ ] Add exercise height
--   [ ] Keyboard at bottom
+-   [ ] Keyboard position/minimise
+-   [x] Empty template

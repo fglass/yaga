@@ -89,18 +89,12 @@ const WorkoutView = (props: Props) => {
                     >
                         <Ionicons name="ios-attach" color="white" size={24} />
                     </TouchableOpacity>
-                    {vm.workout.exercises.length > 1 && (
-                        <TouchableOpacity
-                            style={styles.cardHeaderBtn}
-                            onPress={() => vm.onRemoveExercise(exerciseIdx)}
-                        >
-                            <Ionicons
-                                name="ios-trash"
-                                color="white"
-                                size={24}
-                            />
-                        </TouchableOpacity>
-                    )}
+                    <TouchableOpacity
+                        style={styles.cardHeaderBtn}
+                        onPress={() => vm.onRemoveExercise(exerciseIdx)}
+                    >
+                        <Ionicons name="ios-trash" color="white" size={24} />
+                    </TouchableOpacity>
                 </View>
             </View>
             <View>
@@ -136,29 +130,14 @@ const WorkoutView = (props: Props) => {
                 </View>
                 <View style={styles.trs}>
                     {exercise.sets.map((set: Set, setIdx: number) =>
-                        renderSet({
-                            set,
-                            setIdx,
-                            exerciseIdx,
-                            prevSet: exercise.sets[setIdx - 1],
-                        })
+                        renderSet(set, setIdx, exerciseIdx)
                     )}
                 </View>
             </View>
         </View>
     );
 
-    const renderSet = ({
-        set,
-        setIdx,
-        exerciseIdx,
-        prevSet,
-    }: {
-        set: Set;
-        setIdx: number;
-        exerciseIdx: number;
-        prevSet: Set | undefined;
-    }) => {
+    const renderSet = (set: Set, setIdx: number, exerciseIdx: number) => {
         const isFinished = set.finishTime !== undefined;
         const durationS = vm.calculateSetDuration(setIdx, exerciseIdx);
         return (
@@ -226,6 +205,12 @@ const WorkoutView = (props: Props) => {
         );
     };
 
+    const renderEmptyContainer = () => (
+        <View style={styles.card}>
+            <Text style={styles.subtitle}>No Exercises</Text>
+        </View>
+    );
+
     const renderFooter = () => (
         <View style={styles.footer}>
             <Button
@@ -251,7 +236,9 @@ const WorkoutView = (props: Props) => {
             {renderHeader()}
             {renderModals()}
             <ScrollView style={styles.content}>
-                {vm.workout.exercises.map(renderExercise)}
+                {vm.workout.exercises.length > 0
+                    ? vm.workout.exercises.map(renderExercise)
+                    : renderEmptyContainer()}
                 {renderFooter()}
             </ScrollView>
         </View>

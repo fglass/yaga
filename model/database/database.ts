@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { EXERCISE_DEFS, WORKOUTS } from "./database.data";
+import { EXERCISE_DEFS, WORKOUT_TEMPLATES } from "./database.data";
 import { CompletedWorkout, ExerciseDef, Workout } from "../types";
 import { generateGuid, shareText, withWarning } from "../../util";
 
@@ -17,7 +17,7 @@ export const initDatabase = async () => {
     const version = await select(QueryKey.Version);
     if (version == null) {
         await insert(QueryKey.Version, 1);
-        await insert(QueryKey.Workouts, WORKOUTS);
+        await insert(QueryKey.Workouts, WORKOUT_TEMPLATES);
         await insert(QueryKey.CompletedWorkouts, []);
         await insert(QueryKey.ExerciseDefs, EXERCISE_DEFS);
     }
