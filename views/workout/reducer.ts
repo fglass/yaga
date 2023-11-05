@@ -20,6 +20,7 @@ export enum ActionType {
     AddExerciseNote = "add-exercise-note",
     AddExercise = "add-exercise",
     RemoveExercise = "remove-exercise",
+    MoveExercise = "move-exercise",
 }
 
 export const workoutProducer = produce((draft: Workout, action: Action) => {
@@ -42,6 +43,15 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
         case ActionType.FinishSet:
             draft.exercises[action.exerciseIdx].sets[action.setIdx].finishTime =
                 action.isFinished ? Date.now() : undefined;
+            break;
+        case ActionType.MoveExercise:
+            [
+                draft.exercises[action.exerciseIdx],
+                draft.exercises[action.exerciseIdx + action.delta],
+            ] = [
+                draft.exercises[action.exerciseIdx + action.delta],
+                draft.exercises[action.exerciseIdx],
+            ];
             break;
         case ActionType.RemoveSet:
             draft.exercises[action.exerciseIdx].sets.splice(action.setIdx, 1);

@@ -11,7 +11,11 @@ interface Props {
 
 const ModalDialog = ({ title, isVisible, children, onClose }: Props) => (
     <Modal visible={isVisible} onRequestClose={onClose} transparent>
-        <TouchableOpacity style={{ flex: 1 }} onPress={onClose}>
+        <TouchableOpacity
+            style={{ flex: 1 }}
+            activeOpacity={1}
+            onPress={onClose}
+        >
             <View style={styles.container}>
                 <View
                     style={styles.modal}

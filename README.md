@@ -24,7 +24,7 @@ eas update --auto
 -   [x] Database export
 -   [x] Set intervals
 -   [ ] Set timer
--   [ ] Exercise reordering
+-   [x] Exercise reordering
 -   [ ] Double tap "ditto"
 -   [ ] View mode
     -   Default, set intervals, progressive overload

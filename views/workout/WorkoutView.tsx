@@ -75,6 +75,30 @@ const WorkoutView = (props: Props) => {
                 <View style={styles.cardHeaderRight}>
                     <TouchableOpacity
                         style={styles.cardHeaderBtn}
+                        onPress={() => vm.onMoveExercise(exerciseIdx, -1)}
+                        disabled={exerciseIdx === 0}
+                    >
+                        <Ionicons
+                            name="ios-chevron-up-circle"
+                            color="white"
+                            size={24}
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.cardHeaderBtn}
+                        onPress={() => vm.onMoveExercise(exerciseIdx, 1)}
+                        disabled={
+                            exerciseIdx === vm.workout.exercises.length - 1
+                        }
+                    >
+                        <Ionicons
+                            name="ios-chevron-down-circle"
+                            color="white"
+                            size={24}
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.cardHeaderBtn}
                         onPress={() => vm.onAddSet(exerciseIdx)}
                     >
                         <Ionicons
@@ -87,7 +111,11 @@ const WorkoutView = (props: Props) => {
                         style={styles.cardHeaderBtn}
                         onPress={() => vm.onAddExerciseNote(exerciseIdx)}
                     >
-                        <Ionicons name="ios-attach" color="white" size={24} />
+                        <Ionicons
+                            name="ios-at-circle"
+                            color="white"
+                            size={24}
+                        />
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.cardHeaderBtn}

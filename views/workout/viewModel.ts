@@ -47,6 +47,7 @@ interface ViewModel {
     onAddExerciseNote: (exerciseIdx: number) => void;
     onAddExercise: (exerciseId: string) => void;
     onRemoveExercise: (exerciseIdx: number) => void;
+    onMoveExercise: (exerciseIdx: number, delta: number) => void;
     onCreateExerciseDef: (name: string, category: string) => void;
     onFinishWorkout: () => void;
     onCancelWorkout: () => void;
@@ -103,8 +104,10 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     };
 
     const onCancelWorkout = async () => {
-        await props.onEnd();
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        withWarning(async () => {
+            await props.onEnd();
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        });
     };
 
     /* Workout change handlers */
@@ -206,6 +209,11 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         });
     }, []);
 
+    const onMoveExercise = useCallback((exerciseIdx: number, delta: number) => {
+        dispatch({ type: ActionType.MoveExercise, exerciseIdx, delta });
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }, []);
+
     const onRestFinish = () => {
         alert("Rest finished!");
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -266,6 +274,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onAddExerciseNote,
         onAddExercise,
         onRemoveExercise,
+        onMoveExercise,
         onCreateExerciseDef,
         onFinishWorkout,
         onCancelWorkout,
