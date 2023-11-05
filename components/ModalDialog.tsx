@@ -9,28 +9,28 @@ interface Props {
     onClose: () => void;
 }
 
-export default (props: Props) => {
-    return (
-        <Modal
-            visible={props.isVisible}
-            onRequestClose={props.onClose}
-            transparent
-        >
+const ModalDialog = ({ title, isVisible, children, onClose }: Props) => (
+    <Modal visible={isVisible} onRequestClose={onClose} transparent>
+        <TouchableOpacity style={{ flex: 1 }} onPress={onClose}>
             <View style={styles.container}>
-                <View style={styles.modal}>
-                    <Text style={styles.title}>{props.title}</Text>
+                <View
+                    style={styles.modal}
+                    onStartShouldSetResponder={() => true}
+                    onTouchEnd={(e) => e.stopPropagation()}
+                >
+                    <Text style={styles.title}>{title}</Text>
                     <TouchableOpacity
                         style={styles.closeButton}
-                        onPress={props.onClose}
+                        onPress={onClose}
                     >
                         <Ionicons name="ios-close" color="white" size={24} />
                     </TouchableOpacity>
-                    {props.children}
+                    {children}
                 </View>
             </View>
-        </Modal>
-    );
-};
+        </TouchableOpacity>
+    </Modal>
+);
 
 const styles = StyleSheet.create({
     container: {
@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0, 0, 0, 0.5)",
     },
     modal: {
+        maxHeight: "40%",
         backgroundColor: "#2A3135",
         borderRadius: 10,
         padding: 20,
@@ -57,3 +58,5 @@ const styles = StyleSheet.create({
         right: 5,
     },
 });
+
+export default ModalDialog;

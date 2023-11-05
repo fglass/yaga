@@ -9,7 +9,7 @@ interface Props {
     onClose: () => void;
 }
 
-export default (props: Props) => {
+const NewExerciseModal = (props: Props) => {
     const [name, setName] = useState("");
     const [category, setCategory] = useState("");
     return (
@@ -54,3 +54,5 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
 });
+
+export default NewExerciseModal;

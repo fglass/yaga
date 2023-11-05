@@ -10,7 +10,7 @@ interface Props {
     onClose: () => void;
 }
 
-export default (props: Props) => {
+const ExerciseListModal = (props: Props) => {
     return (
         <ModalDialog
             title="Add Exercise"
@@ -53,3 +53,5 @@ const styles = StyleSheet.create({
         color: "#58A5F9",
     },
 });
+
+export default ExerciseListModal;
