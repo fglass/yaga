@@ -42,8 +42,9 @@ interface ViewModel {
         isFinished: boolean
     ) => void;
     onRemoveSet: (exerciseIdx: number, setIdx: number) => void;
-    onRemoveExerciseNote: (exerciseIdx: number, noteIdx: number) => void;
     onAddSet: (exerciseIdx: number) => void;
+    copyToCurrentSet: (exerciseIdx: number, setIdx: number) => void;
+    onRemoveExerciseNote: (exerciseIdx: number, noteIdx: number) => void;
     onAddExerciseNote: (exerciseIdx: number) => void;
     onAddExercise: (exerciseId: string) => void;
     onRemoveExercise: (exerciseIdx: number) => void;
@@ -172,6 +173,23 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }, []);
 
+    const onAddSet = useCallback((exerciseIdx: number) => {
+        dispatch({ type: ActionType.AddSet, exerciseIdx });
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }, []);
+
+    const copyToCurrentSet = useCallback(
+        (exerciseIdx: number, setIdx: number) => {
+            dispatch({
+                type: ActionType.CopyToCurrentSet,
+                exerciseIdx,
+                setIdx,
+            });
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        },
+        []
+    );
+
     const onRemoveExerciseNote = useCallback(
         (exerciseIdx: number, noteIdx: number) => {
             dispatch({
@@ -183,11 +201,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         },
         []
     );
-
-    const onAddSet = useCallback((exerciseIdx: number) => {
-        dispatch({ type: ActionType.AddSet, exerciseIdx });
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }, []);
 
     const onAddExerciseNote = useCallback((exerciseIdx: number) => {
         dispatch({ type: ActionType.AddExerciseNote, exerciseIdx });
@@ -269,8 +282,9 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onChangeRep,
         onFinishSet,
         onRemoveSet,
-        onRemoveExerciseNote,
         onAddSet,
+        copyToCurrentSet,
+        onRemoveExerciseNote,
         onAddExerciseNote,
         onAddExercise,
         onRemoveExercise,

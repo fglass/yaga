@@ -17,6 +17,7 @@ import { Exercise, ModalType, Note, Set, Workout } from "../../model/types";
 import { formatTime } from "../../util";
 import { useWorkoutViewModel } from "./viewModel";
 import { styles } from "./styles";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 interface Props {
     initialWorkout: Workout;
@@ -175,16 +176,26 @@ const WorkoutView = (props: Props) => {
             >
                 <View style={[styles.tr, isFinished && styles.finished]}>
                     {durationS ? (
-                        <Text
-                            style={[
-                                styles.td,
-                                styles.narrow,
-                                styles.tdFinished,
-                                styles.subtitle,
-                            ]}
+                        <GestureDetector
+                            gesture={Gesture.Tap()
+                                .numberOfTaps(2)
+                                .runOnJS(true)
+                                .onStart(() =>
+                                    vm.copyToCurrentSet(exerciseIdx, setIdx)
+                                )}
                         >
-                            {durationS}
-                        </Text>
+                            <TextInput
+                                style={[
+                                    styles.td,
+                                    styles.narrow,
+                                    styles.tdFinished,
+                                    styles.subtitle,
+                                ]}
+                                editable={false}
+                            >
+                                {durationS}
+                            </TextInput>
+                        </GestureDetector>
                     ) : (
                         <TextInput
                             style={[
@@ -192,6 +203,7 @@ const WorkoutView = (props: Props) => {
                                 styles.narrow,
                                 isFinished && styles.tdFinished,
                             ]}
+                            editable={false}
                         >
                             {setIdx + 1}
                         </TextInput>

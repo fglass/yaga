@@ -12,6 +12,7 @@ eas update --auto
 ### General
 
 -   [ ] Sessions
+-   [ ] SQLite
 
 ### Workout View
 
@@ -25,7 +26,7 @@ eas update --auto
 -   [x] Set intervals
 -   [ ] Set timer
 -   [x] Exercise reordering
--   [ ] Double tap "ditto"
+-   [x] Double tap "ditto"
 -   [ ] View mode
     -   Default, set intervals, progressive overload
 
@@ -47,3 +48,5 @@ eas update --auto
 -   [x] Decimal points
 -   [ ] Keyboard position/minimise
 -   [x] Empty template
+-   [ ] Weekly summary
+    -   Sets per muscle group
