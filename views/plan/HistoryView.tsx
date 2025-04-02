@@ -1,5 +1,11 @@
 import React from "react";
-import { Text, StyleSheet, FlatList, View } from "react-native";
+import {
+    Text,
+    StyleSheet,
+    FlatList,
+    View,
+    TouchableOpacity,
+} from "react-native";
 import { useCompletedWorkouts } from "../../model/database";
 import { CompletedWorkout } from "../../model/types";
 import { formatTime } from "../../util";
@@ -19,13 +25,19 @@ const HistoryView = () => {
             0
         );
         return (
-            <View key={workout.id} style={styles.workout}>
-                <Text style={styles.text}>{workout.name}</Text>
-                <Text style={styles.subtext}>
-                    {workout.date} | Duration: {formatTime(workout.duration)} |
-                    Sets: {nSets}
-                </Text>
-            </View>
+            <TouchableOpacity
+                onPress={() => {
+                    console.error("TODO: implement readonly view");
+                }}
+            >
+                <View key={workout.id} style={styles.workout}>
+                    <Text style={styles.text}>{workout.name}</Text>
+                    <Text style={styles.subtext}>
+                        {workout.date} — Duration:{" "}
+                        {formatTime(workout.duration)} — Sets: {nSets}
+                    </Text>
+                </View>
+            </TouchableOpacity>
         );
     };
 

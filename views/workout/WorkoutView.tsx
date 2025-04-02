@@ -155,6 +155,7 @@ const WorkoutView = (props: Props) => {
                     <Text style={[styles.th, styles.narrow]}>Set</Text>
                     <Text style={styles.th}>Weight</Text>
                     <Text style={styles.th}>Reps</Text>
+                    <Text style={styles.th}>Time</Text>
                     <Text style={[styles.th, styles.narrow]} />
                 </View>
                 <View style={styles.trs}>
@@ -168,14 +169,14 @@ const WorkoutView = (props: Props) => {
 
     const renderSet = (set: Set, setIdx: number, exerciseIdx: number) => {
         const isFinished = set.finishTime !== undefined;
-        const durationS = vm.calculateSetDuration(setIdx, exerciseIdx);
+        const duration = vm.calculateSetDuration(setIdx, exerciseIdx);
         return (
             <Deletable
                 key={set.id}
                 onDelete={() => vm.onRemoveSet(exerciseIdx, setIdx)}
             >
                 <View style={[styles.tr, isFinished && styles.finished]}>
-                    {durationS ? (
+                    {isFinished ? (
                         <GestureDetector
                             gesture={Gesture.Tap()
                                 .numberOfTaps(2)
@@ -193,7 +194,7 @@ const WorkoutView = (props: Props) => {
                                 ]}
                                 editable={false}
                             >
-                                {durationS}
+                                {setIdx + 1}
                             </TextInput>
                         </GestureDetector>
                     ) : (
@@ -223,6 +224,11 @@ const WorkoutView = (props: Props) => {
                             vm.onChangeRep(exerciseIdx, setIdx, text)
                         }
                         inputMode="decimal"
+                    />
+                    <TextInput
+                        style={[styles.td, isFinished && styles.tdFinished]}
+                        value={duration ?? ""}
+                        editable={false}
                     />
                     <TouchableOpacity
                         style={styles.tdBtn}

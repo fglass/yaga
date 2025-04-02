@@ -256,15 +256,17 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             return null;
         }
 
-        const duration = Math.ceil((set.finishTime - prevFinishTime) / 1000);
+        const totalSeconds = Math.ceil(
+            (set.finishTime - prevFinishTime) / 1000
+        );
 
-        if (duration <= 0) {
+        if (totalSeconds <= 0) {
             return "-";
         }
-        if (duration >= 1000) {
-            return "!";
-        }
-        return duration.toString();
+
+        const nMins = Math.floor(totalSeconds / 60);
+        const nSeconds = totalSeconds % 60;
+        return `${nMins}m${nSeconds.toString().padStart(2, "0")}s`;
     };
 
     return {

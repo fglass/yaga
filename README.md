@@ -50,3 +50,7 @@ eas update --auto
 -   [x] Empty template
 -   [ ] Weekly summary
     -   Sets per muscle group
+
+## Incubator
+
+-   Workouts per week/month/year (including Apple Health)
