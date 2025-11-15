@@ -14,6 +14,8 @@ eas update --auto
 
 -   [ ] Sessions
 -   [ ] SQLite
+-   [ ] Apple Health export
+-   [ ] iCloud sync
 
 ### Workout View
 

@@ -27,27 +27,35 @@ interface Props {
 const WorkoutView = (props: Props) => {
     const vm = useWorkoutViewModel(props);
 
-    const renderHeader = () => (
-        <View style={styles.header}>
-            <View>
-                <Text style={styles.title}>{vm.workout.name}</Text>
-                <Text style={styles.subtitle}>
-                    {formatTime(vm.workoutDurationS)}
-                </Text>
-                <TextInput
-                    style={styles.subtitle}
-                    value={vm.workout.notes}
-                    placeholder="Notes"
-                    onChangeText={vm.onChangeWorkoutNotes}
-                />
+    const renderHeader = () => {
+        const showTimer = vm.remainingRestTimeS > 0;
+        return (
+            <View style={[styles.card, styles.headerCard]}>
+                <View style={styles.headerText}>
+                    <Text style={styles.title}>{vm.workout.name}</Text>
+                    <Text style={[styles.subtitle, styles.headerSubtitle]}>
+                        {formatTime(vm.workoutDurationS)}
+                    </Text>
+                    <TextInput
+                        style={styles.notesInput}
+                        value={vm.workout.notes}
+                        placeholder="Notes"
+                        placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                        onChangeText={vm.onChangeWorkoutNotes}
+                    />
+                </View>
+                {showTimer && (
+                    <View style={styles.timerContainer}>
+                        <CountdownTimer
+                            style={styles.subtitle}
+                            remainingTime={vm.remainingRestTimeS}
+                            onFinish={vm.onRestFinish}
+                        />
+                    </View>
+                )}
             </View>
-            <CountdownTimer
-                style={styles.subtitle}
-                remainingTime={vm.remainingRestTimeS}
-                onFinish={vm.onRestFinish}
-            />
-        </View>
-    );
+        );
+    };
 
     const renderModals = () => (
         <>
@@ -65,210 +73,263 @@ const WorkoutView = (props: Props) => {
         </>
     );
 
-    const renderExercise = (exercise: Exercise, exerciseIdx: number) => (
-        <View key={exercise.id} style={styles.card}>
-            <View style={styles.cardHeader}>
-                <View>
-                    <Text style={styles.cardTitle}>
-                        {vm.exerciseDefs[exercise.exerciseId]?.name}
-                    </Text>
-                </View>
-                <View style={styles.cardHeaderRight}>
-                    <TouchableOpacity
-                        style={styles.cardHeaderBtn}
-                        onPress={() => vm.onMoveExercise(exerciseIdx, -1)}
-                        disabled={exerciseIdx === 0}
-                    >
-                        <Ionicons name="chevron-up" color="white" size={24} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.cardHeaderBtn}
-                        onPress={() => vm.onMoveExercise(exerciseIdx, 1)}
-                        disabled={
-                            exerciseIdx === vm.workout.exercises.length - 1
-                        }
-                    >
-                        <Ionicons
-                            name="chevron-down"
-                            color="white"
-                            size={24}
-                        />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.cardHeaderBtn}
-                        onPress={() => vm.onAddSet(exerciseIdx)}
-                    >
-                        <Ionicons name="add-circle" color="white" size={24} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.cardHeaderBtn}
-                        onPress={() => vm.onAddExerciseNote(exerciseIdx)}
-                    >
-                        <Ionicons name="at-circle" color="white" size={24} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.cardHeaderBtn}
-                        onPress={() => vm.onRemoveExercise(exerciseIdx)}
-                    >
-                        <Ionicons name="trash" color="white" size={24} />
-                    </TouchableOpacity>
-                </View>
-            </View>
-            <View>
-                {exercise.notes.map((note: Note, noteIdx: number) => (
-                    <View key={note.id} style={styles.noteContainer}>
-                        <Deletable
-                            onDelete={() =>
-                                vm.onRemoveExerciseNote(exerciseIdx, noteIdx)
+    const renderExercise = (exercise: Exercise, exerciseIdx: number) => {
+        const notesExpanded = vm.isNotesExpanded(exercise);
+        const hasNotes = exercise.notes.length > 0;
+        return (
+            <View key={exercise.id} style={[styles.card, styles.exerciseCard]}>
+                <View style={styles.cardHeader}>
+                    <View>
+                        <Text
+                            style={[
+                                styles.cardTitle,
+                                vm.exerciseDefs[exercise.exerciseId]?.name
+                                    ?.length > 12 && styles.cardTitleSmall,
+                            ]}
+                            numberOfLines={1}
+                        >
+                            {vm.exerciseDefs[exercise.exerciseId]?.name}
+                        </Text>
+                    </View>
+                    <View style={styles.cardHeaderRight}>
+                        <TouchableOpacity
+                            style={styles.cardHeaderBtn}
+                            onPress={() => vm.onMoveExercise(exerciseIdx, -1)}
+                            disabled={exerciseIdx === 0}
+                        >
+                            <Ionicons
+                                name="chevron-up"
+                                color="white"
+                                size={20}
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.cardHeaderBtn}
+                            onPress={() => vm.onMoveExercise(exerciseIdx, 1)}
+                            disabled={
+                                exerciseIdx === vm.workout.exercises.length - 1
                             }
                         >
-                            <TextInput
-                                style={styles.note}
-                                placeholder="Note"
-                                value={note.value}
-                                onChangeText={(text: string) =>
-                                    vm.onChangeExerciseNotes(
-                                        exerciseIdx,
-                                        noteIdx,
-                                        text
-                                    )
-                                }
+                            <Ionicons
+                                name="chevron-down"
+                                color="white"
+                                size={20}
                             />
-                        </Deletable>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.cardHeaderBtn}
+                            onPress={() => vm.onAddSet(exerciseIdx)}
+                        >
+                            <Ionicons
+                                name="add-circle"
+                                color="white"
+                                size={20}
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[
+                                styles.cardHeaderBtn,
+                                notesExpanded && styles.cardHeaderBtnActive,
+                            ]}
+                            onPress={() =>
+                                vm.onNoteButtonPress(exercise, exerciseIdx)
+                            }
+                        >
+                            <Ionicons
+                                name={
+                                    notesExpanded
+                                        ? "at-circle-outline"
+                                        : "at-circle"
+                                }
+                                color={notesExpanded ? "#2A3135" : "white"}
+                                size={20}
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.cardHeaderBtn}
+                            onPress={() => vm.onRemoveExercise(exerciseIdx)}
+                        >
+                            <Ionicons name="trash" color="white" size={20} />
+                        </TouchableOpacity>
                     </View>
-                ))}
-            </View>
-            <View>
-                <View style={styles.thead}>
-                    <Text style={[styles.th, styles.narrow]}>Set</Text>
-                    <Text style={styles.th}>Weight</Text>
-                    <Text style={styles.th}>Reps</Text>
-                    <Text style={styles.th}>Time</Text>
-                    <Text style={[styles.th, styles.narrow]} />
                 </View>
-                <View style={styles.trs}>
-                    {exercise.sets.map((set: Set, setIdx: number) =>
-                        renderSet(set, setIdx, exerciseIdx)
-                    )}
+                {hasNotes && notesExpanded && (
+                    <View>
+                        {exercise.notes
+                            .slice(0, 1)
+                            .map((note: Note, noteIdx: number) => (
+                                <View
+                                    key={note.id}
+                                    style={styles.noteContainer}
+                                >
+                                    <Deletable
+                                        onDelete={() =>
+                                            vm.onRemoveExerciseNote(
+                                                exerciseIdx,
+                                                noteIdx
+                                            )
+                                        }
+                                    >
+                                        <TextInput
+                                            style={styles.note}
+                                            placeholder="Note"
+                                            placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                                            value={note.value}
+                                            onChangeText={(text: string) =>
+                                                vm.onChangeExerciseNotes(
+                                                    exerciseIdx,
+                                                    noteIdx,
+                                                    text
+                                                )
+                                            }
+                                        />
+                                    </Deletable>
+                                </View>
+                            ))}
+                    </View>
+                )}
+                <View>
+                    <View style={styles.thead}>
+                        <Text style={[styles.th, styles.narrow]}>Set</Text>
+                        <Text style={styles.th}>Weight</Text>
+                        <Text style={styles.th}>Reps</Text>
+                        <Text style={styles.th}>Time</Text>
+                        <Text style={[styles.th, styles.narrow]} />
+                    </View>
+                    <View style={styles.trs}>
+                        {exercise.sets.map((set: Set, setIdx: number) =>
+                            renderSet(set, setIdx, exerciseIdx)
+                        )}
+                    </View>
                 </View>
             </View>
-        </View>
-    );
+        );
+    };
 
     const renderSet = (set: Set, setIdx: number, exerciseIdx: number) => {
         const isFinished = set.finishTime !== undefined;
         // TODO: render below
         const duration = vm.calculateSetDuration(setIdx, exerciseIdx);
         return (
-            <Deletable
-                key={set.id}
-                onDelete={() => vm.onRemoveSet(exerciseIdx, setIdx)}
-            >
-                <View style={[styles.tr, isFinished && styles.finished]}>
-                    {isFinished ? (
-                        <GestureDetector
-                            gesture={Gesture.Tap()
-                                .numberOfTaps(2)
-                                .runOnJS(true)
-                                .onStart(() =>
-                                    vm.copyToCurrentSet(exerciseIdx, setIdx)
-                                )}
-                        >
+            <View style={styles.setSwipeContainer} key={set.id}>
+                <Deletable
+                    onDelete={() => vm.onRemoveSet(exerciseIdx, setIdx)}
+                >
+                    <View style={[styles.tr, isFinished && styles.finished]}>
+                        {isFinished ? (
+                            <GestureDetector
+                                gesture={Gesture.Tap()
+                                    .numberOfTaps(2)
+                                    .runOnJS(true)
+                                    .onStart(() =>
+                                        vm.copyToCurrentSet(exerciseIdx, setIdx)
+                                    )}
+                            >
+                                <TextInput
+                                    style={[
+                                        styles.td,
+                                        styles.narrow,
+                                        styles.tdFinished,
+                                    ]}
+                                    editable={false}
+                                >
+                                    {setIdx + 1}
+                                </TextInput>
+                            </GestureDetector>
+                        ) : (
                             <TextInput
                                 style={[
                                     styles.td,
                                     styles.narrow,
-                                    styles.tdFinished,
-                                    styles.subtitle,
+                                    isFinished && styles.tdFinished,
                                 ]}
                                 editable={false}
                             >
                                 {setIdx + 1}
                             </TextInput>
-                        </GestureDetector>
-                    ) : (
+                        )}
                         <TextInput
-                            style={[
-                                styles.td,
-                                styles.narrow,
-                                isFinished && styles.tdFinished,
-                            ]}
-                            editable={false}
-                        >
-                            {setIdx + 1}
-                        </TextInput>
-                    )}
-                    <TextInput
-                        style={[styles.td, isFinished && styles.tdFinished]}
-                        value={set.weight}
-                        onChangeText={(text: string) =>
-                            vm.onChangeWeight(exerciseIdx, setIdx, text)
-                        }
-                        inputMode="decimal"
-                    />
-                    <TextInput
-                        style={[styles.td, isFinished && styles.tdFinished]}
-                        value={set.reps}
-                        onChangeText={(text: string) =>
-                            vm.onChangeRep(exerciseIdx, setIdx, text)
-                        }
-                        inputMode="decimal"
-                    />
-                    <TextInput
-                        style={[styles.td, isFinished && styles.tdFinished]}
-                        value={duration ?? ""}
-                        editable={false}
-                    />
-                    <TouchableOpacity
-                        style={styles.tdBtn}
-                        onPress={() => {
-                            vm.onFinishSet(exerciseIdx, setIdx, !isFinished);
-                        }}
-                    >
-                        <Ionicons
-                            name={
-                                isFinished ? "checkbox" : "square-outline"
+                            style={[styles.td, isFinished && styles.tdFinished]}
+                            value={set.weight}
+                            onChangeText={(text: string) =>
+                                vm.onChangeWeight(exerciseIdx, setIdx, text)
                             }
-                            color={isFinished ? "#65CA79" : "white"}
-                            size={24}
+                            inputMode="decimal"
                         />
-                    </TouchableOpacity>
-                </View>
-            </Deletable>
+                        <TextInput
+                            style={[styles.td, isFinished && styles.tdFinished]}
+                            value={set.reps}
+                            onChangeText={(text: string) =>
+                                vm.onChangeRep(exerciseIdx, setIdx, text)
+                            }
+                            inputMode="decimal"
+                        />
+                        <TextInput
+                            style={[styles.td, isFinished && styles.tdFinished]}
+                            value={duration ?? ""}
+                            editable={false}
+                        />
+                        <TouchableOpacity
+                            style={styles.tdBtn}
+                            onPress={() => {
+                                vm.onFinishSet(exerciseIdx, setIdx, !isFinished);
+                            }}
+                        >
+                            <Ionicons
+                                name={
+                                    isFinished ? "checkbox" : "square-outline"
+                                }
+                                color={isFinished ? "#65CA79" : "white"}
+                                size={24}
+                            />
+                        </TouchableOpacity>
+                    </View>
+                </Deletable>
+            </View>
         );
     };
 
     const renderEmptyContainer = () => (
-        <View style={styles.card}>
-            <Text style={styles.subtitle}>No Exercises</Text>
+        <View style={[styles.card, styles.emptyCard]}>
+            <Ionicons name="barbell-outline" color="white" size={32} />
+            <Text style={styles.emptyTitle}>No exercises yet</Text>
         </View>
     );
 
     const renderFooter = () => (
-        <View style={styles.footer}>
-            <Button
-                label="Add"
-                colour="info"
-                onPress={() => vm.setActiveModal(ModalType.ExerciseList)}
-            />
-            <Button
-                label="Finish"
-                colour="success"
-                onPress={vm.onFinishWorkout}
-            />
-            <Button
-                label="Cancel"
-                colour="error"
-                onPress={vm.onCancelWorkout}
-            />
+        <View style={[styles.card, styles.footerCard]}>
+            <View style={styles.footerButtons}>
+                <Button
+                    label="Add"
+                    colour="info"
+                    onPress={() => vm.setActiveModal(ModalType.ExerciseList)}
+                    style={[styles.footerButton, styles.footerButtonSpacing]}
+                />
+                <Button
+                    label="Finish"
+                    colour="success"
+                    onPress={vm.onFinishWorkout}
+                    style={[styles.footerButton, styles.footerButtonSpacing]}
+                />
+                <Button
+                    label="Cancel"
+                    colour="error"
+                    onPress={vm.onCancelWorkout}
+                    style={styles.footerButton}
+                />
+            </View>
         </View>
     );
 
     return !vm.isLoading ? (
         <View style={styles.container}>
-            {renderHeader()}
             {renderModals()}
-            <ScrollView style={styles.content}>
+            <ScrollView
+                style={styles.content}
+                contentContainerStyle={styles.contentContainer}
+                showsVerticalScrollIndicator={false}
+            >
+                {renderHeader()}
                 {vm.workout.exercises.length > 0
                     ? vm.workout.exercises.map(renderExercise)
                     : renderEmptyContainer()}

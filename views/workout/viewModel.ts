@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
-import { ExerciseDef, ModalType, Workout } from "../../model/types";
+import { Exercise, ExerciseDef, ModalType, Workout } from "../../model/types";
 import { workoutProducer, ActionType } from "./reducer";
 import {
     saveActiveWorkout,
@@ -46,6 +46,8 @@ interface ViewModel {
     copyToCurrentSet: (exerciseIdx: number, setIdx: number) => void;
     onRemoveExerciseNote: (exerciseIdx: number, noteIdx: number) => void;
     onAddExerciseNote: (exerciseIdx: number) => void;
+    isNotesExpanded: (exercise: Exercise) => boolean;
+    onNoteButtonPress: (exercise: Exercise, exerciseIdx: number) => void;
     onAddExercise: (exerciseId: string) => void;
     onRemoveExercise: (exerciseIdx: number) => void;
     onMoveExercise: (exerciseIdx: number, delta: number) => void;
@@ -75,6 +77,9 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
     const { completeWorkout, createExerciseDef } = useDatabaseWriter();
     const [activeModal, setActiveModal] = useState(ModalType.None);
+    const [expandedNotes, setExpandedNotes] = useState<
+        Record<string, boolean | undefined>
+    >({});
 
     useEffect(() => {
         saveActiveWorkout(workout); // Fire-and-forget
@@ -198,14 +203,42 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                 noteIdx,
             });
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            setExpandedNotes((prev) => {
+                const next = { ...prev };
+                delete next[workout.exercises[exerciseIdx].id];
+                return next;
+            });
         },
-        []
+        [workout.exercises]
     );
 
     const onAddExerciseNote = useCallback((exerciseIdx: number) => {
         dispatch({ type: ActionType.AddExerciseNote, exerciseIdx });
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }, []);
+
+    const isNotesExpanded = (exercise: Exercise) => {
+        const stored = expandedNotes[exercise.id];
+        if (stored !== undefined) {
+            return stored;
+        }
+        return exercise.notes.length > 0;
+    };
+
+    const onNoteButtonPress = (exercise: Exercise, exerciseIdx: number) => {
+        if (exercise.notes.length === 0) {
+            onAddExerciseNote(exerciseIdx);
+            setExpandedNotes((prev) => ({
+                ...prev,
+                [exercise.id]: true,
+            }));
+        } else {
+            setExpandedNotes((prev) => ({
+                ...prev,
+                [exercise.id]: !isNotesExpanded(exercise),
+            }));
+        }
+    };
 
     const onAddExercise = useCallback((exerciseId: string) => {
         dispatch({ type: ActionType.AddExercise, exerciseId });
@@ -288,6 +321,8 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         copyToCurrentSet,
         onRemoveExerciseNote,
         onAddExerciseNote,
+        isNotesExpanded,
+        onNoteButtonPress,
         onAddExercise,
         onRemoveExercise,
         onMoveExercise,
