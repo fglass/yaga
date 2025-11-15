@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { formatTime } from "../util";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 
 interface Props {
     style?: StyleProp<ViewStyle>;
@@ -26,7 +26,7 @@ const CountdownTimer = ({ style, remainingTime, onFinish }: Props) => {
 
     return (
         <View style={styles.container}>
-            <Ionicons name="ios-timer-outline" color="white" size={24} />
+            <Ionicons name="timer-outline" color="white" size={24} />
             <Text style={[styles.text, style]}>
                 {formatTime(remainingTime)}
             </Text>

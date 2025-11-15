@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 
 interface Props {
     title: string;
@@ -27,7 +27,7 @@ const ModalDialog = ({ title, isVisible, children, onClose }: Props) => (
                         style={styles.closeButton}
                         onPress={onClose}
                     >
-                        <Ionicons name="ios-close" color="white" size={24} />
+                        <Ionicons name="close" color="white" size={24} />
                     </TouchableOpacity>
                     {children}
                 </View>

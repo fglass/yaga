@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient, useMutation } from "react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import {
     QueryKey,
     completeWorkout,
@@ -49,7 +49,10 @@ export const useExerciseDefs = (): Record<string, ExerciseDef> => {
 };
 
 const useSelect = (key: QueryKey) => {
-    return useQuery(key, async () => await select(key));
+    return useQuery({
+        queryKey: [key],
+        queryFn: async () => await select(key),
+    });
 };
 
 export const useDatabaseWriter = () => {
@@ -58,21 +61,27 @@ export const useDatabaseWriter = () => {
     const saveActiveWorkoutMutation = useMutation({
         mutationFn: saveActiveWorkout,
         onSuccess: () => {
-            queryClient.invalidateQueries(QueryKey.ActiveWorkout);
+            queryClient.invalidateQueries({
+                queryKey: [QueryKey.ActiveWorkout],
+            });
         },
     });
 
     const completeWorkoutMutation = useMutation({
         mutationFn: completeWorkout,
         onSuccess: () => {
-            queryClient.invalidateQueries(QueryKey.CompletedWorkouts);
+            queryClient.invalidateQueries({
+                queryKey: QueryKey.CompletedWorkouts,
+            });
         },
     });
 
     const createExerciseDefMutation = useMutation({
         mutationFn: createExerciseDef,
         onSuccess: () => {
-            queryClient.invalidateQueries(QueryKey.ExerciseDefs);
+            queryClient.invalidateQueries({
+                queryKey: [QueryKey.ExerciseDefs],
+            });
         },
     });
 

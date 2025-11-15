@@ -7,7 +7,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 import ExerciseListModal from "./ExerciseListModal";
 import NewExerciseModal from "./NewExerciseModal";
 import Button from "../../components/Button";
@@ -79,11 +79,7 @@ const WorkoutView = (props: Props) => {
                         onPress={() => vm.onMoveExercise(exerciseIdx, -1)}
                         disabled={exerciseIdx === 0}
                     >
-                        <Ionicons
-                            name="ios-chevron-up-circle"
-                            color="white"
-                            size={24}
-                        />
+                        <Ionicons name="chevron-up" color="white" size={24} />
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.cardHeaderBtn}
@@ -93,7 +89,7 @@ const WorkoutView = (props: Props) => {
                         }
                     >
                         <Ionicons
-                            name="ios-chevron-down-circle"
+                            name="chevron-down"
                             color="white"
                             size={24}
                         />
@@ -102,27 +98,19 @@ const WorkoutView = (props: Props) => {
                         style={styles.cardHeaderBtn}
                         onPress={() => vm.onAddSet(exerciseIdx)}
                     >
-                        <Ionicons
-                            name="ios-add-circle"
-                            color="white"
-                            size={24}
-                        />
+                        <Ionicons name="add-circle" color="white" size={24} />
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.cardHeaderBtn}
                         onPress={() => vm.onAddExerciseNote(exerciseIdx)}
                     >
-                        <Ionicons
-                            name="ios-at-circle"
-                            color="white"
-                            size={24}
-                        />
+                        <Ionicons name="at-circle" color="white" size={24} />
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.cardHeaderBtn}
                         onPress={() => vm.onRemoveExercise(exerciseIdx)}
                     >
-                        <Ionicons name="ios-trash" color="white" size={24} />
+                        <Ionicons name="trash" color="white" size={24} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -169,6 +157,7 @@ const WorkoutView = (props: Props) => {
 
     const renderSet = (set: Set, setIdx: number, exerciseIdx: number) => {
         const isFinished = set.finishTime !== undefined;
+        // TODO: render below
         const duration = vm.calculateSetDuration(setIdx, exerciseIdx);
         return (
             <Deletable
@@ -238,9 +227,7 @@ const WorkoutView = (props: Props) => {
                     >
                         <Ionicons
                             name={
-                                isFinished
-                                    ? "ios-checkbox"
-                                    : "ios-square-outline"
+                                isFinished ? "checkbox" : "square-outline"
                             }
                             color={isFinished ? "#65CA79" : "white"}
                             size={24}

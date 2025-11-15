@@ -7,7 +7,7 @@ import {
     View,
     ActionSheetIOS,
 } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 import { Workout } from "../../model/types";
 import { exportDatabase, resetDatabase } from "../../model/database";
 import HistoryView from "./HistoryView";
@@ -41,7 +41,7 @@ const PlanView = (props: Props) => {
                 style={styles.adminButton}
                 onPress={onAdminSettings}
             >
-                <Ionicons name="ios-settings-sharp" color="white" size={20} />
+                <Ionicons name="settings-sharp" color="white" size={20} />
             </TouchableOpacity>
             <FlatList
                 data={props.workouts}
