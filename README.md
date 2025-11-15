@@ -13,7 +13,7 @@ eas build --platform ios --profile development
 ### General
 
 -   [ ] Sessions
--   [ ] SQLite
+-   [x] SQLite
 -   [x] Apple Health export
 -   [ ] iCloud sync
 

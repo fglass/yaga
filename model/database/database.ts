@@ -1,7 +1,13 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { EXERCISE_DEFS, WORKOUT_TEMPLATES } from "./database.data";
 import { CompletedWorkout, ExerciseDef, Workout } from "../types";
 import { generateGuid, shareText, withWarning } from "../../util";
+import {
+    clearAllEntries,
+    ensureDatabase,
+    getAllEntries,
+    getValue as getSqlValue,
+    setValue as setSqlValue,
+} from "./sqlite";
 
 export enum QueryKey {
     Version = "version",
@@ -15,11 +21,13 @@ export enum QueryKey {
 
 export const initDatabase = async () => {
     console.log("Initialising database...");
+    await ensureDatabase();
 
     const version = await select(QueryKey.Version);
     console.log(`Database version: ${version}`);
 
     if (version == null) {
+        // TODO: fix init
         console.log("Inserting initial data...");
         await insert(QueryKey.Version, 1);
         await insert(QueryKey.Workouts, WORKOUT_TEMPLATES);
@@ -30,11 +38,10 @@ export const initDatabase = async () => {
 };
 
 export const exportDatabase = async () => {
-    const keys = await AsyncStorage.getAllKeys();
-    const items = await AsyncStorage.multiGet(keys);
+    const items = await getAllEntries();
 
-    const payload: Record<string, object> = {};
-    items.forEach(([key, value]) => {
+    const payload: Record<string, unknown> = {};
+    items.forEach(({ key, value }) => {
         payload[key] = value != null ? JSON.parse(value) : "";
     });
 
@@ -44,7 +51,7 @@ export const exportDatabase = async () => {
 
 export const resetDatabase = () => {
     withWarning(async () => {
-        await AsyncStorage.clear();
+        await clearAllEntries();
         console.warn("Database reset");
     });
 };
@@ -73,22 +80,22 @@ export const createExerciseDef = async (def: ExerciseDef): Promise<string> => {
 
 /* Raw operations */
 
-export const select = async (key: string) => {
+export const select = async (key: QueryKey) => {
     try {
-        const jsonValue = await AsyncStorage.getItem(getPrefixedKey(key));
+        await ensureDatabase();
+        const jsonValue = await getSqlValue(key);
         return jsonValue != null ? JSON.parse(jsonValue) : undefined;
     } catch (e) {
         console.error(e);
     }
 };
 
-export const insert = async (key: string, value: unknown) => {
+export const insert = async (key: QueryKey, value: unknown) => {
     try {
+        await ensureDatabase();
         const jsonValue = JSON.stringify(value);
-        await AsyncStorage.setItem(getPrefixedKey(key), jsonValue);
+        await setSqlValue(key, jsonValue);
     } catch (e) {
         console.error(e);
     }
 };
-
-const getPrefixedKey = (key: string) => `@yaga_${key}`;
