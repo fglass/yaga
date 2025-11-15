@@ -42,33 +42,49 @@ const HistoryView = () => {
     };
 
     return (
-        <>
+        <View style={styles.container}>
             <Text style={styles.title}>History</Text>
             <FlatList
                 data={completedWorkouts}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => renderCompletedWorkout(item)}
+                ItemSeparatorComponent={() => (
+                    <View style={styles.separator} />
+                )}
             />
-        </>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+    container: {
+        marginTop: 24,
+        padding: 18,
+        borderRadius: 16,
+        backgroundColor: "#353C42",
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.05)",
+    },
     title: {
-        marginLeft: 10,
-        fontSize: 20,
-        fontWeight: "bold",
+        fontSize: 18,
+        fontWeight: "600",
         color: "white",
+        marginBottom: 12,
     },
     workout: {
-        padding: 10,
+        paddingVertical: 6,
     },
     text: {
         color: "white",
+        fontWeight: "600",
     },
     subtext: {
-        color: "white",
-        opacity: 0.5,
+        color: "rgba(255, 255, 255, 0.7)",
+        marginTop: 2,
+        fontSize: 12,
+    },
+    separator: {
+        height: 8,
     },
 });
 
