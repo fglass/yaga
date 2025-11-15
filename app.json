@@ -1,42 +1,54 @@
 {
-  "expo": {
-    "name": "yaga",
-    "slug": "yaga",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#2A3135"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "572100b8-fd56-4bbd-8d90-8e3b754b4d98"
-      }
-    },
-    "owner": "expench",
-    "runtimeVersion": {
-      "policy": "sdkVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/572100b8-fd56-4bbd-8d90-8e3b754b4d98"
+    "expo": {
+        "name": "Yaga",
+        "slug": "yaga",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/icon.png",
+        "userInterfaceStyle": "dark",
+        "splash": {
+            "image": "./assets/splash.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#2A3135"
+        },
+        "assetBundlePatterns": ["**/*"],
+        "ios": {
+            "supportsTablet": true,
+            "bundleIdentifier": "com.expench.yaga",
+            "infoPlist": {
+                "ITSAppUsesNonExemptEncryption": false
+            }
+        },
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/adaptive-icon.png",
+                "backgroundColor": "#ffffff"
+            }
+        },
+        "web": {
+            "favicon": "./assets/favicon.png"
+        },
+        "extra": {
+            "eas": {
+                "projectId": "572100b8-fd56-4bbd-8d90-8e3b754b4d98"
+            }
+        },
+        "owner": "expench",
+        "runtimeVersion": {
+            "policy": "sdkVersion"
+        },
+        "updates": {
+            "url": "https://u.expo.dev/572100b8-fd56-4bbd-8d90-8e3b754b4d98"
+        },
+        "plugins": [
+            [
+                "@kingstinct/react-native-healthkit",
+                {
+                    "NSHealthShareUsageDescription": "Yaga needs read access.",
+                    "NSHealthUpdateUsageDescription": "Yaga needs write access."
+                }
+            ],
+            "expo-font"
+        ]
     }
-  }
 }

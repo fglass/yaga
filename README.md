@@ -5,7 +5,7 @@ Yet Another Gym App
 ```
 npm start
 expo update
-eas update --auto
+eas build --platform ios --profile development
 ```
 
 ## Backlog
@@ -14,7 +14,7 @@ eas update --auto
 
 -   [ ] Sessions
 -   [ ] SQLite
--   [ ] Apple Health export
+-   [x] Apple Health export
 -   [ ] iCloud sync
 
 ### Workout View

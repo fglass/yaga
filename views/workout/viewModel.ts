@@ -9,6 +9,7 @@ import {
 import { generateGuid, withWarning } from "../../util";
 import * as Haptics from "expo-haptics";
 import { useTimers } from "./hooks";
+import { logStrengthWorkout } from "../../model/health";
 
 interface Props {
     initialWorkout: Workout;
@@ -97,14 +98,20 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     };
 
     const onFinishWorkout = async () => {
+        const finishDate = new Date();
         const completedWorkout = {
             ...workout,
             id: generateGuid(),
-            date: new Date().toLocaleString(),
+            date: finishDate.toLocaleString(),
             duration: workoutDurationS,
         };
 
         await completeWorkout(completedWorkout);
+        await logStrengthWorkout({
+            startDate: new Date(workoutStartTime),
+            endDate: finishDate,
+        });
+
         await props.onEnd();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     };

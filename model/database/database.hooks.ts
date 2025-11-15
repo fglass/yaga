@@ -71,7 +71,7 @@ export const useDatabaseWriter = () => {
         mutationFn: completeWorkout,
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: QueryKey.CompletedWorkouts,
+                queryKey: [QueryKey.CompletedWorkouts],
             });
         },
     });

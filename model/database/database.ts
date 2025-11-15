@@ -14,11 +14,17 @@ export enum QueryKey {
 /* Global functions */
 
 export const initDatabase = async () => {
+    console.log("Initialising database...");
+
     const version = await select(QueryKey.Version);
+    console.log(`Database version: ${version}`);
+
     if (version == null) {
+        console.log("Inserting initial data...");
         await insert(QueryKey.Version, 1);
         await insert(QueryKey.Workouts, WORKOUT_TEMPLATES);
         await insert(QueryKey.CompletedWorkouts, []);
+        await insert(QueryKey.ActiveWorkout, null);
         await insert(QueryKey.ExerciseDefs, EXERCISE_DEFS);
     }
 };

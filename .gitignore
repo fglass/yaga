@@ -8,9 +8,9 @@ npm-debug.*
 *.key
 *.mobileprovision
 *.orig.*
-*.png
 web-build/
 .idea/
+.claude
 
 # macOS
 .DS_Store
