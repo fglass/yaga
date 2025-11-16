@@ -7,6 +7,8 @@ import {
     View,
     ActionSheetIOS,
     TextInput,
+    KeyboardAvoidingView,
+    Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Workout } from "../../model/types";
@@ -86,6 +88,7 @@ const PlanView = () => {
     );
 
     const hasWorkouts = vm.workouts.length > 0;
+    const canCreateTemplate = vm.newWorkoutName.trim().length > 0;
 
     return (
         <View style={styles.container}>
@@ -133,22 +136,43 @@ const PlanView = () => {
                     title="New Template"
                     isVisible={vm.isCreateModalVisible}
                     onClose={vm.closeCreateModal}
+                    maxHeight="40%"
                 >
-                    <TextInput
-                        style={styles.modalInput}
-                        value={vm.newWorkoutName}
-                        onChangeText={vm.updateNewWorkoutName}
-                        placeholder="Name"
-                        placeholderTextColor="rgba(255, 255, 255, 0.4)"
-                        autoFocus
-                        onSubmitEditing={onCreateWorkoutTemplate}
-                    />
-                    <TouchableOpacity
-                        style={styles.modalCreateButton}
-                        onPress={onCreateWorkoutTemplate}
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === "ios" ? "padding" : "height"}
+                        keyboardVerticalOffset={Platform.OS === "ios" ? 24 : 0}
+                        style={styles.modalKeyboard}
                     >
-                        <Text style={styles.modalCreateButtonText}>Create</Text>
-                    </TouchableOpacity>
+                        <View style={styles.modalForm}>
+                            <TextInput
+                                style={styles.modalInput}
+                                value={vm.newWorkoutName}
+                                onChangeText={vm.updateNewWorkoutName}
+                                placeholder="Name"
+                                placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                                autoFocus
+                                returnKeyType="done"
+                                onSubmitEditing={() => {
+                                    if (canCreateTemplate) {
+                                        onCreateWorkoutTemplate();
+                                    }
+                                }}
+                            />
+                            <TouchableOpacity
+                                style={[
+                                    styles.modalCreateButton,
+                                    !canCreateTemplate &&
+                                        styles.modalCreateButtonDisabled,
+                                ]}
+                                onPress={onCreateWorkoutTemplate}
+                                disabled={!canCreateTemplate}
+                            >
+                                <Text style={styles.modalCreateButtonText}>
+                                    Create
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </KeyboardAvoidingView>
                 </ModalDialog>
             )}
         </View>
@@ -251,24 +275,30 @@ const styles = StyleSheet.create({
         textAlign: "center",
         lineHeight: 20,
     },
-    modalDescription: {
-        color: "rgba(255, 255, 255, 0.8)",
-        marginBottom: 12,
+    modalKeyboard: {
+        width: "100%",
+    },
+    modalForm: {
+        width: "100%",
     },
     modalInput: {
         borderWidth: 1,
-        borderColor: "rgba(255, 255, 255, 0.2)",
-        borderRadius: 12,
+        borderColor: "rgba(255, 255, 255, 0.15)",
+        borderRadius: 10,
         paddingHorizontal: 12,
-        paddingVertical: 10,
+        paddingVertical: 8,
         color: "white",
-        marginBottom: 16,
+        backgroundColor: "#2A3135",
+        marginBottom: 8,
     },
     modalCreateButton: {
         backgroundColor: "#58A5F9",
-        borderRadius: 12,
-        paddingVertical: 12,
+        borderRadius: 10,
+        paddingVertical: 10,
         alignItems: "center",
+    },
+    modalCreateButtonDisabled: {
+        opacity: 0.5,
     },
     modalCreateButtonText: {
         color: "white",
