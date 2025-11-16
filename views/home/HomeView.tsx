@@ -45,13 +45,15 @@ const HomeView = () => {
             <View style={styles.statsGrid}>
                 {statCards.map((card) => (
                     <View key={card.id} style={styles.statCard}>
-                        <Ionicons
-                            name={card.iconName}
-                            color={card.iconColor}
-                            size={20}
-                            style={styles.statIcon}
-                        />
-                        <Text style={styles.statLabel}>{card.label}</Text>
+                        <View style={styles.statHeader}>
+                            <Ionicons
+                                name={card.iconName}
+                                color={card.iconColor}
+                                size={20}
+                                style={styles.statIcon}
+                            />
+                            <Text style={styles.statLabel}>{card.label}</Text>
+                        </View>
                         <View style={styles.statComparisonRow}>
                             <View style={styles.statComparison}>
                                 <Text style={styles.statComparisonLabel}>
@@ -112,8 +114,13 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: "rgba(255, 255, 255, 0.05)",
     },
-    statIcon: {
+    statHeader: {
+        flexDirection: "row",
+        alignItems: "center",
         marginBottom: 8,
+    },
+    statIcon: {
+        marginRight: 8,
     },
     statLabel: {
         color: "rgba(255, 255, 255, 0.7)",
@@ -133,7 +140,7 @@ const styles = StyleSheet.create({
         marginLeft: 12,
     },
     statComparisonLabel: {
-        color: "rgba(255, 255, 255, 0.3)",
+        color: "rgba(255, 255, 255, 0.4)",
         fontSize: 11,
         letterSpacing: 0.5,
         textTransform: "uppercase",
