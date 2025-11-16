@@ -2,6 +2,7 @@ import { generateGuid } from "../../util";
 import { ExerciseDef, Workout } from "../types";
 
 enum Exercise {
+    BenchPress = "d290f1ee-6c54-4b01-90e6-d701748f0851",
     DeclineCrunch = "94e6365e-e475-4e7d-b6d5-0b911435fab0",
     FacePull = "99f6a34d-1053-4d43-9aff-121e4457c27b",
     HammerCurl = "e494222e-88a2-41e8-bd6b-e0c84ee38c74",
@@ -21,6 +22,10 @@ enum Exercise {
 }
 
 export const EXERCISE_DEFS: Record<string, ExerciseDef> = {
+    [Exercise.BenchPress]: {
+        name: "Bench Press",
+        category: "Chest",
+    },
     [Exercise.LatPulldown]: {
         name: "Lat Pulldown",
         category: "Back",
@@ -88,6 +93,23 @@ export const EXERCISE_DEFS: Record<string, ExerciseDef> = {
 };
 
 export const WORKOUT_TEMPLATES: Workout[] = [
+    {
+        id: generateGuid(),
+        name: "Push #1",
+        exercises: [
+            {
+                id: generateGuid(),
+                exerciseId: Exercise.BenchPress,
+                notes: [],
+                sets: [
+                    { id: "0", weight: "", reps: "", finishTime: undefined },
+                    { id: "1", weight: "", reps: "", finishTime: undefined },
+                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                ],
+            },
+        ],
+        notes: "",
+    },
     {
         id: generateGuid(),
         name: "Pull #1",
@@ -211,12 +233,6 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 ],
             },
         ],
-        notes: "",
-    },
-    {
-        id: generateGuid(),
-        name: "New Workout",
-        exercises: [],
         notes: "",
     },
 ];

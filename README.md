@@ -30,13 +30,14 @@ eas build --platform ios --profile development
 -   [ ] Set timer
 -   [x] Exercise reordering
 -   [x] Double tap "ditto"
--   [ ] View mode
+-   [ ] View modes
     -   Default, set intervals, progressive overload
+-   [ ] Template adding
 
 ### Plan View
 
 -   [x] Workout list
--   [ ] Workout creation
+-   [x] Workout creation
 -   [x] Admin panel
 
 ### History View

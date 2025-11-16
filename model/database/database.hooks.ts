@@ -3,6 +3,7 @@ import {
     QueryKey,
     completeWorkout,
     createExerciseDef,
+    createWorkoutTemplate,
     saveActiveWorkout,
     select,
 } from "./database";
@@ -85,6 +86,15 @@ export const useDatabaseWriter = () => {
         },
     });
 
+    const createWorkoutTemplateMutation = useMutation({
+        mutationFn: createWorkoutTemplate,
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [QueryKey.Workouts],
+            });
+        },
+    });
+
     return {
         saveActiveWorkout: async (workout: Workout | null) =>
             await saveActiveWorkoutMutation.mutateAsync(workout),
@@ -92,5 +102,7 @@ export const useDatabaseWriter = () => {
             await completeWorkoutMutation.mutateAsync(workout),
         createExerciseDef: async (def: ExerciseDef) =>
             await createExerciseDefMutation.mutateAsync(def),
+        createWorkoutTemplate: async (workout: Workout) =>
+            await createWorkoutTemplateMutation.mutateAsync(workout),
     };
 };

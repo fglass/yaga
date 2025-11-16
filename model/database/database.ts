@@ -58,6 +58,12 @@ export const resetDatabase = () => {
 
 /* Write functions */
 
+export const createWorkoutTemplate = async (workout: Workout) => {
+    const workouts = (await select(QueryKey.Workouts)) ?? [];
+    workouts.push(workout);
+    await insert(QueryKey.Workouts, workouts);
+};
+
 export const saveActiveWorkout = async (workout: Workout | null) => {
     await insert(QueryKey.ActiveWorkout, workout);
 };

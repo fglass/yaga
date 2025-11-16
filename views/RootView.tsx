@@ -7,7 +7,6 @@ import {
     initDatabase,
     useActiveWorkout,
     useDatabaseWriter,
-    useWorkouts,
 } from "../model/database";
 
 // Run during module initialisation, before view renders
@@ -17,7 +16,6 @@ if (typeof window !== "undefined") {
 
 const RootView = () => {
     const activeWorkout = useActiveWorkout();
-    const workouts = useWorkouts();
     const { saveActiveWorkout } = useDatabaseWriter();
     const onEndWorkout = async () => await saveActiveWorkout(null);
 
@@ -29,7 +27,7 @@ const RootView = () => {
                     onEnd={onEndWorkout}
                 />
             ) : (
-                <PlanView workouts={workouts} onSelect={saveActiveWorkout} />
+                <PlanView />
             )}
             <StatusBar style="auto" />
         </GestureHandlerRootView>
