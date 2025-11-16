@@ -13,7 +13,6 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Workout } from "../../model/types";
 import { exportDatabase, resetDatabase } from "../../model/database";
-import HistoryView from "../history/HistoryView";
 import ModalDialog from "../../components/ModalDialog";
 import { usePlanViewModel } from "./viewModel";
 
@@ -130,7 +129,6 @@ const PlanView = () => {
                     !hasWorkouts && styles.emptyListContent,
                 ]}
             />
-            <HistoryView />
             {vm.isCreateModalVisible && (
                 <ModalDialog
                     title="New Template"

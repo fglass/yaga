@@ -1,8 +1,14 @@
-import { StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 import WorkoutView from "./workout/WorkoutView";
 import PlanView from "./plan/PlanView";
+import HistoryView from "./history/HistoryView";
+import HomeView from "./home/HomeView";
+import NavigationFooter, {
+    NavigationTab,
+} from "../components/NavigationFooter";
 import {
     initDatabase,
     useActiveWorkout,
@@ -18,6 +24,19 @@ const RootView = () => {
     const activeWorkout = useActiveWorkout();
     const { saveActiveWorkout } = useDatabaseWriter();
     const onEndWorkout = async () => await saveActiveWorkout(null);
+    const [activeTab, setActiveTab] = useState<NavigationTab>("home");
+
+    const renderTab = () => {
+        switch (activeTab) {
+            case "plan":
+                return <PlanView />;
+            case "history":
+                return <HistoryView />;
+            case "home":
+            default:
+                return <HomeView />;
+        }
+    };
 
     return (
         <GestureHandlerRootView style={styles.container}>
@@ -27,7 +46,13 @@ const RootView = () => {
                     onEnd={onEndWorkout}
                 />
             ) : (
-                <PlanView />
+                <View style={styles.nonWorkoutContainer}>
+                    <View style={styles.contentArea}>{renderTab()}</View>
+                    <NavigationFooter
+                        activeTab={activeTab}
+                        onSelectTab={setActiveTab}
+                    />
+                </View>
             )}
             <StatusBar style="auto" />
         </GestureHandlerRootView>
@@ -39,6 +64,12 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingTop: 50,
         backgroundColor: "#2A3135",
+    },
+    nonWorkoutContainer: {
+        flex: 1,
+    },
+    contentArea: {
+        flex: 1,
     },
 });
 
