@@ -194,13 +194,14 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     title: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: "700",
         color: "white",
     },
     subtitle: {
         marginTop: 4,
         color: "rgba(255, 255, 255, 0.7)",
+        marginBottom: 6,
     },
     adminButton: {
         width: 42,

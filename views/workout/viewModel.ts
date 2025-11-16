@@ -102,7 +102,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         const completedWorkout = {
             ...workout,
             id: generateGuid(),
-            date: finishDate.toLocaleString(),
+            endTimestamp: finishDate.getTime(),
             duration: workoutDurationS,
         };
 

@@ -9,10 +9,21 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useCompletedWorkouts } from "../../model/database";
 import { CompletedWorkout } from "../../model/types";
-import { formatTime } from "../../util";
+import { formatTime, parseWorkoutEnd } from "../../util";
 
 const HistoryView = () => {
     const completedWorkouts = useCompletedWorkouts();
+    const sortedWorkouts = React.useMemo(() => {
+        return [...completedWorkouts].sort((a, b) => {
+            const aTime =
+                parseWorkoutEnd(a.endTimestamp)?.getTime() ??
+                Number.NEGATIVE_INFINITY;
+            const bTime =
+                parseWorkoutEnd(b.endTimestamp)?.getTime() ??
+                Number.NEGATIVE_INFINITY;
+            return bTime - aTime;
+        });
+    }, [completedWorkouts]);
 
     const renderCompletedWorkout = (workout: CompletedWorkout) => {
         const nSets = workout.exercises.reduce(
@@ -21,6 +32,11 @@ const HistoryView = () => {
                 exercise.sets.filter((s) => s.finishTime !== undefined).length,
             0
         );
+        const completedDate = parseWorkoutEnd(workout.endTimestamp);
+        const workoutDate = completedDate
+            ? completedDate.toLocaleString()
+            : "Unknown date";
+
         return (
             <TouchableOpacity
                 onPress={() => {
@@ -30,7 +46,7 @@ const HistoryView = () => {
                 <View key={workout.id} style={styles.workoutCard}>
                     <Text style={styles.workoutTitle}>{workout.name}</Text>
                     <Text style={styles.workoutMeta}>
-                        {workout.date} · Duration {formatTime(workout.duration)}{" "}
+                        {workoutDate} · Duration {formatTime(workout.duration)}{" "}
                         · Sets {nSets}
                     </Text>
                 </View>
@@ -48,7 +64,7 @@ const HistoryView = () => {
                 </View>
             ) : (
                 <FlatList
-                    data={completedWorkouts}
+                    data={sortedWorkouts}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => renderCompletedWorkout(item)}
                     ItemSeparatorComponent={() => (

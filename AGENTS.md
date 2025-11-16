@@ -13,4 +13,4 @@ Each screen owns a companion viewModel that gathers data from React Query, the S
 
 ## Coding Style & Naming Conventions
 
-Write all app code in TypeScript with ES modules. Follow 4-space indentation, single quotes inside JSX props when helpful, and trailing commas where Prettier places them. Components, hooks, and context providers use PascalCase file names (`WorkoutCard.tsx`), while helper modules stay camelCase. Run `npx prettier --write .` and `npx eslint . --ext .ts,.tsx` before pushing to keep diffs clean.
+Write all app code in TypeScript with ES modules. Follow 4-space indentation, single quotes inside JSX props when helpful, and trailing commas where Prettier places them. Components, hooks, and context providers use PascalCase file names (`WorkoutCard.tsx`), while helper modules stay camelCase.

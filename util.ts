@@ -1,4 +1,5 @@
-import { Alert, Share } from "react-native";
+import { Alert, Share, NativeModules } from "react-native";
+import Constants, { ExecutionEnvironment } from "expo-constants";
 
 export const withWarning = (onPress: () => void) => {
     Alert.alert(
@@ -30,6 +31,15 @@ export const formatTime = (time: number): string => {
         .padStart(2, "0")}`;
 };
 
+export const parseWorkoutEnd = (timestamp?: number | null): Date | null => {
+    if (typeof timestamp !== "number") {
+        return null;
+    }
+
+    const parsedDate = new Date(timestamp);
+    return isNaN(parsedDate.getTime()) ? null : parsedDate;
+};
+
 export const generateGuid = (): string => {
     const S4 = () =>
         (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
@@ -46,5 +56,17 @@ export const generateGuid = (): string => {
         S4() +
         S4() +
         S4()
+    );
+};
+
+const isExpoDevLauncherAvailable =
+    NativeModules != null &&
+    (NativeModules as Record<string, unknown>).EXDevLauncher !== undefined;
+
+export const isUsingExpoDevClient = (): boolean => {
+    return (
+        isExpoDevLauncherAvailable ||
+        (__DEV__ &&
+            Constants.executionEnvironment === ExecutionEnvironment.Bare)
     );
 };

@@ -11,7 +11,7 @@ export interface Workout {
 }
 
 export interface CompletedWorkout extends Workout {
-    date: string;
+    endTimestamp: number;
     duration: number;
 }
 

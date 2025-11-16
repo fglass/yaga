@@ -6,6 +6,7 @@ import {
     WorkoutActivityType,
     WorkoutTypeIdentifier,
 } from "@kingstinct/react-native-healthkit";
+import { isUsingExpoDevClient } from "../../util";
 
 export interface StrengthWorkoutPayload {
     startDate: Date;
@@ -49,6 +50,11 @@ const ensureHealthKit = async (): Promise<boolean> => {
 export const logStrengthWorkout = async (
     payload: StrengthWorkoutPayload
 ): Promise<boolean> => {
+    if (isUsingExpoDevClient()) {
+        console.log("Skipping Apple Health logging in Expo Dev Client.");
+        return false;
+    }
+
     const canUseHealthKit = await ensureHealthKit();
     if (!canUseHealthKit) {
         return false;
