@@ -13,7 +13,8 @@ import { logAppleHealthWorkout } from "../../model/health";
 
 interface Props {
     initialWorkout: Workout;
-    onEnd: () => Promise<void>;
+    onFinish: () => Promise<void>;
+    onCancel: () => Promise<void>;
 }
 
 interface ViewModel {
@@ -53,8 +54,8 @@ interface ViewModel {
     onRemoveExercise: (exerciseIdx: number) => void;
     onMoveExercise: (exerciseIdx: number, delta: number) => void;
     onCreateExerciseDef: (name: string, category: string) => void;
-    onFinishWorkout: () => void;
-    onCancelWorkout: () => void;
+    onFinishWorkout: () => Promise<void>;
+    onCancelWorkout: () => Promise<void>;
     onRestFinish: () => void;
     calculateSetDuration: (
         setIdx: number,
@@ -112,13 +113,13 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             endDate: finishDate,
         });
 
-        await props.onEnd();
+        await props.onFinish();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     };
 
     const onCancelWorkout = async () => {
         withWarning(async () => {
-            await props.onEnd();
+            await props.onCancel();
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         });
     };

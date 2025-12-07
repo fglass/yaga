@@ -22,6 +22,8 @@ eas update
 
 ### Home View
 
+-   [x] Workouts per week/month/year
+-   [ ] Runs per week/month/year
 -   [ ] Apple Health read
 
 ### Workout View
@@ -34,12 +36,12 @@ eas update
 -   [x] Active workout
 -   [x] Database export
 -   [x] Set intervals
--   [ ] Set timer
+-   [ ] Change set timer
 -   [x] Exercise reordering
 -   [x] Double tap "ditto"
 -   [ ] View modes
     -   Default, set intervals, progressive overload
--   [ ] Template adding
+-   [ ] New template adding
 -   [ ] Timer notification & noise
 -   [ ] Sticky timer progress bar
 -   [ ] Exercise completion timer
@@ -52,13 +54,14 @@ eas update
 -   [ ] Bug: Long exercise name hides delete button
 -   [ ] Show exercise history
 -   [ ] Bug: Workout timer resets on app reopen
--   [ ] Go to history on workout close
+-   [x] Go to history on workout close
 
 ### Plan View
 
 -   [x] Workout list
 -   [x] Workout creation
 -   [x] Admin panel
+-   [ ] New run
 
 ### History View
 
@@ -78,8 +81,6 @@ eas update
 
 ## Incubator
 
--   Workouts per week/month/year (including Apple Health)
-    -   Unique per day
 -   Goal setting & progress tracking
 -   Design
     -   Accordians

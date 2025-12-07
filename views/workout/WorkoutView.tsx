@@ -21,7 +21,8 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 interface Props {
     initialWorkout: Workout;
-    onEnd: () => Promise<void>;
+    onFinish: () => Promise<void>;
+    onCancel: () => Promise<void>;
 }
 
 const WorkoutView = (props: Props) => {

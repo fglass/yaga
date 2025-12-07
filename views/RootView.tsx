@@ -23,8 +23,16 @@ if (typeof window !== "undefined") {
 const RootView = () => {
     const activeWorkout = useActiveWorkout();
     const { saveActiveWorkout } = useDatabaseWriter();
-    const onEndWorkout = async () => await saveActiveWorkout(null);
     const [activeTab, setActiveTab] = useState<NavigationTab>("home");
+
+    const onFinishWorkout = async () => {
+        setActiveTab("history");
+        await saveActiveWorkout(null);
+    };
+    const onCancelWorkout = async () => {
+        setActiveTab("plan");
+        await saveActiveWorkout(null);
+    };
 
     const renderTab = () => {
         switch (activeTab) {
@@ -43,7 +51,8 @@ const RootView = () => {
             {activeWorkout ? (
                 <WorkoutView
                     initialWorkout={activeWorkout}
-                    onEnd={onEndWorkout}
+                    onFinish={onFinishWorkout}
+                    onCancel={onCancelWorkout}
                 />
             ) : (
                 <View style={styles.nonWorkoutContainer}>
