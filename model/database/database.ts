@@ -118,11 +118,9 @@ export const insert = async (key: QueryKey, value: unknown) => {
 /* Helpers */
 
 const mergeWorkouts = (existing: Workout[], templates: Workout[]) => {
-    const templateNames = new Set(
-        templates.map((workout) => workout.name.toLowerCase())
-    );
+    const templateIds = new Set(templates.map((workout) => workout.id));
     const existingWithoutCollisions = existing.filter(
-        (workout) => !templateNames.has(workout.name.toLowerCase())
+        (workout) => !templateIds.has(workout.id)
     );
     return [...templates, ...existingWithoutCollisions];
 };
