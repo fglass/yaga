@@ -78,7 +78,9 @@ export const logAppleHealthWorkout = async (
     }
 };
 
-export const fetchAppleHealthWorkouts = async (): Promise<AppleHealthWorkout[]> => {
+export const fetchAppleHealthWorkouts = async (): Promise<
+    AppleHealthWorkout[]
+> => {
     try {
         const workoutProxies = await queryWorkoutSamples({
             ascending: false,
@@ -88,7 +90,9 @@ export const fetchAppleHealthWorkouts = async (): Promise<AppleHealthWorkout[]> 
         return workoutProxies
             .map((proxy) => proxy.toJSON())
             .map(asHealthWorkout)
-            .filter((workout): workout is AppleHealthWorkout => workout != null);
+            .filter(
+                (workout): workout is AppleHealthWorkout => workout != null
+            );
     } catch (error) {
         console.warn("Failed to query Apple Health workouts", error);
         return [];
@@ -116,7 +120,7 @@ const asHealthWorkout = (sample: WorkoutSample): AppleHealthWorkout | null => {
 
     return {
         id: sample.uuid,
-        name: sample.metadata?.HKWorkoutBrandName?.toString() ?? formatActivityName(sample.workoutActivityType),
+        name: formatActivityName(sample.workoutActivityType),
         startDate,
         endDate,
         durationSeconds,
@@ -145,5 +149,3 @@ const formatActivityName = (activityType: WorkoutActivityType): string => {
               .join(" ")
         : "Workout";
 };
-
-

@@ -34,7 +34,16 @@ export const initDatabase = async () => {
         await insert(QueryKey.CompletedWorkouts, []);
         await insert(QueryKey.ActiveWorkout, null);
         await insert(QueryKey.ExerciseDefs, EXERCISE_DEFS);
+        return;
     }
+
+    const existingWorkouts = (await select(QueryKey.Workouts)) ?? [];
+    const existingExerciseDefs = (await select(QueryKey.ExerciseDefs)) ?? {};
+    const workouts = mergeWorkouts(existingWorkouts, WORKOUT_TEMPLATES);
+    const exerciseDefs = mergeExerciseDefs(existingExerciseDefs, EXERCISE_DEFS);
+
+    await insert(QueryKey.Workouts, workouts);
+    await insert(QueryKey.ExerciseDefs, exerciseDefs);
 };
 
 export const exportDatabase = async () => {
@@ -105,3 +114,23 @@ export const insert = async (key: QueryKey, value: unknown) => {
         console.error(e);
     }
 };
+
+/* Helpers */
+
+const mergeWorkouts = (existing: Workout[], templates: Workout[]) => {
+    const templateNames = new Set(
+        templates.map((workout) => workout.name.toLowerCase())
+    );
+    const existingWithoutCollisions = existing.filter(
+        (workout) => !templateNames.has(workout.name.toLowerCase())
+    );
+    return [...templates, ...existingWithoutCollisions];
+};
+
+const mergeExerciseDefs = (
+    existing: Record<string, ExerciseDef>,
+    templates: Record<string, ExerciseDef>
+) => ({
+    ...templates,
+    ...existing,
+});

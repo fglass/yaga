@@ -15,7 +15,9 @@ eas update
 
 -   [ ] Sessions
 -   [x] SQLite
+-   [ ] SQLite relational model
 -   [x] Apple Health export
+-   [ ] Apple Health write toggle
 -   [ ] iCloud sync
 
 ### Home View
@@ -38,6 +40,19 @@ eas update
 -   [ ] View modes
     -   Default, set intervals, progressive overload
 -   [ ] Template adding
+-   [ ] Timer notification & noise
+-   [ ] Sticky timer progress bar
+-   [ ] Exercise completion timer
+-   [ ] Disable exercise move above completed/active
+-   [ ] Drag to reorder exercises
+-   [ ] Set/time box colouring
+-   [ ] Active workout minimise
+-   [ ] Warmup sets
+-   [ ] Bug: Keyboard position on bottom exercise
+-   [ ] Bug: Long exercise name hides delete button
+-   [ ] Show exercise history
+-   [ ] Bug: Workout timer resets on app reopen
+-   [ ] Go to history on workout close
 
 ### Plan View
 
