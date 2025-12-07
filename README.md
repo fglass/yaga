@@ -6,6 +6,7 @@ Yet Another Gym App
 npm start
 expo update
 eas build --platform ios --profile development
+eas update
 ```
 
 ## Backlog
