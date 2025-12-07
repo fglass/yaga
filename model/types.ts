@@ -15,6 +15,14 @@ export interface CompletedWorkout extends Workout {
     duration: number;
 }
 
+export interface AppleHealthWorkout {
+    id: string;
+    name: string;
+    startDate: Date;
+    endDate: Date;
+    durationSeconds: number;
+}
+
 export interface Exercise {
     id: string;
     exerciseId: string; // FK to ExerciseDef

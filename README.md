@@ -17,6 +17,10 @@ eas build --platform ios --profile development
 -   [x] Apple Health export
 -   [ ] iCloud sync
 
+### Home View
+
+-   [ ] Apple Health read
+
 ### Workout View
 
 -   [x] Custom exercise
@@ -44,6 +48,7 @@ eas build --platform ios --profile development
 
 -   [x] Show completed
 -   [ ] View completed
+-   [x] Apple Health read
 
 ### Feedback
 
