@@ -127,7 +127,7 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
 export const WORKOUT_TEMPLATES: Workout[] = [
     {
         id: generateGuid(),
-        name: "Push #1",
+        name: "👆 Push #1",
         exercises: [
             {
                 id: generateGuid(),
@@ -144,7 +144,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
     },
     {
         id: generateGuid(),
-        name: "Pull #1",
+        name: "👇 Pull #1",
         exercises: [
             {
                 id: generateGuid(),
@@ -172,7 +172,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
     },
     {
         id: generateGuid(),
-        name: "Legs #1",
+        name: "🦵 Legs #1",
         exercises: [
             {
                 id: generateGuid(),
@@ -219,7 +219,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
     },
     {
         id: generateGuid(),
-        name: "Push #2",
+        name: "🔼 Push #2",
         exercises: [
             {
                 id: generateGuid(),
@@ -236,7 +236,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
     },
     {
         id: generateGuid(),
-        name: "Pull #2",
+        name: "🔽 Pull #2",
         exercises: [
             {
                 id: generateGuid(),
@@ -263,7 +263,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
     },
     {
         id: generateGuid(),
-        name: "Legs #2",
+        name: "🦿 Legs #2",
         exercises: [
             {
                 id: generateGuid(),
@@ -280,7 +280,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
     },
     {
         id: generateGuid(),
-        name: "Arms",
+        name: "💪 Arms",
         exercises: [
             {
                 id: generateGuid(),

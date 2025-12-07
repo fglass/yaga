@@ -17,8 +17,8 @@ eas update
 -   [x] SQLite
 -   [ ] SQLite relational model
 -   [x] Apple Health export
--   [ ] Apple Health write toggle
--   [ ] iCloud sync
+-   [x] Apple Health write toggle
+-   [ ] iCloud sync?
 
 ### Home View
 
@@ -36,7 +36,7 @@ eas update
 -   [x] Active workout
 -   [x] Database export
 -   [x] Set intervals
--   [ ] Change set timer
+-   [x] Change set timer
 -   [x] Exercise reordering
 -   [x] Double tap "ditto"
 -   [ ] View modes

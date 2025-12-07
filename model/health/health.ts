@@ -19,6 +19,7 @@ export interface HealthWorkoutPayload {
 
 const APP_BUNDLE_IDENTIFIER = "com.expench.yaga";
 let initPromise: Promise<boolean> | null = null;
+let isHealthLoggingEnabled = true;
 
 export const ensureHealthKit = async (): Promise<boolean> => {
     if (Platform.OS !== "ios") {
@@ -54,8 +55,8 @@ export const ensureHealthKit = async (): Promise<boolean> => {
 export const logAppleHealthWorkout = async (
     payload: HealthWorkoutPayload
 ): Promise<boolean> => {
-    if (isUsingExpoDevClient()) {
-        console.log("Skipping Apple Health logging in Expo Dev Client");
+    if (!isHealthLoggingEnabled) {
+        console.log("Apple Health logging is disabled");
         return false;
     }
 
@@ -65,6 +66,7 @@ export const logAppleHealthWorkout = async (
     }
 
     try {
+        console.log("Saving workout to Apple Health");
         await saveWorkoutSample(
             WorkoutActivityType.traditionalStrengthTraining,
             [], // Quantities omitted for now
@@ -73,9 +75,15 @@ export const logAppleHealthWorkout = async (
         );
         return true;
     } catch (error) {
-        console.warn("Failed to save workout to HealthKit", error);
+        console.warn("Failed to save workout to Apple Health", error);
         return false;
     }
+};
+
+export const getHealthLoggingEnabled = () => isHealthLoggingEnabled;
+
+export const setHealthLoggingEnabled = (enabled: boolean) => {
+    isHealthLoggingEnabled = enabled;
 };
 
 export const fetchAppleHealthWorkouts = async (): Promise<

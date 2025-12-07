@@ -40,14 +40,24 @@ const PlanView = () => {
     const onAdminSettings = () =>
         ActionSheetIOS.showActionSheetWithOptions(
             {
-                options: ["Cancel", "Export", "Reset"],
+                title: "Settings",
+                options: [
+                    "Cancel",
+                    vm.isHealthLoggingEnabled
+                        ? "Disable ❤️ Logging"
+                        : "Enable ❤️ Logging",
+                    "Export Database",
+                    "Reset Database",
+                ],
                 cancelButtonIndex: 0,
-                destructiveButtonIndex: 2,
+                destructiveButtonIndex: 3,
             },
             (btnIdx) => {
                 if (btnIdx === 1) {
-                    exportDatabase();
+                    vm.toggleHealthLogging();
                 } else if (btnIdx === 2) {
+                    exportDatabase();
+                } else if (btnIdx === 3) {
                     resetDatabase();
                 }
             }
