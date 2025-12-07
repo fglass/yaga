@@ -4,13 +4,12 @@ export const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingHorizontal: 16,
-        paddingBottom: 12,
     },
     content: {
         flex: 1,
     },
     contentContainer: {
-        paddingBottom: 16,
+        paddingBottom: 64,
     },
     card: {
         backgroundColor: "#353C42",
@@ -27,11 +26,6 @@ export const styles = StyleSheet.create({
     headerText: {
         width: "100%",
         paddingRight: 0,
-    },
-    timerContainer: {
-        position: "absolute",
-        top: 14,
-        right: 14,
     },
     title: {
         fontSize: 24,
@@ -190,5 +184,47 @@ export const styles = StyleSheet.create({
     },
     loading: {
         flex: 1,
+    },
+    restTimerContainer: {
+        position: "absolute",
+        left: 10,
+        right: 10,
+        bottom: 16,
+    },
+    restTimerRow: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    restTimer: {
+        backgroundColor: "rgba(255, 255, 255, 0.08)",
+        borderRadius: 10,
+        padding: 2,
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.08)",
+        flex: 1,
+    },
+    restTimerFill: {
+        backgroundColor: "rgba(77, 166, 255, 0.65)",
+    },
+    restTimerLabel: {
+        fontSize: 14,
+        fontWeight: "700",
+        letterSpacing: 0.2,
+    },
+    restAdjustButton: {
+        width: 44,
+        height: 32,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.2)",
+        backgroundColor: "rgba(255, 255, 255, 0.08)",
+        alignItems: "center",
+        justifyContent: "center",
+        marginHorizontal: 6,
+    },
+    restAdjustText: {
+        color: "white",
+        fontWeight: "700",
+        letterSpacing: 0.2,
     },
 });

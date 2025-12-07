@@ -1,46 +1,90 @@
 import React, { useEffect } from "react";
-import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
+import {
+    StyleProp,
+    StyleSheet,
+    Text,
+    TextStyle,
+    View,
+    ViewStyle,
+} from "react-native";
 import { formatTime } from "../util";
-import { Ionicons } from "@expo/vector-icons";
 
 interface Props {
-    style?: StyleProp<ViewStyle>;
+    containerStyle?: StyleProp<ViewStyle>;
+    barStyle?: StyleProp<ViewStyle>;
+    labelStyle?: StyleProp<TextStyle>;
     remainingTime: number;
+    totalTime: number;
     onFinish: () => void;
 }
 
-const CountdownTimer = ({ style, remainingTime, onFinish }: Props) => {
-    const isFinished = remainingTime === 0;
+const CountdownTimer = ({
+    containerStyle,
+    barStyle,
+    labelStyle,
+    remainingTime,
+    totalTime,
+    onFinish,
+}: Props) => {
+    const isFinished = remainingTime <= 0;
 
-    // TODO: remove effect?
     useEffect(() => {
         if (isFinished) {
             onFinish();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isFinished]);
 
-    if (remainingTime <= 0) {
+    if (remainingTime < 0) {
         return null;
     }
 
+    const progress = Math.max(
+        0,
+        Math.min(1, remainingTime / Math.max(1, totalTime))
+    );
+
     return (
-        <View style={styles.container}>
-            <Ionicons name="timer-outline" color="white" size={24} />
-            <Text style={[styles.text, style]}>
-                {formatTime(remainingTime)}
-            </Text>
+        <View style={[styles.container, containerStyle]}>
+            <View style={styles.track}>
+                <View
+                    style={[
+                        styles.fill,
+                        barStyle,
+                        { width: `${progress * 100}%` },
+                    ]}
+                />
+                <Text style={[styles.label, labelStyle]}>
+                    {formatTime(remainingTime)}
+                </Text>
+            </View>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: "row",
+        width: "100%",
     },
-    text: {
-        marginTop: 5,
-        paddingLeft: 3,
+    track: {
+        height: 32,
+        borderRadius: 8,
+        overflow: "hidden",
+        backgroundColor: "rgba(255, 255, 255, 0.12)",
+        justifyContent: "center",
+    },
+    fill: {
+        position: "absolute",
+        top: 0,
+        bottom: 0,
+        left: 0,
+        borderRadius: 8,
+        backgroundColor: "rgba(77, 166, 255, 0.65)",
+    },
+    label: {
+        textAlign: "center",
+        color: "white",
+        fontWeight: "700",
+        letterSpacing: 0.2,
     },
 });
 

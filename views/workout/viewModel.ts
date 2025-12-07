@@ -22,6 +22,7 @@ interface ViewModel {
     workout: Workout; // TODO: flatten?
     workoutDurationS: number;
     remainingRestTimeS: number;
+    totalRestDurationS: number;
     exerciseDefs: Record<string, ExerciseDef>;
     activeModal: ModalType;
     setActiveModal: (modalType: ModalType) => void;
@@ -56,6 +57,7 @@ interface ViewModel {
     onCreateExerciseDef: (name: string, category: string) => void;
     onFinishWorkout: () => Promise<void>;
     onCancelWorkout: () => Promise<void>;
+    onAdjustRestTimer: (deltaS: number) => void;
     onRestFinish: () => void;
     calculateSetDuration: (
         setIdx: number,
@@ -74,6 +76,8 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         workoutStartTime,
         workoutDurationS,
         remainingRestTimeS,
+        totalRestDurationS,
+        adjustRestTimer,
         resetRestTimer,
     } = useTimers();
 
@@ -268,6 +272,11 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }, []);
 
+    const onAdjustRestTimer = useCallback((deltaS: number) => {
+        adjustRestTimer(deltaS);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }, []);
+
     const onRestFinish = () => {
         alert("Rest finished!");
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -315,6 +324,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         workout,
         workoutDurationS,
         remainingRestTimeS,
+        totalRestDurationS,
         exerciseDefs,
         activeModal,
         setActiveModal,
@@ -337,6 +347,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onCreateExerciseDef,
         onFinishWorkout,
         onCancelWorkout,
+        onAdjustRestTimer,
         onRestFinish,
         calculateSetDuration,
     };

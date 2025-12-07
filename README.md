@@ -43,7 +43,7 @@ eas update
     -   Default, set intervals, progressive overload
 -   [ ] New template adding
 -   [ ] Timer notification & noise
--   [ ] Sticky timer progress bar
+-   [x] Sticky timer progress bar
 -   [ ] Exercise completion timer
 -   [ ] Disable exercise move above completed/active
 -   [ ] Drag to reorder exercises
@@ -52,8 +52,8 @@ eas update
 -   [ ] Warmup sets
 -   [ ] Bug: Keyboard position on bottom exercise
 -   [ ] Bug: Long exercise name hides delete button
--   [ ] Show exercise history
 -   [ ] Bug: Workout timer resets on app reopen
+-   [ ] Show exercise history
 -   [x] Go to history on workout close
 
 ### Plan View

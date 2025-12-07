@@ -29,7 +29,6 @@ const WorkoutView = (props: Props) => {
     const vm = useWorkoutViewModel(props);
 
     const renderHeader = () => {
-        const showTimer = vm.remainingRestTimeS > 0;
         return (
             <View style={[styles.card, styles.headerCard]}>
                 <View style={styles.headerText}>
@@ -45,15 +44,6 @@ const WorkoutView = (props: Props) => {
                         onChangeText={vm.onChangeWorkoutNotes}
                     />
                 </View>
-                {showTimer && (
-                    <View style={styles.timerContainer}>
-                        <CountdownTimer
-                            style={styles.subtitle}
-                            remainingTime={vm.remainingRestTimeS}
-                            onFinish={vm.onRestFinish}
-                        />
-                    </View>
-                )}
             </View>
         );
     };
@@ -213,9 +203,7 @@ const WorkoutView = (props: Props) => {
         const duration = vm.calculateSetDuration(setIdx, exerciseIdx);
         return (
             <View style={styles.setSwipeContainer} key={set.id}>
-                <Deletable
-                    onDelete={() => vm.onRemoveSet(exerciseIdx, setIdx)}
-                >
+                <Deletable onDelete={() => vm.onRemoveSet(exerciseIdx, setIdx)}>
                     <View style={[styles.tr, isFinished && styles.finished]}>
                         {isFinished ? (
                             <GestureDetector
@@ -273,7 +261,11 @@ const WorkoutView = (props: Props) => {
                         <TouchableOpacity
                             style={styles.tdBtn}
                             onPress={() => {
-                                vm.onFinishSet(exerciseIdx, setIdx, !isFinished);
+                                vm.onFinishSet(
+                                    exerciseIdx,
+                                    setIdx,
+                                    !isFinished
+                                );
                             }}
                         >
                             <Ionicons
@@ -322,6 +314,39 @@ const WorkoutView = (props: Props) => {
         </View>
     );
 
+    const renderRestTimer = () => {
+        if (vm.remainingRestTimeS < 0) {
+            return null;
+        }
+
+        return (
+            <View style={styles.restTimerContainer} pointerEvents="box-none">
+                <View style={styles.restTimerRow}>
+                    <TouchableOpacity
+                        style={styles.restAdjustButton}
+                        onPress={() => vm.onAdjustRestTimer(-30)}
+                    >
+                        <Text style={styles.restAdjustText}>-</Text>
+                    </TouchableOpacity>
+                    <CountdownTimer
+                        containerStyle={styles.restTimer}
+                        barStyle={styles.restTimerFill}
+                        labelStyle={styles.restTimerLabel}
+                        remainingTime={vm.remainingRestTimeS}
+                        totalTime={vm.totalRestDurationS}
+                        onFinish={vm.onRestFinish}
+                    />
+                    <TouchableOpacity
+                        style={styles.restAdjustButton}
+                        onPress={() => vm.onAdjustRestTimer(30)}
+                    >
+                        <Text style={styles.restAdjustText}>+</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
+    };
+
     return !vm.isLoading ? (
         <View style={styles.container}>
             {renderModals()}
@@ -336,6 +361,7 @@ const WorkoutView = (props: Props) => {
                     : renderEmptyContainer()}
                 {renderFooter()}
             </ScrollView>
+            {renderRestTimer()}
         </View>
     ) : (
         <ActivityIndicator style={styles.loading} color="white" size="large" />
