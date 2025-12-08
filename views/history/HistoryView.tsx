@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useCompletedWorkouts } from "../../model/database";
 import { useAppleHealthWorkouts } from "../../model/health";
 import { CompletedWorkout, AppleHealthWorkout } from "../../model/types";
-import { formatTime, parseWorkoutEnd } from "../../util";
+import { formatTime, parseWorkoutStart } from "../../util";
 
 type HistoryItem =
     | { type: "local"; workout: CompletedWorkout }
@@ -24,10 +24,10 @@ const HistoryView = () => {
     const sortedWorkouts = React.useMemo(() => {
         return [...completedWorkouts].sort((a, b) => {
             const aTime =
-                parseWorkoutEnd(a.endTimestamp)?.getTime() ??
+                parseWorkoutStart(a.endTimestamp, a.duration)?.getTime() ??
                 Number.NEGATIVE_INFINITY;
             const bTime =
-                parseWorkoutEnd(b.endTimestamp)?.getTime() ??
+                parseWorkoutStart(b.endTimestamp, b.duration)?.getTime() ??
                 Number.NEGATIVE_INFINITY;
             return bTime - aTime;
         });
@@ -46,11 +46,14 @@ const HistoryView = () => {
         const sortByDate = (item: HistoryItem): number => {
             if (item.type === "local") {
                 return (
-                    parseWorkoutEnd(item.workout.endTimestamp)?.getTime() ??
+                    parseWorkoutStart(
+                        item.workout.endTimestamp,
+                        item.workout.duration
+                    )?.getTime() ??
                     Number.NEGATIVE_INFINITY
                 );
             }
-            return item.workout.endDate.getTime();
+            return item.workout.startDate.getTime();
         };
 
         return [...localItems, ...appleItems].sort(
@@ -66,10 +69,12 @@ const HistoryView = () => {
     };
 
     const renderLocalWorkout = (workout: CompletedWorkout) => {
-        // TODO: use start timestamp?
-        const completedDate = parseWorkoutEnd(workout.endTimestamp);
-        const workoutDate = completedDate
-            ? completedDate.toLocaleString()
+        const workoutStartDate = parseWorkoutStart(
+            workout.endTimestamp,
+            workout.duration
+        );
+        const workoutDate = workoutStartDate
+            ? workoutStartDate.toLocaleString()
             : "Unknown date";
 
         return (
@@ -89,7 +94,7 @@ const HistoryView = () => {
     };
 
     const renderHealthWorkout = (workout: AppleHealthWorkout) => {
-        const workoutDate = workout.endDate.toLocaleString();
+        const workoutDate = workout.startDate.toLocaleString();
         return (
             <View style={styles.workoutCard}>
                 <View style={styles.healthHeader}>
