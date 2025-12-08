@@ -1,6 +1,7 @@
 import * as SQLite from "expo-sqlite";
+import { isUsingExpoDevClient } from "../../util";
 
-const DB_NAME = "yaga.db";
+const DB_NAME = isUsingExpoDevClient() ? "yaga-dev.db" : "yaga.db";
 const TABLE_NAME = "kv_store";
 
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;

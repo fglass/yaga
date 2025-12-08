@@ -6,6 +6,7 @@ Yet Another Gym App
 npm start
 expo update
 eas build --platform ios --profile development
+eas build --platform ios --profile preview
 eas update
 ```
 
@@ -94,5 +95,4 @@ eas update
 ---
 
 Double tab decrement reps
-Health icon
 History start time
