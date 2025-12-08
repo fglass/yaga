@@ -48,7 +48,7 @@ eas update
 -   [ ] Exercise completion timer
 -   [ ] Disable exercise move above completed/active
 -   [ ] Drag to reorder exercises
--   [ ] Set/time box colouring
+-   [x] Set/time box colouring
 -   [ ] Active workout minimise
 -   [ ] Warmup sets
 -   [ ] Bug: Keyboard position on bottom exercise
@@ -91,5 +91,3 @@ eas update
     -   Treadmill runs
     -   Runs/week, distance/wk
 -   [iOS design](https://developer.apple.com/design/resources/)
-
----

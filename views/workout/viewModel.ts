@@ -39,6 +39,7 @@ interface ViewModel {
         weight: string
     ) => void;
     onChangeRep: (exerciseIdx: number, setIdx: number, reps: string) => void;
+    onDecrementRep: (exerciseIdx: number, setIdx: number) => void;
     onFinishSet: (
         exerciseIdx: number,
         setIdx: number,
@@ -172,6 +173,18 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                 setIdx,
                 reps,
             }),
+        []
+    );
+
+    const onDecrementRep = useCallback(
+        (exerciseIdx: number, setIdx: number) => {
+            dispatch({
+                type: ActionType.DecrementReps,
+                exerciseIdx,
+                setIdx,
+            });
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        },
         []
     );
 
@@ -339,6 +352,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onChangeExerciseNotes,
         onChangeWeight,
         onChangeRep,
+        onDecrementRep,
         onFinishSet,
         onRemoveSet,
         onAddSet,

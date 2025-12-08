@@ -13,6 +13,7 @@ export enum ActionType {
     ChangeExerciseNote = "change-exercise-note",
     ChangeWeight = "change-weight",
     ChangeReps = "change-reps",
+    DecrementReps = "decrement-reps",
     FinishSet = "finish-set",
     RemoveSet = "remove-set",
     AddSet = "add-set",
@@ -41,6 +42,14 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
             draft.exercises[action.exerciseIdx].sets[action.setIdx].reps =
                 action.reps;
             break;
+        case ActionType.DecrementReps: {
+            const currentReps = Number(
+                draft.exercises[action.exerciseIdx].sets[action.setIdx].reps
+            );
+            const nextReps = Math.max(0, isNaN(currentReps) ? 0 : currentReps - 1);
+            draft.exercises[action.exerciseIdx].sets[action.setIdx].reps = `${nextReps}`;
+            break;
+        }
         case ActionType.FinishSet:
             draft.exercises[action.exerciseIdx].sets[action.setIdx].finishTime =
                 action.isFinished ? Date.now() : undefined;

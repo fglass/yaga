@@ -201,6 +201,20 @@ const WorkoutView = (props: Props) => {
         const isFinished = set.finishTime !== undefined;
         // TODO: render below
         const duration = vm.calculateSetDuration(setIdx, exerciseIdx);
+        const decrementTap = Gesture.Tap()
+            .numberOfTaps(2)
+            .maxDelay(300)
+            .maxDistance(20)
+            .runOnJS(true)
+            .onEnd((_, success) => {
+                if (success) {
+                    vm.onDecrementRep(exerciseIdx, setIdx);
+                }
+            });
+        const decrementRepsGesture = Gesture.Exclusive(
+            decrementTap,
+            Gesture.Native()
+        );
         return (
             <View style={styles.setSwipeContainer} key={set.id}>
                 <Deletable onDelete={() => vm.onRemoveSet(exerciseIdx, setIdx)}>
@@ -247,14 +261,16 @@ const WorkoutView = (props: Props) => {
                             }
                             inputMode="decimal"
                         />
-                        <TextInput
-                            style={[styles.td, isFinished && styles.tdFinished]}
-                            value={set.reps}
-                            onChangeText={(text: string) =>
-                                vm.onChangeRep(exerciseIdx, setIdx, text)
-                            }
-                            inputMode="decimal"
-                        />
+                        <GestureDetector gesture={decrementRepsGesture}>
+                            <TextInput
+                                style={[styles.td, isFinished && styles.tdFinished]}
+                                value={set.reps}
+                                onChangeText={(text: string) =>
+                                    vm.onChangeRep(exerciseIdx, setIdx, text)
+                                }
+                                inputMode="decimal"
+                            />
+                        </GestureDetector>
                         <TextInput
                             style={[
                                 styles.td,
