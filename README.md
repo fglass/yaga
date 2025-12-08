@@ -94,6 +94,5 @@ eas update
 ---
 
 Double tab decrement reps
-Health calories
 Health icon
 History start time

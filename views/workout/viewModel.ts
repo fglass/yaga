@@ -65,6 +65,8 @@ interface ViewModel {
     ) => string | null;
 }
 
+const CALORIES_PER_HOUR = 350;
+
 export const useWorkoutViewModel = (props: Props): ViewModel => {
     const [workout, dispatch] = useReducer(
         workoutProducer,
@@ -112,9 +114,13 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         };
 
         await completeWorkout(completedWorkout);
+
+        const durationHours = Math.max(0, workoutDurationS / 3600);
+        const calories = durationHours * CALORIES_PER_HOUR;
         await logAppleHealthWorkout({
             startDate: new Date(workoutStartTime),
             endDate: finishDate,
+            calories,
         });
 
         await props.onFinish();

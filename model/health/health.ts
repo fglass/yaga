@@ -13,7 +13,7 @@ import { AppleHealthWorkout } from "../types";
 export interface HealthWorkoutPayload {
     startDate: Date;
     endDate: Date;
-    calories?: number;
+    calories: number;
 }
 
 const APP_BUNDLE_IDENTIFIER = "com.expench.yaga";
@@ -65,12 +65,14 @@ export const logAppleHealthWorkout = async (
     }
 
     try {
-        console.log("Saving workout to Apple Health");
+        console.log("Saving workout to Apple Health...");
+        const workoutTotals = { energyBurned: payload.calories };
         await saveWorkoutSample(
             WorkoutActivityType.traditionalStrengthTraining,
             [], // Quantities omitted for now
             payload.startDate,
-            payload.endDate
+            payload.endDate,
+            workoutTotals
         );
         return true;
     } catch (error) {
