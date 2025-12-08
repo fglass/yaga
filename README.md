@@ -93,6 +93,3 @@ eas update
 -   [iOS design](https://developer.apple.com/design/resources/)
 
 ---
-
-Double tab decrement reps
-History start time

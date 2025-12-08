@@ -218,6 +218,7 @@ const WorkoutView = (props: Props) => {
                                     style={[
                                         styles.td,
                                         styles.narrow,
+                                        styles.tdReadOnly,
                                         styles.tdFinished,
                                     ]}
                                     editable={false}
@@ -230,6 +231,7 @@ const WorkoutView = (props: Props) => {
                                 style={[
                                     styles.td,
                                     styles.narrow,
+                                    styles.tdReadOnly,
                                     isFinished && styles.tdFinished,
                                 ]}
                                 editable={false}
@@ -254,7 +256,11 @@ const WorkoutView = (props: Props) => {
                             inputMode="decimal"
                         />
                         <TextInput
-                            style={[styles.td, isFinished && styles.tdFinished]}
+                            style={[
+                                styles.td,
+                                styles.tdReadOnly,
+                                isFinished && styles.tdFinished,
+                            ]}
                             value={duration ?? ""}
                             editable={false}
                         />

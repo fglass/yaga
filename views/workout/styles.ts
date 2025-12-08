@@ -136,6 +136,12 @@ export const styles = StyleSheet.create({
         borderRadius: 8,
         marginHorizontal: 4,
     },
+    tdReadOnly: {
+        backgroundColor: "#23282D",
+        color: "rgba(255, 255, 255, 0.65)",
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.08)",
+    },
     tdBtn: {
         width: 32,
         alignItems: "center",
