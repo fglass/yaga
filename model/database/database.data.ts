@@ -10,8 +10,9 @@ enum Exercise {
     FacePull = "99f6a34d-1053-4d43-9aff-121e4457c27b",
     HammerCurl = "e494222e-88a2-41e8-bd6b-e0c84ee38c74",
     InclineCurl = "d7b6f5cd-501e-4aef-b05f-45296205e11f",
-    KneelingLatPulldown = "357310e0-f111-4a6a-acff-84eafa0acaba",
     LatPulldown = "a03954ed-477f-4cc7-8d30-7fc2ac82635a",
+    LatPulldownClose = "b637579a-38f7-4a4e-a741-c1f0cbb93282",
+    LatPulldownKneeling = "357310e0-f111-4a6a-acff-84eafa0acaba",
     LegExtensions = "a1b0b1a0-1a20-4ccc-bf81-d5825923f8c8",
     LyingLegCurl = "34da1abc-cfbc-4dda-b2b5-58c16de24d3a",
     NeckCurl = "62d73123-1ffd-4dbf-a28e-0ae4b751d135",
@@ -22,7 +23,7 @@ enum Exercise {
     ReverseCurl = "69ee1222-419a-4338-9409-b76afe104109",
     ReverseFly = "ba9415ee-7c93-4eae-9996-3b2f5f3ee77e",
     SeatedCalfRaise = "fb87dc04-da1c-4481-a3df-1776662c4a01",
-    SeatedRow = "09fbfa85-d2a9-438f-9606-e59160e5108f",
+    CableRow = "09fbfa85-d2a9-438f-9606-e59160e5108f",
     Squat = "6a001abb-1a20-4ccc-bf81-d5825923f8c8",
 }
 
@@ -41,8 +42,16 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
         name: "Lat Pulldown",
         category: "Back",
     },
-    [Exercise.SeatedRow]: {
-        name: "Seated Row",
+    [Exercise.LatPulldownClose]: {
+        name: "Lat Pulldown (Close)",
+        category: "Back",
+    },
+    [Exercise.LatPulldownKneeling]: {
+        name: "Kneeling Lat Pulldown",
+        category: "Back",
+    },
+    [Exercise.CableRow]: {
+        name: "Cable Row",
         category: "Back",
     },
     [Exercise.FacePull]: {
@@ -57,10 +66,7 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
         name: "Reverse Fly",
         category: "Back",
     },
-    [Exercise.KneelingLatPulldown]: {
-        name: "Kneeling Lat Pulldown",
-        category: "Back",
-    },
+
     /* Biceps */
     [Exercise.HammerCurl]: {
         name: "Hammer Curl",
@@ -159,7 +165,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
             },
             {
                 id: generateGuid(),
-                exerciseId: Exercise.SeatedRow,
+                exerciseId: Exercise.CableRow,
                 notes: [],
                 sets: [
                     { id: "0", weight: "", reps: "", finishTime: undefined },

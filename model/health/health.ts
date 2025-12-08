@@ -8,7 +8,6 @@ import {
     WorkoutTypeIdentifier,
     WorkoutSample,
 } from "@kingstinct/react-native-healthkit";
-import { isUsingExpoDevClient } from "../../util";
 import { AppleHealthWorkout } from "../types";
 
 export interface HealthWorkoutPayload {

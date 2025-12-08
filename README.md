@@ -90,3 +90,10 @@ eas update
     -   Treadmill runs
     -   Runs/week, distance/wk
 -   [iOS design](https://developer.apple.com/design/resources/)
+
+---
+
+Double tab decrement reps
+Health calories
+Health icon
+History start time

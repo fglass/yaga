@@ -21,7 +21,7 @@ type ExerciseItem = [string, { name: string; category: string }];
 const MAX_VISIBLE_ITEMS = 5;
 const ITEM_HEIGHT = 44;
 const ITEM_SPACING = 10;
-const SECTION_HEADER_HEIGHT = 24;
+const SECTION_HEADER_HEIGHT = 22;
 const LIST_VERTICAL_PADDING = 0;
 
 const ExerciseListModal = (props: Props) => {
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         textTransform: "uppercase",
         marginTop: 6,
-        marginBottom: 2,
+        paddingBottom: 6,
         paddingHorizontal: 0,
         letterSpacing: 0.6,
     },
