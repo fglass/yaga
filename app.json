@@ -48,7 +48,8 @@
                     "NSHealthUpdateUsageDescription": "Yaga needs write access."
                 }
             ],
-            "expo-font"
+            "expo-font",
+            "expo-notifications"
         ]
     }
 }
