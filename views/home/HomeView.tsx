@@ -5,10 +5,11 @@ import { useHomeViewModel } from "./viewModel";
 
 const HomeView = () => {
     const vm = useHomeViewModel();
+
     const statCards = [
         {
             id: "week",
-            iconName: "calendar" as const,
+            iconName: "barbell-outline" as const,
             iconColor: "#58A5F9",
             label: "Week",
             thisLabel: "This",
@@ -18,7 +19,7 @@ const HomeView = () => {
         },
         {
             id: "month",
-            iconName: "calendar" as const,
+            iconName: "barbell-outline" as const,
             iconColor: "#8AF7B5",
             label: "Month",
             thisLabel: "This",
@@ -28,7 +29,7 @@ const HomeView = () => {
         },
         {
             id: "year",
-            iconName: "calendar" as const,
+            iconName: "barbell-outline" as const,
             iconColor: "#FF9E43",
             label: "Year",
             thisLabel: "This",
@@ -38,12 +39,83 @@ const HomeView = () => {
         },
     ];
 
+    const runningCards = [
+        {
+            id: "run-week",
+            iconName: "walk" as const,
+            iconColor: "#7AD3FF",
+            label: "Week",
+            thisLabel: "This",
+            thisValue: vm.runsThisWeek,
+            lastLabel: "Last",
+            lastValue: vm.runsLastWeek,
+        },
+        {
+            id: "run-month",
+            iconName: "walk" as const,
+            iconColor: "#9BE28A",
+            label: "Month",
+            thisLabel: "This",
+            thisValue: vm.runsThisMonth,
+            lastLabel: "Last",
+            lastValue: vm.runsLastMonth,
+        },
+        {
+            id: "run-year",
+            iconName: "walk" as const,
+            iconColor: "#FFC266",
+            label: "Year",
+            thisLabel: "This",
+            thisValue: vm.runsThisYear,
+            lastLabel: "Last",
+            lastValue: vm.runsLastYear,
+        },
+    ];
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>YAGA</Text>
             <Text style={styles.subtitle}>Yet Another Gym App</Text>
             <View style={styles.statsGrid}>
                 {statCards.map((card) => (
+                    <View key={card.id} style={styles.statCard}>
+                        <View style={styles.statHeader}>
+                            <Ionicons
+                                name={card.iconName}
+                                color={card.iconColor}
+                                size={20}
+                                style={styles.statIcon}
+                            />
+                            <Text style={styles.statLabel}>{card.label}</Text>
+                        </View>
+                        <View style={styles.statComparisonRow}>
+                            <View style={styles.statComparison}>
+                                <Text style={styles.statComparisonLabel}>
+                                    {card.thisLabel}
+                                </Text>
+                                <Text style={styles.statValue}>
+                                    {card.thisValue}
+                                </Text>
+                            </View>
+                            <View
+                                style={[
+                                    styles.statComparison,
+                                    styles.statComparisonSpacer,
+                                ]}
+                            >
+                                <Text style={styles.statComparisonLabel}>
+                                    {card.lastLabel}
+                                </Text>
+                                <Text style={styles.statValue}>
+                                    {card.lastValue}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+                ))}
+            </View>
+            <View style={[styles.statsGrid, styles.runningGrid]}>
+                {runningCards.map((card) => (
                     <View key={card.id} style={styles.statCard}>
                         <View style={styles.statHeader}>
                             <Ionicons
@@ -104,6 +176,9 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         flexWrap: "wrap",
         justifyContent: "space-between",
+    },
+    runningGrid: {
+        marginTop: 8,
     },
     statCard: {
         width: "48%",

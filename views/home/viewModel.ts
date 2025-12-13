@@ -1,11 +1,14 @@
+import React from "react";
+import { WorkoutActivityType } from "@kingstinct/react-native-healthkit";
 import { useCompletedWorkouts } from "../../model/database";
-import { parseWorkoutEnd } from "../../util";
+import { useAppleHealthWorkouts } from "../../model/health";
+import { parseWorkoutEnd, parseWorkoutStart } from "../../util";
 
 const getStartOfWeek = (reference: Date) => {
     const start = new Date(reference);
     start.setHours(0, 0, 0, 0);
-    const distanceToSunday = start.getDay();
-    start.setDate(start.getDate() - distanceToSunday);
+    const distanceToMonday = (start.getDay() + 6) % 7;
+    start.setDate(start.getDate() - distanceToMonday);
     return start;
 };
 
@@ -17,61 +20,132 @@ const addDays = (reference: Date, days: number) => {
 
 export const useHomeViewModel = () => {
     const completedWorkouts = useCompletedWorkouts();
+    const {
+        workouts: appleHealthWorkouts,
+        isAvailable: isAppleHealthAvailable,
+        isLoading: isAppleHealthLoading,
+    } = useAppleHealthWorkouts();
 
-    const now = new Date();
-    const startOfWeek = getStartOfWeek(now);
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-    const previousWeekStart = addDays(startOfWeek, -7);
-    const previousMonthStart = new Date(
-        now.getFullYear(),
-        now.getMonth() - 1,
-        1
-    );
-    const previousYearStart = new Date(now.getFullYear() - 1, 0, 1);
+    const { strengthWorkouts, runningWorkouts } = React.useMemo(() => {
+        const local = completedWorkouts
+            .map((workout) => {
+                const startDate = parseWorkoutStart(
+                    workout.endTimestamp,
+                    workout.duration
+                );
+                const endDate = parseWorkoutEnd(workout.endTimestamp);
+                return {
+                    startDate,
+                    endDate,
+                };
+            })
+            .filter(
+                (entry) => entry.startDate != null || entry.endDate != null
+            );
 
-    const stats = completedWorkouts.reduce(
-        (acc, workout) => {
-            const completedDate = parseWorkoutEnd(workout.endTimestamp);
+        const appleHealth = appleHealthWorkouts
+            .map((workout) => ({
+                startDate:
+                    workout.startDate != null
+                        ? new Date(workout.startDate)
+                        : null,
+                endDate:
+                    workout.endDate != null ? new Date(workout.endDate) : null,
+                activityType: workout.activityType,
+            }))
+            .filter(
+                (entry) => entry.startDate != null || entry.endDate != null
+            );
 
-            if (!completedDate) {
-                return acc;
-            }
+        const appleHealthStrength = appleHealth.filter(
+            (workout) =>
+                workout.activityType ===
+                WorkoutActivityType.traditionalStrengthTraining
+        );
+        const appleHealthRunning = appleHealth.filter(
+            (workout) => workout.activityType === WorkoutActivityType.running
+        );
 
-            if (completedDate >= startOfWeek) {
-                acc.week.current += 1;
-            } else if (
-                completedDate >= previousWeekStart &&
-                completedDate < startOfWeek
-            ) {
-                acc.week.previous += 1;
-            }
+        return {
+            strengthWorkouts: [...local, ...appleHealthStrength],
+            runningWorkouts: appleHealthRunning,
+        };
+    }, [completedWorkouts, appleHealthWorkouts]);
 
-            if (completedDate >= startOfMonth) {
-                acc.month.current += 1;
-            } else if (
-                completedDate >= previousMonthStart &&
-                completedDate < startOfMonth
-            ) {
-                acc.month.previous += 1;
-            }
+    const computeStats = React.useCallback(
+        (
+            workouts: {
+                startDate: Date | null;
+                endDate: Date | null;
+            }[]
+        ) => {
+            const now = new Date();
+            const startOfWeek = getStartOfWeek(now);
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const startOfYear = new Date(now.getFullYear(), 0, 1);
+            const previousWeekStart = addDays(startOfWeek, -7);
+            const previousMonthStart = new Date(
+                now.getFullYear(),
+                now.getMonth() - 1,
+                1
+            );
+            const previousYearStart = new Date(now.getFullYear() - 1, 0, 1);
 
-            if (completedDate >= startOfYear) {
-                acc.year.current += 1;
-            } else if (
-                completedDate >= previousYearStart &&
-                completedDate < startOfYear
-            ) {
-                acc.year.previous += 1;
-            }
+            return workouts.reduce(
+                (acc, workout) => {
+                    const completedDate = workout.endDate ?? workout.startDate;
 
-            return acc;
+                    if (!completedDate) {
+                        return acc;
+                    }
+
+                    if (completedDate >= startOfWeek) {
+                        acc.week.current += 1;
+                    } else if (
+                        completedDate >= previousWeekStart &&
+                        completedDate < startOfWeek
+                    ) {
+                        acc.week.previous += 1;
+                    }
+
+                    if (completedDate >= startOfMonth) {
+                        acc.month.current += 1;
+                    } else if (
+                        completedDate >= previousMonthStart &&
+                        completedDate < startOfMonth
+                    ) {
+                        acc.month.previous += 1;
+                    }
+
+                    if (completedDate >= startOfYear) {
+                        acc.year.current += 1;
+                    } else if (
+                        completedDate >= previousYearStart &&
+                        completedDate < startOfYear
+                    ) {
+                        acc.year.previous += 1;
+                    }
+
+                    return acc;
+                },
+                {
+                    week: { current: 0, previous: 0 },
+                    month: { current: 0, previous: 0 },
+                    year: { current: 0, previous: 0 },
+                }
+            );
         },
-        {
-            week: { current: 0, previous: 0 },
-            month: { current: 0, previous: 0 },
-            year: { current: 0, previous: 0 },
-        }
+        []
+    );
+
+    const stats = React.useMemo(
+        () => computeStats(strengthWorkouts),
+        [strengthWorkouts, computeStats]
+    );
+
+    const runningStats = React.useMemo(
+        () => computeStats(runningWorkouts),
+        [runningWorkouts, computeStats]
     );
 
     return {
@@ -81,5 +155,13 @@ export const useHomeViewModel = () => {
         workoutsLastMonth: stats.month.previous,
         workoutsThisYear: stats.year.current,
         workoutsLastYear: stats.year.previous,
+        runsThisWeek: runningStats.week.current,
+        runsLastWeek: runningStats.week.previous,
+        runsThisMonth: runningStats.month.current,
+        runsLastMonth: runningStats.month.previous,
+        runsThisYear: runningStats.year.current,
+        runsLastYear: runningStats.year.previous,
+        isAppleHealthAvailable,
+        isAppleHealthLoading,
     };
 };

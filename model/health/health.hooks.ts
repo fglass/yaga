@@ -1,4 +1,5 @@
 import React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ensureHealthKit, fetchAppleHealthWorkouts } from "./health";
 import { AppleHealthWorkout } from "../types";
 
@@ -9,42 +10,31 @@ export interface HealthWorkoutResult {
 }
 
 export const useAppleHealthWorkouts = (): HealthWorkoutResult => {
-    const [workouts, setWorkouts] = React.useState<AppleHealthWorkout[]>([]);
-    const [isAvailable, setIsAvailable] = React.useState(false);
-    const [isLoading, setIsLoading] = React.useState(true);
-
-    React.useEffect(() => {
-        let didCancel = false;
-
-        const load = async () => {
-            setIsLoading(true);
-            const canUseHealthKit = await ensureHealthKit();
-            if (!canUseHealthKit) {
-                if (!didCancel) {
-                    setIsAvailable(false);
-                    setIsLoading(false);
-                }
-                return;
-            }
-
-            // TODO: add caching
-            const workouts = await fetchAppleHealthWorkouts();
-
-            if (didCancel) {
-                return;
-            }
-
-            setIsAvailable(true);
-            setWorkouts(workouts);
-            setIsLoading(false);
-        };
-
-        load();
-
-        return () => {
-            didCancel = true;
-        };
+    const startOfPreviousYear = React.useMemo(() => {
+        const now = new Date();
+        return new Date(now.getFullYear() - 1, 0, 1);
     }, []);
 
-    return { workouts, isAvailable, isLoading };
+    const { data, isLoading } = useQuery({
+        queryKey: ["appleHealthWorkouts", startOfPreviousYear.getTime()],
+        queryFn: async () => {
+            const canUseHealthKit = await ensureHealthKit();
+            if (!canUseHealthKit) {
+                return { workouts: [], isAvailable: false };
+            }
+
+            const workouts = await fetchAppleHealthWorkouts({
+                since: startOfPreviousYear,
+            });
+
+            return { workouts, isAvailable: true };
+        },
+        staleTime: 5 * 60 * 1000,
+    });
+
+    return {
+        workouts: data?.workouts ?? [],
+        isAvailable: data?.isAvailable ?? false,
+        isLoading,
+    };
 };
