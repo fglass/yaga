@@ -94,7 +94,7 @@ const HomeView = () => {
                                     {card.thisLabel}
                                 </Text>
                                 <Text style={styles.statValue}>
-                                    {card.thisValue}
+                                    {vm.isLoading ? "" : card.thisValue}
                                 </Text>
                             </View>
                             <View
@@ -107,7 +107,7 @@ const HomeView = () => {
                                     {card.lastLabel}
                                 </Text>
                                 <Text style={styles.statValue}>
-                                    {card.lastValue}
+                                    {vm.isLoading ? "" : card.lastValue}
                                 </Text>
                             </View>
                         </View>
@@ -132,7 +132,7 @@ const HomeView = () => {
                                     {card.thisLabel}
                                 </Text>
                                 <Text style={styles.statValue}>
-                                    {card.thisValue}
+                                    {vm.isLoading ? "" : card.thisValue}
                                 </Text>
                             </View>
                             <View
@@ -145,7 +145,7 @@ const HomeView = () => {
                                     {card.lastLabel}
                                 </Text>
                                 <Text style={styles.statValue}>
-                                    {card.lastValue}
+                                    {vm.isLoading ? "" : card.lastValue}
                                 </Text>
                             </View>
                         </View>
