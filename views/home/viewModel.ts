@@ -161,7 +161,6 @@ export const useHomeViewModel = () => {
         runsLastMonth: runningStats.month.previous,
         runsThisYear: runningStats.year.current,
         runsLastYear: runningStats.year.previous,
-        isAppleHealthAvailable,
-        isAppleHealthLoading,
+        isLoading: isAppleHealthLoading,
     };
 };

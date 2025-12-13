@@ -26,6 +26,7 @@ eas update
 -   [x] Workouts per week/month/year
 -   [x] Runs per week/month/year
 -   [x] Apple Health read
+-   [ ] Long tap for distance stats
 
 ### Workout View
 
