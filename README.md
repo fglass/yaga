@@ -24,8 +24,8 @@ eas update
 ### Home View
 
 -   [x] Workouts per week/month/year
--   [ ] Runs per week/month/year
--   [ ] Apple Health read
+-   [x] Runs per week/month/year
+-   [x] Apple Health read
 
 ### Workout View
 

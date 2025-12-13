@@ -16,6 +16,11 @@ export interface HealthWorkoutPayload {
     calories: number;
 }
 
+export interface FetchAppleHealthWorkoutsOptions {
+    since?: Date;
+    limit?: number;
+}
+
 const APP_BUNDLE_IDENTIFIER = "com.expench.yaga";
 let initPromise: Promise<boolean> | null = null;
 let isHealthLoggingEnabled = true;
@@ -87,21 +92,24 @@ export const setHealthLoggingEnabled = (enabled: boolean) => {
     isHealthLoggingEnabled = enabled;
 };
 
-export const fetchAppleHealthWorkouts = async (): Promise<
-    AppleHealthWorkout[]
-> => {
+export const fetchAppleHealthWorkouts = async (
+    options?: FetchAppleHealthWorkoutsOptions
+): Promise<AppleHealthWorkout[]> => {
     try {
-        const workoutProxies = await queryWorkoutSamples({
+        const workoutQueryOptions = {
             ascending: false,
-            limit: 20,
+            limit: options?.limit ?? 10_000,
+            filter: options?.since ? { startDate: options.since } : undefined,
+        };
+        const workoutProxies = await queryWorkoutSamples({
+            ...workoutQueryOptions,
         });
 
         return workoutProxies
             .map((proxy) => proxy.toJSON())
             .map(asHealthWorkout)
-            .filter(
-                (workout): workout is AppleHealthWorkout => workout != null
-            );
+            .filter((workout): workout is AppleHealthWorkout => workout != null)
+            .filter(dedupe());
     } catch (error) {
         console.warn("Failed to query Apple Health workouts", error);
         return [];
@@ -133,6 +141,7 @@ const asHealthWorkout = (sample: WorkoutSample): AppleHealthWorkout | null => {
         startDate,
         endDate,
         durationSeconds,
+        activityType: sample.workoutActivityType,
     };
 };
 
@@ -141,6 +150,20 @@ const isWorkoutLoggedByApp = (sample: WorkoutSample): boolean => {
         sample.sourceRevision?.source?.bundleIdentifier ===
         APP_BUNDLE_IDENTIFIER
     );
+};
+
+const dedupe = () => {
+    const seen = new Set<string>();
+    return (workout: AppleHealthWorkout): boolean => {
+        const key = `${workout.startDate.toISOString()}|${
+            workout.durationSeconds
+        }`;
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    };
 };
 
 const formatActivityName = (activityType: WorkoutActivityType): string => {
