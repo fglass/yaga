@@ -1,3 +1,4 @@
+import { Alert } from "react-native";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { Exercise, ExerciseDef, ModalType, Workout } from "../../model/types";
 import { workoutProducer, ActionType } from "./reducer";
@@ -134,6 +135,20 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         },
         [cancelRestFinishNotification]
     );
+
+    useEffect(() => {
+        // Executed when app is in foregroun1d
+        const onNotification = (notification: Notifications.Notification) => {
+            const { title } = notification.request.content;
+            Alert.alert(title || "Notification received");
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        };
+
+        const subscription =
+            Notifications.addNotificationReceivedListener(onNotification);
+
+        return () => subscription.remove();
+    }, []);
 
     useEffect(() => {
         saveActiveWorkout(workout); // Fire-and-forget
