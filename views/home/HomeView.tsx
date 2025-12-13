@@ -72,50 +72,17 @@ const HomeView = () => {
         },
     ];
 
+    const interleavedCards = statCards.flatMap((card, index) => [
+        card,
+        runningCards[index],
+    ]);
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>YAGA</Text>
             <Text style={styles.subtitle}>Yet Another Gym App</Text>
             <View style={styles.statsGrid}>
-                {statCards.map((card) => (
-                    <View key={card.id} style={styles.statCard}>
-                        <View style={styles.statHeader}>
-                            <Ionicons
-                                name={card.iconName}
-                                color={card.iconColor}
-                                size={20}
-                                style={styles.statIcon}
-                            />
-                            <Text style={styles.statLabel}>{card.label}</Text>
-                        </View>
-                        <View style={styles.statComparisonRow}>
-                            <View style={styles.statComparison}>
-                                <Text style={styles.statComparisonLabel}>
-                                    {card.thisLabel}
-                                </Text>
-                                <Text style={styles.statValue}>
-                                    {vm.isLoading ? "" : card.thisValue}
-                                </Text>
-                            </View>
-                            <View
-                                style={[
-                                    styles.statComparison,
-                                    styles.statComparisonSpacer,
-                                ]}
-                            >
-                                <Text style={styles.statComparisonLabel}>
-                                    {card.lastLabel}
-                                </Text>
-                                <Text style={styles.statValue}>
-                                    {vm.isLoading ? "" : card.lastValue}
-                                </Text>
-                            </View>
-                        </View>
-                    </View>
-                ))}
-            </View>
-            <View style={[styles.statsGrid, styles.runningGrid]}>
-                {runningCards.map((card) => (
+                {interleavedCards.map((card) => (
                     <View key={card.id} style={styles.statCard}>
                         <View style={styles.statHeader}>
                             <Ionicons
@@ -176,9 +143,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         flexWrap: "wrap",
         justifyContent: "space-between",
-    },
-    runningGrid: {
-        marginTop: 8,
     },
     statCard: {
         width: "48%",
