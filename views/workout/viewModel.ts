@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useReducer, useState } from "react";
+import { Alert } from "react-native";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { Exercise, ExerciseDef, ModalType, Workout } from "../../model/types";
 import { workoutProducer, ActionType } from "./reducer";
 import {
@@ -6,10 +7,15 @@ import {
     useDatabaseWriter,
     useExerciseDefs,
 } from "../../model/database";
-import { generateGuid, withWarning } from "../../util";
+import {
+    ensureNotificationPermission,
+    generateGuid,
+    withWarning,
+} from "../../util";
 import * as Haptics from "expo-haptics";
 import { useTimers } from "./hooks";
 import { logAppleHealthWorkout } from "../../model/health";
+import * as Notifications from "expo-notifications";
 
 interface Props {
     initialWorkout: Workout;
@@ -59,14 +65,13 @@ interface ViewModel {
     onFinishWorkout: () => Promise<void>;
     onCancelWorkout: () => Promise<void>;
     onAdjustRestTimer: (deltaS: number) => void;
-    onRestFinish: () => void;
     calculateSetDuration: (
         setIdx: number,
         exerciseIdx: number
     ) => string | null;
 }
 
-const CALORIES_PER_HOUR = 350;
+const CALORIES_PER_HOUR = 300;
 
 export const useWorkoutViewModel = (props: Props): ViewModel => {
     const [workout, dispatch] = useReducer(
@@ -75,6 +80,13 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     );
 
     const exerciseDefs = useExerciseDefs(); // TODO: lift up?
+    const { completeWorkout, createExerciseDef } = useDatabaseWriter();
+    const [activeModal, setActiveModal] = useState(ModalType.None);
+    const [expandedNotes, setExpandedNotes] = useState<
+        Record<string, boolean | undefined>
+    >({});
+
+    const restNotificationIdRef = useRef<string | null>(null);
     const {
         workoutStartTime,
         workoutDurationS,
@@ -82,13 +94,61 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         totalRestDurationS,
         adjustRestTimer,
         resetRestTimer,
-    } = useTimers();
+        cancelRestTimer,
+    } = useTimers({
+        onRestStart: (restEndTimeMs) =>
+            scheduleRestFinishNotification(restEndTimeMs),
+        onRestCancel: () => cancelRestFinishNotification(),
+    });
 
-    const { completeWorkout, createExerciseDef } = useDatabaseWriter();
-    const [activeModal, setActiveModal] = useState(ModalType.None);
-    const [expandedNotes, setExpandedNotes] = useState<
-        Record<string, boolean | undefined>
-    >({});
+    const cancelRestFinishNotification = useCallback(async () => {
+        if (restNotificationIdRef.current == null) {
+            return;
+        }
+
+        await Notifications.cancelScheduledNotificationAsync(
+            restNotificationIdRef.current
+        );
+        restNotificationIdRef.current = null;
+    }, []);
+
+    const scheduleRestFinishNotification = useCallback(
+        async (endTimeMs: number) => {
+            const hasPermission = await ensureNotificationPermission();
+            if (!hasPermission) {
+                return;
+            }
+
+            await cancelRestFinishNotification();
+
+            restNotificationIdRef.current =
+                await Notifications.scheduleNotificationAsync({
+                    content: {
+                        title: "Rest Finished ⏰",
+                        sound: true,
+                    },
+                    trigger: {
+                        type: Notifications.SchedulableTriggerInputTypes.DATE,
+                        date: new Date(endTimeMs),
+                    },
+                });
+        },
+        [cancelRestFinishNotification]
+    );
+
+    useEffect(() => {
+        // Executed when app is in foreground
+        const onNotification = (notification: Notifications.Notification) => {
+            const { title } = notification.request.content;
+            Alert.alert(title || "Notification received");
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        };
+
+        const subscription =
+            Notifications.addNotificationReceivedListener(onNotification);
+
+        return () => subscription.remove();
+    }, []);
 
     useEffect(() => {
         saveActiveWorkout(workout); // Fire-and-forget
@@ -124,12 +184,14 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             calories,
         });
 
+        cancelRestTimer();
         await props.onFinish();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     };
 
     const onCancelWorkout = async () => {
         withWarning(async () => {
+            cancelRestTimer();
             await props.onCancel();
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         });
@@ -296,11 +358,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }, []);
 
-    const onRestFinish = () => {
-        alert("Rest finished!");
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    };
-
     const calculateSetDuration = (setIdx: number, exerciseIdx: number) => {
         const exercise = workout.exercises[exerciseIdx];
         const set = exercise.sets[setIdx];
@@ -368,7 +425,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onFinishWorkout,
         onCancelWorkout,
         onAdjustRestTimer,
-        onRestFinish,
         calculateSetDuration,
     };
 };
