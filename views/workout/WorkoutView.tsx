@@ -263,7 +263,10 @@ const WorkoutView = (props: Props) => {
                         />
                         <GestureDetector gesture={decrementRepsGesture}>
                             <TextInput
-                                style={[styles.td, isFinished && styles.tdFinished]}
+                                style={[
+                                    styles.td,
+                                    isFinished && styles.tdFinished,
+                                ]}
                                 value={set.reps}
                                 onChangeText={(text: string) =>
                                     vm.onChangeRep(exerciseIdx, setIdx, text)
@@ -356,7 +359,6 @@ const WorkoutView = (props: Props) => {
                         labelStyle={styles.restTimerLabel}
                         remainingTime={vm.remainingRestTimeS}
                         totalTime={vm.totalRestDurationS}
-                        onFinish={vm.onRestFinish}
                     />
                     <TouchableOpacity
                         style={styles.restAdjustButton}

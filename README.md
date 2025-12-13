@@ -43,7 +43,8 @@ eas update
 -   [ ] View modes
     -   Default, set intervals, progressive overload
 -   [ ] New template adding
--   [ ] Timer notification & noise
+-   [x] Timer notification
+-   [ ] Timer noise
 -   [x] Sticky timer progress bar
 -   [ ] Exercise completion timer
 -   [ ] Disable exercise move above completed/active
@@ -91,3 +92,18 @@ eas update
     -   Treadmill runs
     -   Runs/week, distance/wk
 -   [iOS design](https://developer.apple.com/design/resources/)
+
+---
+
+Exercise history graph?
+Add exercise category dropdown
+Add exercise variation?
+Finish warning
+Reduce calories?
+Calories move goal
+Double tab gesture
+Rest notis!
+
+Machine curl
+Reverse cable curl
+Single cable curl

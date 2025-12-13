@@ -1,16 +1,24 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
-export const DEFAULT_REST_DURATION_S = 90;
+export const DEFAULT_REST_DURATION_S = 5;
+
 const clamp = (value: number, min: number, max: number) =>
     Math.min(max, Math.max(min, value));
 
-export const useTimers = () => {
+interface UseTimersProps {
+    onRestStart: () => void;
+    onRestCancel: () => void;
+}
+
+export const useTimers = ({ onRestStart, onRestCancel }: UseTimersProps) => {
     const workoutStartTimeRef = useRef(Date.now());
     const [workoutDurationS, setWorkoutDurationS] = useState(0);
 
-    const restEndTimeRef = useRef(Date.now() - DEFAULT_REST_DURATION_S * 1000);
+    const restEndTimeRef = useRef<number>(
+        Date.now() - DEFAULT_REST_DURATION_S * 1000
+    );
     const [remainingRestTimeS, setRemainingRestTimeS] = useState(-1);
-    const [totalRestDurationS, setRestDurationS] = useState(
+    const [totalRestDurationS, setTotalRestDurationS] = useState(
         DEFAULT_REST_DURATION_S
     );
 
@@ -34,22 +42,35 @@ export const useTimers = () => {
         workoutDurationS,
         remainingRestTimeS,
         totalRestDurationS,
-        adjustRestTimer: useCallback((deltaS: number) => {
-            setRestDurationS((prevDuration) =>
-                Math.max(prevDuration + deltaS, 0)
-            );
-            setRemainingRestTimeS((prevRemaining) => {
-                const base = Math.max(prevRemaining, 0);
-                const next = Math.max(base + deltaS, 0);
-                restEndTimeRef.current = Date.now() + next * 1000;
-                return next;
-            });
-        }, []),
+        restEndTimeMs: restEndTimeRef.current,
+        adjustRestTimer: useCallback(
+            (deltaS: number) => {
+                console.log("adjusting rest timer", deltaS);
+                setTotalRestDurationS((prevDuration) =>
+                    Math.max(prevDuration + deltaS, 0)
+                );
+                setRemainingRestTimeS((prevRemaining) => {
+                    const base = Math.max(prevRemaining, 0);
+                    const next = Math.max(base + deltaS, 0);
+                    restEndTimeRef.current = Date.now() + next * 1000;
+                    return next;
+                });
+                onRestStart();
+            },
+            [onRestStart]
+        ),
         resetRestTimer: useCallback(() => {
-            setRestDurationS(DEFAULT_REST_DURATION_S);
+            console.log("reset rest timer");
+            setTotalRestDurationS(DEFAULT_REST_DURATION_S);
             restEndTimeRef.current =
                 Date.now() + DEFAULT_REST_DURATION_S * 1000;
-            setRemainingRestTimeS(DEFAULT_REST_DURATION_S); // Skip interval wait
-        }, []),
+            setRemainingRestTimeS(DEFAULT_REST_DURATION_S);
+            onRestStart();
+        }, [onRestStart]),
+        cancelRestTimer: useCallback(() => {
+            restEndTimeRef.current = Date.now();
+            setRemainingRestTimeS(-1);
+            onRestCancel();
+        }, [onRestCancel]),
     };
 };

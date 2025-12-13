@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
     StyleProp,
     StyleSheet,
@@ -15,7 +15,6 @@ interface Props {
     labelStyle?: StyleProp<TextStyle>;
     remainingTime: number;
     totalTime: number;
-    onFinish: () => void;
 }
 
 const CountdownTimer = ({
@@ -24,16 +23,7 @@ const CountdownTimer = ({
     labelStyle,
     remainingTime,
     totalTime,
-    onFinish,
 }: Props) => {
-    const isFinished = remainingTime <= 0;
-
-    useEffect(() => {
-        if (isFinished) {
-            onFinish();
-        }
-    }, [isFinished]);
-
     if (remainingTime < 0) {
         return null;
     }
