@@ -5,12 +5,12 @@ export const DEFAULT_REST_DURATION_S = 5;
 const clamp = (value: number, min: number, max: number) =>
     Math.min(max, Math.max(min, value));
 
-interface UseTimersProps {
-    onRestStart: () => void;
+interface Props {
+    onRestStart: (endTimeMs: number) => void;
     onRestCancel: () => void;
 }
 
-export const useTimers = ({ onRestStart, onRestCancel }: UseTimersProps) => {
+export const useTimers = ({ onRestStart, onRestCancel }: Props) => {
     const workoutStartTimeRef = useRef(Date.now());
     const [workoutDurationS, setWorkoutDurationS] = useState(0);
 
@@ -42,30 +42,27 @@ export const useTimers = ({ onRestStart, onRestCancel }: UseTimersProps) => {
         workoutDurationS,
         remainingRestTimeS,
         totalRestDurationS,
-        restEndTimeMs: restEndTimeRef.current,
         adjustRestTimer: useCallback(
             (deltaS: number) => {
-                console.log("adjusting rest timer", deltaS);
-                setTotalRestDurationS((prevDuration) =>
-                    Math.max(prevDuration + deltaS, 0)
+                setTotalRestDurationS((prevTotal) =>
+                    Math.max(prevTotal + deltaS, 0)
                 );
                 setRemainingRestTimeS((prevRemaining) => {
                     const base = Math.max(prevRemaining, 0);
                     const next = Math.max(base + deltaS, 0);
                     restEndTimeRef.current = Date.now() + next * 1000;
+                    onRestStart(restEndTimeRef.current);
                     return next;
                 });
-                onRestStart();
             },
             [onRestStart]
         ),
         resetRestTimer: useCallback(() => {
-            console.log("reset rest timer");
             setTotalRestDurationS(DEFAULT_REST_DURATION_S);
             restEndTimeRef.current =
                 Date.now() + DEFAULT_REST_DURATION_S * 1000;
             setRemainingRestTimeS(DEFAULT_REST_DURATION_S);
-            onRestStart();
+            onRestStart(restEndTimeRef.current);
         }, [onRestStart]),
         cancelRestTimer: useCallback(() => {
             restEndTimeRef.current = Date.now();

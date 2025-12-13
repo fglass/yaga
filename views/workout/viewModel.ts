@@ -91,12 +91,12 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         workoutDurationS,
         remainingRestTimeS,
         totalRestDurationS,
-        restEndTimeMs,
         adjustRestTimer,
         resetRestTimer,
         cancelRestTimer,
     } = useTimers({
-        onRestStart: () => scheduleRestFinishNotification(),
+        onRestStart: (restEndTimeMs) =>
+            scheduleRestFinishNotification(restEndTimeMs),
         onRestCancel: () => cancelRestFinishNotification(),
     });
 
@@ -111,31 +111,29 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         restNotificationIdRef.current = null;
     }, []);
 
-    const scheduleRestFinishNotification = useCallback(async () => {
-        const hasPermission = await ensureNotificationPermission();
-        if (!hasPermission) {
-            return;
-        }
+    const scheduleRestFinishNotification = useCallback(
+        async (endTimeMs: number) => {
+            const hasPermission = await ensureNotificationPermission();
+            if (!hasPermission) {
+                return;
+            }
 
-        await cancelRestFinishNotification();
-        console.log("scheduling", new Date(restEndTimeMs));
+            await cancelRestFinishNotification();
 
-        restNotificationIdRef.current =
-            await Notifications.scheduleNotificationAsync({
-                content: {
-                    title: "Rest Finished ⏰",
-                    sound: true,
-                },
-                trigger: {
-                    type: Notifications.SchedulableTriggerInputTypes.DATE,
-                    date: new Date(restEndTimeMs),
-                },
-            });
-        console.log(
-            "Scheduled rest finish notification",
-            restNotificationIdRef.current
-        );
-    }, [cancelRestFinishNotification, restEndTimeMs]);
+            restNotificationIdRef.current =
+                await Notifications.scheduleNotificationAsync({
+                    content: {
+                        title: "Rest Finished ⏰",
+                        sound: true,
+                    },
+                    trigger: {
+                        type: Notifications.SchedulableTriggerInputTypes.DATE,
+                        date: new Date(endTimeMs),
+                    },
+                });
+        },
+        [cancelRestFinishNotification]
+    );
 
     useEffect(() => {
         saveActiveWorkout(workout); // Fire-and-forget
