@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
-export const DEFAULT_REST_DURATION_S = 5;
+export const DEFAULT_REST_DURATION_S = 90;
 
 const clamp = (value: number, min: number, max: number) =>
     Math.min(max, Math.max(min, value));
@@ -27,13 +27,13 @@ export const useTimers = ({ onRestStart, onRestCancel }: Props) => {
             setWorkoutDurationS(
                 Math.round((Date.now() - workoutStartTimeRef.current) / 1000)
             );
-            const remainingSeconds = Math.ceil(
+            const remainingRestSeconds = Math.floor(
                 (restEndTimeRef.current - Date.now()) / 1000
             );
             setRemainingRestTimeS(
-                clamp(remainingSeconds, -1, totalRestDurationS)
+                clamp(remainingRestSeconds, -1, totalRestDurationS)
             );
-        }, 1000);
+        }, 250); // Run every 250ms to help with UI syncing
         return () => clearInterval(intervalId);
     }, [totalRestDurationS]);
 

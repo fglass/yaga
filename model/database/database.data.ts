@@ -10,8 +10,13 @@ enum Exercise {
     CrunchMachine = "a5ad3d7d-21b1-4de7-a5ed-5ed8a531ac53",
     Deadlift = "14ffd72a-dd45-47a8-87d3-51b5d04093b6",
     FacePull = "99f6a34d-1053-4d43-9aff-121e4457c27b",
-    HammerCurl = "e494222e-88a2-41e8-bd6b-e0c84ee38c74",
-    InclineCurl = "d7b6f5cd-501e-4aef-b05f-45296205e11f",
+    CurleCableReverse = "1ce1fc5b-d87f-4ad6-b73e-226ec014db97",
+    CurlCableSingle = "a0e427a2-6862-4e42-81f0-9b000b46bdc9",
+    CurlHammer = "e494222e-88a2-41e8-bd6b-e0c84ee38c74",
+    CurlIncline = "d7b6f5cd-501e-4aef-b05f-45296205e11f",
+    CurlMachine = "01d074cb-15c1-45bd-a592-dfc5033139c1",
+    CurlPreacher = "7a03e425-be92-4c2c-a0d7-fd2749cd41dc",
+    CurlReverse = "69ee1222-419a-4338-9409-b76afe104109",
     LateralRaise = "42a63d67-e4ca-4cf4-aad7-0e606d5f70e8",
     LateralRaiseMachine = "4ae1efd3-b738-46bd-9e62-475e81db6970",
     LatPulldown = "a03954ed-477f-4cc7-8d30-7fc2ac82635a",
@@ -21,12 +26,10 @@ enum Exercise {
     LyingLegCurl = "34da1abc-cfbc-4dda-b2b5-58c16de24d3a",
     NeckCurl = "62d73123-1ffd-4dbf-a28e-0ae4b751d135",
     OverheadPress = "bae49855-0c29-4834-bd65-4b1a081bd87c",
-    PreacherCurl = "7a03e425-be92-4c2c-a0d7-fd2749cd41dc",
     PullDownRope = "84ca598b-cd0b-43d8-8687-89d9b8537afb",
     PullUp = "0acf0b5e-b0c7-4f2e-ac94-f20c2bbe3bc9",
     RomanianDeadlift = "fe5d9291-0be6-4dfd-9ca7-a9b8c05f2f52",
     RomanChairLegRaises = "4ce5ec6a-94aa-49b5-9144-81940d9dfa5f",
-    ReverseCurl = "69ee1222-419a-4338-9409-b76afe104109",
     ReverseFly = "ba9415ee-7c93-4eae-9996-3b2f5f3ee77e",
     RowMachineSeated = "e55322b1-02a4-4eda-9476-fa7107bd8e2e",
     ShoulderPressDumbell = "8ebdd214-e6f9-40c9-b409-f15e5a883121",
@@ -83,19 +86,31 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
         category: "Back",
     },
     /* Biceps */
-    [Exercise.HammerCurl]: {
+    [Exercise.CurlCableSingle]: {
+        name: "Single Cable Curl",
+        category: "Biceps",
+    },
+    [Exercise.CurleCableReverse]: {
+        name: "Reverse Cable Curl",
+        category: "Biceps",
+    },
+    [Exercise.CurlHammer]: {
         name: "Hammer Curl",
         category: "Biceps",
     },
-    [Exercise.InclineCurl]: {
+    [Exercise.CurlMachine]: {
+        name: "Machine Curl",
+        category: "Biceps",
+    },
+    [Exercise.CurlIncline]: {
         name: "Incline Curl",
         category: "Biceps",
     },
-    [Exercise.ReverseCurl]: {
+    [Exercise.CurlReverse]: {
         name: "Reverse Curl",
         category: "Biceps",
     },
-    [Exercise.PreacherCurl]: {
+    [Exercise.CurlPreacher]: {
         name: "Preacher Curl",
         category: "Biceps",
     },
@@ -340,7 +355,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
         exercises: [
             {
                 id: generateGuid(),
-                exerciseId: Exercise.HammerCurl,
+                exerciseId: Exercise.CurlHammer,
                 notes: [],
                 sets: [
                     { id: "0", weight: "", reps: "", finishTime: undefined },
@@ -350,7 +365,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
             },
             {
                 id: generateGuid(),
-                exerciseId: Exercise.InclineCurl,
+                exerciseId: Exercise.CurlIncline,
                 notes: [],
                 sets: [
                     { id: "0", weight: "", reps: "", finishTime: undefined },

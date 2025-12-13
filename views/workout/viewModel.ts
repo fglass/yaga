@@ -71,7 +71,7 @@ interface ViewModel {
     ) => string | null;
 }
 
-const CALORIES_PER_HOUR = 350;
+const CALORIES_PER_HOUR = 300;
 
 export const useWorkoutViewModel = (props: Props): ViewModel => {
     const [workout, dispatch] = useReducer(
@@ -137,7 +137,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     );
 
     useEffect(() => {
-        // Executed when app is in foregroun1d
+        // Executed when app is in foreground
         const onNotification = (notification: Notifications.Notification) => {
             const { title } = notification.request.content;
             Alert.alert(title || "Notification received");

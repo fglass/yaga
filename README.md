@@ -99,11 +99,5 @@ Exercise history graph?
 Add exercise category dropdown
 Add exercise variation?
 Finish warning
-Reduce calories?
 Calories move goal
 Double tab gesture
-Rest notis!
-
-Machine curl
-Reverse cable curl
-Single cable curl
