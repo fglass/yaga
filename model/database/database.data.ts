@@ -202,6 +202,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
             },
         ],
         notes: "",
+        type: "strength",
     },
     {
         id: "c45961ce-85ac-41a1-a6fa-c88ffa5fa2fd",
@@ -240,6 +241,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
             },
         ],
         notes: "",
+        type: "strength",
     },
     {
         id: "585f3af5-e469-40e5-8591-2e16cfd33524",
@@ -287,6 +289,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
             },
         ],
         notes: "",
+        type: "strength",
     },
     {
         id: "dea6b833-dd5f-4c5b-9d11-e67b8b1e2e4f",
@@ -304,6 +307,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
             },
         ],
         notes: "",
+        type: "strength",
     },
     {
         id: "2634a7cf-e293-45b3-95d7-134acc260da4",
@@ -331,6 +335,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
             },
         ],
         notes: "",
+        type: "strength",
     },
     {
         id: "d6aecfef-9f28-4975-b3f8-48e8ab58ed70",
@@ -348,6 +353,7 @@ export const WORKOUT_TEMPLATES: Workout[] = [
             },
         ],
         notes: "",
+        type: "strength",
     },
     {
         id: "42c73ac4-50a8-44ea-ad50-18e844c53d0c",
@@ -385,5 +391,6 @@ export const WORKOUT_TEMPLATES: Workout[] = [
             },
         ],
         notes: "",
+        type: "strength",
     },
 ];

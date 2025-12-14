@@ -21,15 +21,6 @@ export const usePlanViewModel = () => {
         await saveActiveWorkout(workout);
     };
 
-    const startBlankWorkout = async () => {
-        await saveActiveWorkout({
-            id: generateGuid(),
-            name: "New Workout",
-            exercises: [],
-            notes: "",
-        });
-    };
-
     const openCreateModal = () => setCreateModalVisible(true);
 
     const closeCreateModal = () => {
@@ -37,13 +28,35 @@ export const usePlanViewModel = () => {
         setNewWorkoutName("");
     };
 
+    const startBlankWorkout = async () => {
+        await saveActiveWorkout({
+            id: generateGuid(),
+            name: "🏋️ Workout",
+            exercises: [],
+            notes: "",
+            type: "strength",
+        });
+    };
+
+    const startRun = async () => {
+        await saveActiveWorkout({
+            id: generateGuid(),
+            name: "💨 Run",
+            exercises: [],
+            notes: "",
+            type: "run",
+            distanceKm: 0,
+        });
+    };
+
     const createTemplate = async () => {
-        const workoutName = newWorkoutName.trim() || "New Workout";
+        const workoutName = newWorkoutName.trim() || "🏋️ Workout";
         await createWorkoutTemplate({
             id: generateGuid(),
             name: workoutName,
             exercises: [],
             notes: "",
+            type: "strength",
         });
         closeCreateModal();
     };
@@ -67,5 +80,6 @@ export const usePlanViewModel = () => {
         closeCreateModal,
         isHealthLoggingEnabled,
         toggleHealthLogging,
+        startRun,
     };
 };

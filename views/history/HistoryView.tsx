@@ -49,8 +49,7 @@ const HistoryView = () => {
                     parseWorkoutStart(
                         item.workout.endTimestamp,
                         item.workout.duration
-                    )?.getTime() ??
-                    Number.NEGATIVE_INFINITY
+                    )?.getTime() ?? Number.NEGATIVE_INFINITY
                 );
             }
             return item.workout.startDate.getTime();
@@ -76,6 +75,7 @@ const HistoryView = () => {
         const workoutDate = workoutStartDate
             ? workoutStartDate.toLocaleString()
             : "Unknown date";
+        const isRun = workout.type === "run";
 
         return (
             <TouchableOpacity
@@ -84,7 +84,10 @@ const HistoryView = () => {
                 }}
             >
                 <View key={workout.id} style={styles.workoutCard}>
-                    <Text style={styles.workoutTitle}>{workout.name}</Text>
+                    <Text style={styles.workoutTitle}>
+                        {workout.name}
+                        {isRun ? ` ${workout.distanceKm!.toFixed(2)}K ` : ""}
+                    </Text>
                     <Text style={styles.workoutMeta}>
                         {workoutDate} · {formatTime(workout.duration)}
                     </Text>
@@ -104,9 +107,7 @@ const HistoryView = () => {
                         size={16}
                         style={styles.healthIcon}
                     />
-                    <Text style={styles.workoutTitle}>
-                        {workout.name}
-                    </Text>
+                    <Text style={styles.workoutTitle}>{workout.name}</Text>
                 </View>
                 <Text style={styles.workoutMeta}>
                     {workoutDate} · {formatTime(workout.durationSeconds)}

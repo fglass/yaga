@@ -184,6 +184,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                     startDate: new Date(workoutStartTime),
                     endDate: finishDate,
                     calories,
+                    workoutType: "strength",
                 });
 
                 cancelRestTimer();

@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 import WorkoutView from "./workout/WorkoutView";
+import RunView from "./run/RunView";
 import PlanView from "./plan/PlanView";
 import HistoryView from "./history/HistoryView";
 import HomeView from "./home/HomeView";
@@ -49,11 +50,19 @@ const RootView = () => {
     return (
         <GestureHandlerRootView style={styles.container}>
             {activeWorkout ? (
-                <WorkoutView
-                    initialWorkout={activeWorkout}
-                    onFinish={onFinishWorkout}
-                    onCancel={onCancelWorkout}
-                />
+                activeWorkout.type === "run" ? (
+                    <RunView
+                        initialRun={activeWorkout}
+                        onFinish={onFinishWorkout}
+                        onCancel={onCancelWorkout}
+                    />
+                ) : (
+                    <WorkoutView
+                        initialWorkout={activeWorkout}
+                        onFinish={onFinishWorkout}
+                        onCancel={onCancelWorkout}
+                    />
+                )
             ) : (
                 <View style={styles.nonWorkoutContainer}>
                     <View style={styles.contentArea}>{renderTab()}</View>

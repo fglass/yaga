@@ -26,7 +26,7 @@ eas update
 -   [x] Workouts per week/month/year
 -   [x] Runs per week/month/year
 -   [x] Apple Health read
--   [ ] Long tap for distance stats
+-   [ ] Distance stats
 
 ### Workout View
 
@@ -64,28 +64,24 @@ eas update
 -   [x] Finish workout confirmation
 -   [ ] Bug: Calories move goal
 
+### Run View
+
+-   [x] Init
+-   [ ] Check: Pace changing
+-   [ ] Heart rate
+
 ### Plan View
 
 -   [x] Workout list
 -   [x] Workout creation
 -   [x] Admin panel
--   [ ] New run
+-   [x] New run
 
 ### History View
 
 -   [x] Show completed
 -   [ ] View completed
 -   [x] Apple Health read
-
-### Feedback
-
--   [x] Timers in background
--   [ ] Force cursor at end
--   [x] Decimal points
--   [ ] Keyboard position/minimise
--   [x] Empty template
--   [ ] Weekly summary
-    -   Sets per muscle group
 
 ## Incubator
 
