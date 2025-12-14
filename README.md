@@ -53,11 +53,16 @@ eas update
 -   [x] Set/time box colouring
 -   [ ] Active workout minimise
 -   [ ] Warmup sets
--   [ ] Bug: Keyboard position on bottom exercise
+-   [x] Bug: Keyboard position on bottom exercise
 -   [ ] Bug: Long exercise name hides delete button
 -   [ ] Bug: Workout timer resets on app reopen
--   [ ] Show exercise history
+-   [ ] Exercise history
+-   [ ] Exercise history graph
 -   [x] Go to history on workout close
+-   [ ] Exercise category dropdown
+-   [ ] Exercise variation?
+-   [ ] Finish workout confirmation
+-   [ ] Bug: Calories move goal
 
 ### Plan View
 
@@ -93,12 +98,3 @@ eas update
     -   Treadmill runs
     -   Runs/week, distance/wk
 -   [iOS design](https://developer.apple.com/design/resources/)
-
----
-
-Exercise history graph?
-Add exercise category dropdown
-Add exercise variation?
-Finish warning
-Calories move goal
-Double tab gesture

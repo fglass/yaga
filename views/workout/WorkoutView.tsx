@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
     ActivityIndicator,
+    Keyboard,
     ScrollView,
     Text,
     TextInput,
@@ -27,6 +28,43 @@ interface Props {
 
 const WorkoutView = (props: Props) => {
     const vm = useWorkoutViewModel(props);
+    const scrollRef = useRef<ScrollView>(null);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+    const [isLastExerciseInputFocused, setIsLastExerciseInputFocused] =
+        useState(false);
+
+    // Handle keyboard displaying on last exercise input
+    useEffect(() => {
+        const onShow = (e: { endCoordinates: { height: number } }) => {
+            setKeyboardHeight(e?.endCoordinates?.height ?? 0);
+        };
+        const onHide = () => {
+            setKeyboardHeight(0);
+            setIsLastExerciseInputFocused(false);
+        };
+
+        const showSub = Keyboard.addListener("keyboardDidShow", onShow);
+        const hideSub = Keyboard.addListener("keyboardDidHide", onHide);
+
+        return () => {
+            showSub.remove();
+            hideSub.remove();
+        };
+    }, []);
+
+    const scrollToBottom = () => {
+        // Delay to allow layout updates after keyboard shows
+        setTimeout(() => {
+            requestAnimationFrame(() => {
+                scrollRef.current?.scrollToEnd({ animated: true });
+            });
+        }, 0);
+    };
+
+    const contentBottomPadding = useMemo(
+        () => 16 + (isLastExerciseInputFocused ? keyboardHeight : 0),
+        [isLastExerciseInputFocused, keyboardHeight]
+    );
 
     const renderHeader = () => {
         return (
@@ -197,6 +235,17 @@ const WorkoutView = (props: Props) => {
         );
     };
 
+    const handleSetInputFocus = (exerciseIdx: number) => {
+        const isLastExercise =
+            exerciseIdx === vm.workout.exercises.length - 1 &&
+            vm.workout.exercises.length > 0;
+        setIsLastExerciseInputFocused(isLastExercise);
+    };
+
+    const handleSetInputBlur = () => {
+        setIsLastExerciseInputFocused(false);
+    };
+
     const renderSet = (set: Set, setIdx: number, exerciseIdx: number) => {
         const isFinished = set.finishTime !== undefined;
         // TODO: render below
@@ -259,6 +308,8 @@ const WorkoutView = (props: Props) => {
                             onChangeText={(text: string) =>
                                 vm.onChangeWeight(exerciseIdx, setIdx, text)
                             }
+                            onFocus={() => handleSetInputFocus(exerciseIdx)}
+                            onBlur={handleSetInputBlur}
                             inputMode="decimal"
                         />
                         <GestureDetector gesture={decrementRepsGesture}>
@@ -271,6 +322,8 @@ const WorkoutView = (props: Props) => {
                                 onChangeText={(text: string) =>
                                     vm.onChangeRep(exerciseIdx, setIdx, text)
                                 }
+                                onFocus={() => handleSetInputFocus(exerciseIdx)}
+                                onBlur={handleSetInputBlur}
                                 inputMode="decimal"
                             />
                         </GestureDetector>
@@ -375,9 +428,18 @@ const WorkoutView = (props: Props) => {
         <View style={styles.container}>
             {renderModals()}
             <ScrollView
+                ref={scrollRef}
                 style={styles.content}
-                contentContainerStyle={styles.contentContainer}
+                contentContainerStyle={[
+                    styles.contentContainer,
+                    { paddingBottom: contentBottomPadding },
+                ]}
                 showsVerticalScrollIndicator={false}
+                onContentSizeChange={() => {
+                    if (isLastExerciseInputFocused) {
+                        scrollToBottom();
+                    }
+                }}
             >
                 {renderHeader()}
                 {vm.workout.exercises.length > 0
