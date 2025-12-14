@@ -61,7 +61,7 @@ eas update
 -   [x] Go to history on workout close
 -   [ ] Exercise category dropdown
 -   [ ] Exercise variation?
--   [ ] Finish workout confirmation
+-   [x] Finish workout confirmation
 -   [ ] Bug: Calories move goal
 
 ### Plan View
