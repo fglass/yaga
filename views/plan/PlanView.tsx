@@ -233,7 +233,8 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     workoutCard: {
-        padding: 18,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
         borderRadius: 16,
         backgroundColor: "#353C42",
         borderWidth: 1,
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     separator: {
-        height: 12,
+        height: 8,
     },
     footerSpacing: {
         marginTop: 16,
