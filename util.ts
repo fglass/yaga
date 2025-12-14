@@ -2,10 +2,14 @@ import { Alert, Share, NativeModules } from "react-native";
 import Constants, { ExecutionEnvironment } from "expo-constants";
 import * as Notifications from "expo-notifications";
 
-export const withWarning = (onPress: () => void) => {
+export const withWarning = (
+    onPress: () => void,
+    title?: string,
+    message?: string
+) => {
     Alert.alert(
-        "Warning",
-        "This action cannot be undone",
+        title ?? "Warning",
+        message ?? "This action cannot be undone",
         [
             {
                 text: "Confirm",

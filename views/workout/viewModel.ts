@@ -166,35 +166,47 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     };
 
     const onFinishWorkout = async () => {
-        const finishDate = new Date();
-        const completedWorkout = {
-            ...workout,
-            id: generateGuid(),
-            endTimestamp: finishDate.getTime(),
-            duration: workoutDurationS,
-        };
+        withWarning(
+            async () => {
+                const finishDate = new Date();
+                const completedWorkout = {
+                    ...workout,
+                    id: generateGuid(),
+                    endTimestamp: finishDate.getTime(),
+                    duration: workoutDurationS,
+                };
 
-        await completeWorkout(completedWorkout);
+                await completeWorkout(completedWorkout);
 
-        const durationHours = Math.max(0, workoutDurationS / 3600);
-        const calories = durationHours * CALORIES_PER_HOUR;
-        await logAppleHealthWorkout({
-            startDate: new Date(workoutStartTime),
-            endDate: finishDate,
-            calories,
-        });
+                const durationHours = Math.max(0, workoutDurationS / 3600);
+                const calories = durationHours * CALORIES_PER_HOUR;
+                await logAppleHealthWorkout({
+                    startDate: new Date(workoutStartTime),
+                    endDate: finishDate,
+                    calories,
+                });
 
-        cancelRestTimer();
-        await props.onFinish();
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                cancelRestTimer();
+                await props.onFinish();
+                Haptics.notificationAsync(
+                    Haptics.NotificationFeedbackType.Success
+                );
+            },
+            "Finish Workout",
+            "Are you sure?"
+        );
     };
 
     const onCancelWorkout = async () => {
-        withWarning(async () => {
-            cancelRestTimer();
-            await props.onCancel();
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        });
+        withWarning(
+            async () => {
+                cancelRestTimer();
+                await props.onCancel();
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            },
+            "Cancel Workout",
+            "Are you sure?"
+        );
     };
 
     /* Workout change handlers */
