@@ -27,6 +27,10 @@ const PlanView = () => {
         void vm.startBlankWorkout();
     };
 
+    const onStartNewRun = () => {
+        void vm.startRun();
+    };
+
     const renderNewWorkoutCard = () => (
         <TouchableOpacity
             style={[styles.workoutCard, styles.newWorkoutCard]}
@@ -35,6 +39,23 @@ const PlanView = () => {
             <Text style={styles.workoutName}>New Workout</Text>
             <Ionicons name="chevron-forward" color="white" size={20} />
         </TouchableOpacity>
+    );
+
+    const renderNewRunCard = () => (
+        <TouchableOpacity
+            style={[styles.workoutCard, styles.newRunCard]}
+            onPress={onStartNewRun}
+        >
+            <Text style={styles.workoutName}>New Run</Text>
+            <Ionicons name="chevron-forward" color="white" size={20} />
+        </TouchableOpacity>
+    );
+
+    const renderFooterCards = () => (
+        <View style={styles.footerCards}>
+            {renderNewWorkoutCard()}
+            {renderNewRunCard()}
+        </View>
     );
 
     const onAdminSettings = () =>
@@ -130,7 +151,7 @@ const PlanView = () => {
                 keyExtractor={(item) => item.id}
                 renderItem={renderWorkout}
                 ListEmptyComponent={renderEmptyState}
-                ListFooterComponent={renderNewWorkoutCard}
+                ListFooterComponent={renderFooterCards}
                 ListFooterComponentStyle={styles.footerSpacing}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
                 showsVerticalScrollIndicator={false}
@@ -233,7 +254,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     workoutCard: {
-        paddingVertical: 12,
+        paddingVertical: 11,
         paddingHorizontal: 16,
         borderRadius: 16,
         backgroundColor: "#353C42",
@@ -245,6 +266,10 @@ const styles = StyleSheet.create({
     },
     newWorkoutCard: {
         borderColor: "rgba(88, 165, 249, 0.5)",
+    },
+    newRunCard: {
+        borderColor: "rgba(88, 165, 249, 0.5)",
+        marginTop: 10,
     },
     workoutName: {
         color: "white",
@@ -259,6 +284,7 @@ const styles = StyleSheet.create({
     separator: {
         height: 8,
     },
+    footerCards: {},
     footerSpacing: {
         marginTop: 16,
     },

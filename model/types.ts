@@ -1,3 +1,5 @@
+export type WorkoutType = "strength" | "run";
+
 export interface ExerciseDef {
     name: string;
     category: string;
@@ -8,6 +10,9 @@ export interface Workout {
     name: string;
     exercises: Exercise[];
     notes: string;
+    type: WorkoutType;
+    // Running only
+    distanceKm?: number;
 }
 
 export interface CompletedWorkout extends Workout {

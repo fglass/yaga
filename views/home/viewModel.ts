@@ -27,7 +27,7 @@ export const useHomeViewModel = () => {
     } = useAppleHealthWorkouts();
 
     const { strengthWorkouts, runningWorkouts } = React.useMemo(() => {
-        const local = completedWorkouts
+        const localWorkouts = completedWorkouts
             .map((workout) => {
                 const startDate = parseWorkoutStart(
                     workout.endTimestamp,
@@ -37,11 +37,19 @@ export const useHomeViewModel = () => {
                 return {
                     startDate,
                     endDate,
+                    type: workout.type,
                 };
             })
             .filter(
                 (entry) => entry.startDate != null || entry.endDate != null
             );
+
+        const localStrength = localWorkouts.filter(
+            (workout) => workout.type === "strength"
+        );
+        const localRunning = localWorkouts.filter(
+            (workout) => workout.type === "run"
+        );
 
         const appleHealth = appleHealthWorkouts
             .map((workout) => ({
@@ -67,8 +75,8 @@ export const useHomeViewModel = () => {
         );
 
         return {
-            strengthWorkouts: [...local, ...appleHealthStrength],
-            runningWorkouts: appleHealthRunning,
+            strengthWorkouts: [...localStrength, ...appleHealthStrength],
+            runningWorkouts: [...localRunning, ...appleHealthRunning],
         };
     }, [completedWorkouts, appleHealthWorkouts]);
 

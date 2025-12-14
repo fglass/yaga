@@ -8,12 +8,13 @@ import {
     WorkoutTypeIdentifier,
     WorkoutSample,
 } from "@kingstinct/react-native-healthkit";
-import { AppleHealthWorkout } from "../types";
+import { AppleHealthWorkout, WorkoutType } from "../types";
 
 export interface HealthWorkoutPayload {
     startDate: Date;
     endDate: Date;
     calories: number;
+    workoutType: WorkoutType;
 }
 
 export interface FetchAppleHealthWorkoutsOptions {
@@ -71,9 +72,13 @@ export const logAppleHealthWorkout = async (
 
     try {
         console.log("Saving workout to Apple Health...");
+        const activityType =
+            payload.workoutType === "strength"
+                ? WorkoutActivityType.traditionalStrengthTraining
+                : WorkoutActivityType.running;
         const workoutTotals = { energyBurned: payload.calories };
         await saveWorkoutSample(
-            WorkoutActivityType.traditionalStrengthTraining,
+            activityType,
             [], // Quantities omitted for now
             payload.startDate,
             payload.endDate,
@@ -117,10 +122,6 @@ export const fetchAppleHealthWorkouts = async (
 };
 
 const asHealthWorkout = (sample: WorkoutSample): AppleHealthWorkout | null => {
-    if (isWorkoutLoggedByApp(sample)) {
-        return null;
-    }
-
     if (!sample.startDate || !sample.endDate) {
         return null;
     }
