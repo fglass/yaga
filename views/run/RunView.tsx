@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useKeepAwake } from "expo-keep-awake";
 import Button from "../../components/Button";
 import { Workout } from "../../model/types";
 import { formatTime } from "../../util";
@@ -20,6 +21,8 @@ interface Props {
 
 const RunView = (props: Props) => {
     const vm = useRunViewModel(props);
+
+    useKeepAwake();
 
     return (
         <View style={styles.container}>

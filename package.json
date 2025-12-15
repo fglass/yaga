@@ -17,6 +17,7 @@
     "expo-dev-client": "~6.0.17",
     "expo-font": "~14.0.9",
     "expo-haptics": "~15.0.7",
+    "expo-keep-awake": "~15.0.8",
     "expo-notifications": "~0.30.0",
     "expo-sqlite": "^16.0.9",
     "expo-status-bar": "~3.0.8",
