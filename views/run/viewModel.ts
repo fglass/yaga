@@ -28,7 +28,6 @@ interface ViewModel {
 }
 
 const DEFAULT_SPEED_KMH = 11;
-const WEIGHT_KG = 90;
 
 export const useRunViewModel = (props: Props): ViewModel => {
     const { onFinish, onCancel } = props;
@@ -132,7 +131,6 @@ export const useRunViewModel = (props: Props): ViewModel => {
 
                 await completeWorkout(completedRun);
 
-                const calories = WEIGHT_KG * speedKmh;
                 await logAppleHealthWorkout({
                     startDate:
                         startTimeRef.current != null
@@ -141,7 +139,7 @@ export const useRunViewModel = (props: Props): ViewModel => {
                                   finishDate.getTime() - durationSeconds * 1000
                               ),
                     endDate: finishDate,
-                    calories,
+                    calories: 0, // Rely on Apple Health to track
                     workoutType: "run",
                 });
 
