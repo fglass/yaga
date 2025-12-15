@@ -62,7 +62,7 @@ const WorkoutView = (props: Props) => {
     };
 
     const contentBottomPadding = useMemo(
-        () => 16 + (isLastExerciseInputFocused ? keyboardHeight : 0),
+        () => 16 + (isLastExerciseInputFocused ? keyboardHeight : 48),
         [isLastExerciseInputFocused, keyboardHeight]
     );
 
