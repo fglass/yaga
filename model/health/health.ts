@@ -122,6 +122,10 @@ export const fetchAppleHealthWorkouts = async (
 };
 
 const asHealthWorkout = (sample: WorkoutSample): AppleHealthWorkout | null => {
+    if (isWorkoutLoggedByApp(sample)) {
+        return null;
+    }
+
     if (!sample.startDate || !sample.endDate) {
         return null;
     }

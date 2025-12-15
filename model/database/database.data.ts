@@ -4,6 +4,8 @@ import { ExerciseDef, Workout } from "../types";
 enum Exercise {
     BenchPress = "d290f1ee-6c54-4b01-90e6-d701748f0851",
     BentOverRow = "11db0a81-0c16-465c-8a09-d953fee83ff5",
+    CableCrossover = "d49bffc4-7b14-43c4-81ea-2fa4b47a83c0",
+    CableCrossoverLow = "c3aedf66-8e0f-4498-89de-f69a038276d3",
     CalfPressOnSeatedLegPress = "3d4be6a2-118a-4db0-b840-dc8701f44da1",
     CalfRaiseSeated = "fb87dc04-da1c-4481-a3df-1776662c4a01",
     CrunchDecline = "a2c76e04-980b-42cb-8a90-ba56d764741c",
@@ -44,6 +46,14 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
         name: "Bench Press",
         category: "Chest",
     },
+    [Exercise.CableCrossover]: {
+        name: "Cable Crossover",
+        category: "Chest",
+    },
+    [Exercise.CableCrossoverLow]: {
+        name: "Cable Crossover (Low)",
+        category: "Chest",
+    },
     /* Back */
     [Exercise.Deadlift]: {
         name: "Deadlift",
@@ -62,7 +72,7 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
         category: "Back",
     },
     [Exercise.LatPulldownKneeling]: {
-        name: "Kneeling Lat Pulldown",
+        name: "Lat Pulldown (Kneeling)",
         category: "Back",
     },
     [Exercise.CableRow]: {
