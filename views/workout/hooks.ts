@@ -58,12 +58,10 @@ export const useTimers = ({ onRestStart, onRestCancel }: Props) => {
             [onRestStart]
         ),
         resetRestTimer: useCallback(() => {
-            setTotalRestDurationS(DEFAULT_REST_DURATION_S);
-            restEndTimeRef.current =
-                Date.now() + DEFAULT_REST_DURATION_S * 1000;
-            setRemainingRestTimeS(DEFAULT_REST_DURATION_S);
+            restEndTimeRef.current = Date.now() + totalRestDurationS * 1000;
+            setRemainingRestTimeS(totalRestDurationS);
             onRestStart(restEndTimeRef.current);
-        }, [onRestStart]),
+        }, [onRestStart, totalRestDurationS]),
         cancelRestTimer: useCallback(() => {
             restEndTimeRef.current = Date.now();
             setRemainingRestTimeS(-1);
