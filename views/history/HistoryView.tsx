@@ -72,9 +72,7 @@ const HistoryView = () => {
             workout.endTimestamp,
             workout.duration
         );
-        const workoutDate = workoutStartDate
-            ? workoutStartDate.toLocaleString()
-            : "Unknown date";
+        const workoutDate = formatWorkoutDate(workoutStartDate);
         const isRun = workout.type === "run";
 
         return (
@@ -97,7 +95,7 @@ const HistoryView = () => {
     };
 
     const renderHealthWorkout = (workout: AppleHealthWorkout) => {
-        const workoutDate = workout.startDate.toLocaleString();
+        const workoutDate = formatWorkoutDate(workout.startDate);
         return (
             <View style={styles.workoutCard}>
                 <View style={styles.healthHeader}>
@@ -209,5 +207,23 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
 });
+
+const formatWorkoutDate = (date: Date | null | undefined): string => {
+    if (!date || Number.isNaN(date.getTime())) {
+        return "Unknown date";
+    }
+
+    const datePart = date.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+    });
+    const timePart = date.toLocaleTimeString(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+    });
+
+    return `${datePart}, ${timePart}`;
+};
 
 export default HistoryView;
