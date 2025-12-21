@@ -20,6 +20,7 @@ eas update
 -   [x] Apple Health export
 -   [x] Apple Health write toggle
 -   [ ] iCloud sync?
+-   [ ] Strava write
 
 ### Home View
 
@@ -27,6 +28,7 @@ eas update
 -   [x] Runs per week/month/year
 -   [x] Apple Health read
 -   [ ] Distance stats
+-   [ ] Weekly targets?
 
 ### Workout View
 

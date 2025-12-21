@@ -122,10 +122,6 @@ export const fetchAppleHealthWorkouts = async (
 };
 
 const asHealthWorkout = (sample: WorkoutSample): AppleHealthWorkout | null => {
-    if (isWorkoutLoggedByApp(sample)) {
-        return null;
-    }
-
     if (!sample.startDate || !sample.endDate) {
         return null;
     }
@@ -148,13 +144,6 @@ const asHealthWorkout = (sample: WorkoutSample): AppleHealthWorkout | null => {
         durationSeconds,
         activityType: sample.workoutActivityType,
     };
-};
-
-const isWorkoutLoggedByApp = (sample: WorkoutSample): boolean => {
-    return (
-        sample.sourceRevision?.source?.bundleIdentifier ===
-        APP_BUNDLE_IDENTIFIER
-    );
 };
 
 const dedupe = () => {

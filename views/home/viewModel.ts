@@ -4,45 +4,24 @@ import { useCompletedWorkouts } from "../../model/database";
 import { useAppleHealthWorkouts } from "../../model/health";
 import { parseWorkoutEnd, parseWorkoutStart } from "../../util";
 
-const getStartOfWeek = (reference: Date) => {
-    const start = new Date(reference);
-    start.setHours(0, 0, 0, 0);
-    const distanceToMonday = (start.getDay() + 6) % 7;
-    start.setDate(start.getDate() - distanceToMonday);
-    return start;
-};
-
-const addDays = (reference: Date, days: number) => {
-    const date = new Date(reference);
-    date.setDate(date.getDate() + days);
-    return date;
-};
-
 export const useHomeViewModel = () => {
     const completedWorkouts = useCompletedWorkouts();
-    const {
-        workouts: appleHealthWorkouts,
-        isAvailable: isAppleHealthAvailable,
-        isLoading: isAppleHealthLoading,
-    } = useAppleHealthWorkouts();
+    const { workouts: appleHealthWorkouts, isLoading: isAppleHealthLoading } =
+        useAppleHealthWorkouts();
 
     const { strengthWorkouts, runningWorkouts } = React.useMemo(() => {
-        const localWorkouts = completedWorkouts
-            .map((workout) => {
-                const startDate = parseWorkoutStart(
-                    workout.endTimestamp,
-                    workout.duration
-                );
-                const endDate = parseWorkoutEnd(workout.endTimestamp);
-                return {
-                    startDate,
-                    endDate,
-                    type: workout.type,
-                };
-            })
-            .filter(
-                (entry) => entry.startDate != null || entry.endDate != null
+        const localWorkouts = completedWorkouts.map((workout) => {
+            const startDate = parseWorkoutStart(
+                workout.endTimestamp,
+                workout.duration
             );
+            const endDate = parseWorkoutEnd(workout.endTimestamp);
+            return {
+                startDate,
+                endDate,
+                type: workout.type,
+            };
+        });
 
         const localStrength = localWorkouts.filter(
             (workout) => workout.type === "strength"
@@ -51,19 +30,11 @@ export const useHomeViewModel = () => {
             (workout) => workout.type === "run"
         );
 
-        const appleHealth = appleHealthWorkouts
-            .map((workout) => ({
-                startDate:
-                    workout.startDate != null
-                        ? new Date(workout.startDate)
-                        : null,
-                endDate:
-                    workout.endDate != null ? new Date(workout.endDate) : null,
-                activityType: workout.activityType,
-            }))
-            .filter(
-                (entry) => entry.startDate != null || entry.endDate != null
-            );
+        const appleHealth = appleHealthWorkouts.map((workout) => ({
+            startDate: new Date(workout.startDate),
+            endDate: new Date(workout.endDate),
+            activityType: workout.activityType,
+        }));
 
         const appleHealthStrength = appleHealth.filter(
             (workout) =>
@@ -75,8 +46,14 @@ export const useHomeViewModel = () => {
         );
 
         return {
-            strengthWorkouts: [...localStrength, ...appleHealthStrength],
-            runningWorkouts: [...localRunning, ...appleHealthRunning],
+            strengthWorkouts: dedupeWorkoutsByStart([
+                ...localStrength,
+                ...appleHealthStrength,
+            ]),
+            runningWorkouts: dedupeWorkoutsByStart([
+                ...localRunning,
+                ...appleHealthRunning,
+            ]),
         };
     }, [completedWorkouts, appleHealthWorkouts]);
 
@@ -171,4 +148,42 @@ export const useHomeViewModel = () => {
         runsLastYear: runningStats.year.previous,
         isLoading: isAppleHealthLoading,
     };
+};
+
+const dedupeWorkoutsByStart = (
+    workouts: {
+        startDate: Date;
+        endDate: Date;
+    }[]
+) => {
+    const toleranceMs = 60 * 1000;
+
+    return workouts.reduce<typeof workouts>((acc, workout) => {
+        const isDuplicate = acc.some(
+            (existing) =>
+                Math.abs(
+                    existing.startDate.getTime() - workout.startDate.getTime()
+                ) <= toleranceMs
+        );
+
+        if (!isDuplicate) {
+            acc.push(workout);
+        }
+
+        return acc;
+    }, []);
+};
+
+const getStartOfWeek = (reference: Date) => {
+    const start = new Date(reference);
+    start.setHours(0, 0, 0, 0);
+    const distanceToMonday = (start.getDay() + 6) % 7;
+    start.setDate(start.getDate() - distanceToMonday);
+    return start;
+};
+
+const addDays = (reference: Date, days: number) => {
+    const date = new Date(reference);
+    date.setDate(date.getDate() + days);
+    return date;
 };

@@ -37,29 +37,14 @@ export const formatTime = (time: number): string => {
 };
 
 export const parseWorkoutStart = (
-    endTimestamp?: number | null,
-    durationSeconds?: number | null
-): Date | null => {
-    if (
-        typeof endTimestamp !== "number" ||
-        typeof durationSeconds !== "number"
-    ) {
-        return null;
-    }
-
-    const startDate = new Date(
-        endTimestamp - Math.max(0, durationSeconds) * 1000
-    );
-    return isNaN(startDate.getTime()) ? null : startDate;
+    endTimestamp: number,
+    durationSeconds: number
+): Date => {
+    return new Date(endTimestamp - Math.max(0, durationSeconds) * 1000);
 };
 
-export const parseWorkoutEnd = (timestamp?: number | null): Date | null => {
-    if (typeof timestamp !== "number") {
-        return null;
-    }
-
-    const parsedDate = new Date(timestamp);
-    return isNaN(parsedDate.getTime()) ? null : parsedDate;
+export const parseWorkoutEnd = (timestamp: number): Date => {
+    return new Date(timestamp);
 };
 
 export const generateGuid = (): string => {

@@ -124,7 +124,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             restNotificationIdRef.current =
                 await Notifications.scheduleNotificationAsync({
                     content: {
-                        title: "Rest Finished ⏰",
+                        title: "🕛 Rest Finished",
                         sound: true,
                     },
                     trigger: {
