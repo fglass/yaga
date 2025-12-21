@@ -6,38 +6,45 @@ enum Exercise {
     BentOverRow = "11db0a81-0c16-465c-8a09-d953fee83ff5",
     CableCrossover = "d49bffc4-7b14-43c4-81ea-2fa4b47a83c0",
     CableCrossoverLow = "c3aedf66-8e0f-4498-89de-f69a038276d3",
+    CableRow = "09fbfa85-d2a9-438f-9606-e59160e5108f",
     CalfPressOnSeatedLegPress = "3d4be6a2-118a-4db0-b840-dc8701f44da1",
     CalfRaiseSeated = "fb87dc04-da1c-4481-a3df-1776662c4a01",
     CrunchDecline = "a2c76e04-980b-42cb-8a90-ba56d764741c",
     CrunchMachine = "a5ad3d7d-21b1-4de7-a5ed-5ed8a531ac53",
-    Deadlift = "14ffd72a-dd45-47a8-87d3-51b5d04093b6",
-    FacePull = "99f6a34d-1053-4d43-9aff-121e4457c27b",
-    CurleCableReverse = "1ce1fc5b-d87f-4ad6-b73e-226ec014db97",
+    CurlCableReverse = "1ce1fc5b-d87f-4ad6-b73e-226ec014db97",
     CurlCableSingle = "a0e427a2-6862-4e42-81f0-9b000b46bdc9",
     CurlHammer = "e494222e-88a2-41e8-bd6b-e0c84ee38c74",
     CurlIncline = "d7b6f5cd-501e-4aef-b05f-45296205e11f",
     CurlMachine = "01d074cb-15c1-45bd-a592-dfc5033139c1",
     CurlPreacher = "7a03e425-be92-4c2c-a0d7-fd2749cd41dc",
     CurlReverse = "69ee1222-419a-4338-9409-b76afe104109",
+    Deadlift = "14ffd72a-dd45-47a8-87d3-51b5d04093b6",
+    FacePull = "99f6a34d-1053-4d43-9aff-121e4457c27b",
     LateralRaise = "42a63d67-e4ca-4cf4-aad7-0e606d5f70e8",
     LateralRaiseMachine = "4ae1efd3-b738-46bd-9e62-475e81db6970",
     LatPulldown = "a03954ed-477f-4cc7-8d30-7fc2ac82635a",
+    LatPulldownBear = "b26caeb9-3390-4df1-8f38-39c271e372d9",
+    LatPulldownBearClose = "e920aa90-01d3-47a9-a398-42b89fa5a101",
     LatPulldownClose = "b637579a-38f7-4a4e-a741-c1f0cbb93282",
     LatPulldownKneeling = "357310e0-f111-4a6a-acff-84eafa0acaba",
     LegExtensions = "a1b0b1a0-1a20-4ccc-bf81-d5825923f8c8",
+    LegExtensionsSingle = "8f9d100a-d64d-4fac-8ba0-4e70bd288753",
     LyingLegCurl = "34da1abc-cfbc-4dda-b2b5-58c16de24d3a",
     NeckCurl = "62d73123-1ffd-4dbf-a28e-0ae4b751d135",
     OverheadPress = "bae49855-0c29-4834-bd65-4b1a081bd87c",
     PullDownRope = "84ca598b-cd0b-43d8-8687-89d9b8537afb",
     PullUp = "0acf0b5e-b0c7-4f2e-ac94-f20c2bbe3bc9",
+    PushdownMachine = "c281afae-0abe-4af0-a624-838097887089",
+    PushdownVBar = "4f1e8ed0-2ee5-49dc-b10a-df324657a72d",
     RomanianDeadlift = "fe5d9291-0be6-4dfd-9ca7-a9b8c05f2f52",
     RomanChairLegRaises = "4ce5ec6a-94aa-49b5-9144-81940d9dfa5f",
     ReverseFly = "ba9415ee-7c93-4eae-9996-3b2f5f3ee77e",
     RowMachineSeated = "e55322b1-02a4-4eda-9476-fa7107bd8e2e",
     ShoulderPressDumbell = "8ebdd214-e6f9-40c9-b409-f15e5a883121",
     ShoulderPressMachine = "41d6aa23-c8b4-46f8-a738-769bb9ea2994",
-    CableRow = "09fbfa85-d2a9-438f-9606-e59160e5108f",
+    ShoulderPressPlate = "a906eed3-235b-451e-b670-5fdb083b768c",
     Squat = "6a001abb-1a20-4ccc-bf81-d5825923f8c8",
+    SquatHack = "fa14aea2-c7eb-4845-9af8-2ccab7642abe",
 }
 
 export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
@@ -65,6 +72,14 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
     },
     [Exercise.LatPulldown]: {
         name: "Lat Pulldown",
+        category: "Back",
+    },
+    [Exercise.LatPulldownBear]: {
+        name: "Lat Pulldown (Bear Grip)",
+        category: "Back",
+    },
+    [Exercise.LatPulldownBearClose]: {
+        name: "Lat Pulldown (Bear Grip Close)",
         category: "Back",
     },
     [Exercise.LatPulldownClose]: {
@@ -100,7 +115,7 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
         name: "Single Cable Curl",
         category: "Biceps",
     },
-    [Exercise.CurleCableReverse]: {
+    [Exercise.CurlCableReverse]: {
         name: "Reverse Cable Curl",
         category: "Biceps",
     },
@@ -142,12 +157,20 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
         name: "Squat",
         category: "Legs",
     },
+    [Exercise.SquatHack]: {
+        name: "Squat Hack",
+        category: "Legs",
+    },
     [Exercise.RomanianDeadlift]: {
         name: "RDL",
         category: "Legs",
     },
     [Exercise.LegExtensions]: {
         name: "Leg Extensions",
+        category: "Legs",
+    },
+    [Exercise.LegExtensionsSingle]: {
+        name: "Single Leg Extensions",
         category: "Legs",
     },
     [Exercise.LyingLegCurl]: {
@@ -180,6 +203,10 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
         name: "Shoulder Press Machine",
         category: "Shoulders",
     },
+    [Exercise.ShoulderPressPlate]: {
+        name: "Shoulder Press Plate",
+        category: "Shoulders",
+    },
     [Exercise.LateralRaise]: {
         name: "Lateral Raise",
         category: "Shoulders",
@@ -191,6 +218,14 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
     /* Triceps */
     [Exercise.PullDownRope]: {
         name: "Rope Pull Down",
+        category: "Triceps",
+    },
+    [Exercise.PushdownMachine]: {
+        name: "Machine Pushdown",
+        category: "Triceps",
+    },
+    [Exercise.PushdownVBar]: {
+        name: "V Bar Pushdown",
         category: "Triceps",
     },
 };
