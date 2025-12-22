@@ -2,7 +2,11 @@ import React from "react";
 import { WorkoutActivityType } from "@kingstinct/react-native-healthkit";
 import { useCompletedWorkouts } from "../../model/database";
 import { useAppleHealthWorkouts } from "../../model/health";
-import { parseWorkoutEnd, parseWorkoutStart } from "../../util";
+import {
+    dedupeWorkoutsByStart,
+    parseWorkoutEnd,
+    parseWorkoutStart,
+} from "../../util";
 
 export const useHomeViewModel = () => {
     const completedWorkouts = useCompletedWorkouts();
@@ -148,30 +152,6 @@ export const useHomeViewModel = () => {
         runsLastYear: runningStats.year.previous,
         isLoading: isAppleHealthLoading,
     };
-};
-
-const dedupeWorkoutsByStart = (
-    workouts: {
-        startDate: Date;
-        endDate: Date;
-    }[]
-) => {
-    const toleranceMs = 60 * 1000;
-
-    return workouts.reduce<typeof workouts>((acc, workout) => {
-        const isDuplicate = acc.some(
-            (existing) =>
-                Math.abs(
-                    existing.startDate.getTime() - workout.startDate.getTime()
-                ) <= toleranceMs
-        );
-
-        if (!isDuplicate) {
-            acc.push(workout);
-        }
-
-        return acc;
-    }, []);
 };
 
 const getStartOfWeek = (reference: Date) => {

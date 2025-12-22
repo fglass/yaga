@@ -47,6 +47,27 @@ export const parseWorkoutEnd = (timestamp: number): Date => {
     return new Date(timestamp);
 };
 
+export const dedupeWorkoutsByStart = <T extends { startDate: Date }>(
+    workouts: T[]
+): T[] => {
+    const toleranceMs = 60 * 1000;
+
+    return workouts.reduce<T[]>((acc, workout) => {
+        const isDuplicate = acc.some(
+            (existing) =>
+                Math.abs(
+                    existing.startDate.getTime() - workout.startDate.getTime()
+                ) <= toleranceMs
+        );
+
+        if (!isDuplicate) {
+            acc.push(workout);
+        }
+
+        return acc;
+    }, []);
+};
+
 export const generateGuid = (): string => {
     const S4 = () =>
         (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
