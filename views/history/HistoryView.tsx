@@ -7,58 +7,20 @@ import {
     TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useCompletedWorkouts } from "../../model/database";
-import { useAppleHealthWorkouts } from "../../model/health";
 import { CompletedWorkout, AppleHealthWorkout } from "../../model/types";
 import { formatTime, parseWorkoutStart } from "../../util";
-
-type HistoryItem =
-    | { type: "local"; workout: CompletedWorkout }
-    | { type: "health"; workout: AppleHealthWorkout };
+import {
+    HistoryItem,
+    useHistoryViewModel,
+} from "./viewModel";
 
 const HistoryView = () => {
-    const completedWorkouts = useCompletedWorkouts();
-    const { workouts: appleHealthWorkouts, isLoading: isAppleHealthLoading } =
-        useAppleHealthWorkouts();
-
-    const sortedWorkouts = React.useMemo(() => {
-        return [...completedWorkouts].sort((a, b) => {
-            const aTime =
-                parseWorkoutStart(a.endTimestamp, a.duration)?.getTime() ??
-                Number.NEGATIVE_INFINITY;
-            const bTime =
-                parseWorkoutStart(b.endTimestamp, b.duration)?.getTime() ??
-                Number.NEGATIVE_INFINITY;
-            return bTime - aTime;
-        });
-    }, [completedWorkouts]);
-
-    const combinedHistory = React.useMemo<HistoryItem[]>(() => {
-        const localItems = sortedWorkouts.map<HistoryItem>((workout) => ({
-            type: "local",
-            workout,
-        }));
-        const appleItems = appleHealthWorkouts.map<HistoryItem>((workout) => ({
-            type: "health",
-            workout,
-        }));
-
-        const sortByDate = (item: HistoryItem): number => {
-            if (item.type === "local") {
-                return (
-                    parseWorkoutStart(
-                        item.workout.endTimestamp,
-                        item.workout.duration
-                    )?.getTime() ?? Number.NEGATIVE_INFINITY
-                );
-            }
-            return item.workout.startDate.getTime();
-        };
-
-        return [...localItems, ...appleItems].sort(
-            (a, b) => sortByDate(b) - sortByDate(a)
-        );
-    }, [sortedWorkouts, appleHealthWorkouts]);
+    const {
+        combinedHistory,
+        isAppleHealthLoading,
+        onSelectLocalWorkout,
+        formatWorkoutDate,
+    } = useHistoryViewModel();
 
     const renderHistoryItem = (item: HistoryItem) => {
         if (item.type === "local") {
@@ -78,7 +40,7 @@ const HistoryView = () => {
         return (
             <TouchableOpacity
                 onPress={() => {
-                    console.error("TODO: implement readonly view");
+                    onSelectLocalWorkout(workout);
                 }}
             >
                 <View key={workout.id} style={styles.workoutCard}>
@@ -207,23 +169,5 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
 });
-
-const formatWorkoutDate = (date: Date | null | undefined): string => {
-    if (!date || Number.isNaN(date.getTime())) {
-        return "Unknown date";
-    }
-
-    const datePart = date.toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-    });
-    const timePart = date.toLocaleTimeString(undefined, {
-        hour: "numeric",
-        minute: "2-digit",
-    });
-
-    return `${datePart}, ${timePart}`;
-};
 
 export default HistoryView;

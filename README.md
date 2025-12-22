@@ -65,11 +65,12 @@ eas update
 -   [ ] Exercise variation?
 -   [x] Finish workout confirmation
 -   [ ] Bug: Calories move goal
+-   [ ] Finish confetti
 
 ### Run View
 
 -   [x] Init
--   [ ] Check: Pace changing
+-   [ ] Fix pace changing
 -   [ ] Heart rate
 
 ### Plan View
@@ -84,6 +85,7 @@ eas update
 -   [x] Show completed
 -   [ ] View completed
 -   [x] Apple Health read
+-   [x] Dedupe
 
 ## Incubator
 
