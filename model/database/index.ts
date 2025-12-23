@@ -6,7 +6,7 @@ export {
 } from "./database";
 export {
     useActiveWorkout,
-    useWorkouts,
+    useWorkoutTemplates,
     useCompletedWorkouts,
     useExerciseDefs,
     useDatabaseWriter,

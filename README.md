@@ -16,7 +16,7 @@ eas update
 
 -   [ ] Sessions
 -   [x] SQLite
--   [ ] SQLite relational model
+-   [x] SQLite relational model
 -   [x] Apple Health export
 -   [x] Apple Health write toggle
 -   [ ] iCloud sync?

@@ -255,9 +255,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.BenchPress,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
             {
@@ -265,9 +280,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.PecFly,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
             {
@@ -275,9 +305,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.ChestPressIncline,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
         ],
@@ -293,9 +338,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.BentOverRow,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
             {
@@ -303,10 +363,30 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.LatPulldown,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
-                    { id: "3", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
             {
@@ -314,9 +394,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.RowMachineSeated,
                 notes: [{ id: generateGuid(), value: "5 - 6" }],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
         ],
@@ -332,9 +427,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.Squat,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
             {
@@ -342,9 +452,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.LyingLegCurl,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
             {
@@ -352,9 +477,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.LegExtensions,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
             {
@@ -362,9 +502,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.CalfRaiseSeated,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
         ],
@@ -380,9 +535,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.OverheadPress,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
             {
@@ -390,9 +560,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.LateralRaise,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
             {
@@ -400,9 +585,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.ShoulderPressPlate,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
         ],
@@ -418,9 +618,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.PullUp,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
             {
@@ -428,9 +643,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.CableRow,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
         ],
@@ -446,9 +676,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.RomanianDeadlift,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
         ],
@@ -464,9 +709,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.CurlHammer,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
             {
@@ -474,9 +734,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.CurlIncline,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
             {
@@ -484,9 +759,24 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                 exerciseId: Exercise.PullDownRope,
                 notes: [],
                 sets: [
-                    { id: "0", weight: "", reps: "", finishTime: undefined },
-                    { id: "1", weight: "", reps: "", finishTime: undefined },
-                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
+                    {
+                        id: generateGuid(),
+                        weight: "",
+                        reps: "",
+                        finishTime: undefined,
+                    },
                 ],
             },
         ],

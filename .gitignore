@@ -11,6 +11,7 @@ npm-debug.*
 web-build/
 .idea/
 .claude
+*.db
 
 # macOS
 .DS_Store

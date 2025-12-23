@@ -84,10 +84,10 @@ const PlanView = () => {
             }
         );
 
-    const renderWorkout = ({ item }: { item: Workout }) => (
+    const renderTemplate = ({ item }: { item: Workout }) => (
         <TouchableOpacity
             style={styles.workoutCard}
-            onPress={() => void vm.selectWorkout(item)}
+            onPress={() => void vm.selectTemplate(item)}
         >
             <View>
                 <Text style={styles.workoutName}>{item.name}</Text>
@@ -117,7 +117,7 @@ const PlanView = () => {
         </View>
     );
 
-    const hasWorkouts = vm.workouts.length > 0;
+    const hasTemplates = vm.templates.length > 0;
     const canCreateTemplate = vm.newWorkoutName.trim().length > 0;
 
     return (
@@ -147,9 +147,9 @@ const PlanView = () => {
                 </View>
             </View>
             <FlatList
-                data={vm.workouts}
+                data={vm.templates}
                 keyExtractor={(item) => item.id}
-                renderItem={renderWorkout}
+                renderItem={renderTemplate}
                 ListEmptyComponent={renderEmptyState}
                 ListFooterComponent={renderFooterCards}
                 ListFooterComponentStyle={styles.footerSpacing}
@@ -157,7 +157,7 @@ const PlanView = () => {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={[
                     styles.listContent,
-                    !hasWorkouts && styles.emptyListContent,
+                    !hasTemplates && styles.emptyListContent,
                 ]}
             />
             {vm.isCreateModalVisible && (

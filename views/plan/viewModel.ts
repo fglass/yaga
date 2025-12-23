@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useWorkouts, useDatabaseWriter } from "../../model/database";
+import { useWorkoutTemplates, useDatabaseWriter } from "../../model/database";
 import { Workout } from "../../model/types";
 import { generateGuid } from "../../util";
 import {
@@ -8,7 +8,7 @@ import {
 } from "../../model/health";
 
 export const usePlanViewModel = () => {
-    const workouts = useWorkouts();
+    const templates = useWorkoutTemplates();
     const { saveActiveWorkout, createWorkoutTemplate } = useDatabaseWriter();
 
     const [isCreateModalVisible, setCreateModalVisible] = useState(false);
@@ -17,7 +17,7 @@ export const usePlanViewModel = () => {
         getHealthLoggingEnabled()
     );
 
-    const selectWorkout = async (workout: Workout) => {
+    const selectTemplate = async (workout: Workout) => {
         await saveActiveWorkout(workout);
     };
 
@@ -69,8 +69,8 @@ export const usePlanViewModel = () => {
     };
 
     return {
-        workouts,
-        selectWorkout,
+        templates,
+        selectTemplate,
         startBlankWorkout,
         createTemplate,
         newWorkoutName,
