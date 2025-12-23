@@ -9,6 +9,7 @@ enum Exercise {
     CableRow = "09fbfa85-d2a9-438f-9606-e59160e5108f",
     CalfPressOnSeatedLegPress = "3d4be6a2-118a-4db0-b840-dc8701f44da1",
     CalfRaiseSeated = "fb87dc04-da1c-4481-a3df-1776662c4a01",
+    ChestPressIncline = "4bcbfd8a-c8e9-4c65-8297-7c8286376882",
     CrunchDecline = "a2c76e04-980b-42cb-8a90-ba56d764741c",
     CrunchMachine = "a5ad3d7d-21b1-4de7-a5ed-5ed8a531ac53",
     CurlCableReverse = "1ce1fc5b-d87f-4ad6-b73e-226ec014db97",
@@ -32,6 +33,8 @@ enum Exercise {
     LyingLegCurl = "34da1abc-cfbc-4dda-b2b5-58c16de24d3a",
     NeckCurl = "62d73123-1ffd-4dbf-a28e-0ae4b751d135",
     OverheadPress = "bae49855-0c29-4834-bd65-4b1a081bd87c",
+    PecDeck = "16315684-69a0-4637-ac2e-93a753bc1cc8",
+    PecFly = "f11b6a1a-0bd4-4e22-83a2-22a79a8f17a7",
     PullDownRope = "84ca598b-cd0b-43d8-8687-89d9b8537afb",
     PullUp = "0acf0b5e-b0c7-4f2e-ac94-f20c2bbe3bc9",
     PushdownMachine = "c281afae-0abe-4af0-a624-838097887089",
@@ -48,19 +51,6 @@ enum Exercise {
 }
 
 export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
-    /* Chest */
-    [Exercise.BenchPress]: {
-        name: "Bench Press",
-        category: "Chest",
-    },
-    [Exercise.CableCrossover]: {
-        name: "Cable Crossover",
-        category: "Chest",
-    },
-    [Exercise.CableCrossoverLow]: {
-        name: "Cable Crossover (Low)",
-        category: "Chest",
-    },
     /* Back */
     [Exercise.Deadlift]: {
         name: "Deadlift",
@@ -138,6 +128,31 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
     [Exercise.CurlPreacher]: {
         name: "Preacher Curl",
         category: "Biceps",
+    },
+    /* Chest */
+    [Exercise.BenchPress]: {
+        name: "Bench Press",
+        category: "Chest",
+    },
+    [Exercise.CableCrossover]: {
+        name: "Cable Crossover",
+        category: "Chest",
+    },
+    [Exercise.CableCrossoverLow]: {
+        name: "Cable Crossover (Low)",
+        category: "Chest",
+    },
+    [Exercise.ChestPressIncline]: {
+        name: "Incline Chest Press",
+        category: "Chest",
+    },
+    [Exercise.PecDeck]: {
+        name: "Pec Deck",
+        category: "Chest",
+    },
+    [Exercise.PecFly]: {
+        name: "Pec Fly",
+        category: "Chest",
     },
     /* Core */
     [Exercise.CrunchMachine]: {
@@ -245,6 +260,26 @@ export const WORKOUT_TEMPLATES: Workout[] = [
                     { id: "2", weight: "", reps: "", finishTime: undefined },
                 ],
             },
+            {
+                id: generateGuid(),
+                exerciseId: Exercise.PecFly,
+                notes: [],
+                sets: [
+                    { id: "0", weight: "", reps: "", finishTime: undefined },
+                    { id: "1", weight: "", reps: "", finishTime: undefined },
+                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                ],
+            },
+            {
+                id: generateGuid(),
+                exerciseId: Exercise.ChestPressIncline,
+                notes: [],
+                sets: [
+                    { id: "0", weight: "", reps: "", finishTime: undefined },
+                    { id: "1", weight: "", reps: "", finishTime: undefined },
+                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                ],
+            },
         ],
         notes: "",
         type: "strength",
@@ -342,7 +377,27 @@ export const WORKOUT_TEMPLATES: Workout[] = [
         exercises: [
             {
                 id: generateGuid(),
-                exerciseId: Exercise.BenchPress,
+                exerciseId: Exercise.OverheadPress,
+                notes: [],
+                sets: [
+                    { id: "0", weight: "", reps: "", finishTime: undefined },
+                    { id: "1", weight: "", reps: "", finishTime: undefined },
+                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                ],
+            },
+            {
+                id: generateGuid(),
+                exerciseId: Exercise.LateralRaise,
+                notes: [],
+                sets: [
+                    { id: "0", weight: "", reps: "", finishTime: undefined },
+                    { id: "1", weight: "", reps: "", finishTime: undefined },
+                    { id: "2", weight: "", reps: "", finishTime: undefined },
+                ],
+            },
+            {
+                id: generateGuid(),
+                exerciseId: Exercise.ShoulderPressPlate,
                 notes: [],
                 sets: [
                     { id: "0", weight: "", reps: "", finishTime: undefined },
