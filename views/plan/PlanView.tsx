@@ -11,7 +11,7 @@ import {
     Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Workout } from "../../model/types";
+import { Workout, WorkoutTemplate } from "../../model/types";
 import { exportDatabase, resetDatabase } from "../../model/database";
 import ModalDialog from "../../components/ModalDialog";
 import { usePlanViewModel } from "./viewModel";
@@ -84,7 +84,7 @@ const PlanView = () => {
             }
         );
 
-    const renderTemplate = ({ item }: { item: Workout }) => (
+    const renderTemplate = ({ item }: { item: WorkoutTemplate }) => (
         <TouchableOpacity
             style={styles.workoutCard}
             onPress={() => void vm.selectTemplate(item)}

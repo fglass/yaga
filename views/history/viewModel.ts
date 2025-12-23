@@ -25,8 +25,8 @@ export const useHistoryViewModel = (): ViewModel => {
             ...completedWorkouts.map<HistoryItem>((workout) => ({
                 type: "local",
                 startDate: parseWorkoutStart(
-                    workout.endTimestamp,
-                    workout.duration
+                    workout.startTimestamp,
+                    workout.endTimestamp
                 ),
                 workout,
             })),
@@ -43,8 +43,8 @@ export const useHistoryViewModel = (): ViewModel => {
             if (item.type === "local") {
                 return (
                     parseWorkoutStart(
-                        item.workout.endTimestamp,
-                        item.workout.duration
+                        item.workout.startTimestamp,
+                        item.workout.endTimestamp
                     )?.getTime() ?? Number.NEGATIVE_INFINITY
                 );
             }

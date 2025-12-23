@@ -37,14 +37,26 @@ export const formatTime = (time: number): string => {
 };
 
 export const parseWorkoutStart = (
-    endTimestamp: number,
-    durationSeconds: number
+    startTimestamp?: number | null,
+    endTimestamp?: number | null
 ): Date => {
-    return new Date(endTimestamp - Math.max(0, durationSeconds) * 1000);
+    const resolved = startTimestamp ?? endTimestamp ?? Date.now();
+    return new Date(resolved);
 };
 
 export const parseWorkoutEnd = (timestamp: number): Date => {
     return new Date(timestamp);
+};
+
+export const getWorkoutDurationSeconds = (
+    startTimestamp?: number | null,
+    endTimestamp?: number | null
+): number => {
+    if (startTimestamp == null || endTimestamp == null) {
+        return 0;
+    }
+
+    return Math.max(0, Math.round((endTimestamp - startTimestamp) / 1000));
 };
 
 export const dedupeWorkoutsByStart = <T extends { startDate: Date }>(

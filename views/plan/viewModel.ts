@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useWorkoutTemplates, useDatabaseWriter } from "../../model/database";
-import { Workout } from "../../model/types";
+import { Workout, WorkoutTemplate } from "../../model/types";
 import { generateGuid } from "../../util";
 import {
     getHealthLoggingEnabled,
@@ -17,8 +17,12 @@ export const usePlanViewModel = () => {
         getHealthLoggingEnabled()
     );
 
-    const selectTemplate = async (workout: Workout) => {
-        await saveActiveWorkout(workout);
+    const selectTemplate = async (workout: WorkoutTemplate) => {
+        await saveActiveWorkout({
+            ...workout,
+            id: generateGuid(),
+            startTimestamp: Date.now(),
+        });
     };
 
     const openCreateModal = () => setCreateModalVisible(true);
@@ -35,6 +39,7 @@ export const usePlanViewModel = () => {
             exercises: [],
             notes: "",
             type: "strength",
+            startTimestamp: Date.now(),
         });
     };
 
@@ -45,7 +50,8 @@ export const usePlanViewModel = () => {
             exercises: [],
             notes: "",
             type: "run",
-            distanceKm: 0,
+            startTimestamp: Date.now(),
+            distance: 0,
         });
     };
 
