@@ -1,17 +1,50 @@
 import * as SQLite from "expo-sqlite";
 import { isUsingExpoDevClient } from "../../util";
+import { MIGRATIONS } from "./migrations";
 
 const DB_NAME = isUsingExpoDevClient() ? "yaga-dev.db" : "yaga.db";
-const TABLE_NAME = "kv_store";
 
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
 let initPromise: Promise<void> | null = null;
 
-const getDatabase = async () => {
+export const getDatabase = async () => {
     if (databasePromise == null) {
         databasePromise = SQLite.openDatabaseAsync(DB_NAME);
     }
     return databasePromise;
+};
+
+const getSchemaVersion = async (db: SQLite.SQLiteDatabase) => {
+    await db.execAsync("CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL)");
+    const row = await db.getFirstAsync<{ version: number }>(
+        "SELECT version FROM schema_version ORDER BY version DESC LIMIT 1"
+    );
+    return row?.version ?? 0;
+};
+
+const setSchemaVersion = async (
+    db: SQLite.SQLiteDatabase,
+    version: number
+) => {
+    await db.runAsync("DELETE FROM schema_version");
+    await db.runAsync("INSERT INTO schema_version (version) VALUES (?)", version);
+};
+
+const runMigrations = async (db: SQLite.SQLiteDatabase) => {
+    await db.execAsync("PRAGMA foreign_keys = ON;");
+    const currentVersion = await getSchemaVersion(db);
+
+    for (let idx = currentVersion; idx < MIGRATIONS.length; idx += 1) {
+        await db.execAsync("BEGIN");
+        try {
+            await db.execAsync(MIGRATIONS[idx]);
+            await db.execAsync("COMMIT");
+        } catch (error) {
+            await db.execAsync("ROLLBACK");
+            throw error;
+        }
+        await setSchemaVersion(db, idx + 1);
+    }
 };
 
 export const ensureDatabase = async () => {
@@ -21,47 +54,24 @@ export const ensureDatabase = async () => {
 
     initPromise = (async () => {
         const db = await getDatabase();
-        await db.execAsync(
-            `CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
-                key TEXT PRIMARY KEY NOT NULL,
-                value TEXT NOT NULL
-            )`
-        );
+        await runMigrations(db);
     })();
 
     return initPromise;
 };
 
-export const getValue = async (key: string) => {
+export const runInTransaction = async <T>(
+    fn: (db: SQLite.SQLiteDatabase) => Promise<T>
+) => {
     await ensureDatabase();
     const db = await getDatabase();
-    const row = await db.getFirstAsync<{ value: string }>(
-        `SELECT value FROM ${TABLE_NAME} WHERE key = ? LIMIT 1`,
-        key
-    );
-    return row?.value ?? null;
-};
-
-export const setValue = async (key: string, value: string) => {
-    await ensureDatabase();
-    const db = await getDatabase();
-    await db.runAsync(
-        `INSERT OR REPLACE INTO ${TABLE_NAME} (key, value) VALUES (?, ?)`,
-        key,
-        value
-    );
-};
-
-export const getAllEntries = async () => {
-    await ensureDatabase();
-    const db = await getDatabase();
-    return await db.getAllAsync<{ key: string; value: string }>(
-        `SELECT key, value FROM ${TABLE_NAME} ORDER BY key`
-    );
-};
-
-export const clearAllEntries = async () => {
-    await ensureDatabase();
-    const db = await getDatabase();
-    await db.runAsync(`DELETE FROM ${TABLE_NAME}`);
+    await db.execAsync("BEGIN");
+    try {
+        const result = await fn(db);
+        await db.execAsync("COMMIT");
+        return result;
+    } catch (error) {
+        await db.execAsync("ROLLBACK");
+        throw error;
+    }
 };

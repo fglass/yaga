@@ -24,8 +24,8 @@ export const withWarning = (
     );
 };
 
-export const shareText = async (text: string) => {
-    await Share.share({ message: text });
+export const shareFile = async (fileUri: string) => {
+    await Share.share({ url: fileUri });
 };
 
 export const formatTime = (time: number): string => {

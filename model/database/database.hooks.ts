@@ -4,55 +4,70 @@ import {
     completeWorkout,
     createExerciseDef,
     createWorkoutTemplate,
+    fetchActiveWorkout,
+    fetchCompletedWorkouts,
+    fetchExerciseDefs,
+    fetchWorkoutTemplates,
     saveActiveWorkout,
-    select,
 } from "./database";
 import { Workout, CompletedWorkout, ExerciseDef } from "../types";
 
 export const useActiveWorkout = (): Workout | null => {
-    const { isLoading, error, data } = useSelect(QueryKey.ActiveWorkout);
+    const { isLoading, error, data } = useSelect(
+        QueryKey.ActiveWorkout,
+        fetchActiveWorkout
+    );
 
     if (error) {
         console.error(error);
     }
 
-    return isLoading ? null : data;
+    return isLoading ? null : data ?? null;
 };
 
-export const useWorkouts = (): Workout[] => {
-    const { isLoading, error, data } = useSelect(QueryKey.Workouts);
+export const useWorkoutTemplates = (): Workout[] => {
+    const { isLoading, error, data } = useSelect(
+        QueryKey.Workouts,
+        fetchWorkoutTemplates
+    );
 
     if (error) {
         console.error(error);
     }
 
-    return isLoading ? [] : data;
+    return isLoading ? [] : data ?? [];
 };
 
 export const useCompletedWorkouts = (): CompletedWorkout[] => {
-    const { isLoading, error, data } = useSelect(QueryKey.CompletedWorkouts);
+    const { isLoading, error, data } = useSelect(
+        QueryKey.CompletedWorkouts,
+        fetchCompletedWorkouts
+    );
 
     if (error) {
         console.error(error);
     }
 
-    return isLoading ? [] : data;
+    return isLoading ? [] : data ?? [];
 };
 
 export const useExerciseDefs = (): Record<string, ExerciseDef> => {
-    const { isLoading, error, data } = useSelect(QueryKey.ExerciseDefs);
+    const { isLoading, error, data } = useSelect(
+        QueryKey.ExerciseDefs,
+        fetchExerciseDefs
+    );
 
     if (error) {
         console.error(error);
     }
 
-    return isLoading ? {} : data;
+    return isLoading ? {} : data ?? {};
 };
 
-const useSelect = (key: QueryKey) => {
+const useSelect = <T>(key: QueryKey, queryFn: () => Promise<T>) => {
     return useQuery({
         queryKey: [key],
-        queryFn: async () => await select(key),
+        queryFn,
     });
 };
 
