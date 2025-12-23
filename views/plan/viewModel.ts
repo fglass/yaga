@@ -22,6 +22,14 @@ export const usePlanViewModel = () => {
             ...workout,
             id: generateGuid(),
             startTimestamp: Date.now(),
+            exercises: workout.exercises.map((exercise) => ({
+                ...exercise,
+                id: generateGuid(),
+                sets: exercise.sets.map((set) => ({
+                    ...set,
+                    id: generateGuid(),
+                })),
+            })),
         });
     };
 
