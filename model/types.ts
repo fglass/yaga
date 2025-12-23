@@ -5,19 +5,27 @@ export interface ExerciseDef {
     category: string;
 }
 
+export interface WorkoutTemplate {
+    id: string;
+    name: string;
+    exercises: Exercise[];
+    notes: string;
+    type: WorkoutType;
+}
+
 export interface Workout {
     id: string;
     name: string;
     exercises: Exercise[];
     notes: string;
     type: WorkoutType;
+    startTimestamp: number;
     // Running only
-    distanceKm?: number;
+    distance?: number;
 }
 
 export interface CompletedWorkout extends Workout {
     endTimestamp: number;
-    duration: number;
 }
 
 export interface AppleHealthWorkout {
@@ -31,7 +39,7 @@ export interface AppleHealthWorkout {
 
 export interface Exercise {
     id: string;
-    exerciseId: string; // FK to ExerciseDef
+    exerciseId: string;
     notes: Note[];
     sets: Set[];
 }

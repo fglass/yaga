@@ -8,10 +8,15 @@ const clamp = (value: number, min: number, max: number) =>
 interface Props {
     onRestStart: (endTimeMs: number) => void;
     onRestCancel: () => void;
+    initialStartTimeMs?: number;
 }
 
-export const useTimers = ({ onRestStart, onRestCancel }: Props) => {
-    const workoutStartTimeRef = useRef(Date.now());
+export const useTimers = ({
+    onRestStart,
+    onRestCancel,
+    initialStartTimeMs,
+}: Props) => {
+    const workoutStartTimeRef = useRef(initialStartTimeMs ?? Date.now());
     const [workoutDurationS, setWorkoutDurationS] = useState(0);
 
     const restEndTimeRef = useRef<number>(

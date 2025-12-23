@@ -74,10 +74,9 @@ interface ViewModel {
 const CALORIES_PER_HOUR = 300;
 
 export const useWorkoutViewModel = (props: Props): ViewModel => {
-    const [workout, dispatch] = useReducer(
-        workoutProducer,
-        props.initialWorkout
-    );
+    const [workout, dispatch] = useReducer(workoutProducer, {
+        ...props.initialWorkout,
+    });
 
     const exerciseDefs = useExerciseDefs(); // TODO: lift up?
     const { completeWorkout, createExerciseDef } = useDatabaseWriter();
@@ -99,6 +98,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onRestStart: (restEndTimeMs) =>
             scheduleRestFinishNotification(restEndTimeMs),
         onRestCancel: () => cancelRestFinishNotification(),
+        initialStartTimeMs: workout.startTimestamp,
     });
 
     const cancelRestFinishNotification = useCallback(async () => {
@@ -173,7 +173,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                     ...workout,
                     id: generateGuid(),
                     endTimestamp: finishDate.getTime(),
-                    duration: workoutDurationS,
                 };
 
                 await completeWorkout(completedWorkout);

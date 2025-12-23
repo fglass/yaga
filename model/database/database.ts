@@ -6,6 +6,7 @@ import {
     Note,
     Set,
     Workout,
+    WorkoutTemplate,
     WorkoutType,
 } from "../types";
 import { generateGuid, shareFile, withWarning } from "../../util";
@@ -45,25 +46,25 @@ export const resetDatabase = () => {
             await db.runAsync("DELETE FROM templates");
             await db.runAsync("DELETE FROM exercise_defs");
         });
-        await seedInitialData(true);
+        await seedInitialData();
         console.warn("Database reset");
     });
 };
 
 /* Write functions */
 
-export const createWorkoutTemplate = async (workout: Workout) => {
+export const createWorkoutTemplate = async (template: WorkoutTemplate) => {
     await ensureDatabase();
 
     const db = await getDatabase();
     await db.runAsync(
         `INSERT OR REPLACE INTO templates (id, name, notes, type, definition_json)
          VALUES (?, ?, ?, ?, ?)`,
-        workout.id,
-        workout.name,
-        workout.notes,
-        workout.type,
-        JSON.stringify(workout.exercises)
+        template.id,
+        template.name,
+        template.notes,
+        template.type,
+        JSON.stringify(template.exercises)
     );
 };
 
@@ -78,7 +79,6 @@ export const saveActiveWorkout = async (workout: Workout | null) => {
     }
 
     await runInTransaction(async (db) => {
-        const startedAt = null; // TODO: implement
         await db.runAsync(
             `INSERT OR REPLACE INTO workouts
              (id, name, notes, type, status, started_at, finished_at, distance)
@@ -87,8 +87,8 @@ export const saveActiveWorkout = async (workout: Workout | null) => {
             workout.name,
             workout.notes,
             workout.type,
-            startedAt,
-            workout.distanceKm ?? 0
+            workout.startTimestamp,
+            workout.distance ?? null
         );
 
         await db.runAsync(
@@ -146,10 +146,6 @@ const insertExercises = async (
 export const completeWorkout = async (workout: CompletedWorkout) => {
     await ensureDatabase();
 
-    // TODO: refactor
-    const finishedAt = workout.endTimestamp;
-    const startedAt = finishedAt - workout.duration * 1000;
-
     await runInTransaction(async (db) => {
         await db.runAsync(
             `INSERT OR REPLACE INTO workouts
@@ -159,9 +155,9 @@ export const completeWorkout = async (workout: CompletedWorkout) => {
             workout.name,
             workout.notes,
             workout.type,
-            startedAt,
-            finishedAt,
-            workout.distanceKm ?? 0
+            workout.startTimestamp,
+            workout.endTimestamp,
+            workout.distance ?? null
         );
 
         await db.runAsync(
@@ -206,7 +202,7 @@ export const fetchExerciseDefs = async (): Promise<
     }, {});
 };
 
-export const fetchWorkoutTemplates = async (): Promise<Workout[]> => {
+export const fetchWorkoutTemplates = async (): Promise<WorkoutTemplate[]> => {
     await ensureDatabase();
     const db = await getDatabase();
     const rows = await db.getAllAsync<{
@@ -236,9 +232,10 @@ export const fetchActiveWorkout = async (): Promise<Workout | null> => {
         name: string;
         notes: string;
         type: WorkoutType;
+        started_at: number;
         distance: number | null;
     }>(
-        "SELECT id, name, notes, type, distance FROM workouts WHERE status = 'active' LIMIT 1"
+        "SELECT id, name, notes, type, distance, started_at FROM workouts WHERE status = 'active' LIMIT 1"
     );
 
     if (!row) {
@@ -252,7 +249,8 @@ export const fetchActiveWorkout = async (): Promise<Workout | null> => {
         notes: row.notes,
         type: row.type,
         exercises,
-        distanceKm: row.distance ?? undefined,
+        startTimestamp: row.started_at,
+        distance: row.distance ?? undefined,
     };
 };
 
@@ -315,7 +313,7 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
         notes: string;
         type: WorkoutType;
         distance: number | null;
-        started_at: number | null;
+        started_at: number;
         finished_at: number | null;
     }>(
         "SELECT id, name, notes, type, distance, started_at, finished_at FROM workouts WHERE status = 'completed'"
@@ -324,24 +322,15 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
     const completed = await Promise.all(
         rows.map(async (row) => {
             const exercises = await fetchExercisesForWorkout(db, row.id);
-            const finishedAt = row.finished_at;
-            const durationS =
-                row.started_at != null && finishedAt != null
-                    ? Math.max(
-                          0,
-                          Math.round((finishedAt - row.started_at) / 1000)
-                      )
-                    : 0;
-
             return {
                 id: row.id,
                 name: row.name,
                 notes: row.notes,
                 type: row.type,
                 exercises,
-                distanceKm: row.distance ?? undefined,
-                endTimestamp: finishedAt,
-                duration: durationS,
+                distance: row.distance ?? undefined,
+                startTimestamp: row.started_at,
+                endTimestamp: row.finished_at ?? 0,
             } as CompletedWorkout;
         })
     );
@@ -351,7 +340,7 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
 
 /* Helpers */
 
-const seedInitialData = async (force = false) => {
+const seedInitialData = async () => {
     await ensureDatabase();
 
     await runInTransaction(async (dbTx) => {

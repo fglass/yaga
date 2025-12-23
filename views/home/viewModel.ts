@@ -16,8 +16,8 @@ export const useHomeViewModel = () => {
     const { strengthWorkouts, runningWorkouts } = React.useMemo(() => {
         const localWorkouts = completedWorkouts.map((workout) => {
             const startDate = parseWorkoutStart(
-                workout.endTimestamp,
-                workout.duration
+                workout.startTimestamp,
+                workout.endTimestamp
             );
             const endDate = parseWorkoutEnd(workout.endTimestamp);
             return {

@@ -8,11 +8,12 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { CompletedWorkout, AppleHealthWorkout } from "../../model/types";
-import { formatTime, parseWorkoutStart } from "../../util";
 import {
-    HistoryItem,
-    useHistoryViewModel,
-} from "./viewModel";
+    formatTime,
+    getWorkoutDurationSeconds,
+    parseWorkoutStart,
+} from "../../util";
+import { HistoryItem, useHistoryViewModel } from "./viewModel";
 
 const HistoryView = () => {
     const {
@@ -31,11 +32,15 @@ const HistoryView = () => {
 
     const renderLocalWorkout = (workout: CompletedWorkout) => {
         const workoutStartDate = parseWorkoutStart(
-            workout.endTimestamp,
-            workout.duration
+            workout.startTimestamp,
+            workout.endTimestamp
         );
         const workoutDate = formatWorkoutDate(workoutStartDate);
         const isRun = workout.type === "run";
+        const durationSeconds = getWorkoutDurationSeconds(
+            workout.startTimestamp,
+            workout.endTimestamp
+        );
 
         return (
             <TouchableOpacity
@@ -46,10 +51,10 @@ const HistoryView = () => {
                 <View key={workout.id} style={styles.workoutCard}>
                     <Text style={styles.workoutTitle}>
                         {workout.name}
-                        {isRun ? ` ${workout.distanceKm!.toFixed(2)}K ` : ""}
+                        {isRun ? ` ${workout.distance!.toFixed(2)}K ` : ""}
                     </Text>
                     <Text style={styles.workoutMeta}>
-                        {workoutDate} · {formatTime(workout.duration)}
+                        {workoutDate} · {formatTime(durationSeconds)}
                     </Text>
                 </View>
             </TouchableOpacity>

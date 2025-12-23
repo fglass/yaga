@@ -1,5 +1,5 @@
 import { generateGuid } from "../../util";
-import { ExerciseDef, Workout } from "../types";
+import { ExerciseDef, Workout, WorkoutTemplate } from "../types";
 
 enum Exercise {
     BenchPress = "d290f1ee-6c54-4b01-90e6-d701748f0851",
@@ -245,7 +245,7 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
     },
 };
 
-export const WORKOUT_TEMPLATES: Workout[] = [
+export const WORKOUT_TEMPLATES: WorkoutTemplate[] = [
     {
         id: "1e2509c1-98c5-4747-a239-ab9d0898dbe1",
         name: "👆 Push #1",

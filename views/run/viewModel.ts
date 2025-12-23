@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as Haptics from "expo-haptics";
-import { WorkoutActivityType } from "@kingstinct/react-native-healthkit";
-import { Workout } from "../../model/types";
+import { CompletedWorkout, Workout } from "../../model/types";
 import { saveActiveWorkout, useDatabaseWriter } from "../../model/database";
 import { generateGuid, withWarning } from "../../util";
 import { logAppleHealthWorkout } from "../../model/health";
@@ -31,21 +30,27 @@ const DEFAULT_SPEED_KMH = 11;
 
 export const useRunViewModel = (props: Props): ViewModel => {
     const { onFinish, onCancel } = props;
-    const initialDistanceKm = props.initialRun.distanceKm ?? 0;
+
+    const initialDistanceKm = props.initialRun.distance ?? 0;
     const [run] = useState<Workout>({
         ...props.initialRun,
         type: "run",
         exercises: props.initialRun.exercises ?? [],
         notes: props.initialRun.notes ?? "",
-        distanceKm: initialDistanceKm,
+        distance: initialDistanceKm,
     });
+
     const [speedKmh, setSpeedKmh] = useState<number>(DEFAULT_SPEED_KMH);
     const [speedInput, setSpeedInput] = useState(
         formatSpeed(DEFAULT_SPEED_KMH)
     );
     const [durationSeconds, setDurationSeconds] = useState(0);
+
     const [hasStarted, setHasStarted] = useState(false);
     const startTimeRef = useRef<number | null>(null);
+    const [startTimestamp, setStartTimestamp] = useState<number>(
+        props.initialRun.startTimestamp
+    );
 
     const { completeWorkout } = useDatabaseWriter();
 
@@ -92,10 +97,13 @@ export const useRunViewModel = (props: Props): ViewModel => {
             return;
         }
 
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        startTimeRef.current = Date.now();
+        const startTime = Date.now();
+        startTimeRef.current = startTime;
+        setStartTimestamp(startTime);
         setHasStarted(true);
         setDurationSeconds(0);
+
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }, [speedKmh]);
 
     const incrementalDistanceKm =
@@ -109,9 +117,10 @@ export const useRunViewModel = (props: Props): ViewModel => {
     useEffect(() => {
         saveActiveWorkout({
             ...run,
-            distanceKm,
+            startTimestamp: startTimestamp ?? run.startTimestamp,
+            distance: distanceKm,
         });
-    }, [distanceKm, run, saveActiveWorkout]);
+    }, [saveActiveWorkout, run, distanceKm, startTimestamp]);
 
     const onFinishRun = useCallback(async () => {
         if (!canFinish) {
@@ -120,25 +129,20 @@ export const useRunViewModel = (props: Props): ViewModel => {
 
         withWarning(
             async () => {
-                const finishDate = new Date();
-                const completedRun = {
+                const endDate = new Date();
+                const completedRun: CompletedWorkout = {
                     ...run,
-                    distanceKm,
                     id: generateGuid(),
-                    endTimestamp: finishDate.getTime(),
-                    duration: durationSeconds,
+                    startTimestamp: startTimestamp,
+                    endTimestamp: endDate.getTime(),
+                    distance: distanceKm,
                 };
 
                 await completeWorkout(completedRun);
 
                 await logAppleHealthWorkout({
-                    startDate:
-                        startTimeRef.current != null
-                            ? new Date(startTimeRef.current)
-                            : new Date(
-                                  finishDate.getTime() - durationSeconds * 1000
-                              ),
-                    endDate: finishDate,
+                    startDate: new Date(startTimestamp),
+                    endDate: endDate,
                     calories: 0, // Rely on Apple Health to track
                     workoutType: "run",
                 });

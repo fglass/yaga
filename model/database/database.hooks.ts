@@ -10,7 +10,12 @@ import {
     fetchWorkoutTemplates,
     saveActiveWorkout,
 } from "./database";
-import { Workout, CompletedWorkout, ExerciseDef } from "../types";
+import {
+    Workout,
+    CompletedWorkout,
+    ExerciseDef,
+    WorkoutTemplate,
+} from "../types";
 
 export const useActiveWorkout = (): Workout | null => {
     const { isLoading, error, data } = useSelect(
@@ -25,7 +30,7 @@ export const useActiveWorkout = (): Workout | null => {
     return isLoading ? null : data ?? null;
 };
 
-export const useWorkoutTemplates = (): Workout[] => {
+export const useWorkoutTemplates = (): WorkoutTemplate[] => {
     const { isLoading, error, data } = useSelect(
         QueryKey.Workouts,
         fetchWorkoutTemplates
@@ -117,7 +122,7 @@ export const useDatabaseWriter = () => {
             await completeWorkoutMutation.mutateAsync(workout),
         createExerciseDef: async (def: ExerciseDef) =>
             await createExerciseDefMutation.mutateAsync(def),
-        createWorkoutTemplate: async (workout: Workout) =>
-            await createWorkoutTemplateMutation.mutateAsync(workout),
+        createWorkoutTemplate: async (template: WorkoutTemplate) =>
+            await createWorkoutTemplateMutation.mutateAsync(template),
     };
 };
