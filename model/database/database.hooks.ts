@@ -4,6 +4,7 @@ import {
     completeWorkout,
     createExerciseDef,
     createWorkoutTemplate,
+    deleteCompletedWorkout,
     fetchActiveWorkout,
     fetchCompletedWorkouts,
     fetchExerciseDefs,
@@ -120,6 +121,15 @@ export const useDatabaseWriter = () => {
         },
     });
 
+    const deleteCompletedWorkoutMutation = useMutation({
+        mutationFn: deleteCompletedWorkout,
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [QueryKey.CompletedWorkouts],
+            });
+        },
+    });
+
     return {
         saveActiveWorkout: async (workout: Workout | null) =>
             await saveActiveWorkoutMutation.mutateAsync(workout),
@@ -129,5 +139,7 @@ export const useDatabaseWriter = () => {
             await createExerciseDefMutation.mutateAsync(def),
         createWorkoutTemplate: async (template: WorkoutTemplate) =>
             await createWorkoutTemplateMutation.mutateAsync(template),
+        deleteCompletedWorkout: async (workoutId: string) =>
+            await deleteCompletedWorkoutMutation.mutateAsync(workoutId),
     };
 };

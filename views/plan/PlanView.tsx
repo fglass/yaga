@@ -254,8 +254,8 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     workoutCard: {
-        paddingVertical: 11,
-        paddingHorizontal: 16,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
         borderRadius: 16,
         backgroundColor: "#353C42",
         borderWidth: 1,
