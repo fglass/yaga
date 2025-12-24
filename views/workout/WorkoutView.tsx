@@ -116,6 +116,7 @@ const WorkoutView = (props: Props) => {
                 <View style={styles.cardHeader}>
                     <TouchableOpacity
                         activeOpacity={0.7}
+                        style={styles.cardHeaderTitle}
                         onPress={() =>
                             vm.onShowExerciseHistory(exercise.exerciseId)
                         }
@@ -123,10 +124,9 @@ const WorkoutView = (props: Props) => {
                         <Text
                             style={[
                                 styles.cardTitle,
-                                vm.exerciseDefs[exercise.exerciseId]?.name
-                                    ?.length > 12 && styles.cardTitleSmall,
                             ]}
-                            numberOfLines={1}
+                            numberOfLines={2}
+                            ellipsizeMode="tail"
                         >
                             {vm.exerciseDefs[exercise.exerciseId]?.name}
                         </Text>
