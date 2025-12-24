@@ -57,6 +57,11 @@ export const styles = StyleSheet.create({
         alignItems: "center",
         marginBottom: 10,
     },
+    cardHeaderTitle: {
+        flex: 1,
+        minWidth: 0,
+        paddingRight: 8,
+    },
     cardHeaderRight: {
         flexDirection: "row",
         alignItems: "center",
@@ -80,10 +85,7 @@ export const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "600",
         color: "white",
-        maxWidth: 180,
-    },
-    cardTitleSmall: {
-        fontSize: 16,
+        flexShrink: 1,
     },
     noteContainer: {
         marginTop: 4,
