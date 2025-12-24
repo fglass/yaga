@@ -78,6 +78,9 @@ export const styles = StyleSheet.create({
         justifyContent: "center",
         marginLeft: 8,
     },
+    cardHeaderBtnFirst: {
+        marginLeft: 0,
+    },
     cardHeaderBtnActive: {
         backgroundColor: "white",
     },

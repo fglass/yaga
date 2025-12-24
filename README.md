@@ -56,7 +56,7 @@ eas update
 -   [ ] Active workout minimise
 -   [ ] Warmup sets
 -   [x] Bug: Keyboard position on bottom exercise
--   [ ] Bug: Long exercise name hides delete button
+-   [x] Bug: Long exercise name hides buttons
 -   [ ] Bug: Workout timer resets on app reopen
 -   [x] Exercise history
 -   [ ] Exercise history graph
