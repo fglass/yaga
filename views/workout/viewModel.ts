@@ -11,7 +11,7 @@ import {
     ensureNotificationPermission,
     generateGuid,
     withWarning,
-} from "../../util";
+} from "../../utils/util";
 import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
 import * as Haptics from "expo-haptics";
 import { useTimers } from "./hooks";

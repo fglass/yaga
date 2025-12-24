@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useKeepAwake } from "expo-keep-awake";
 import Button from "../../components/Button";
 import { Workout } from "../../model/types";
-import { formatTime } from "../../util";
+import { formatTime } from "../../utils/util";
 import { useRunViewModel } from "./viewModel";
 
 interface Props {

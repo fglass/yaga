@@ -12,7 +12,7 @@ import {
     formatTime,
     getWorkoutDurationSeconds,
     parseWorkoutStart,
-} from "../../util";
+} from "../../utils/util";
 import { HistoryItem, useHistoryViewModel } from "./viewModel";
 
 const HistoryView = () => {

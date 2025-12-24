@@ -6,7 +6,7 @@ import {
     dedupeWorkoutsByStart,
     parseWorkoutEnd,
     parseWorkoutStart,
-} from "../../util";
+} from "../../utils/util";
 
 export const useHomeViewModel = () => {
     const completedWorkouts = useCompletedWorkouts();

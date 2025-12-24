@@ -9,7 +9,7 @@ import {
     WorkoutTemplate,
     WorkoutType,
 } from "../types";
-import { generateGuid, shareFile, withWarning } from "../../util";
+import { generateGuid, shareFile, withWarning } from "../../utils/util";
 import { ensureDatabase, getDatabase, runInTransaction } from "./sqlite";
 
 export enum QueryKey {

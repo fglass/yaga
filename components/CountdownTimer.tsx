@@ -7,7 +7,7 @@ import {
     View,
     ViewStyle,
 } from "react-native";
-import { formatTime } from "../util";
+import { formatTime } from "../utils/util";
 
 interface Props {
     containerStyle?: StyleProp<ViewStyle>;
