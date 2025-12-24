@@ -1,5 +1,5 @@
 import * as SQLite from "expo-sqlite";
-import { isUsingExpoDevClient } from "../../util";
+import { isUsingExpoDevClient } from "../../utils/util";
 import { MIGRATIONS } from "./migrations";
 
 const DB_NAME = isUsingExpoDevClient() ? "yaga-dev.db" : "yaga.db";

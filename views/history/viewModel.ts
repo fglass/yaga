@@ -2,7 +2,7 @@ import React from "react";
 import { useCompletedWorkouts } from "../../model/database";
 import { useAppleHealthWorkouts } from "../../model/health";
 import { AppleHealthWorkout, CompletedWorkout } from "../../model/types";
-import { dedupeWorkoutsByStart, parseWorkoutStart } from "../../util";
+import { dedupeWorkoutsByStart, parseWorkoutStart } from "../../utils/util";
 
 export type HistoryItem =
     | { type: "local"; workout: CompletedWorkout; startDate: Date }

@@ -15,7 +15,7 @@ import Button from "../../components/Button";
 import CountdownTimer from "../../components/CountdownTimer";
 import Deletable from "../../components/Deletable";
 import { Exercise, ModalType, Note, Set, Workout } from "../../model/types";
-import { formatTime } from "../../util";
+import { formatTime } from "../../utils/util";
 import { useWorkoutViewModel } from "./viewModel";
 import { styles } from "./styles";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import * as Haptics from "expo-haptics";
 import { CompletedWorkout, Workout } from "../../model/types";
 import { saveActiveWorkout, useDatabaseWriter } from "../../model/database";
-import { generateGuid, withWarning } from "../../util";
+import { generateGuid, withWarning } from "../../utils/util";
 import { logAppleHealthWorkout } from "../../model/health";
 
 interface Props {
