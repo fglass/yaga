@@ -36,7 +36,9 @@ const PlanView = () => {
             style={[styles.workoutCard, styles.newWorkoutCard]}
             onPress={onStartNewWorkout}
         >
-            <Text style={styles.workoutName}>New Workout</Text>
+            <View style={styles.newCardContent}>
+                <Text style={styles.workoutName}>New Workout</Text>
+            </View>
             <Ionicons name="chevron-forward" color="white" size={20} />
         </TouchableOpacity>
     );
@@ -46,7 +48,9 @@ const PlanView = () => {
             style={[styles.workoutCard, styles.newRunCard]}
             onPress={onStartNewRun}
         >
-            <Text style={styles.workoutName}>New Run</Text>
+            <View style={styles.newCardContent}>
+                <Text style={styles.workoutName}>New Run</Text>
+            </View>
             <Ionicons name="chevron-forward" color="white" size={20} />
         </TouchableOpacity>
     );
@@ -256,6 +260,7 @@ const styles = StyleSheet.create({
     workoutCard: {
         paddingVertical: 10,
         paddingHorizontal: 15,
+        minHeight: 60,
         borderRadius: 16,
         backgroundColor: "#353C42",
         borderWidth: 1,
@@ -269,7 +274,7 @@ const styles = StyleSheet.create({
     },
     newRunCard: {
         borderColor: "rgba(88, 165, 249, 0.5)",
-        marginTop: 10,
+        marginTop: 8,
     },
     workoutName: {
         color: "white",
@@ -281,12 +286,16 @@ const styles = StyleSheet.create({
         marginTop: 4,
         fontSize: 12,
     },
+    newCardContent: {
+        flex: 1,
+        justifyContent: "center",
+    },
     separator: {
         height: 8,
     },
     footerCards: {},
     footerSpacing: {
-        marginTop: 16,
+        marginTop: 8,
     },
     emptyState: {
         alignItems: "center",
