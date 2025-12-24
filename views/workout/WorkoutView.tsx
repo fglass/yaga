@@ -133,25 +133,15 @@ const WorkoutView = (props: Props) => {
                     </TouchableOpacity>
                     <View style={styles.cardHeaderRight}>
                         <TouchableOpacity
-                            style={styles.cardHeaderBtn}
+                            style={[
+                                styles.cardHeaderBtn,
+                                styles.cardHeaderBtnFirst,
+                            ]}
                             onPress={() => vm.onMoveExercise(exerciseIdx, -1)}
                             disabled={exerciseIdx === 0}
                         >
                             <Ionicons
                                 name="chevron-up"
-                                color="white"
-                                size={20}
-                            />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.cardHeaderBtn}
-                            onPress={() => vm.onMoveExercise(exerciseIdx, 1)}
-                            disabled={
-                                exerciseIdx === vm.workout.exercises.length - 1
-                            }
-                        >
-                            <Ionicons
-                                name="chevron-down"
                                 color="white"
                                 size={20}
                             />
