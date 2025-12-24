@@ -58,7 +58,7 @@ eas update
 -   [x] Bug: Keyboard position on bottom exercise
 -   [ ] Bug: Long exercise name hides delete button
 -   [ ] Bug: Workout timer resets on app reopen
--   [ ] Exercise history
+-   [x] Exercise history
 -   [ ] Exercise history graph
 -   [x] Go to history on workout close
 -   [ ] Exercise category dropdown
