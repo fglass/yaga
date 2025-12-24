@@ -50,7 +50,7 @@ eas update
 -   [ ] Timer noise
 -   [x] Sticky timer progress bar
 -   [ ] Exercise completion timer
--   [ ] Disable exercise move above completed/active
+-   [x] Disable exercise move above completed/active
 -   [ ] Drag to reorder exercises
 -   [x] Set/time box colouring
 -   [ ] Active workout minimise

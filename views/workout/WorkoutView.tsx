@@ -111,6 +111,13 @@ const WorkoutView = (props: Props) => {
     const renderExercise = (exercise: Exercise, exerciseIdx: number) => {
         const notesExpanded = vm.isNotesExpanded(exercise);
         const hasNotes = exercise.notes.length > 0;
+
+        const prevExercise = vm.workout.exercises[exerciseIdx - 1];
+        const isPrevLocked = prevExercise?.sets.some(
+            (set: Set) => set.finishTime !== undefined
+        );
+        const isMoveUpVisible = exerciseIdx > 0 && !isPrevLocked;
+
         return (
             <View key={exercise.id} style={[styles.card, styles.exerciseCard]}>
                 <View style={styles.cardHeader}>
@@ -122,9 +129,7 @@ const WorkoutView = (props: Props) => {
                         }
                     >
                         <Text
-                            style={[
-                                styles.cardTitle,
-                            ]}
+                            style={[styles.cardTitle]}
                             numberOfLines={2}
                             ellipsizeMode="tail"
                         >
@@ -132,22 +137,28 @@ const WorkoutView = (props: Props) => {
                         </Text>
                     </TouchableOpacity>
                     <View style={styles.cardHeaderRight}>
+                        {isMoveUpVisible && (
+                            <TouchableOpacity
+                                style={[
+                                    styles.cardHeaderBtn,
+                                    styles.cardHeaderBtnFirst,
+                                ]}
+                                onPress={() =>
+                                    vm.onMoveExercise(exerciseIdx, -1)
+                                }
+                            >
+                                <Ionicons
+                                    name="chevron-up"
+                                    color="white"
+                                    size={20}
+                                />
+                            </TouchableOpacity>
+                        )}
                         <TouchableOpacity
                             style={[
                                 styles.cardHeaderBtn,
-                                styles.cardHeaderBtnFirst,
+                                !isMoveUpVisible && styles.cardHeaderBtnFirst,
                             ]}
-                            onPress={() => vm.onMoveExercise(exerciseIdx, -1)}
-                            disabled={exerciseIdx === 0}
-                        >
-                            <Ionicons
-                                name="chevron-up"
-                                color="white"
-                                size={20}
-                            />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.cardHeaderBtn}
                             onPress={() => vm.onAddSet(exerciseIdx)}
                         >
                             <Ionicons
