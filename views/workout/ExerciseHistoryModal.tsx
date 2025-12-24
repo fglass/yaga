@@ -62,7 +62,6 @@ const useExerciseHistory = (exerciseId: string | null, isVisible: boolean) => {
 };
 
 const ExerciseHistoryModal = (props: Props) => {
-    const title = "History";
     const { isLoading, historySets } = useExerciseHistory(
         props.exerciseId,
         props.isVisible
@@ -75,17 +74,26 @@ const ExerciseHistoryModal = (props: Props) => {
             year: "numeric",
         });
 
+    const visibleHistorySets = historySets
+        .map((entry) => ({
+            ...entry,
+            sets: entry.sets.filter(
+                (set) => set.weight.trim() !== "" || set.reps.trim() !== ""
+            ),
+        }))
+        .filter((entry) => entry.sets.length > 0);
+
     return (
         <ModalDialog
-            title={title}
+            title="History"
             isVisible={props.isVisible}
             onClose={props.onClose}
             maxHeight="70%"
         >
             {isLoading ? (
                 <ActivityIndicator style={styles.loading} color="white" />
-            ) : historySets.length === 0 ? (
-                <Text style={styles.emptyText}>No recent sets yet.</Text>
+            ) : visibleHistorySets.length === 0 ? (
+                <Text style={styles.emptyText}>Nothing yet!</Text>
             ) : (
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={styles.tableHeader}>
@@ -93,7 +101,7 @@ const ExerciseHistoryModal = (props: Props) => {
                         <Text style={styles.headerWeightCell}>Weight</Text>
                         <Text style={styles.headerRepsCell}>Reps</Text>
                     </View>
-                    {historySets.map((entry, sessionIdx) => (
+                    {visibleHistorySets.map((entry, sessionIdx) => (
                         <View
                             key={`history-${sessionIdx}`}
                             style={styles.session}
