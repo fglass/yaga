@@ -3,6 +3,7 @@ export {
     exportDatabase,
     resetDatabase,
     saveActiveWorkout,
+    fetchRecentSetsForExercises,
 } from "./database";
 export {
     useActiveWorkout,

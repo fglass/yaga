@@ -338,6 +338,75 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
     return completed;
 };
 
+export const fetchRecentSetsForExercises = async (
+    exerciseIds: string[]
+): Promise<Record<string, Set[]>> => {
+    await ensureDatabase();
+
+    if (exerciseIds.length === 0) {
+        return {};
+    }
+
+    const db = await getDatabase();
+    const placeholders = exerciseIds.map(() => "?").join(", ");
+    const exerciseRows = await db.getAllAsync<{
+        exercise_id: string;
+        exercise_def_id: string;
+    }>(
+        `SELECT exercises.id as exercise_id, exercises.exercise_def_id as exercise_def_id
+         FROM exercises
+         JOIN workouts ON workouts.id = exercises.workout_id
+         WHERE workouts.status = 'completed'
+         AND exercises.exercise_def_id IN (${placeholders})
+         ORDER BY workouts.finished_at DESC`,
+        ...exerciseIds
+    );
+
+    if (exerciseRows.length === 0) {
+        return {};
+    }
+
+    const latestByDef = new Map<string, string>();
+    for (const row of exerciseRows) {
+        if (!latestByDef.has(row.exercise_def_id)) {
+            latestByDef.set(row.exercise_def_id, row.exercise_id);
+        }
+    }
+
+    const result: Record<string, Set[]> = {};
+    for (const [exerciseDefId, exerciseId] of latestByDef.entries()) {
+        result[exerciseDefId] = await fetchSetsForExercise(db, exerciseId);
+    }
+
+    return result;
+};
+
+const fetchSetsForExercise = async (
+    db: Awaited<ReturnType<typeof getDatabase>>,
+    exerciseId: string
+): Promise<Set[]> => {
+    const setRows = await db.getAllAsync<{
+        id: string;
+        position: number;
+        weight: string;
+        reps: string;
+        finished_at: number | null;
+    }>(
+        "SELECT id, position, weight, reps, finished_at FROM sets WHERE exercise_id = ? ORDER BY position",
+        exerciseId
+    );
+
+    return setRows.map(
+        (setRow) =>
+            ({
+                id: setRow.id,
+                weight: setRow.weight,
+                reps: setRow.reps,
+                finishTime: setRow.finished_at ?? undefined,
+            } as Set)
+    );
+};
+
 /* Helpers */
 
 const seedInitialData = async () => {
