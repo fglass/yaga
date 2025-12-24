@@ -46,8 +46,13 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
             const currentReps = Number(
                 draft.exercises[action.exerciseIdx].sets[action.setIdx].reps
             );
-            const nextReps = Math.max(0, isNaN(currentReps) ? 0 : currentReps - 1);
-            draft.exercises[action.exerciseIdx].sets[action.setIdx].reps = `${nextReps}`;
+            const nextReps = Math.max(
+                0,
+                isNaN(currentReps) ? 0 : currentReps - 1
+            );
+            draft.exercises[action.exerciseIdx].sets[
+                action.setIdx
+            ].reps = `${nextReps}`;
             break;
         }
         case ActionType.FinishSet:
@@ -108,7 +113,7 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
             draft.exercises[action.exerciseIdx].notes.push(createNewNote());
             break;
         case ActionType.AddExercise:
-            draft.exercises.push(createNewExercise(action.exerciseId));
+            draft.exercises.push(action.exercise);
             break;
         case ActionType.RemoveExercise:
             draft.exercises.splice(action.exerciseIdx, 1);
@@ -117,13 +122,6 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
             console.error("Unknown action type: ", action.type);
             break;
     }
-});
-
-const createNewExercise = (exerciseId: string): Exercise => ({
-    id: generateGuid(),
-    exerciseId: exerciseId,
-    notes: [],
-    sets: [createNewSet()],
 });
 
 const createNewSet = (): Set => ({

@@ -12,6 +12,7 @@ import {
     generateGuid,
     withWarning,
 } from "../../util";
+import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
 import * as Haptics from "expo-haptics";
 import { useTimers } from "./hooks";
 import { logAppleHealthWorkout } from "../../model/health";
@@ -58,7 +59,7 @@ interface ViewModel {
     onAddExerciseNote: (exerciseIdx: number) => void;
     isNotesExpanded: (exercise: Exercise) => boolean;
     onNoteButtonPress: (exercise: Exercise, exerciseIdx: number) => void;
-    onAddExercise: (exerciseId: string) => void;
+    onAddExercise: (exerciseId: string) => Promise<void>;
     onRemoveExercise: (exerciseIdx: number) => void;
     onMoveExercise: (exerciseIdx: number, delta: number) => void;
     onCreateExerciseDef: (name: string, category: string) => void;
@@ -345,8 +346,21 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         }
     };
 
-    const onAddExercise = useCallback((exerciseId: string) => {
-        dispatch({ type: ActionType.AddExercise, exerciseId });
+    const onAddExercise = useCallback(async (exerciseId: string) => {
+        const exercise = await prefillExerciseFromHistory(exerciseId, {
+            id: generateGuid(),
+            exerciseId,
+            notes: [],
+            sets: [
+                {
+                    id: generateGuid(),
+                    weight: "0",
+                    reps: "1",
+                    finishTime: undefined,
+                },
+            ],
+        });
+        dispatch({ type: ActionType.AddExercise, exerciseId, exercise });
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }, []);
 

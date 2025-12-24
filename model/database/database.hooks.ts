@@ -69,10 +69,15 @@ export const useExerciseDefs = (): Record<string, ExerciseDef> => {
     return isLoading ? {} : data ?? {};
 };
 
-const useSelect = <T>(key: QueryKey, queryFn: () => Promise<T>) => {
+const useSelect = <T>(
+    key: QueryKey | (QueryKey | string[])[],
+    queryFn: () => Promise<T>,
+    enabled = true
+) => {
     return useQuery({
-        queryKey: [key],
+        queryKey: Array.isArray(key) ? key : [key],
         queryFn,
+        enabled,
     });
 };
 

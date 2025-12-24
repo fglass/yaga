@@ -1,7 +1,11 @@
 import { useState } from "react";
-import { useWorkoutTemplates, useDatabaseWriter } from "../../model/database";
+import {
+    useWorkoutTemplates,
+    useDatabaseWriter,
+} from "../../model/database";
 import { Workout, WorkoutTemplate } from "../../model/types";
 import { generateGuid } from "../../util";
+import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
 import {
     getHealthLoggingEnabled,
     setHealthLoggingEnabled,
@@ -18,18 +22,24 @@ export const usePlanViewModel = () => {
     );
 
     const selectTemplate = async (workout: WorkoutTemplate) => {
+        const baseExercises = workout.exercises.map((exercise) => ({
+            ...exercise,
+            id: generateGuid(),
+            sets: exercise.sets.map((set) => ({
+                ...set,
+                id: generateGuid(),
+            })),
+        }));
+        const exercises = await Promise.all(
+            baseExercises.map((exercise) =>
+                prefillExerciseFromHistory(exercise.exerciseId, exercise)
+            )
+        );
         await saveActiveWorkout({
             ...workout,
             id: generateGuid(),
             startTimestamp: Date.now(),
-            exercises: workout.exercises.map((exercise) => ({
-                ...exercise,
-                id: generateGuid(),
-                sets: exercise.sets.map((set) => ({
-                    ...set,
-                    id: generateGuid(),
-                })),
-            })),
+            exercises,
         });
     };
 
