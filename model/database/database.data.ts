@@ -248,7 +248,7 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
 export const WORKOUT_TEMPLATES: WorkoutTemplate[] = [
     {
         id: "1e2509c1-98c5-4747-a239-ab9d0898dbe1",
-        name: "👆 Push #1",
+        name: "🚀 Push #1",
         exercises: [
             {
                 id: generateGuid(),
@@ -331,7 +331,7 @@ export const WORKOUT_TEMPLATES: WorkoutTemplate[] = [
     },
     {
         id: "c45961ce-85ac-41a1-a6fa-c88ffa5fa2fd",
-        name: "👇 Pull #1",
+        name: "💥 Pull #1",
         exercises: [
             {
                 id: generateGuid(),
@@ -420,7 +420,7 @@ export const WORKOUT_TEMPLATES: WorkoutTemplate[] = [
     },
     {
         id: "585f3af5-e469-40e5-8591-2e16cfd33524",
-        name: "🦵 Legs #1",
+        name: "🦿 Legs #1",
         exercises: [
             {
                 id: generateGuid(),
@@ -528,7 +528,7 @@ export const WORKOUT_TEMPLATES: WorkoutTemplate[] = [
     },
     {
         id: "dea6b833-dd5f-4c5b-9d11-e67b8b1e2e4f",
-        name: "🔼 Push #2",
+        name: "💣 Push #2",
         exercises: [
             {
                 id: generateGuid(),
@@ -611,7 +611,7 @@ export const WORKOUT_TEMPLATES: WorkoutTemplate[] = [
     },
     {
         id: "2634a7cf-e293-45b3-95d7-134acc260da4",
-        name: "🔽 Pull #2",
+        name: "💫 Pull #2",
         exercises: [
             {
                 id: generateGuid(),
@@ -669,7 +669,7 @@ export const WORKOUT_TEMPLATES: WorkoutTemplate[] = [
     },
     {
         id: "d6aecfef-9f28-4975-b3f8-48e8ab58ed70",
-        name: "🦿 Legs #2",
+        name: "🍗 Legs #2",
         exercises: [
             {
                 id: generateGuid(),
@@ -702,7 +702,7 @@ export const WORKOUT_TEMPLATES: WorkoutTemplate[] = [
     },
     {
         id: "42c73ac4-50a8-44ea-ad50-18e844c53d0c",
-        name: "💪 Arms",
+        name: "🦾 Arms",
         exercises: [
             {
                 id: generateGuid(),
