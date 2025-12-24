@@ -53,6 +53,35 @@ export const resetDatabase = () => {
 
 /* Write functions */
 
+const seedInitialData = async () => {
+    await ensureDatabase();
+
+    await runInTransaction(async (dbTx) => {
+        for (const [id, def] of Object.entries(EXERCISE_DEFS)) {
+            await dbTx.runAsync(
+                `INSERT OR REPLACE INTO exercise_defs (id, name, category)
+                 VALUES (?, ?, ?)`,
+                id,
+                def.name,
+                def.category
+            );
+        }
+
+        for (const workout of WORKOUT_TEMPLATES) {
+            await dbTx.runAsync(
+                `INSERT OR REPLACE INTO templates
+                 (id, name, notes, type, definition_json)
+                 VALUES (?, ?, ?, ?, ?)`,
+                workout.id,
+                workout.name,
+                workout.notes,
+                workout.type,
+                JSON.stringify(workout.exercises)
+            );
+        }
+    });
+};
+
 export const createWorkoutTemplate = async (template: WorkoutTemplate) => {
     await ensureDatabase();
 
@@ -339,104 +368,89 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
 };
 
 export const fetchRecentSetsForExercises = async (
-    exerciseIds: string[]
-): Promise<Record<string, Set[]>> => {
+    exerciseIds: string[],
+    nWorkouts: number
+): Promise<Record<string, { finishedAt: number; sets: Set[] }[]>> => {
     await ensureDatabase();
 
-    if (exerciseIds.length === 0) {
+    if (exerciseIds.length === 0 || nWorkouts <= 0) {
         return {};
     }
 
     const db = await getDatabase();
+
     const placeholders = exerciseIds.map(() => "?").join(", ");
-    const exerciseRows = await db.getAllAsync<{
+    const rows = await db.getAllAsync<{
         exercise_id: string;
         exercise_def_id: string;
+        workout_finished_at: number | null;
+        set_id: string | null;
+        position: number | null;
+        weight: string | null;
+        reps: string | null;
+        set_finished_at: number | null;
     }>(
-        `SELECT exercises.id as exercise_id, exercises.exercise_def_id as exercise_def_id
+        `SELECT exercises.id as exercise_id,
+                exercises.exercise_def_id as exercise_def_id,
+                workouts.finished_at as workout_finished_at,
+                sets.id as set_id,
+                sets.position as position,
+                sets.weight as weight,
+                sets.reps as reps,
+                sets.finished_at as set_finished_at
          FROM exercises
          JOIN workouts ON workouts.id = exercises.workout_id
+         LEFT JOIN sets ON sets.exercise_id = exercises.id
          WHERE workouts.status = 'completed'
          AND exercises.exercise_def_id IN (${placeholders})
-         ORDER BY workouts.finished_at DESC`,
+         ORDER BY workouts.finished_at DESC, exercises.id, sets.position`,
         ...exerciseIds
     );
 
-    if (exerciseRows.length === 0) {
+    if (rows.length === 0) {
         return {};
     }
 
-    const latestByDef = new Map<string, string>();
-    for (const row of exerciseRows) {
-        if (!latestByDef.has(row.exercise_def_id)) {
-            latestByDef.set(row.exercise_def_id, row.exercise_id);
-        }
-    }
+    const result: Record<string, { finishedAt: number; sets: Set[] }[]> = {};
+    const entriesByExercise = new Map<
+        string,
+        { finishedAt: number; sets: Set[] }
+    >();
 
-    const result: Record<string, Set[]> = {};
-    for (const [exerciseDefId, exerciseId] of latestByDef.entries()) {
-        result[exerciseDefId] = await fetchSetsForExercise(db, exerciseId);
+    for (const row of rows) {
+        const exerciseDefId = row.exercise_def_id;
+        const exerciseId = row.exercise_id;
+        let entry = entriesByExercise.get(exerciseId);
+
+        if (!entry) {
+            if (!result[exerciseDefId]) {
+                result[exerciseDefId] = [];
+            }
+            if (result[exerciseDefId].length >= nWorkouts) {
+                continue;
+            }
+            entry = {
+                finishedAt: row.workout_finished_at ?? 0,
+                sets: [],
+            };
+            result[exerciseDefId].push(entry);
+            entriesByExercise.set(exerciseId, entry);
+        }
+
+        if (row.set_id) {
+            entry.sets.push({
+                id: row.set_id,
+                weight: row.weight ?? "",
+                reps: row.reps ?? "",
+                finishTime: row.set_finished_at ?? undefined,
+            });
+        }
     }
 
     return result;
 };
 
-const fetchSetsForExercise = async (
-    db: Awaited<ReturnType<typeof getDatabase>>,
-    exerciseId: string
-): Promise<Set[]> => {
-    const setRows = await db.getAllAsync<{
-        id: string;
-        position: number;
-        weight: string;
-        reps: string;
-        finished_at: number | null;
-    }>(
-        "SELECT id, position, weight, reps, finished_at FROM sets WHERE exercise_id = ? ORDER BY position",
-        exerciseId
-    );
-
-    return setRows.map(
-        (setRow) =>
-            ({
-                id: setRow.id,
-                weight: setRow.weight,
-                reps: setRow.reps,
-                finishTime: setRow.finished_at ?? undefined,
-            } as Set)
-    );
-};
-
 /* Helpers */
-
-const seedInitialData = async () => {
-    await ensureDatabase();
-
-    await runInTransaction(async (dbTx) => {
-        for (const [id, def] of Object.entries(EXERCISE_DEFS)) {
-            await dbTx.runAsync(
-                `INSERT OR REPLACE INTO exercise_defs (id, name, category)
-                 VALUES (?, ?, ?)`,
-                id,
-                def.name,
-                def.category
-            );
-        }
-
-        for (const workout of WORKOUT_TEMPLATES) {
-            await dbTx.runAsync(
-                `INSERT OR REPLACE INTO templates
-                 (id, name, notes, type, definition_json)
-                 VALUES (?, ?, ?, ?, ?)`,
-                workout.id,
-                workout.name,
-                workout.notes,
-                workout.type,
-                JSON.stringify(workout.exercises)
-            );
-        }
-    });
-};
 
 const parseNotesJson = (raw: string): Note[] => {
     try {

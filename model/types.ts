@@ -60,4 +60,5 @@ export enum ModalType { // Bit field
     None = 0,
     ExerciseList = 1,
     NewExercise = 2,
+    ExerciseHistory = 4,
 }

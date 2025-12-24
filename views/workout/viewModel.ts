@@ -31,6 +31,7 @@ interface ViewModel {
     remainingRestTimeS: number;
     totalRestDurationS: number;
     exerciseDefs: Record<string, ExerciseDef>;
+    historyExerciseId: string | null;
     activeModal: ModalType;
     setActiveModal: (modalType: ModalType) => void;
     isModalActive: (modalType: ModalType) => boolean;
@@ -70,6 +71,8 @@ interface ViewModel {
         setIdx: number,
         exerciseIdx: number
     ) => string | null;
+    onShowExerciseHistory: (exerciseId: string) => void;
+    onCloseExerciseHistory: () => void;
 }
 
 const CALORIES_PER_HOUR = 300;
@@ -82,6 +85,9 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const exerciseDefs = useExerciseDefs(); // TODO: lift up?
     const { completeWorkout, createExerciseDef } = useDatabaseWriter();
     const [activeModal, setActiveModal] = useState(ModalType.None);
+    const [historyExerciseId, setHistoryExerciseId] = useState<string | null>(
+        null
+    );
     const [expandedNotes, setExpandedNotes] = useState<
         Record<string, boolean | undefined>
     >({});
@@ -421,6 +427,16 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         return `${nMins}m${nSeconds.toString().padStart(2, "0")}s`;
     };
 
+    const onShowExerciseHistory = useCallback((exerciseId: string) => {
+        setActiveModal(ModalType.ExerciseHistory);
+        setHistoryExerciseId(exerciseId);
+    }, []);
+
+    const onCloseExerciseHistory = useCallback(() => {
+        setActiveModal(ModalType.None);
+        setHistoryExerciseId(null);
+    }, []);
+
     return {
         isLoading,
         workout,
@@ -428,6 +444,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         remainingRestTimeS,
         totalRestDurationS,
         exerciseDefs,
+        historyExerciseId,
         activeModal,
         setActiveModal,
         isModalActive,
@@ -452,5 +469,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onCancelWorkout,
         onAdjustRestTimer,
         calculateSetDuration,
+        onShowExerciseHistory,
+        onCloseExerciseHistory,
     };
 };

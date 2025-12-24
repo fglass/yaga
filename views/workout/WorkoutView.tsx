@@ -11,6 +11,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import ExerciseListModal from "./ExerciseListModal";
 import NewExerciseModal from "./NewExerciseModal";
+import ExerciseHistoryModal from "./ExerciseHistoryModal";
 import Button from "../../components/Button";
 import CountdownTimer from "../../components/CountdownTimer";
 import Deletable from "../../components/Deletable";
@@ -99,6 +100,11 @@ const WorkoutView = (props: Props) => {
                 onCreate={vm.onCreateExerciseDef}
                 onClose={() => vm.setActiveModal(ModalType.ExerciseList)}
             />
+            <ExerciseHistoryModal
+                isVisible={vm.isModalActive(ModalType.ExerciseHistory)}
+                exerciseId={vm.historyExerciseId}
+                onClose={vm.onCloseExerciseHistory}
+            />
         </>
     );
 
@@ -108,7 +114,12 @@ const WorkoutView = (props: Props) => {
         return (
             <View key={exercise.id} style={[styles.card, styles.exerciseCard]}>
                 <View style={styles.cardHeader}>
-                    <View>
+                    <TouchableOpacity
+                        activeOpacity={0.7}
+                        onPress={() =>
+                            vm.onShowExerciseHistory(exercise.exerciseId)
+                        }
+                    >
                         <Text
                             style={[
                                 styles.cardTitle,
@@ -119,7 +130,7 @@ const WorkoutView = (props: Props) => {
                         >
                             {vm.exerciseDefs[exercise.exerciseId]?.name}
                         </Text>
-                    </View>
+                    </TouchableOpacity>
                     <View style={styles.cardHeaderRight}>
                         <TouchableOpacity
                             style={styles.cardHeaderBtn}
