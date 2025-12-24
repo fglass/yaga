@@ -1,8 +1,12 @@
 import React from "react";
-import { useCompletedWorkouts } from "../../model/database";
+import { useCompletedWorkouts, useDatabaseWriter } from "../../model/database";
 import { useAppleHealthWorkouts } from "../../model/health";
 import { AppleHealthWorkout, CompletedWorkout } from "../../model/types";
-import { dedupeWorkoutsByStart, parseWorkoutStart } from "../../utils/util";
+import {
+    dedupeWorkoutsByStart,
+    parseWorkoutStart,
+    withWarning,
+} from "../../utils/util";
 
 export type HistoryItem =
     | { type: "local"; workout: CompletedWorkout; startDate: Date }
@@ -11,7 +15,7 @@ export type HistoryItem =
 interface ViewModel {
     combinedHistory: HistoryItem[];
     isAppleHealthLoading: boolean;
-    onSelectLocalWorkout: (workout: CompletedWorkout) => void;
+    onDeleteLocalWorkout: (workout: CompletedWorkout) => void;
     formatWorkoutDate: (date: Date | null | undefined) => string;
 }
 
@@ -19,6 +23,7 @@ export const useHistoryViewModel = (): ViewModel => {
     const completedWorkouts = useCompletedWorkouts();
     const { workouts: appleHealthWorkouts, isLoading: isAppleHealthLoading } =
         useAppleHealthWorkouts();
+    const { deleteCompletedWorkout } = useDatabaseWriter();
 
     const combinedHistory = React.useMemo<HistoryItem[]>(() => {
         const items = [
@@ -54,11 +59,17 @@ export const useHistoryViewModel = (): ViewModel => {
         return dedupedItems.sort((a, b) => sortByDate(b) - sortByDate(a));
     }, [completedWorkouts, appleHealthWorkouts]);
 
-    const onSelectLocalWorkout = React.useCallback(
-        (_workout: CompletedWorkout) => {
-            console.error("TODO: implement readonly view");
+    const onDeleteLocalWorkout = React.useCallback(
+        (workout: CompletedWorkout) => {
+            withWarning(
+                () => {
+                    void deleteCompletedWorkout(workout.id);
+                },
+                "Delete Workout",
+                "Are you sure?"
+            );
         },
-        []
+        [deleteCompletedWorkout]
     );
 
     const formatWorkoutDate = React.useCallback(
@@ -85,7 +96,7 @@ export const useHistoryViewModel = (): ViewModel => {
     return {
         combinedHistory,
         isAppleHealthLoading,
-        onSelectLocalWorkout,
+        onDeleteLocalWorkout,
         formatWorkoutDate,
     };
 };

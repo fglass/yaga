@@ -1,11 +1,5 @@
 import React from "react";
-import {
-    Text,
-    StyleSheet,
-    FlatList,
-    View,
-    TouchableOpacity,
-} from "react-native";
+import { Text, StyleSheet, FlatList, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { CompletedWorkout, AppleHealthWorkout } from "../../model/types";
 import {
@@ -13,13 +7,14 @@ import {
     getWorkoutDurationSeconds,
     parseWorkoutStart,
 } from "../../utils/util";
+import Deletable from "../../components/Deletable";
 import { HistoryItem, useHistoryViewModel } from "./viewModel";
 
 const HistoryView = () => {
     const {
         combinedHistory,
         isAppleHealthLoading,
-        onSelectLocalWorkout,
+        onDeleteLocalWorkout,
         formatWorkoutDate,
     } = useHistoryViewModel();
 
@@ -43,21 +38,19 @@ const HistoryView = () => {
         );
 
         return (
-            <TouchableOpacity
-                onPress={() => {
-                    onSelectLocalWorkout(workout);
-                }}
-            >
-                <View key={workout.id} style={styles.workoutCard}>
-                    <Text style={styles.workoutTitle}>
-                        {workout.name}
-                        {isRun ? ` ${workout.distance!.toFixed(2)}K ` : ""}
-                    </Text>
-                    <Text style={styles.workoutMeta}>
-                        {workoutDate} · {formatTime(durationSeconds)}
-                    </Text>
-                </View>
-            </TouchableOpacity>
+            <View style={styles.swipeContainer}>
+                <Deletable onDelete={() => onDeleteLocalWorkout(workout)}>
+                    <View key={workout.id} style={styles.workoutCard}>
+                        <Text style={styles.workoutTitle}>
+                            {workout.name}
+                            {isRun ? ` ${workout.distance!.toFixed(2)}K ` : ""}
+                        </Text>
+                        <Text style={styles.workoutMeta}>
+                            {workoutDate} · {formatTime(durationSeconds)}
+                        </Text>
+                    </View>
+                </Deletable>
+            </View>
         );
     };
 
@@ -83,7 +76,12 @@ const HistoryView = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>History</Text>
+            <View style={styles.header}>
+                <View>
+                    <Text style={styles.title}>History</Text>
+                    <Text style={styles.subtitle}>Every workout counted</Text>
+                </View>
+            </View>
             {combinedHistory.length === 0 && isAppleHealthLoading ? (
                 <View style={styles.emptyCard}>
                     <Ionicons name="time-outline" color="white" size={32} />
@@ -122,17 +120,32 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingBottom: 24,
     },
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 18,
+    },
     title: {
         fontSize: 28,
         fontWeight: "700",
         color: "white",
-        marginBottom: 16,
+    },
+    subtitle: {
+        marginTop: 4,
+        color: "rgba(255, 255, 255, 0.7)",
+        marginBottom: 6,
     },
     listContent: {
         paddingBottom: 24,
     },
+    swipeContainer: {
+        borderRadius: 16,
+        overflow: "hidden",
+    },
     workoutCard: {
-        padding: 18,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
         borderRadius: 16,
         backgroundColor: "#353C42",
         borderWidth: 1,
@@ -144,7 +157,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     workoutMeta: {
-        color: "rgba(255, 255, 255, 0.7)",
+        color: "rgba(255, 255, 255, 0.65)",
         marginTop: 4,
         fontSize: 12,
     },
@@ -156,7 +169,7 @@ const styles = StyleSheet.create({
         marginRight: 4,
     },
     separator: {
-        height: 12,
+        height: 8,
     },
     emptyCard: {
         padding: 24,

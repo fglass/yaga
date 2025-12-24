@@ -197,6 +197,22 @@ export const completeWorkout = async (workout: CompletedWorkout) => {
     });
 };
 
+export const deleteCompletedWorkout = async (workoutId: string) => {
+    await ensureDatabase();
+
+    await runInTransaction(async (db) => {
+        await db.runAsync(
+            "DELETE FROM sets WHERE exercise_id IN (SELECT id FROM exercises WHERE workout_id = ?)",
+            workoutId
+        );
+        await db.runAsync("DELETE FROM exercises WHERE workout_id = ?", workoutId);
+        await db.runAsync(
+            "DELETE FROM workouts WHERE id = ? AND status = 'completed'",
+            workoutId
+        );
+    });
+};
+
 export const createExerciseDef = async (def: ExerciseDef): Promise<string> => {
     await ensureDatabase();
 

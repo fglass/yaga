@@ -84,6 +84,7 @@ eas update
 
 -   [x] Show completed
 -   [ ] View completed
+-   [x] Delete completed
 -   [x] Apple Health read
 -   [x] Dedupe
 
