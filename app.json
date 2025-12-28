@@ -12,6 +12,7 @@
             "backgroundColor": "#2A3135"
         },
         "assetBundlePatterns": ["**/*"],
+        "scheme": "yaga",
         "ios": {
             "supportsTablet": true,
             "bundleIdentifier": "com.expench.yaga",
