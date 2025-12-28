@@ -1,11 +1,11 @@
-import { Linking, Platform } from "react-native";
+import { Linking } from "react-native";
 import * as AuthSession from "expo-auth-session";
 import Constants from "expo-constants";
 import { CompletedWorkout } from "../types";
+import { StravaActivityPayload } from "./strava.types";
 import { generateGuid, getWorkoutDurationSeconds } from "../../utils/util";
 
 const STRAVA_AUTH_SCOPE = ["activity:write", "read"];
-const STRAVA_WEB_AUTH_URL = "https://www.strava.com/oauth/mobile/authorize";
 const STRAVA_APP_AUTH_URL = "strava://oauth/mobile/authorize";
 const STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token";
 const STRAVA_ACTIVITY_URL = "https://www.strava.com/api/v3/activities";
@@ -41,13 +41,15 @@ export const logStravaWorkout = async (
         workout.startTimestamp,
         workout.endTimestamp
     );
-    const payload: Record<string, unknown> = {
-        name: workout.name || "Run",
+    const distanceMeters = Math.max(0, workout.distance * 1000);
+    const payload: StravaActivityPayload = {
+        name: "Indoor Run",
         type: "Run",
-        start_date: new Date(workout.startTimestamp).toISOString(),
+        sport_type: "Run",
+        start_date_local: new Date(workout.startTimestamp).toISOString(),
         elapsed_time: Math.max(1, durationSeconds),
-        description: workout.notes || undefined,
-        distance: Math.max(0, workout.distance * 1000),
+        description: "Logged by YAGA 💨",
+        distance: distanceMeters,
     };
 
     try {
@@ -121,7 +123,9 @@ const authenticateStrava = async (
     const state = generateGuid();
     const redirectUri = AuthSession.makeRedirectUri({
         scheme: config.redirectScheme,
+        path: "com.expench.yaga/redirect",
     });
+
     const authParams = new URLSearchParams({
         client_id: config.clientId,
         redirect_uri: redirectUri,
@@ -132,12 +136,15 @@ const authenticateStrava = async (
     });
 
     const appAuthUrl = `${STRAVA_APP_AUTH_URL}?${authParams.toString()}`;
-    const webAuthUrl = `${STRAVA_WEB_AUTH_URL}?${authParams.toString()}`;
 
     const canOpenApp = await Linking.canOpenURL(appAuthUrl);
-    const redirectUrl = canOpenApp
-        ? await openStravaApp(appAuthUrl, config.redirectScheme)
-        : await openWebAuth(webAuthUrl, redirectUri);
+
+    if (!canOpenApp) {
+        alert("Strava is not installed");
+        return null;
+    }
+
+    const redirectUrl = await openStravaApp(appAuthUrl, config.redirectScheme);
 
     if (!redirectUrl) {
         return null;
@@ -161,22 +168,6 @@ const openStravaApp = async (
     return waitForRedirect(async () => {
         await Linking.openURL(authUrl);
     }, redirectScheme);
-};
-
-const openWebAuth = async (
-    authUrl: string,
-    redirectUri: string
-): Promise<string | null> => {
-    const result = await AuthSession.startAsync({
-        authUrl,
-        returnUrl: redirectUri,
-    });
-
-    if (result.type !== "success" || !result.url) {
-        return null;
-    }
-
-    return result.url;
 };
 
 const exchangeStravaCode = async (
@@ -284,7 +275,7 @@ const waitForRedirect = async (
                 subscription?.remove();
                 resolve(null);
             }
-        }, 120_000);
+        }, 60_000);
 
         const handler = ({ url }: { url: string }) => {
             if (!url || !url.startsWith(`${redirectScheme}://`)) {

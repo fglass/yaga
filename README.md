@@ -20,10 +20,11 @@ eas update
 -   [x] Apple Health export
 -   [x] Apple Health write toggle
 -   [ ] iCloud sync?
--   [ ] Strava write
--   [ ] Run spreadsheet migration
+-   [x] Strava write
+-   [ ] Spreadsheet migration
 -   [ ] Strong migration
 -   [ ] Preview release
+-   [ ] Update splash image
 
 ### Home View
 
@@ -46,8 +47,6 @@ eas update
 -   [x] Change set timer
 -   [x] Exercise reordering
 -   [x] Double tap "ditto"
--   [ ] View modes
-    -   Default, set intervals, progressive overload
 -   [ ] New template adding
 -   [x] Timer notification
 -   [ ] Timer noise
@@ -68,9 +67,10 @@ eas update
 -   [ ] Exercise variation?
 -   [x] Finish workout confirmation
 -   [ ] Bug: Calories move goal
--   [ ] Finish confetti
+-   [ ] Finish confetti/fireworks
 -   [ ] [Exercise list](https://exrx.net/Lists/Directory)
 -   [ ] Sticky exercise note
+-   [ ] Progress overload tracker
 
 ### Run View
 
@@ -93,6 +93,7 @@ eas update
 -   [x] Delete completed
 -   [x] Apple Health read
 -   [x] Dedupe
+-   [ ] Maybe: workout deletion bug
 
 ## Incubator
 
@@ -101,9 +102,6 @@ eas update
     -   Accordians
     -   [Example](https://dribbble.com/shots/25596307-Workout-Tracker-Gym-App)
     -   [Palette](https://dribbble.com/shots/21782757-Wi-Fi-Scan-Diagnostics-app)
--   Running
-    -   Treadmill runs
-    -   Runs/week, distance/wk
 -   [iOS design](https://developer.apple.com/design/resources/)
 
 ---
