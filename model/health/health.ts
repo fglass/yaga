@@ -22,7 +22,6 @@ export interface FetchAppleHealthWorkoutsOptions {
     limit?: number;
 }
 
-const APP_BUNDLE_IDENTIFIER = "com.expench.yaga";
 let initPromise: Promise<boolean> | null = null;
 let isHealthLoggingEnabled = true;
 

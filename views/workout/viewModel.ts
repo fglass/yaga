@@ -371,13 +371,19 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     }, []);
 
     const onRemoveExercise = useCallback((exerciseIdx: number) => {
-        withWarning(() => {
-            dispatch({
-                type: ActionType.RemoveExercise,
-                exerciseIdx,
-            });
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        });
+        withWarning(
+            () => {
+                dispatch({
+                    type: ActionType.RemoveExercise,
+                    exerciseIdx,
+                });
+                Haptics.notificationAsync(
+                    Haptics.NotificationFeedbackType.Success
+                );
+            },
+            "Remove Exercise",
+            "Are you sure?"
+        );
     }, []);
 
     const onMoveExercise = useCallback((exerciseIdx: number, delta: number) => {
