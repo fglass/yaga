@@ -1,8 +1,18 @@
 export type WorkoutType = "strength" | "run";
 
+export type ExerciseCategory =
+    | "Back"
+    | "Biceps"
+    | "Chest"
+    | "Core"
+    | "Legs"
+    | "Neck"
+    | "Shoulders"
+    | "Triceps";
+
 export interface ExerciseDef {
     name: string;
-    category: string;
+    category: ExerciseCategory;
 }
 
 export interface WorkoutTemplate {
