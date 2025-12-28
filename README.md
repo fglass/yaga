@@ -63,7 +63,7 @@ eas update
 -   [x] Exercise history
 -   [ ] Exercise history graph
 -   [x] Go to history on workout close
--   [ ] Exercise category dropdown
+-   [x] Exercise category dropdown
 -   [ ] Exercise variation?
 -   [x] Finish workout confirmation
 -   [ ] Bug: Calories move goal

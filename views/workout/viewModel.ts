@@ -1,6 +1,12 @@
 import { Alert } from "react-native";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
-import { Exercise, ExerciseDef, ModalType, Workout } from "../../model/types";
+import {
+    Exercise,
+    ExerciseCategory,
+    ExerciseDef,
+    ModalType,
+    Workout,
+} from "../../model/types";
 import { workoutProducer, ActionType } from "./reducer";
 import {
     saveActiveWorkout,
@@ -63,7 +69,7 @@ interface ViewModel {
     onAddExercise: (exerciseId: string) => Promise<void>;
     onRemoveExercise: (exerciseIdx: number) => void;
     onMoveExercise: (exerciseIdx: number, delta: number) => void;
-    onCreateExerciseDef: (name: string, category: string) => void;
+    onCreateExerciseDef: (name: string, category: ExerciseCategory) => void;
     onFinishWorkout: () => Promise<void>;
     onCancelWorkout: () => Promise<void>;
     onAdjustRestTimer: (deltaS: number) => void;
@@ -166,7 +172,10 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const isModalActive = (modalType: ModalType) =>
         (activeModal & modalType) === modalType;
 
-    const onCreateExerciseDef = async (name: string, category: string) => {
+    const onCreateExerciseDef = async (
+        name: string,
+        category: ExerciseCategory
+    ) => {
         const exerciseId = await createExerciseDef({ name, category });
         onAddExercise(exerciseId);
         setActiveModal(ModalType.None);

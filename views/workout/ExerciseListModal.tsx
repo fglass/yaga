@@ -9,6 +9,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useExerciseDefs } from "../../model/database";
 import ModalDialog from "../../components/ModalDialog";
+import type { ExerciseDef } from "../../model/types";
 
 interface Props {
     isVisible: boolean;
@@ -17,7 +18,8 @@ interface Props {
     onClose: () => void;
 }
 
-type ExerciseItem = [string, { name: string; category: string }];
+type ExerciseItem = [string, ExerciseDef];
+
 const MAX_VISIBLE_ITEMS = 5;
 const ITEM_HEIGHT = 44;
 const ITEM_SPACING = 10;
