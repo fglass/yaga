@@ -103,7 +103,3 @@ eas update
     -   [Example](https://dribbble.com/shots/25596307-Workout-Tracker-Gym-App)
     -   [Palette](https://dribbble.com/shots/21782757-Wi-Fi-Scan-Diagnostics-app)
 -   [iOS design](https://developer.apple.com/design/resources/)
-
----
-
-Add exercise category pills

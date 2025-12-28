@@ -2,6 +2,7 @@ import { EXERCISE_DEFS, WORKOUT_TEMPLATES } from "./database.data";
 import {
     CompletedWorkout,
     Exercise,
+    ExerciseCategory,
     ExerciseDef,
     Note,
     Set,
@@ -242,7 +243,7 @@ export const fetchExerciseDefs = async (): Promise<
     const rows = await db.getAllAsync<{
         id: string;
         name: string;
-        category: string;
+        category: ExerciseCategory;
     }>("SELECT id, name, category FROM exercise_defs ORDER BY name");
     return rows.reduce<Record<string, ExerciseDef>>((acc, row) => {
         acc[row.id] = { name: row.name, category: row.category };
