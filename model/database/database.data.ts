@@ -8,6 +8,7 @@ enum Exercise {
     CableCrossoverLow = "c3aedf66-8e0f-4498-89de-f69a038276d3",
     CableRow = "09fbfa85-d2a9-438f-9606-e59160e5108f",
     CalfPressOnSeatedLegPress = "3d4be6a2-118a-4db0-b840-dc8701f44da1",
+    CalfPressSeated = "646fb7f2-4f58-4017-9bd1-30d4eaf25c16",
     CalfRaiseSeated = "fb87dc04-da1c-4481-a3df-1776662c4a01",
     ChestPressIncline = "4bcbfd8a-c8e9-4c65-8297-7c8286376882",
     CrunchDecline = "a2c76e04-980b-42cb-8a90-ba56d764741c",
@@ -156,7 +157,7 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
     },
     /* Core */
     [Exercise.CrunchMachine]: {
-        name: "Crunch Machine",
+        name: "Machine Crunch",
         category: "Core",
     },
     [Exercise.CrunchDecline]: {
@@ -173,7 +174,7 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
         category: "Legs",
     },
     [Exercise.SquatHack]: {
-        name: "Squat Hack",
+        name: "Hack Squat",
         category: "Legs",
     },
     [Exercise.RomanianDeadlift]: {
@@ -194,6 +195,10 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
     },
     [Exercise.CalfPressOnSeatedLegPress]: {
         name: "Calf Press (Seated Leg Press)",
+        category: "Legs",
+    },
+    [Exercise.CalfPressSeated]: {
+        name: "Seated Calf Press",
         category: "Legs",
     },
     [Exercise.CalfRaiseSeated]: {
@@ -499,7 +504,7 @@ export const WORKOUT_TEMPLATES: WorkoutTemplate[] = [
             },
             {
                 id: generateGuid(),
-                exerciseId: Exercise.CalfRaiseSeated,
+                exerciseId: Exercise.CalfPressOnSeatedLegPress,
                 notes: [],
                 sets: [
                     {

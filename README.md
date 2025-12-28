@@ -14,13 +14,16 @@ eas update
 
 ### General
 
--   [ ] Sessions
+-   [ ] Sessions?
 -   [x] SQLite
 -   [x] SQLite relational model
 -   [x] Apple Health export
 -   [x] Apple Health write toggle
 -   [ ] iCloud sync?
 -   [ ] Strava write
+-   [ ] Run spreadsheet migration
+-   [ ] Strong migration
+-   [ ] Preview release
 
 ### Home View
 
@@ -66,11 +69,14 @@ eas update
 -   [x] Finish workout confirmation
 -   [ ] Bug: Calories move goal
 -   [ ] Finish confetti
+-   [ ] [Exercise list](https://exrx.net/Lists/Directory)
+-   [ ] Sticky exercise note
 
 ### Run View
 
 -   [x] Init
 -   [ ] Fix pace changing
+-   [ ] Pause run
 -   [ ] Heart rate
 
 ### Plan View
@@ -99,3 +105,8 @@ eas update
     -   Treadmill runs
     -   Runs/week, distance/wk
 -   [iOS design](https://developer.apple.com/design/resources/)
+
+---
+
+Add exercise category pills
+Add exercise blank defaults

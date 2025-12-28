@@ -4,6 +4,7 @@ import { CompletedWorkout, Workout } from "../../model/types";
 import { saveActiveWorkout, useDatabaseWriter } from "../../model/database";
 import { generateGuid, withWarning } from "../../utils/util";
 import { logAppleHealthWorkout } from "../../model/health";
+import { logStravaWorkout } from "../../model/strava";
 
 interface Props {
     initialRun: Workout;
@@ -140,12 +141,16 @@ export const useRunViewModel = (props: Props): ViewModel => {
 
                 await completeWorkout(completedRun);
 
-                await logAppleHealthWorkout({
-                    startDate: new Date(startTimestamp),
-                    endDate: endDate,
-                    calories: 0, // Rely on Apple Health to track
-                    workoutType: "run",
-                });
+                const isStravaExported = await logStravaWorkout(completedRun);
+
+                if (!isStravaExported) {
+                    await logAppleHealthWorkout({
+                        startDate: new Date(startTimestamp),
+                        endDate: endDate,
+                        calories: 0, // Rely on Apple Health to track
+                        workoutType: "run",
+                    });
+                }
 
                 await onFinish();
                 Haptics.notificationAsync(
@@ -161,6 +166,8 @@ export const useRunViewModel = (props: Props): ViewModel => {
         distanceKm,
         durationSeconds,
         speedKmh,
+        startTimestamp,
+        logStravaWorkout,
         onFinish,
         run,
     ]);
