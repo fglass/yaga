@@ -10,6 +10,10 @@ import {
     getHealthLoggingEnabled,
     setHealthLoggingEnabled,
 } from "../../model/health";
+import {
+    getStravaLoggingEnabled,
+    setStravaLoggingEnabled,
+} from "../../model/strava";
 
 export const usePlanViewModel = () => {
     const templates = useWorkoutTemplates();
@@ -19,6 +23,9 @@ export const usePlanViewModel = () => {
     const [newWorkoutName, setNewWorkoutName] = useState("");
     const [isHealthLoggingEnabled, setHealthLoggingEnabledState] = useState(
         getHealthLoggingEnabled()
+    );
+    const [isStravaLoggingEnabled, setStravaLoggingEnabledState] = useState(
+        getStravaLoggingEnabled()
     );
 
     const selectTemplate = async (workout: WorkoutTemplate) => {
@@ -92,6 +99,13 @@ export const usePlanViewModel = () => {
         alert(`Apple Health logging ${next ? "enabled" : "disabled"}`);
     };
 
+    const toggleStravaLogging = () => {
+        const next = !isStravaLoggingEnabled;
+        setStravaLoggingEnabledState(next);
+        setStravaLoggingEnabled(next);
+        alert(`Strava logging ${next ? "enabled" : "disabled"}`);
+    };
+
     return {
         templates,
         selectTemplate,
@@ -103,7 +117,9 @@ export const usePlanViewModel = () => {
         openCreateModal,
         closeCreateModal,
         isHealthLoggingEnabled,
+        isStravaLoggingEnabled,
         toggleHealthLogging,
+        toggleStravaLogging,
         startRun,
     };
 };
