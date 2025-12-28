@@ -107,4 +107,3 @@ eas update
 ---
 
 Add exercise category pills
-Add exercise blank defaults

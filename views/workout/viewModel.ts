@@ -353,19 +353,23 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     };
 
     const onAddExercise = useCallback(async (exerciseId: string) => {
-        const exercise = await prefillExerciseFromHistory(exerciseId, {
+        const newExercise = {
             id: generateGuid(),
             exerciseId,
             notes: [],
             sets: [
                 {
                     id: generateGuid(),
-                    weight: "0",
-                    reps: "1",
+                    weight: "",
+                    reps: "",
                     finishTime: undefined,
                 },
             ],
-        });
+        };
+        const exercise = await prefillExerciseFromHistory(
+            exerciseId,
+            newExercise
+        );
         dispatch({ type: ActionType.AddExercise, exerciseId, exercise });
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }, []);

@@ -126,8 +126,8 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
 
 const createNewSet = (): Set => ({
     id: generateGuid(),
-    weight: "0",
-    reps: "1",
+    weight: "",
+    reps: "",
     finishTime: undefined,
 });
 
