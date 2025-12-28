@@ -139,8 +139,6 @@ export const useRunViewModel = (props: Props): ViewModel => {
                     distance: distanceKm,
                 };
 
-                await completeWorkout(completedRun);
-
                 const isStravaExported = await logStravaWorkout(completedRun);
 
                 if (!isStravaExported) {
@@ -152,7 +150,9 @@ export const useRunViewModel = (props: Props): ViewModel => {
                     });
                 }
 
+                await completeWorkout(completedRun);
                 await onFinish();
+
                 Haptics.notificationAsync(
                     Haptics.NotificationFeedbackType.Success
                 );

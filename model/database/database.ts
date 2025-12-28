@@ -205,7 +205,10 @@ export const deleteCompletedWorkout = async (workoutId: string) => {
             "DELETE FROM sets WHERE exercise_id IN (SELECT id FROM exercises WHERE workout_id = ?)",
             workoutId
         );
-        await db.runAsync("DELETE FROM exercises WHERE workout_id = ?", workoutId);
+        await db.runAsync(
+            "DELETE FROM exercises WHERE workout_id = ?",
+            workoutId
+        );
         await db.runAsync(
             "DELETE FROM workouts WHERE id = ? AND status = 'completed'",
             workoutId
