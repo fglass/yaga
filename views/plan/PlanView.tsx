@@ -69,20 +69,25 @@ const PlanView = () => {
                 options: [
                     "Cancel",
                     vm.isHealthLoggingEnabled
-                        ? "Disable ❤️ Logging"
-                        : "Enable ❤️ Logging",
+                        ? "Disable Health Logging"
+                        : "Enable Health Logging",
+                    vm.isStravaLoggingEnabled
+                        ? "Disable Strava Logging"
+                        : "Enable Strava Logging",
                     "Export Database",
                     "Reset Database",
                 ],
                 cancelButtonIndex: 0,
-                destructiveButtonIndex: 3,
+                destructiveButtonIndex: 4,
             },
             (btnIdx) => {
                 if (btnIdx === 1) {
                     vm.toggleHealthLogging();
                 } else if (btnIdx === 2) {
-                    exportDatabase();
+                    vm.toggleStravaLogging();
                 } else if (btnIdx === 3) {
+                    exportDatabase();
+                } else if (btnIdx === 4) {
                     resetDatabase();
                 }
             }
