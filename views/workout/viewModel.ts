@@ -53,6 +53,12 @@ interface ViewModel {
         weight: string
     ) => void;
     onChangeRep: (exerciseIdx: number, setIdx: number, reps: string) => void;
+    onAdjustWeight: (
+        exerciseIdx: number,
+        setIdx: number,
+        delta: number
+    ) => void;
+    onAdjustReps: (exerciseIdx: number, setIdx: number, delta: number) => void;
     onDecrementRep: (exerciseIdx: number, setIdx: number) => void;
     onFinishSet: (
         exerciseIdx: number,
@@ -266,6 +272,59 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         []
     );
 
+    const onAdjustWeight = useCallback(
+        (exerciseIdx: number, setIdx: number, delta: number) => {
+            const set = workout.exercises[exerciseIdx]?.sets[setIdx];
+            if (!set) {
+                return;
+            }
+
+            const currentWeight = parseFloat(set.weight);
+            const baseWeight = isNaN(currentWeight) ? 0 : currentWeight;
+            const nextWeight = Math.max(0, baseWeight + delta);
+
+            if (nextWeight === baseWeight) {
+                return;
+            }
+
+            const formattedWeight = Number(nextWeight.toFixed(2)).toString();
+            dispatch({
+                type: ActionType.ChangeWeight,
+                exerciseIdx,
+                setIdx,
+                weight: formattedWeight,
+            });
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        },
+        [workout.exercises]
+    );
+
+    const onAdjustReps = useCallback(
+        (exerciseIdx: number, setIdx: number, delta: number) => {
+            const set = workout.exercises[exerciseIdx]?.sets[setIdx];
+            if (!set) {
+                return;
+            }
+
+            const currentReps = Number(set.reps);
+            const baseReps = isNaN(currentReps) ? 0 : currentReps;
+            const nextReps = Math.max(0, baseReps + delta);
+
+            if (nextReps === baseReps) {
+                return;
+            }
+
+            dispatch({
+                type: ActionType.ChangeReps,
+                exerciseIdx,
+                setIdx,
+                reps: `${nextReps}`,
+            });
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        },
+        [workout.exercises]
+    );
+
     const onDecrementRep = useCallback(
         (exerciseIdx: number, setIdx: number) => {
             dispatch({
@@ -471,6 +530,8 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onChangeExerciseNotes,
         onChangeWeight,
         onChangeRep,
+        onAdjustWeight,
+        onAdjustReps,
         onDecrementRep,
         onFinishSet,
         onRemoveSet,
