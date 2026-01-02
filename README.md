@@ -115,6 +115,4 @@ Pec fly x3
 Times = UTC or local?
 Check timer accuracy (run esp)
 
-Run view text
 Fix Strava export
-V center note text
