@@ -20,8 +20,6 @@ eas update
 -   [x] Apple Health export
 -   [x] Apple Health write toggle
 -   [ ] iCloud sync?
--   [x] Strava write
--   [ ] Strava auth cache
 -   [ ] Spreadsheet migration
 -   [ ] Strong migration
 -   [ ] Preview release
@@ -79,7 +77,10 @@ eas update
 -   [x] Init
 -   [ ] Fix pace changing
 -   [ ] Pause run
+-   [ ] Pause run on finish
 -   [ ] Heart rate
+-   [x] Strava write
+-   [ ] Strava auth cache
 
 ### Plan View
 
@@ -111,8 +112,5 @@ eas update
 Cable curl x2
 Pec fly x3
 
-Pause run on finish (before export)
 Times = UTC or local?
 Check timer accuracy (run esp)
-Close keyboard on category dropdown
-No Apple Health write if Strava

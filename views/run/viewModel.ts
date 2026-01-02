@@ -141,6 +141,9 @@ export const useRunViewModel = (props: Props): ViewModel => {
 
                 const isStravaExported = await logStravaWorkout(completedRun);
 
+                await completeWorkout(completedRun);
+                await onFinish();
+
                 if (!isStravaExported) {
                     await logAppleHealthWorkout({
                         startDate: new Date(startTimestamp),
@@ -149,9 +152,6 @@ export const useRunViewModel = (props: Props): ViewModel => {
                         workoutType: "run",
                     });
                 }
-
-                await completeWorkout(completedRun);
-                await onFinish();
 
                 Haptics.notificationAsync(
                     Haptics.NotificationFeedbackType.Success
