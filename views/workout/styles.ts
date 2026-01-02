@@ -102,7 +102,7 @@ export const styles = StyleSheet.create({
         color: "white",
         borderRadius: 6,
         fontSize: 13,
-        lineHeight: 18,
+        lineHeight: 16,
         textAlignVertical: "center",
     },
     thead: {
