@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     },
     inlineStatValue: {
         color: "white",
-        fontSize: 18,
+        fontSize: 30,
         fontWeight: "600",
         letterSpacing: 0.3,
         fontVariant: ["tabular-nums"],
