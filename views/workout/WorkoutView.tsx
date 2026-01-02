@@ -123,7 +123,7 @@ const WorkoutView = (props: Props) => {
             <View key={exercise.id} style={[styles.card, styles.exerciseCard]}>
                 <View style={styles.cardHeader}>
                     <TouchableOpacity
-                        activeOpacity={0.7}
+                        activeOpacity={0.3}
                         style={styles.cardHeaderTitle}
                         onPress={() =>
                             vm.onShowExerciseHistory(exercise.exerciseId)
@@ -305,11 +305,7 @@ const WorkoutView = (props: Props) => {
                             value={set.weight}
                             step={0.5}
                             onAdjust={(delta) =>
-                                vm.onAdjustWeight(
-                                    exerciseIdx,
-                                    setIdx,
-                                    delta
-                                )
+                                vm.onAdjustWeight(exerciseIdx, setIdx, delta)
                             }
                             onChangeText={(text: string) =>
                                 vm.onChangeWeight(exerciseIdx, setIdx, text)
