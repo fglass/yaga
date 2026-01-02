@@ -58,8 +58,8 @@ export const styles = StyleSheet.create({
         marginBottom: 10,
     },
     cardHeaderTitle: {
-        flex: 1,
-        minWidth: 0,
+        flexGrow: 0,
+        flexShrink: 1,
         paddingRight: 8,
     },
     cardHeaderRight: {
