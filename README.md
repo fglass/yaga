@@ -111,7 +111,6 @@ eas update
 Cable curl x2
 Pec fly x3
 
-Set transparent overlay on delete
 Pause run on finish (before export)
 Times = UTC or local?
 Check timer accuracy (run esp)

@@ -173,10 +173,10 @@ export const styles = StyleSheet.create({
         flex: 0.35,
     },
     finished: {
-        backgroundColor: "rgba(101, 202, 121, 0.2)",
+        backgroundColor: "#3D584D",
     },
     tdFinished: {
-        backgroundColor: "rgba(101, 202, 121, 0.25)",
+        backgroundColor: "#487558",
     },
     emptyCard: {
         alignItems: "center",
