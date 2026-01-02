@@ -1,3 +1,9 @@
+export interface StravaConfig {
+    clientId: string;
+    clientSecret: string;
+    redirectScheme: string;
+}
+
 export interface StravaActivityPayload {
     name: string;
     type?: string;
@@ -8,4 +14,10 @@ export interface StravaActivityPayload {
     distance?: number; // In meters
     trainer?: number;
     commute?: number;
+}
+
+export interface StravaToken {
+    accessToken: string;
+    refreshToken?: string;
+    expiresAt?: number;
 }

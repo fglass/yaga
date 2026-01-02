@@ -80,7 +80,7 @@ eas update
 -   [x] Pause run on finish
 -   [ ] Heart rate
 -   [x] Strava write
--   [ ] Strava auth cache
+-   [x] Strava auth cache
 
 ### Plan View
 
@@ -109,10 +109,5 @@ eas update
 
 ---
 
-Cable curl x2
-Pec fly x3
-
 Times = UTC or local?
 Check timer accuracy (run esp)
-
-Fix Strava export
