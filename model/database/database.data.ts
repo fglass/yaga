@@ -13,6 +13,7 @@ enum Exercise {
     ChestPressIncline = "4bcbfd8a-c8e9-4c65-8297-7c8286376882",
     CrunchDecline = "a2c76e04-980b-42cb-8a90-ba56d764741c",
     CrunchMachine = "a5ad3d7d-21b1-4de7-a5ed-5ed8a531ac53",
+    CurlCable = "ca8fdeee-95c5-405d-9580-bd954a4acffa",
     CurlCableReverse = "1ce1fc5b-d87f-4ad6-b73e-226ec014db97",
     CurlCableSingle = "a0e427a2-6862-4e42-81f0-9b000b46bdc9",
     CurlHammer = "e494222e-88a2-41e8-bd6b-e0c84ee38c74",
@@ -36,6 +37,8 @@ enum Exercise {
     OverheadPress = "bae49855-0c29-4834-bd65-4b1a081bd87c",
     PecDeck = "16315684-69a0-4637-ac2e-93a753bc1cc8",
     PecFly = "f11b6a1a-0bd4-4e22-83a2-22a79a8f17a7",
+    PecFlyDumbbell = "0f108505-8254-4cc7-983e-9eb41d14bf54",
+    PecFlyDumbbellIncline = "e69dfbc3-1208-4ae1-82be-6d7357303850",
     PullDownRope = "84ca598b-cd0b-43d8-8687-89d9b8537afb",
     PullUp = "0acf0b5e-b0c7-4f2e-ac94-f20c2bbe3bc9",
     PushdownMachine = "c281afae-0abe-4af0-a624-838097887089",
@@ -106,6 +109,10 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
         name: "Single Cable Curl",
         category: "Biceps",
     },
+    [Exercise.CurlCable]: {
+        name: "Cable Curl",
+        category: "Biceps",
+    },
     [Exercise.CurlCableReverse]: {
         name: "Reverse Cable Curl",
         category: "Biceps",
@@ -153,6 +160,14 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
     },
     [Exercise.PecFly]: {
         name: "Pec Fly",
+        category: "Chest",
+    },
+    [Exercise.PecFlyDumbbell]: {
+        name: "Dumbbell Pec Fly",
+        category: "Chest",
+    },
+    [Exercise.PecFlyDumbbellIncline]: {
+        name: "Dumbbell Pec Fly (Incline)",
         category: "Chest",
     },
     /* Core */

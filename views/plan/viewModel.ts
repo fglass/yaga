@@ -1,8 +1,5 @@
 import { useState } from "react";
-import {
-    useWorkoutTemplates,
-    useDatabaseWriter,
-} from "../../model/database";
+import { useWorkoutTemplates, useDatabaseWriter } from "../../model/database";
 import { Workout, WorkoutTemplate } from "../../model/types";
 import { generateGuid } from "../../utils/util";
 import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
@@ -13,6 +10,7 @@ import {
 import {
     getStravaLoggingEnabled,
     setStravaLoggingEnabled,
+    getAccessToken,
 } from "../../model/strava";
 
 export const usePlanViewModel = () => {
@@ -106,6 +104,11 @@ export const usePlanViewModel = () => {
         alert(`Strava logging ${next ? "enabled" : "disabled"}`);
     };
 
+    const authStrava = async () => {
+        const token = await getAccessToken();
+        alert(token ? "Strava auth successful" : "Strava auth failed");
+    };
+
     return {
         templates,
         selectTemplate,
@@ -120,6 +123,7 @@ export const usePlanViewModel = () => {
         isStravaLoggingEnabled,
         toggleHealthLogging,
         toggleStravaLogging,
+        authStrava,
         startRun,
     };
 };

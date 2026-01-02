@@ -2,22 +2,30 @@ import { Linking } from "react-native";
 import * as AuthSession from "expo-auth-session";
 import Constants from "expo-constants";
 import { CompletedWorkout } from "../types";
-import { StravaActivityPayload } from "./strava.types";
+import {
+    StravaActivityPayload,
+    StravaConfig,
+    StravaToken,
+} from "./strava.types";
 import { generateGuid, getWorkoutDurationSeconds } from "../../utils/util";
+import {
+    clearStravaToken,
+    loadStravaToken,
+    saveStravaToken,
+} from "./stravaAuthStorage";
 
 const STRAVA_AUTH_SCOPE = ["activity:write", "read"];
 const STRAVA_APP_AUTH_URL = "strava://oauth/mobile/authorize";
 const STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token";
 const STRAVA_ACTIVITY_URL = "https://www.strava.com/api/v3/activities";
 
-interface StravaToken {
-    accessToken: string;
-    refreshToken?: string;
-    expiresAt?: number;
-}
-
 let isStravaLoggingEnabled = true;
-let cachedToken: StravaToken | null = null;
+
+export const getStravaLoggingEnabled = () => isStravaLoggingEnabled;
+
+export const setStravaLoggingEnabled = (enabled: boolean) => {
+    isStravaLoggingEnabled = enabled;
+};
 
 export const logStravaWorkout = async (
     workout: CompletedWorkout
@@ -75,45 +83,49 @@ export const logStravaWorkout = async (
     }
 };
 
-export const getStravaLoggingEnabled = () => isStravaLoggingEnabled;
-
-export const setStravaLoggingEnabled = (enabled: boolean) => {
-    isStravaLoggingEnabled = enabled;
-};
-
-const getAccessToken = async (): Promise<string | null> => {
+export const getAccessToken = async (): Promise<string | null> => {
     const config = getStravaConfig();
     if (!config.clientId || !config.clientSecret || !config.redirectScheme) {
         console.warn("Strava config missing; skipping upload");
         return null;
     }
 
-    if (isTokenValid(cachedToken)) {
-        return cachedToken?.accessToken ?? null;
+    const storedToken = await loadStravaToken();
+    if (isTokenValid(storedToken)) {
+        console.log("Using stored Strava token...");
+        return storedToken?.accessToken ?? null;
     }
 
-    if (cachedToken?.refreshToken) {
+    if (storedToken?.refreshToken) {
+        console.log("Refreshing Strava token...");
         const refreshed = await refreshStravaToken(
             config,
-            cachedToken.refreshToken
+            storedToken.refreshToken
         );
+
         if (refreshed) {
-            cachedToken = refreshed;
+            await saveStravaToken(refreshed);
             return refreshed.accessToken;
         }
+
+        await clearStravaToken();
     }
 
+    console.log("Fetching Strava authorisation code...");
     const authResult = await authenticateStrava(config);
     if (!authResult) {
         return null;
     }
 
+    console.log("Exchanging Strava authorisation code...");
     const exchanged = await exchangeStravaCode(config, authResult.code);
     if (!exchanged) {
         return null;
     }
 
-    cachedToken = exchanged;
+    console.log("Saving Strava token...");
+    await saveStravaToken(exchanged);
+
     return exchanged.accessToken;
 };
 
@@ -245,12 +257,6 @@ const isTokenValid = (token: StravaToken | null): boolean => {
 
     return token.expiresAt * 1000 - Date.now() > 60_000;
 };
-
-interface StravaConfig {
-    clientId: string;
-    clientSecret: string;
-    redirectScheme: string;
-}
 
 const getStravaConfig = (): StravaConfig => {
     const extra = Constants.expoConfig?.extra ?? {};
