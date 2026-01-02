@@ -122,6 +122,7 @@ export const styles = StyleSheet.create({
     setSwipeContainer: {
         borderRadius: 10,
         marginBottom: 6,
+        overflow: "hidden",
     },
     tr: {
         flexDirection: "row",
