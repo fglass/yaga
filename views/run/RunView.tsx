@@ -85,14 +85,18 @@ const RunView = (props: Props) => {
                 <TouchableOpacity
                     style={[
                         styles.startButton,
-                        vm.hasStarted && styles.startButtonRunning,
-                        !vm.canStart && styles.startButtonDisabled,
+                        vm.isRunning && styles.startButtonRunning,
+                        !vm.canToggleRun && styles.startButtonDisabled,
                     ]}
-                    onPress={vm.onStartRun}
-                    disabled={!vm.canStart}
+                    onPress={vm.onToggleRun}
+                    disabled={!vm.canToggleRun}
                     activeOpacity={1}
                 >
-                    <Ionicons name="play" size={26} color="white" />
+                    <Ionicons
+                        name={vm.isRunning ? "pause" : "play"}
+                        size={26}
+                        color="white"
+                    />
                 </TouchableOpacity>
 
                 <View style={styles.footerButtons}>

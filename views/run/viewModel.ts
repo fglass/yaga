@@ -18,13 +18,26 @@ interface ViewModel {
     durationSeconds: number;
     canFinish: boolean;
     hasStarted: boolean;
+    isRunning: boolean;
+    isPaused: boolean;
     distanceKm: number;
     pacePerKm: string;
-    canStart: boolean;
+    canToggleRun: boolean;
     onAdjustSpeed: (delta: number) => void;
-    onStartRun: () => void;
+    onToggleRun: () => void;
     onFinishRun: () => Promise<void>;
     onCancelRun: () => Promise<void>;
+}
+
+interface RunTimer {
+    elapsedSeconds: number;
+    hasStarted: boolean;
+    isPaused: boolean;
+    isRunning: boolean;
+    start: (startTime?: number) => void;
+    pause: () => void;
+    resume: () => void;
+    getElapsedSeconds: () => number;
 }
 
 const DEFAULT_SPEED_KMH = 11;
@@ -36,7 +49,7 @@ export const useRunViewModel = (props: Props): ViewModel => {
     const [run] = useState<Workout>({
         ...props.initialRun,
         type: "run",
-        exercises: props.initialRun.exercises ?? [],
+        exercises: props.initialRun.exercises,
         notes: props.initialRun.notes ?? "",
         distance: initialDistanceKm,
     });
@@ -45,28 +58,21 @@ export const useRunViewModel = (props: Props): ViewModel => {
     const [speedInput, setSpeedInput] = useState(
         formatSpeed(DEFAULT_SPEED_KMH)
     );
-    const [durationSeconds, setDurationSeconds] = useState(0);
-
-    const [hasStarted, setHasStarted] = useState(false);
-    const startTimeRef = useRef<number | null>(null);
+    const {
+        elapsedSeconds,
+        hasStarted,
+        isPaused,
+        isRunning,
+        start: startTimer,
+        pause: pauseTimer,
+        resume: resumeTimer,
+        getElapsedSeconds,
+    } = useRunTimer();
     const [startTimestamp, setStartTimestamp] = useState<number>(
         props.initialRun.startTimestamp
     );
 
     const { completeWorkout } = useDatabaseWriter();
-
-    useEffect(() => {
-        const timerId = setInterval(() => {
-            if (!hasStarted || startTimeRef.current == null) {
-                return;
-            }
-            setDurationSeconds(
-                Math.round((Date.now() - startTimeRef.current) / 1000)
-            );
-        }, 250);
-
-        return () => clearInterval(timerId);
-    }, [hasStarted]);
 
     const setSpeedValue = useCallback((value: number | undefined) => {
         if (value == null || isNaN(value) || value <= 0) {
@@ -90,26 +96,49 @@ export const useRunViewModel = (props: Props): ViewModel => {
         [setSpeedValue, speedKmh]
     );
 
-    const canStart = !hasStarted && speedKmh != null && speedKmh > 0;
-    const canFinish = hasStarted && speedKmh != null && speedKmh > 0;
+    const hasValidSpeed = speedKmh != null && speedKmh > 0;
+    const canFinish = hasStarted && hasValidSpeed;
+    const canToggleRun = hasStarted || hasValidSpeed;
 
-    const onStartRun = useCallback(() => {
-        if (speedKmh == null || speedKmh <= 0) {
+    const startRun = useCallback(() => {
+        if (!hasValidSpeed) {
+            return;
+        }
+        const startTime = Date.now();
+        startTimer(startTime);
+
+        if (startTimestamp == null) {
+            setStartTimestamp(startTime);
+        }
+    }, [hasValidSpeed, startTimestamp, startTimer]);
+
+    const resumeRun = useCallback(() => {
+        if (!hasValidSpeed) {
+            return;
+        }
+        resumeTimer();
+    }, [hasValidSpeed, resumeTimer]);
+
+    const onToggleRun = useCallback(() => {
+        if (!hasStarted) {
+            startRun();
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             return;
         }
 
-        const startTime = Date.now();
-        startTimeRef.current = startTime;
-        setStartTimestamp(startTime);
-        setHasStarted(true);
-        setDurationSeconds(0);
+        if (isRunning) {
+            pauseTimer();
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            return;
+        }
 
+        resumeRun();
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }, [speedKmh]);
+    }, [hasStarted, isRunning, pauseTimer, resumeRun, startRun]);
 
     const incrementalDistanceKm =
         hasStarted && speedKmh != null && speedKmh > 0
-            ? (speedKmh * durationSeconds) / 3600
+            ? (speedKmh * elapsedSeconds) / 3600
             : 0;
     const distanceKm = initialDistanceKm + incrementalDistanceKm;
     const pacePerKm =
@@ -130,13 +159,21 @@ export const useRunViewModel = (props: Props): ViewModel => {
 
         withWarning(
             async () => {
+                pauseTimer();
+
+                const totalDurationSeconds = getElapsedSeconds();
+                const finalDistanceKm = hasValidSpeed
+                    ? initialDistanceKm +
+                      (speedKmh * totalDurationSeconds) / 3600
+                    : distanceKm;
+
                 const endDate = new Date();
                 const completedRun: CompletedWorkout = {
                     ...run,
                     id: generateGuid(),
                     startTimestamp: startTimestamp,
                     endTimestamp: endDate.getTime(),
-                    distance: distanceKm,
+                    distance: finalDistanceKm,
                 };
 
                 const isStravaExported = await logStravaWorkout(completedRun);
@@ -164,12 +201,16 @@ export const useRunViewModel = (props: Props): ViewModel => {
         canFinish,
         completeWorkout,
         distanceKm,
-        durationSeconds,
-        speedKmh,
-        startTimestamp,
+        hasValidSpeed,
+        initialDistanceKm,
         logStravaWorkout,
+        logAppleHealthWorkout,
         onFinish,
         run,
+        speedKmh,
+        startTimestamp,
+        getElapsedSeconds,
+        pauseTimer,
     ]);
 
     const onCancelRun = useCallback(async () => {
@@ -186,16 +227,89 @@ export const useRunViewModel = (props: Props): ViewModel => {
     return {
         runName: run.name || "Run",
         speedInput,
-        durationSeconds,
+        durationSeconds: elapsedSeconds,
         canFinish,
-        canStart,
+        canToggleRun,
         hasStarted,
+        isRunning,
+        isPaused,
         distanceKm,
         pacePerKm,
         onAdjustSpeed,
-        onStartRun,
+        onToggleRun,
         onFinishRun,
         onCancelRun,
+    };
+};
+
+const useRunTimer = (): RunTimer => {
+    const elapsedSecondsRef = useRef(0);
+    const startTimeRef = useRef<number | null>(null);
+    const [elapsedSeconds, setElapsedSeconds] = useState(0);
+    const [hasStarted, setHasStarted] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
+
+    const getElapsedSeconds = useCallback(() => {
+        if (startTimeRef.current == null) {
+            return Math.round(elapsedSecondsRef.current);
+        }
+
+        return Math.round(
+            elapsedSecondsRef.current +
+                (Date.now() - startTimeRef.current) / 1000
+        );
+    }, []);
+
+    useEffect(() => {
+        const timerId = setInterval(() => {
+            if (!hasStarted || startTimeRef.current == null) {
+                return;
+            }
+            setElapsedSeconds(getElapsedSeconds());
+        }, 250);
+
+        return () => clearInterval(timerId);
+    }, [getElapsedSeconds, hasStarted]);
+
+    const start = useCallback((startTime?: number) => {
+        startTimeRef.current = startTime ?? Date.now();
+        setHasStarted(true);
+        setIsPaused(false);
+    }, []);
+
+    const pause = useCallback(() => {
+        if (!hasStarted) {
+            return;
+        }
+
+        if (startTimeRef.current != null) {
+            const elapsedSeconds =
+                elapsedSecondsRef.current +
+                (Date.now() - startTimeRef.current) / 1000;
+            elapsedSecondsRef.current = elapsedSeconds;
+            setElapsedSeconds(Math.round(elapsedSeconds));
+            startTimeRef.current = null;
+        }
+
+        setIsPaused(true);
+    }, [hasStarted]);
+
+    const resume = useCallback(() => {
+        startTimeRef.current = Date.now();
+        setIsPaused(false);
+    }, []);
+
+    const isRunning = hasStarted && !isPaused && startTimeRef.current != null;
+
+    return {
+        elapsedSeconds,
+        hasStarted,
+        isPaused,
+        isRunning,
+        start,
+        pause,
+        resume,
+        getElapsedSeconds,
     };
 };
 

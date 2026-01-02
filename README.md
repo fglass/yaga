@@ -76,8 +76,8 @@ eas update
 
 -   [x] Init
 -   [ ] Fix pace changing
--   [ ] Pause run
--   [ ] Pause run on finish
+-   [x] Pause run
+-   [x] Pause run on finish
 -   [ ] Heart rate
 -   [x] Strava write
 -   [ ] Strava auth cache
@@ -114,3 +114,7 @@ Pec fly x3
 
 Times = UTC or local?
 Check timer accuracy (run esp)
+
+Run view text
+Fix Strava export
+V center note text

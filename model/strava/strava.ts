@@ -48,7 +48,7 @@ export const logStravaWorkout = async (
         sport_type: "Run",
         start_date_local: new Date(workout.startTimestamp).toISOString(),
         elapsed_time: Math.max(1, durationSeconds),
-        description: "Logged by YAGA 💨",
+        description: "Logged by Yaga 💨",
         distance: distanceMeters,
     };
 
