@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ExerciseListModal from "./ExerciseListModal";
 import NewExerciseModal from "./NewExerciseModal";
 import ExerciseHistoryModal from "./ExerciseHistoryModal";
+import AdjustableNumberInput from "./AdjustableNumberInput";
 import Button from "../../components/Button";
 import CountdownTimer from "../../components/CountdownTimer";
 import Deletable from "../../components/Deletable";
@@ -262,20 +263,6 @@ const WorkoutView = (props: Props) => {
         const isFinished = set.finishTime !== undefined;
         // TODO: render below
         const duration = vm.calculateSetDuration(setIdx, exerciseIdx);
-        const decrementTap = Gesture.Tap()
-            .numberOfTaps(2)
-            .maxDelay(300)
-            .maxDistance(20)
-            .runOnJS(true)
-            .onEnd((_, success) => {
-                if (success) {
-                    vm.onDecrementRep(exerciseIdx, setIdx);
-                }
-            });
-        const decrementRepsGesture = Gesture.Exclusive(
-            decrementTap,
-            Gesture.Native()
-        );
         return (
             <View style={styles.setSwipeContainer} key={set.id}>
                 <Deletable onDelete={() => vm.onRemoveSet(exerciseIdx, setIdx)}>
@@ -314,31 +301,38 @@ const WorkoutView = (props: Props) => {
                                 {setIdx + 1}
                             </TextInput>
                         )}
-                        <TextInput
-                            style={[styles.td, isFinished && styles.tdFinished]}
+                        <AdjustableNumberInput
                             value={set.weight}
+                            step={0.5}
+                            onAdjust={(delta) =>
+                                vm.onAdjustWeight(
+                                    exerciseIdx,
+                                    setIdx,
+                                    delta
+                                )
+                            }
                             onChangeText={(text: string) =>
                                 vm.onChangeWeight(exerciseIdx, setIdx, text)
                             }
                             onFocus={() => handleSetInputFocus(exerciseIdx)}
                             onBlur={handleSetInputBlur}
                             inputMode="decimal"
+                            isFinished={isFinished}
                         />
-                        <GestureDetector gesture={decrementRepsGesture}>
-                            <TextInput
-                                style={[
-                                    styles.td,
-                                    isFinished && styles.tdFinished,
-                                ]}
-                                value={set.reps}
-                                onChangeText={(text: string) =>
-                                    vm.onChangeRep(exerciseIdx, setIdx, text)
-                                }
-                                onFocus={() => handleSetInputFocus(exerciseIdx)}
-                                onBlur={handleSetInputBlur}
-                                inputMode="decimal"
-                            />
-                        </GestureDetector>
+                        <AdjustableNumberInput
+                            value={set.reps}
+                            step={1}
+                            onAdjust={(delta) =>
+                                vm.onAdjustReps(exerciseIdx, setIdx, delta)
+                            }
+                            onChangeText={(text: string) =>
+                                vm.onChangeRep(exerciseIdx, setIdx, text)
+                            }
+                            onFocus={() => handleSetInputFocus(exerciseIdx)}
+                            onBlur={handleSetInputBlur}
+                            inputMode="decimal"
+                            isFinished={isFinished}
+                        />
                         <TextInput
                             style={[
                                 styles.td,

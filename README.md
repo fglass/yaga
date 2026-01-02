@@ -21,6 +21,7 @@ eas update
 -   [x] Apple Health write toggle
 -   [ ] iCloud sync?
 -   [x] Strava write
+-   [ ] Strava auth cache
 -   [ ] Spreadsheet migration
 -   [ ] Strong migration
 -   [ ] Preview release
@@ -33,6 +34,7 @@ eas update
 -   [x] Apple Health read
 -   [ ] Distance stats
 -   [ ] Weekly targets?
+-   [ ] Tap for history
 
 ### Workout View
 
@@ -56,7 +58,7 @@ eas update
 -   [ ] Drag to reorder exercises
 -   [x] Set/time box colouring
 -   [ ] Active workout minimise
--   [ ] Warmup sets
+-   [ ] Warmup/superset/ignore sets
 -   [x] Bug: Keyboard position on bottom exercise
 -   [x] Bug: Long exercise name hides buttons
 -   [ ] Bug: Workout timer resets on app reopen
@@ -103,3 +105,15 @@ eas update
     -   [Example](https://dribbble.com/shots/25596307-Workout-Tracker-Gym-App)
     -   [Palette](https://dribbble.com/shots/21782757-Wi-Fi-Scan-Diagnostics-app)
 -   [iOS design](https://developer.apple.com/design/resources/)
+
+---
+
+Cable curl x2
+Pec fly x3
+
+Set transparent overlay on delete
+Pause run on finish (before export)
+Times = UTC or local?
+Check timer accuracy (run esp)
+Close keyboard on category dropdown
+No Apple Health write if Strava

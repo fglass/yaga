@@ -121,7 +121,6 @@ export const styles = StyleSheet.create({
     },
     setSwipeContainer: {
         borderRadius: 10,
-        overflow: "hidden",
         marginBottom: 6,
     },
     tr: {
@@ -140,6 +139,23 @@ export const styles = StyleSheet.create({
         paddingVertical: 6,
         borderRadius: 8,
         marginHorizontal: 4,
+    },
+    adjustableInput: {
+        flex: 1,
+        marginHorizontal: 4,
+        position: "relative",
+    },
+    adjustableInputField: {
+        marginHorizontal: 0,
+        paddingHorizontal: 8,
+    },
+    tdFocused: {
+        borderWidth: 1,
+        borderColor: "rgba(77, 166, 255, 0.8)",
+    },
+    tdFocusedFinished: {
+        borderWidth: 1,
+        borderColor: "rgba(101, 202, 121, 0.9)",
     },
     tdReadOnly: {
         backgroundColor: "#23282D",
