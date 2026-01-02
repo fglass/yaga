@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+    Keyboard,
     KeyboardAvoidingView,
     Platform,
     StyleSheet,
@@ -32,6 +33,12 @@ const NewExerciseModal = (props: Props) => {
             setIsCategoryOpen(false);
         }
     }, [props.isVisible]);
+
+    useEffect(() => {
+        if (isCategoryOpen) {
+            Keyboard.dismiss();
+        }
+    }, [isCategoryOpen]);
 
     const onSubmit = () => {
         if (!canSubmit) {
