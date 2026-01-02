@@ -1,9 +1,10 @@
-import React, { useRef, useState } from "react";
-import { TextInput, TextInputProps, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { Keyboard, TextInput, TextInputProps, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { styles } from "./styles";
 
 const DRAG_DISTANCE_PER_STEP_PX = 12;
+const DRAG_START_THRESHOLD_PX = 8;
 
 interface AdjustableNumberInputProps {
     value: string;
@@ -63,14 +64,24 @@ const AdjustableNumberInput = ({
         .minDistance(4)
         .runOnJS(true)
         .onBegin(() => {
-            setAllowSoftInputValue(false);
-            setIsAdjusting(true);
-            isAdjustingRef.current = true;
-            setIsFocused(false);
-            inputRef.current?.blur();
             lastStepRef.current = 0;
         })
         .onChange((event) => {
+            if (!isAdjustingRef.current) {
+                if (Math.abs(event.translationX) < DRAG_START_THRESHOLD_PX) {
+                    return;
+                }
+                setAllowSoftInputValue(false);
+                setIsAdjusting(true);
+                isAdjustingRef.current = true;
+                setIsFocused(false);
+                inputRef.current?.blur();
+                lastStepRef.current = Math.trunc(
+                    event.translationX / DRAG_DISTANCE_PER_STEP_PX
+                );
+                return;
+            }
+
             const steps = Math.trunc(
                 event.translationX / DRAG_DISTANCE_PER_STEP_PX
             );
@@ -81,7 +92,9 @@ const AdjustableNumberInput = ({
             }
         })
         .onFinalize(() => {
-            resetAdjustment();
+            if (isAdjustingRef.current) {
+                resetAdjustment();
+            }
         });
 
     const gesture = Gesture.Race(panGesture, tapGesture);
