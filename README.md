@@ -22,8 +22,8 @@ eas update
 -   [ ] iCloud sync?
 -   [ ] Spreadsheet migration
 -   [ ] Strong migration
--   [ ] Preview release
--   [ ] Update splash image
+-   [x] Preview release
+-   [x] Update splash image
 
 ### Home View
 

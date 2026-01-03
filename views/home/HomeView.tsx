@@ -6,6 +6,8 @@ import { useHomeViewModel } from "./viewModel";
 const HomeView = () => {
     const vm = useHomeViewModel();
 
+    const isDevBuild = process.env.EXPO_PUBLIC_APP_VARIANT === "development";
+
     const statCards = [
         {
             id: "week",
@@ -79,8 +81,15 @@ const HomeView = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>YAGA</Text>
-            <Text style={styles.subtitle}>Yet Another Gym App</Text>
+            <View style={styles.headerRow}>
+                <View style={styles.headerTopRow}>
+                    <Text style={styles.title}>YAGA</Text>
+                    {isDevBuild ? (
+                        <Text style={styles.devBadge}>DEV</Text>
+                    ) : null}
+                </View>
+                <Text style={styles.subtitle}>Yet Another Gym App</Text>
+            </View>
             <View style={styles.statsGrid}>
                 {interleavedCards.map((card) => (
                     <View key={card.id} style={styles.statCard}>
@@ -134,10 +143,29 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         color: "white",
     },
+    headerRow: {
+        marginBottom: 24,
+    },
+    headerTopRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "flex-start",
+    },
     subtitle: {
         marginTop: 4,
         color: "rgba(255, 255, 255, 0.7)",
-        marginBottom: 24,
+    },
+    devBadge: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 999,
+        backgroundColor: "rgba(88, 165, 249, 0.2)",
+        color: "#9CCBFF",
+        fontSize: 11,
+        letterSpacing: 1,
+        textTransform: "uppercase",
+        overflow: "hidden",
+        marginLeft: 8,
     },
     statsGrid: {
         flexDirection: "row",
