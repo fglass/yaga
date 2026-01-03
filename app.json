@@ -35,7 +35,8 @@
                 "projectId": "572100b8-fd56-4bbd-8d90-8e3b754b4d98"
             },
             "stravaClientId": "192280",
-            "stravaClientSecret": "cc81916545ae5a8ca91f6dd038f40b5536aea634"
+            "stravaClientSecret": "cc81916545ae5a8ca91f6dd038f40b5536aea634",
+            "stravaRedirectScheme": "yaga"
         },
         "owner": "expench",
         "runtimeVersion": {
