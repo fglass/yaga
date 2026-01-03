@@ -5,7 +5,7 @@ import { CompletedWorkout, AppleHealthWorkout } from "../../model/types";
 import {
     formatTime,
     getWorkoutDurationSeconds,
-    parseWorkoutStart,
+    parseWorkoutTimestamp,
 } from "../../utils/util";
 import Deletable from "../../components/Deletable";
 import { HistoryItem, useHistoryViewModel } from "./viewModel";
@@ -26,16 +26,13 @@ const HistoryView = () => {
     };
 
     const renderLocalWorkout = (workout: CompletedWorkout) => {
-        const workoutStartDate = parseWorkoutStart(
-            workout.startTimestamp,
-            workout.endTimestamp
-        );
+        const workoutStartDate = parseWorkoutTimestamp(workout.startTimestamp);
         const workoutDate = formatWorkoutDate(workoutStartDate);
-        const isRun = workout.type === "run";
         const durationSeconds = getWorkoutDurationSeconds(
             workout.startTimestamp,
             workout.endTimestamp
         );
+        const isRun = workout.type === "run";
 
         return (
             <View style={styles.swipeContainer}>
