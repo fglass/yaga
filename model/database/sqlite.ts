@@ -2,6 +2,7 @@ import * as SQLite from "expo-sqlite";
 import { MIGRATIONS } from "./migrations";
 
 const DB_NAME = process.env.EXPO_PUBLIC_DB_NAME;
+console.log("Using database:", DB_NAME);
 
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
 let initPromise: Promise<void> | null = null;
@@ -11,6 +12,18 @@ export const getDatabase = async () => {
         databasePromise = SQLite.openDatabaseAsync(DB_NAME);
     }
     return databasePromise;
+};
+
+export const resetDatabaseConnection = async () => {
+    if (databasePromise != null) {
+        const db = await databasePromise;
+        const closeAsync = (db as { closeAsync?: () => Promise<void> }).closeAsync;
+        if (closeAsync) {
+            await closeAsync();
+        }
+    }
+    databasePromise = null;
+    initPromise = null;
 };
 
 const getSchemaVersion = async (db: SQLite.SQLiteDatabase) => {

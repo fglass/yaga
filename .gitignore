@@ -12,6 +12,7 @@ web-build/
 .idea/
 .claude
 *.db
+*.env
 
 # macOS
 .DS_Store

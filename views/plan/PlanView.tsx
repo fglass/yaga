@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Workout, WorkoutTemplate } from "../../model/types";
-import { exportDatabase, resetDatabase } from "../../model/database";
+import { exportDatabase, importDatabase, resetDatabase } from "../../model/database";
 import ModalDialog from "../../components/ModalDialog";
 import { usePlanViewModel } from "./viewModel";
 
@@ -75,11 +75,12 @@ const PlanView = () => {
                         ? "Disable Strava Logging"
                         : "Enable Strava Logging",
                     "Auth Strava",
+                    "Import Database",
                     "Export Database",
                     "Reset Database",
                 ],
                 cancelButtonIndex: 0,
-                destructiveButtonIndex: 5,
+                destructiveButtonIndex: 6,
             },
             (btnIdx) => {
                 if (btnIdx === 1) {
@@ -89,8 +90,10 @@ const PlanView = () => {
                 } else if (btnIdx === 3) {
                     void vm.authStrava();
                 } else if (btnIdx === 4) {
-                    exportDatabase();
+                    importDatabase();
                 } else if (btnIdx === 5) {
+                    exportDatabase();
+                } else if (btnIdx === 6) {
                     resetDatabase();
                 }
             }
