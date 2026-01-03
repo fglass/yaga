@@ -36,15 +36,7 @@ export const formatTime = (time: number): string => {
         .padStart(2, "0")}`;
 };
 
-export const parseWorkoutStart = (
-    startTimestamp?: number | null,
-    endTimestamp?: number | null
-): Date => {
-    const resolved = startTimestamp ?? endTimestamp ?? Date.now();
-    return new Date(resolved);
-};
-
-export const parseWorkoutEnd = (timestamp: number): Date => {
+export const parseWorkoutTimestamp = (timestamp: number): Date => {
     return new Date(timestamp);
 };
 

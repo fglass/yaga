@@ -4,8 +4,7 @@ import { useCompletedWorkouts } from "../../model/database";
 import { useAppleHealthWorkouts } from "../../model/health";
 import {
     dedupeWorkoutsByStart,
-    parseWorkoutEnd,
-    parseWorkoutStart,
+    parseWorkoutTimestamp,
 } from "../../utils/util";
 
 export const useHomeViewModel = () => {
@@ -15,11 +14,8 @@ export const useHomeViewModel = () => {
 
     const { strengthWorkouts, runningWorkouts } = React.useMemo(() => {
         const localWorkouts = completedWorkouts.map((workout) => {
-            const startDate = parseWorkoutStart(
-                workout.startTimestamp,
-                workout.endTimestamp
-            );
-            const endDate = parseWorkoutEnd(workout.endTimestamp);
+            const startDate = parseWorkoutTimestamp(workout.startTimestamp);
+            const endDate = parseWorkoutTimestamp(workout.endTimestamp);
             return {
                 startDate,
                 endDate,

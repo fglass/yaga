@@ -81,6 +81,7 @@ eas update
 -   [ ] Heart rate
 -   [x] Strava write
 -   [x] Strava auth cache
+-   [ ] Check: timer accuracy
 
 ### Plan View
 
@@ -106,8 +107,3 @@ eas update
     -   [Example](https://dribbble.com/shots/25596307-Workout-Tracker-Gym-App)
     -   [Palette](https://dribbble.com/shots/21782757-Wi-Fi-Scan-Diagnostics-app)
 -   [iOS design](https://developer.apple.com/design/resources/)
-
----
-
-Times = UTC or local?
-Check timer accuracy (run esp)

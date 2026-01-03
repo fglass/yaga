@@ -4,7 +4,7 @@ import { useAppleHealthWorkouts } from "../../model/health";
 import { AppleHealthWorkout, CompletedWorkout } from "../../model/types";
 import {
     dedupeWorkoutsByStart,
-    parseWorkoutStart,
+    parseWorkoutTimestamp,
     withWarning,
 } from "../../utils/util";
 
@@ -29,10 +29,7 @@ export const useHistoryViewModel = (): ViewModel => {
         const items = [
             ...completedWorkouts.map<HistoryItem>((workout) => ({
                 type: "local",
-                startDate: parseWorkoutStart(
-                    workout.startTimestamp,
-                    workout.endTimestamp
-                ),
+                startDate: parseWorkoutTimestamp(workout.startTimestamp),
                 workout,
             })),
             ...appleHealthWorkouts.map<HistoryItem>((workout) => ({
@@ -46,12 +43,9 @@ export const useHistoryViewModel = (): ViewModel => {
 
         const sortByDate = (item: HistoryItem): number => {
             if (item.type === "local") {
-                return (
-                    parseWorkoutStart(
-                        item.workout.startTimestamp,
-                        item.workout.endTimestamp
-                    )?.getTime() ?? Number.NEGATIVE_INFINITY
-                );
+                return parseWorkoutTimestamp(
+                    item.workout.startTimestamp
+                ).getTime();
             }
             return item.workout.startDate.getTime();
         };
