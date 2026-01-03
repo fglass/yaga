@@ -1,8 +1,7 @@
 import * as SQLite from "expo-sqlite";
-import { isUsingExpoDevClient } from "../../utils/util";
 import { MIGRATIONS } from "./migrations";
 
-const DB_NAME = isUsingExpoDevClient() ? "yaga-dev.db" : "yaga.db";
+const DB_NAME = process.env.EXPO_PUBLIC_DB_NAME;
 
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
 let initPromise: Promise<void> | null = null;
@@ -15,19 +14,21 @@ export const getDatabase = async () => {
 };
 
 const getSchemaVersion = async (db: SQLite.SQLiteDatabase) => {
-    await db.execAsync("CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL)");
+    await db.execAsync(
+        "CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL)"
+    );
     const row = await db.getFirstAsync<{ version: number }>(
         "SELECT version FROM schema_version ORDER BY version DESC LIMIT 1"
     );
     return row?.version ?? 0;
 };
 
-const setSchemaVersion = async (
-    db: SQLite.SQLiteDatabase,
-    version: number
-) => {
+const setSchemaVersion = async (db: SQLite.SQLiteDatabase, version: number) => {
     await db.runAsync("DELETE FROM schema_version");
-    await db.runAsync("INSERT INTO schema_version (version) VALUES (?)", version);
+    await db.runAsync(
+        "INSERT INTO schema_version (version) VALUES (?)",
+        version
+    );
 };
 
 const runMigrations = async (db: SQLite.SQLiteDatabase) => {
