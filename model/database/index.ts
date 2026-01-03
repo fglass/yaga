@@ -1,6 +1,7 @@
 export {
     initDatabase,
     exportDatabase,
+    importDatabase,
     resetDatabase,
     saveActiveWorkout,
     fetchRecentSetsForExercises,

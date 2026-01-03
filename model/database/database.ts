@@ -10,8 +10,15 @@ import {
     WorkoutTemplate,
     WorkoutType,
 } from "../types";
+import * as DocumentPicker from "expo-document-picker";
+import { File as ExpoFile } from "expo-file-system";
 import { generateGuid, shareFile, withWarning } from "../../utils/util";
-import { ensureDatabase, getDatabase, runInTransaction } from "./sqlite";
+import {
+    ensureDatabase,
+    getDatabase,
+    resetDatabaseConnection,
+    runInTransaction,
+} from "./sqlite";
 
 export enum QueryKey {
     Version = "version",
@@ -36,6 +43,37 @@ export const exportDatabase = async () => {
         ? db.databasePath
         : `file://${db.databasePath}`;
     await shareFile(fileUri);
+};
+
+export const importDatabase = () => {
+    withWarning(async () => {
+        const result = await DocumentPicker.getDocumentAsync({
+            copyToCacheDirectory: true,
+        });
+
+        if (result.canceled) {
+            return;
+        }
+
+        const file = result.assets?.[0];
+        if (!file?.uri) {
+            return;
+        }
+
+        const db = await getDatabase();
+        const destUri = db.databasePath.startsWith("file://")
+            ? db.databasePath
+            : `file://${db.databasePath}`;
+
+        await resetDatabaseConnection();
+
+        const sourceFile = new ExpoFile(file.uri);
+        const destFile = new ExpoFile(destUri);
+        await sourceFile.copy(destFile);
+
+        await ensureDatabase();
+        console.log(`Database imported from ${file.name}`);
+    });
 };
 
 export const resetDatabase = () => {

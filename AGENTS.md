@@ -14,3 +14,5 @@ Each screen owns a companion viewModel that gathers data from React Query, the S
 ## Coding Style & Naming Conventions
 
 Write all app code in TypeScript with ES modules. Follow 4-space indentation, single quotes inside JSX props when helpful, and trailing commas where Prettier places them. Components, hooks, and context providers use PascalCase file names (`WorkoutCard.tsx`), while helper modules stay camelCase. Prefer top-down file structure: export main functions near the top, then private helpers below.
+
+Avoid deprecated APIs; prefer the current recommended methods in library docs.
