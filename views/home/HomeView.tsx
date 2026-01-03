@@ -12,7 +12,7 @@ const HomeView = () => {
         {
             id: "week",
             iconName: "barbell-outline" as const,
-            iconColor: "#58A5F9",
+            iconColor: "#7AD3FF",
             label: "Week",
             thisLabel: "This",
             thisValue: vm.workoutsThisWeek,
@@ -22,7 +22,7 @@ const HomeView = () => {
         {
             id: "month",
             iconName: "barbell-outline" as const,
-            iconColor: "#8AF7B5",
+            iconColor: "#9BE28A",
             label: "Month",
             thisLabel: "This",
             thisValue: vm.workoutsThisMonth,
@@ -32,7 +32,7 @@ const HomeView = () => {
         {
             id: "year",
             iconName: "barbell-outline" as const,
-            iconColor: "#FF9E43",
+            iconColor: "#FFC266",
             label: "Year",
             thisLabel: "This",
             thisValue: vm.workoutsThisYear,
