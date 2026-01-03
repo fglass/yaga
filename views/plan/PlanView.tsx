@@ -75,12 +75,12 @@ const PlanView = () => {
                         ? "Disable Strava Logging"
                         : "Enable Strava Logging",
                     "Auth Strava",
-                    "Import Database",
                     "Export Database",
+                    "Import Database",
                     "Reset Database",
                 ],
                 cancelButtonIndex: 0,
-                destructiveButtonIndex: 6,
+                destructiveButtonIndex: [5, 6],
             },
             (btnIdx) => {
                 if (btnIdx === 1) {
@@ -90,9 +90,9 @@ const PlanView = () => {
                 } else if (btnIdx === 3) {
                     void vm.authStrava();
                 } else if (btnIdx === 4) {
-                    importDatabase();
-                } else if (btnIdx === 5) {
                     exportDatabase();
+                } else if (btnIdx === 5) {
+                    importDatabase();
                 } else if (btnIdx === 6) {
                     resetDatabase();
                 }
