@@ -263,7 +263,9 @@ const getStravaConfig = (): StravaConfig => {
     const clientId = String(extra.stravaClientId ?? "");
     // TODO: Remove from git and client binary
     const clientSecret = String(extra.stravaClientSecret ?? "");
-    const redirectScheme = String(extra.stravaRedirectScheme ?? "") || "yaga";
+    const redirectScheme = String(
+        extra.stravaRedirectScheme ?? "com.expench.yaga.development"
+    );
 
     return { clientId, clientSecret, redirectScheme };
 };

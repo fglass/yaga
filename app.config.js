@@ -6,19 +6,25 @@ module.exports = ({ config }) => {
         baseConfig?.ios?.bundleIdentifier ?? "com.expench.yaga";
 
     const appVariant = process.env.EXPO_PUBLIC_APP_VARIANT;
+    const isDevBuild = appVariant === "development";
+
     const bundleIdentifier = appVariant
         ? `${baseBundleId}.${appVariant}`
         : baseBundleId;
 
-    const name = appVariant === "development" ? "Yaga Go" : baseConfig.name;
-    const icon =
-        appVariant === "development"
-            ? "./assets/icon-inverse.png"
-            : baseConfig.icon;
+    const name = isDevBuild ? "Yaga Go" : baseConfig.name;
+    const icon = isDevBuild ? "./assets/icon-inverse.png" : baseConfig.icon;
+
+    const scheme = isDevBuild ? "yaga-go" : baseConfig.scheme;
+
+    const stravaRedirectScheme = isDevBuild
+        ? "yaga-go"
+        : baseConfig.extra?.stravaRedirectScheme;
 
     const extra = {
         ...(baseConfig.extra ?? {}),
         appVariant,
+        stravaRedirectScheme,
     };
 
     return {
@@ -26,6 +32,7 @@ module.exports = ({ config }) => {
         name,
         icon,
         extra,
+        scheme,
         ios: {
             ...baseConfig.ios,
             bundleIdentifier,
