@@ -11,8 +11,12 @@ import {
     Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Workout, WorkoutTemplate } from "../../model/types";
-import { exportDatabase, importDatabase, resetDatabase } from "../../model/database";
+import { WorkoutTemplate } from "../../model/types";
+import {
+    exportDatabase,
+    importDatabase,
+    resetDatabase,
+} from "../../model/database";
 import ModalDialog from "../../components/ModalDialog";
 import { usePlanViewModel } from "./viewModel";
 
@@ -125,10 +129,7 @@ const PlanView = () => {
                 size={34}
                 style={styles.emptyIcon}
             />
-            <Text style={styles.emptyTitle}>No workouts yet</Text>
-            <Text style={styles.emptyText}>
-                Your saved templates will live here.
-            </Text>
+            <Text style={styles.emptyTitle}>No templates yet</Text>
         </View>
     );
 
