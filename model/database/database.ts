@@ -65,14 +65,18 @@ export const importDatabase = () => {
             ? db.databasePath
             : `file://${db.databasePath}`;
 
-        await resetDatabaseConnection();
-
+        void resetDatabaseConnection();
         const sourceFile = new ExpoFile(file.uri);
         const destFile = new ExpoFile(destUri);
-        await sourceFile.copy(destFile);
+
+        const sourceStream = sourceFile.readableStream();
+        const destStream = destFile.writableStream();
+        await sourceStream.pipeTo(destStream);
 
         await ensureDatabase();
+
         console.log(`Database imported from ${file.name}`);
+        alert("Database import successful");
     });
 };
 
@@ -85,8 +89,11 @@ export const resetDatabase = () => {
             await db.runAsync("DELETE FROM templates");
             await db.runAsync("DELETE FROM exercise_defs");
         });
+
         await seedInitialData();
+
         console.warn("Database reset");
+        alert("Database reset successful");
     });
 };
 
