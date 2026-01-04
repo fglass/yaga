@@ -37,9 +37,5 @@ module.exports = ({ config }) => {
             ...baseConfig.ios,
             bundleIdentifier,
         },
-        android: {
-            ...baseConfig.android,
-            package: bundleIdentifier,
-        },
     };
 };
