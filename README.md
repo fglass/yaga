@@ -24,10 +24,11 @@ eas build --platform ios --profile preview
 -   [x] Apple Health export
 -   [x] Apple Health write toggle
 -   [ ] iCloud sync?
--   [ ] Spreadsheet migration
+-   [x] Spreadsheet migration
 -   [ ] Strong migration
 -   [x] Preview release
 -   [x] Update splash image
+-   [x] Test suite
 
 ### Home View
 
@@ -72,7 +73,7 @@ eas build --platform ios --profile preview
 -   [x] Finish workout confirmation
 -   [ ] Bug: Calories move goal
 -   [ ] Finish confetti/fireworks
--   [ ] [Exercise list](https://exrx.net/Lists/Directory)
+-   [ ] Seed from [exercise list](https://exrx.net/Lists/Directory)/similar
 -   [ ] Sticky exercise note
 -   [ ] Progress overload tracker
 
@@ -82,10 +83,11 @@ eas build --platform ios --profile preview
 -   [x] Fix pace changing
 -   [x] Pause run
 -   [x] Pause run on finish
--   [ ] Heart rate
 -   [x] Strava write
 -   [x] Strava auth cache
 -   [ ] Check: timer accuracy
+-   [ ] Display heart rate
+-   [ ] Strava shoe setting
 
 ### Plan View
 

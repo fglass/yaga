@@ -40,7 +40,7 @@ const HistoryView = () => {
                     <View key={workout.id} style={styles.workoutCard}>
                         <Text style={styles.workoutTitle}>
                             {workout.name}
-                            {isRun ? ` ${workout.distance!.toFixed(2)}K ` : ""}
+                            {isRun ? ` ${workout.distance?.toFixed(2)}K ` : ""}
                         </Text>
                         <Text style={styles.workoutMeta}>
                             {workoutDate} · {formatTime(durationSeconds)}
@@ -53,6 +53,8 @@ const HistoryView = () => {
 
     const renderHealthWorkout = (workout: AppleHealthWorkout) => {
         const workoutDate = formatWorkoutDate(workout.startDate);
+        const isRun = workout.name === "Run";
+
         return (
             <View style={styles.workoutCard}>
                 <View style={styles.healthHeader}>
@@ -62,7 +64,10 @@ const HistoryView = () => {
                         size={16}
                         style={styles.healthIcon}
                     />
-                    <Text style={styles.workoutTitle}>{workout.name}</Text>
+                    <Text style={styles.workoutTitle}>
+                        {workout.name}
+                        {isRun ? ` ${workout.distance?.toFixed(2)}K ` : ""}
+                    </Text>
                 </View>
                 <Text style={styles.workoutMeta}>
                     {workoutDate} · {formatTime(workout.durationSeconds)}
