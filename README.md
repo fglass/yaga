@@ -78,7 +78,7 @@ eas build --platform ios --profile preview
 ### Run View
 
 -   [x] Init
--   [ ] Fix pace changing
+-   [x] Fix pace changing
 -   [x] Pause run
 -   [x] Pause run on finish
 -   [ ] Heart rate
@@ -116,6 +116,7 @@ eas build --platform ios --profile preview
 
 ---
 
+https://github.com/steipete/agent-scripts
 https://dimillian.medium.com/the-state-of-agentic-ios-engineering-in-2026-c5f0cbaa7b34
 https://dimillian.medium.com/how-to-use-cursor-for-ios-development-54b912c23941
 https://sweetpad.hyzyla.dev

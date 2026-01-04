@@ -45,7 +45,16 @@ const DEFAULT_SPEED_KMH = 11;
 export const useRunViewModel = (props: Props): ViewModel => {
     const { onFinish, onCancel } = props;
 
+    const [speedKmh, setSpeedKmh] = useState<number>(DEFAULT_SPEED_KMH);
+    const [speedInput, setSpeedInput] = useState(
+        formatSpeed(DEFAULT_SPEED_KMH)
+    );
+
     const initialDistanceKm = props.initialRun.distance ?? 0;
+    const distanceOffsetKmRef = useRef(initialDistanceKm);
+    const distanceAnchorElapsedSecondsRef = useRef(0);
+    const distanceKmRef = useRef(initialDistanceKm);
+
     const [run] = useState<Workout>({
         ...props.initialRun,
         type: "run",
@@ -54,10 +63,6 @@ export const useRunViewModel = (props: Props): ViewModel => {
         distance: initialDistanceKm,
     });
 
-    const [speedKmh, setSpeedKmh] = useState<number>(DEFAULT_SPEED_KMH);
-    const [speedInput, setSpeedInput] = useState(
-        formatSpeed(DEFAULT_SPEED_KMH)
-    );
     const {
         elapsedSeconds,
         hasStarted,
@@ -74,17 +79,48 @@ export const useRunViewModel = (props: Props): ViewModel => {
 
     const { completeWorkout } = useDatabaseWriter();
 
-    const setSpeedValue = useCallback((value: number | undefined) => {
-        if (value == null || isNaN(value) || value <= 0) {
-            setSpeedInput("");
-            setSpeedKmh(DEFAULT_SPEED_KMH);
-            return;
-        }
+    const computeDistance = useCallback(
+        (elapsedSecondsValue: number, speedKmhValue: number) => {
+            if (!hasStarted) {
+                return initialDistanceKm;
+            }
 
-        const rounded = Math.round(value * 10) / 10;
-        setSpeedInput(formatSpeed(rounded));
-        setSpeedKmh(rounded);
-    }, []);
+            if (speedKmhValue == null || speedKmhValue <= 0) {
+                return distanceOffsetKmRef.current;
+            }
+
+            const elapsedSinceAnchor = Math.max(
+                0,
+                elapsedSecondsValue - distanceAnchorElapsedSecondsRef.current
+            );
+            return (
+                distanceOffsetKmRef.current +
+                (speedKmhValue * elapsedSinceAnchor) / 3600
+            );
+        },
+        [hasStarted, initialDistanceKm]
+    );
+
+    const setSpeedValue = useCallback(
+        (value: number | undefined) => {
+            if (value == null || isNaN(value) || value <= 0) {
+                setSpeedInput("");
+                setSpeedKmh(DEFAULT_SPEED_KMH);
+                return;
+            }
+
+            if (hasStarted) {
+                const distanceNow = computeDistance(elapsedSeconds, speedKmh);
+                distanceOffsetKmRef.current = distanceNow;
+                distanceAnchorElapsedSecondsRef.current = elapsedSeconds;
+            }
+
+            const rounded = Math.round(value * 10) / 10;
+            setSpeedInput(formatSpeed(rounded));
+            setSpeedKmh(rounded);
+        },
+        [computeDistance, elapsedSeconds, hasStarted, speedKmh]
+    );
 
     const onAdjustSpeed = useCallback(
         (delta: number) => {
@@ -136,11 +172,9 @@ export const useRunViewModel = (props: Props): ViewModel => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }, [hasStarted, isRunning, pauseTimer, resumeRun, startRun]);
 
-    const incrementalDistanceKm =
-        hasStarted && speedKmh != null && speedKmh > 0
-            ? (speedKmh * elapsedSeconds) / 3600
-            : 0;
-    const distanceKm = initialDistanceKm + incrementalDistanceKm;
+    const distanceKm = computeDistance(elapsedSeconds, speedKmh);
+    distanceKmRef.current = distanceKm;
+
     const pacePerKm =
         speedKmh && speedKmh > 0 ? formatPace(3600 / speedKmh) : "—";
 
@@ -150,7 +184,7 @@ export const useRunViewModel = (props: Props): ViewModel => {
             startTimestamp: startTimestamp ?? run.startTimestamp,
             distance: distanceKm,
         });
-    }, [saveActiveWorkout, run, distanceKm, startTimestamp]);
+    }, [run, distanceKm, startTimestamp]);
 
     const onFinishRun = useCallback(async () => {
         if (!canFinish) {
@@ -161,11 +195,12 @@ export const useRunViewModel = (props: Props): ViewModel => {
             async () => {
                 pauseTimer();
 
-                const totalDurationSeconds = getElapsedSeconds();
-                const finalDistanceKm = hasValidSpeed
-                    ? initialDistanceKm +
-                      (speedKmh * totalDurationSeconds) / 3600
-                    : distanceKm;
+                const finalElapsedSeconds = getElapsedSeconds();
+                const finalDistanceKm = computeDistance(
+                    finalElapsedSeconds,
+                    speedKmh
+                );
+                distanceKmRef.current = finalDistanceKm;
 
                 const endDate = new Date();
                 const completedRun: CompletedWorkout = {
@@ -199,12 +234,8 @@ export const useRunViewModel = (props: Props): ViewModel => {
         );
     }, [
         canFinish,
+        computeDistance,
         completeWorkout,
-        distanceKm,
-        hasValidSpeed,
-        initialDistanceKm,
-        logStravaWorkout,
-        logAppleHealthWorkout,
         onFinish,
         run,
         speedKmh,
