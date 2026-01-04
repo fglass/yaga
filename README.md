@@ -6,6 +6,7 @@ Yet Another Gym App
 expo update
 
 npm start
+npm test
 npx expo run:ios
 
 eas update
