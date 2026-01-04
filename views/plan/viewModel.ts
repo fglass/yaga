@@ -14,7 +14,7 @@ import {
 } from "../../model/strava";
 
 export const usePlanViewModel = () => {
-    const templates = useWorkoutTemplates();
+    const { templates, isLoading: isTemplatesLoading } = useWorkoutTemplates();
     const { saveActiveWorkout, createWorkoutTemplate } = useDatabaseWriter();
 
     const [isCreateModalVisible, setCreateModalVisible] = useState(false);
@@ -111,6 +111,7 @@ export const usePlanViewModel = () => {
 
     return {
         templates,
+        isTemplatesLoading,
         selectTemplate,
         startBlankWorkout,
         createTemplate,

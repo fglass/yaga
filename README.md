@@ -3,11 +3,14 @@
 Yet Another Gym App
 
 ```
-npm start
 expo update
+
+npm start
+npx expo run:ios
+
+eas update
 eas build --platform ios --profile development
 eas build --platform ios --profile preview
-eas update
 ```
 
 ## Backlog
@@ -107,3 +110,14 @@ eas update
     -   [Example](https://dribbble.com/shots/25596307-Workout-Tracker-Gym-App)
     -   [Palette](https://dribbble.com/shots/21782757-Wi-Fi-Scan-Diagnostics-app)
 -   [iOS design](https://developer.apple.com/design/resources/)
+-   Native
+    -   https://docs.expo.dev/router/advanced/native-tabs/
+    -   https://docs.expo.dev/versions/latest/sdk/glass-effect/
+
+---
+
+https://dimillian.medium.com/the-state-of-agentic-ios-engineering-in-2026-c5f0cbaa7b34
+https://dimillian.medium.com/how-to-use-cursor-for-ios-development-54b912c23941
+https://sweetpad.hyzyla.dev
+https://flowdeck.studio
+https://dimillian.github.io/Skills/
