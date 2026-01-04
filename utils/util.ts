@@ -36,6 +36,12 @@ export const formatTime = (time: number): string => {
         .padStart(2, "0")}`;
 };
 
+export const formatDuration = (time: number): string => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes}m${seconds.toString().padStart(2, "0")}s`;
+};
+
 export const parseWorkoutTimestamp = (timestamp: number): Date => {
     return new Date(timestamp);
 };

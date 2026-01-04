@@ -74,7 +74,7 @@ export const useHistoryViewModel = (): ViewModel => {
 
             const datePart = date.toLocaleDateString(undefined, {
                 month: "short",
-                day: "numeric",
+                day: "2-digit",
                 year: "numeric",
             });
             const timePart = date.toLocaleTimeString(undefined, {

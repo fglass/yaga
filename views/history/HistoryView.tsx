@@ -3,7 +3,7 @@ import { Text, StyleSheet, FlatList, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { CompletedWorkout, AppleHealthWorkout } from "../../model/types";
 import {
-    formatTime,
+    formatDuration,
     getWorkoutDurationSeconds,
     parseWorkoutTimestamp,
 } from "../../utils/util";
@@ -43,7 +43,7 @@ const HistoryView = () => {
                             {isRun ? ` ${workout.distance?.toFixed(2)}K ` : ""}
                         </Text>
                         <Text style={styles.workoutMeta}>
-                            {workoutDate} · {formatTime(durationSeconds)}
+                            {workoutDate} · {formatDuration(durationSeconds)}
                         </Text>
                     </View>
                 </Deletable>
@@ -70,7 +70,7 @@ const HistoryView = () => {
                     </Text>
                 </View>
                 <Text style={styles.workoutMeta}>
-                    {workoutDate} · {formatTime(workout.durationSeconds)}
+                    {workoutDate} · {formatDuration(workout.durationSeconds)}
                 </Text>
             </View>
         );
