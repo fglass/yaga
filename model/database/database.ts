@@ -31,9 +31,10 @@ export enum QueryKey {
 /* Global functions */
 
 export const initDatabase = async () => {
-    console.log("Initialising database...");
+    const startTime = Date.now();
     await ensureDatabase();
     await seedInitialData();
+    console.log(`Database initialised in ${Date.now() - startTime}ms`);
 };
 
 export const exportDatabase = async () => {
