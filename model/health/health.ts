@@ -8,6 +8,10 @@ import {
     WorkoutTypeIdentifier,
     WorkoutSample,
 } from "@kingstinct/react-native-healthkit";
+import type {
+    QuantityTypeIdentifier,
+    QueryStatisticsResponse,
+} from "@kingstinct/react-native-healthkit";
 import { AppleHealthWorkout, WorkoutType } from "../types";
 
 export interface HealthWorkoutPayload {
@@ -24,6 +28,7 @@ export interface FetchAppleHealthWorkoutsOptions {
 
 let initPromise: Promise<boolean> | null = null;
 let isHealthLoggingEnabled = true;
+type WorkoutProxyItem = Awaited<ReturnType<typeof queryWorkoutSamples>>[number];
 
 export const ensureHealthKit = async (): Promise<boolean> => {
     if (Platform.OS !== "ios") {
@@ -44,7 +49,10 @@ export const ensureHealthKit = async (): Promise<boolean> => {
 
             await requestAuthorization({
                 toShare: [WorkoutTypeIdentifier],
-                toRead: [WorkoutTypeIdentifier],
+                toRead: [
+                    WorkoutTypeIdentifier,
+                    "HKQuantityTypeIdentifierDistanceWalkingRunning",
+                ],
             });
             return true;
         } catch (error) {
@@ -99,6 +107,7 @@ export const setHealthLoggingEnabled = (enabled: boolean) => {
 export const fetchAppleHealthWorkouts = async (
     options?: FetchAppleHealthWorkoutsOptions
 ): Promise<AppleHealthWorkout[]> => {
+    const startTime = Date.now();
     try {
         const workoutQueryOptions = {
             ascending: false,
@@ -109,18 +118,55 @@ export const fetchAppleHealthWorkouts = async (
             ...workoutQueryOptions,
         });
 
-        return workoutProxies
-            .map((proxy) => proxy.toJSON())
-            .map(asHealthWorkout)
-            .filter((workout): workout is AppleHealthWorkout => workout != null)
-            .filter(dedupe());
+        const workouts: AppleHealthWorkout[] = [];
+        for (const proxy of workoutProxies) {
+            const sample = proxy.toJSON();
+            const distance = await getRunDistance(
+                proxy,
+                sample.workoutActivityType
+            );
+            const workout = asHealthWorkout(sample, distance);
+            if (workout != null) {
+                workouts.push(workout);
+            }
+        }
+
+        const result = workouts.filter(dedupe());
+        console.log(
+            `Apple Health workouts fetched in ${Date.now() - startTime}ms`
+        );
+        return result;
     } catch (error) {
         console.warn("Failed to query Apple Health workouts", error);
         return [];
     }
 };
 
-const asHealthWorkout = (sample: WorkoutSample): AppleHealthWorkout | null => {
+const getRunDistance = async (
+    proxy: WorkoutProxyItem,
+    activityType: WorkoutActivityType
+): Promise<number | undefined> => {
+    if (activityType !== WorkoutActivityType.running) {
+        return undefined;
+    }
+
+    try {
+        const distanceIdentifier: QuantityTypeIdentifier =
+            "HKQuantityTypeIdentifierDistanceWalkingRunning";
+        const stats: QueryStatisticsResponse | undefined =
+            await proxy.getStatistic(distanceIdentifier, "km");
+        const distance = stats?.sumQuantity?.quantity;
+        return typeof distance === "number" ? distance : undefined;
+    } catch (error) {
+        console.warn("Failed to read Apple Health run distance", error);
+        return undefined;
+    }
+};
+
+const asHealthWorkout = (
+    sample: WorkoutSample,
+    distance?: number
+): AppleHealthWorkout | null => {
     if (!sample.startDate || !sample.endDate) {
         return null;
     }
@@ -142,6 +188,7 @@ const asHealthWorkout = (sample: WorkoutSample): AppleHealthWorkout | null => {
         endDate,
         durationSeconds,
         activityType: sample.workoutActivityType,
+        distance,
     };
 };
 
@@ -161,16 +208,25 @@ const dedupe = () => {
 
 const formatActivityName = (activityType: WorkoutActivityType): string => {
     const activityLabel = WorkoutActivityType[activityType];
-    return activityLabel != null
-        ? activityLabel
-              .replace(/([a-z])([A-Z])/g, "$1 $2")
-              .replace(/_/g, " ")
-              .split(" ")
-              .filter((word) => word.length > 0)
-              .map(
-                  (word) =>
-                      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-              )
-              .join(" ")
-        : "Workout";
+    const formatted =
+        activityLabel != null
+            ? activityLabel
+                  .replace(/([a-z])([A-Z])/g, "$1 $2")
+                  .replace(/_/g, " ")
+                  .split(" ")
+                  .filter((word) => word.length > 0)
+                  .map(
+                      (word) =>
+                          word.charAt(0).toUpperCase() +
+                          word.slice(1).toLowerCase()
+                  )
+                  .join(" ")
+            : "Workout";
+
+    const remapped = {
+        Running: "Run",
+        "Traditional Strength Training": "Strength",
+    };
+
+    return remapped[formatted as keyof typeof remapped] ?? formatted;
 };

@@ -45,6 +45,7 @@ export interface AppleHealthWorkout {
     endDate: Date;
     durationSeconds: number;
     activityType: number;
+    distance?: number;
 }
 
 export interface Exercise {
