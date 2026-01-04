@@ -31,7 +31,10 @@ export const useActiveWorkout = (): Workout | null => {
     return isLoading ? null : data ?? null;
 };
 
-export const useWorkoutTemplates = (): WorkoutTemplate[] => {
+export const useWorkoutTemplates = (): {
+    templates: WorkoutTemplate[];
+    isLoading: boolean;
+} => {
     const { isLoading, error, data } = useSelect(
         QueryKey.Workouts,
         fetchWorkoutTemplates
@@ -41,7 +44,10 @@ export const useWorkoutTemplates = (): WorkoutTemplate[] => {
         console.error(error);
     }
 
-    return isLoading ? [] : data ?? [];
+    return {
+        templates: isLoading ? [] : data ?? [],
+        isLoading,
+    };
 };
 
 export const useCompletedWorkouts = (): CompletedWorkout[] => {

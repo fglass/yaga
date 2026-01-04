@@ -2,6 +2,8 @@
 
 ## Project Structure & Module Organization
 
+This project targets iOS only; do not add Android-specific code or configuration.
+
 The Expo entry point lives in `App.tsx`, which wires `views/RootView` into the React Query provider. Feature-specific screens sit under `views/`, shared UI primitives belong in `components/`, and domain logic is grouped in `model/` and `util.ts`. Static assets (fonts, icons, images) live in `assets/`, while `dist/` contains generated bundles—never edit files there directly. Keep SQLite schemas and migrations colocated with the modules that depend on them so DB changes ship with their owning feature.
 
 Each screen owns a companion viewModel that gathers data from React Query, the SQLite layer, and any domain helpers before handing ready-to-render props down to the JSX. Place these in the same folder as their screen inside `views/`, name the module `viewModel.ts`, and expose a hook like `useFeatureViewModel` whose return object (often consumed as `const vm = ...`) contains serializable state and callback handlers. ViewModels are responsible for orchestrating side-effects (mutations, navigation helpers, analytics) so components stay declarative and unit-testable; share common logic by delegating to modules in `model/` or `util.ts` rather than coupling screens together.

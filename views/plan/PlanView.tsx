@@ -134,6 +134,7 @@ const PlanView = () => {
     );
 
     const hasTemplates = vm.templates.length > 0;
+    const isTemplatesEmpty = !vm.isTemplatesLoading && !hasTemplates;
     const canCreateTemplate = vm.newWorkoutName.trim().length > 0;
 
     return (
@@ -166,14 +167,19 @@ const PlanView = () => {
                 data={vm.templates}
                 keyExtractor={(item) => item.id}
                 renderItem={renderTemplate}
-                ListEmptyComponent={renderEmptyState}
-                ListFooterComponent={renderFooterCards}
+                ListEmptyComponent={
+                    vm.isTemplatesLoading ? null : renderEmptyState
+                }
+                ListFooterComponent={
+                    vm.isTemplatesLoading ? null : renderFooterCards
+                }
                 ListFooterComponentStyle={styles.footerSpacing}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={[
                     styles.listContent,
-                    !hasTemplates && styles.emptyListContent,
+                    (isTemplatesEmpty || vm.isTemplatesLoading) &&
+                        styles.emptyListContent,
                 ]}
             />
             {vm.isCreateModalVisible && (
