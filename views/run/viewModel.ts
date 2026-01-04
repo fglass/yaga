@@ -5,6 +5,7 @@ import { saveActiveWorkout, useDatabaseWriter } from "../../model/database";
 import { generateGuid, withWarning } from "../../utils/util";
 import { logAppleHealthWorkout } from "../../model/health";
 import { logStravaWorkout } from "../../model/strava";
+import { computeRunDistance } from "./calculations";
 
 interface Props {
     initialRun: Workout;
@@ -81,22 +82,15 @@ export const useRunViewModel = (props: Props): ViewModel => {
 
     const computeDistance = useCallback(
         (elapsedSecondsValue: number, speedKmhValue: number) => {
-            if (!hasStarted) {
-                return initialDistanceKm;
-            }
-
-            if (speedKmhValue == null || speedKmhValue <= 0) {
-                return distanceOffsetKmRef.current;
-            }
-
-            const elapsedSinceAnchor = Math.max(
-                0,
-                elapsedSecondsValue - distanceAnchorElapsedSecondsRef.current
-            );
-            return (
-                distanceOffsetKmRef.current +
-                (speedKmhValue * elapsedSinceAnchor) / 3600
-            );
+            return computeRunDistance({
+                hasStarted,
+                initialDistanceKm,
+                speedKmh: speedKmhValue,
+                elapsedSeconds: elapsedSecondsValue,
+                distanceOffsetKm: distanceOffsetKmRef.current,
+                distanceAnchorElapsedSeconds:
+                    distanceAnchorElapsedSecondsRef.current,
+            });
         },
         [hasStarted, initialDistanceKm]
     );

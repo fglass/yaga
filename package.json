@@ -6,7 +6,8 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "jest"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -39,11 +40,22 @@
     "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.55.0",
+    "@types/jest": "^29.5.14",
     "babel-preset-expo": "^54.0.7",
     "eslint": "^8.36.0",
     "eslint-config-react-app": "^7.0.1",
+    "jest": "^29.7.0",
+    "jest-expo": "^54.0.0",
     "prettier": "2.8.4",
     "typescript": "~5.9.2"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/",
+      "/ios/"
+    ]
   },
   "private": true
 }
