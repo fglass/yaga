@@ -21,15 +21,6 @@
                 "LSApplicationQueriesSchemes": ["strava"]
             }
         },
-        "android": {
-            "adaptiveIcon": {
-                "foregroundImage": "./assets/adaptive-icon.png",
-                "backgroundColor": "#ffffff"
-            }
-        },
-        "web": {
-            "favicon": "./assets/favicon.png"
-        },
         "extra": {
             "eas": {
                 "projectId": "572100b8-fd56-4bbd-8d90-8e3b754b4d98"
