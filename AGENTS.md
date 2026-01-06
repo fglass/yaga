@@ -18,6 +18,7 @@ Avoid deprecated APIs; prefer the current recommended methods in library docs.
 
 -   `npm start`: Launches Metro via `expo start` for rapid local iteration.
 -   `npm test`: Runs the Jest unit test suite.
+-   Use the `ios-simulator-skill` to verify UI changes on the iOS simulator.
 
 ## Testing Guidance
 

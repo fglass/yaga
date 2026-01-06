@@ -29,6 +29,7 @@ eas build --platform ios --profile preview
 -   [x] Preview release
 -   [x] Update splash image
 -   [x] Test suite
+-   [ ] Liquid glass refresh
 
 ### Home View
 
@@ -88,6 +89,7 @@ eas build --platform ios --profile preview
 -   [ ] Check: timer accuracy
 -   [ ] Display heart rate
 -   [ ] Strava shoe setting
+-   [ ] Bug: run finish time: 25:01 -> :33
 
 ### Plan View
 
@@ -119,9 +121,13 @@ eas build --platform ios --profile preview
 
 ---
 
-https://github.com/steipete/agent-scripts
-https://dimillian.medium.com/the-state-of-agentic-ios-engineering-in-2026-c5f0cbaa7b34
-https://dimillian.medium.com/how-to-use-cursor-for-ios-development-54b912c23941
-https://sweetpad.hyzyla.dev
-https://flowdeck.studio
-https://dimillian.github.io/Skills/
+With warning ignore option
+
+Dupe seated calf press
+Single arm row
+Double cable curl (dedupe/delete)
+
+RIR
+Jump to historical workout
+Double tap to kb input weight/reps? Or adjust drag sensitivity
+Bug with run finish time: 25:01 -> :33

@@ -426,7 +426,9 @@ const WorkoutView = (props: Props) => {
         );
     };
 
-    return !vm.isLoading ? (
+    return vm.isLoading ? (
+        <ActivityIndicator style={styles.loading} color="white" size="large" />
+    ) : (
         <View style={styles.container}>
             {renderModals()}
             <ScrollView
@@ -451,8 +453,6 @@ const WorkoutView = (props: Props) => {
             </ScrollView>
             {renderRestTimer()}
         </View>
-    ) : (
-        <ActivityIndicator style={styles.loading} color="white" size="large" />
     );
 };
 
