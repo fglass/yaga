@@ -463,10 +463,13 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }, []);
 
-    const onAdjustRestTimer = useCallback((deltaS: number) => {
-        adjustRestTimer(deltaS);
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }, []);
+    const onAdjustRestTimer = useCallback(
+        (deltaS: number) => {
+            adjustRestTimer(deltaS);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        },
+        [adjustRestTimer]
+    );
 
     const calculateSetDuration = (setIdx: number, exerciseIdx: number) => {
         const exercise = workout.exercises[exerciseIdx];

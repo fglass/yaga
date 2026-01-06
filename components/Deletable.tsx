@@ -8,7 +8,7 @@ interface Props {
     onDelete: () => void;
 }
 
-export default (props: Props) => {
+const Deletable = (props: Props) => {
     const renderRightActions = () => {
         return (
             <RectButton style={styles.rightAction}>
@@ -40,3 +40,5 @@ const styles = StyleSheet.create({
         paddingRight: 10,
     },
 });
+
+export default Deletable;

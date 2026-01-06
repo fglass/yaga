@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Keyboard, TextInput, TextInputProps, View } from "react-native";
+import React, { useRef, useState } from "react";
+import { TextInput, TextInputProps, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { styles } from "./styles";
 

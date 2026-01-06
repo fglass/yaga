@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useWorkoutTemplates, useDatabaseWriter } from "../../model/database";
-import { Workout, WorkoutTemplate } from "../../model/types";
+import { WorkoutTemplate } from "../../model/types";
 import { generateGuid } from "../../utils/util";
 import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
 import {
