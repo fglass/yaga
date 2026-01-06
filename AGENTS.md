@@ -20,10 +20,13 @@ Avoid deprecated APIs; prefer the current recommended methods in library docs.
 -   `npm run lint`: Runs ESLint across the TypeScript codebase.
 -   `npm test`: Runs the Jest unit test suite.
 
-## Testing Guidance
+## Verification
 
 -   Use the `ios-simulator-skill` to verify UI changes on the iOS simulator.
 -   Always run `npm run lint` after making any change.
+
+### Testing
+
 -   Always run tests after making changes to confirm no regressions.
 -   Add tests after adding features or fixing bugs. Only test meaningful behavior; do not add low-value tests.
 -   Keep tests at the `viewModel` level; avoid UI/snapshot tests for this project.
