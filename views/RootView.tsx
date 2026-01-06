@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
+import { SafeAreaView } from "react-native-safe-area-context";
 import WorkoutView from "./workout/WorkoutView";
 import RunView from "./run/RunView";
 import PlanView from "./plan/PlanView";
@@ -49,29 +50,31 @@ const RootView = () => {
 
     return (
         <GestureHandlerRootView style={styles.container}>
-            {activeWorkout ? (
-                activeWorkout.type === "run" ? (
-                    <RunView
-                        initialRun={activeWorkout}
-                        onFinish={onFinishWorkout}
-                        onCancel={onCancelWorkout}
-                    />
+            <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+                {activeWorkout ? (
+                    activeWorkout.type === "run" ? (
+                        <RunView
+                            initialRun={activeWorkout}
+                            onFinish={onFinishWorkout}
+                            onCancel={onCancelWorkout}
+                        />
+                    ) : (
+                        <WorkoutView
+                            initialWorkout={activeWorkout}
+                            onFinish={onFinishWorkout}
+                            onCancel={onCancelWorkout}
+                        />
+                    )
                 ) : (
-                    <WorkoutView
-                        initialWorkout={activeWorkout}
-                        onFinish={onFinishWorkout}
-                        onCancel={onCancelWorkout}
-                    />
-                )
-            ) : (
-                <View style={styles.nonWorkoutContainer}>
-                    <View style={styles.contentArea}>{renderTab()}</View>
-                    <NavigationFooter
-                        activeTab={activeTab}
-                        onSelectTab={setActiveTab}
-                    />
-                </View>
-            )}
+                    <View style={styles.nonWorkoutContainer}>
+                        <View style={styles.contentArea}>{renderTab()}</View>
+                        <NavigationFooter
+                            activeTab={activeTab}
+                            onSelectTab={setActiveTab}
+                        />
+                    </View>
+                )}
+            </SafeAreaView>
             <StatusBar style="auto" />
         </GestureHandlerRootView>
     );
@@ -80,8 +83,10 @@ const RootView = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 50,
         backgroundColor: "#2A3135",
+    },
+    safeArea: {
+        flex: 1,
     },
     nonWorkoutContainer: {
         flex: 1,
