@@ -136,11 +136,8 @@ export const useRunViewModel = (props: Props): ViewModel => {
         }
         const startTime = Date.now();
         startTimer(startTime);
-
-        if (startTimestamp == null) {
-            setStartTimestamp(startTime);
-        }
-    }, [hasValidSpeed, startTimestamp, startTimer]);
+        setStartTimestamp(startTime); // Override initial start timestamp
+    }, [hasValidSpeed, startTimer]);
 
     const resumeRun = useCallback(() => {
         if (!hasValidSpeed) {
@@ -175,7 +172,7 @@ export const useRunViewModel = (props: Props): ViewModel => {
     useEffect(() => {
         saveActiveWorkout({
             ...run,
-            startTimestamp: startTimestamp ?? run.startTimestamp,
+            startTimestamp,
             distance: distanceKm,
         });
     }, [run, distanceKm, startTimestamp]);
@@ -200,7 +197,7 @@ export const useRunViewModel = (props: Props): ViewModel => {
                 const completedRun: CompletedWorkout = {
                     ...run,
                     id: generateGuid(),
-                    startTimestamp: startTimestamp,
+                    startTimestamp,
                     endTimestamp: endDate.getTime(),
                     distance: finalDistanceKm,
                 };

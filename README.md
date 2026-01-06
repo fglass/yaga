@@ -91,7 +91,7 @@ eas build --platform ios --profile preview
 -   [ ] Check: timer accuracy
 -   [ ] Display heart rate
 -   [ ] Strava shoe setting
--   [ ] Bug: run finish time: 25:01 -> :33
+-   [x] Bug: Incorrect duration
 
 ### Plan View
 
