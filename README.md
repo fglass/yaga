@@ -121,8 +121,6 @@ eas build --platform ios --profile preview
 
 ---
 
-With warning ignore option
-
 Dupe seated calf press
 Single arm row
 Double cable curl (dedupe/delete)

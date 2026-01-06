@@ -2,14 +2,24 @@ import { Alert, Share, NativeModules } from "react-native";
 import Constants, { ExecutionEnvironment } from "expo-constants";
 import * as Notifications from "expo-notifications";
 
+type WarningOptions = {
+    enabled?: boolean;
+    title?: string;
+    message?: string;
+};
+
 export const withWarning = (
     onPress: () => void,
-    title?: string,
-    message?: string
+    options?: WarningOptions
 ) => {
+    if (options?.enabled) {
+        onPress();
+        return;
+    }
+
     Alert.alert(
-        title ?? "Warning",
-        message ?? "This action cannot be undone",
+        options?.title ?? "Warning",
+        options?.message ?? "This action cannot be undone",
         [
             {
                 text: "Confirm",
