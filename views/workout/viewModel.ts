@@ -214,8 +214,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                     Haptics.NotificationFeedbackType.Success
                 );
             },
-            "Finish Workout",
-            "Are you sure?"
+            { title: "Finish Workout", message: "Are you sure?" }
         );
     };
 
@@ -226,8 +225,11 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                 await props.onCancel();
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             },
-            "Cancel Workout",
-            "Are you sure?"
+            {
+                title: "Cancel Workout",
+                message: "Are you sure?",
+                enabled: workout.exercises.length === 0,
+            }
         );
     };
 
@@ -353,10 +355,33 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         [resetRestTimer]
     );
 
-    const onRemoveSet = useCallback((exerciseIdx: number, setIdx: number) => {
-        dispatch({ type: ActionType.RemoveSet, exerciseIdx, setIdx });
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }, []);
+    const onRemoveSet = useCallback(
+        (exerciseIdx: number, setIdx: number) => {
+            const set = workout.exercises[exerciseIdx]?.sets[setIdx];
+            const shouldSkipWarning =
+                set == null ||
+                (!set.weight && !set.reps && set.finishTime === undefined);
+
+            withWarning(
+                () => {
+                    dispatch({
+                        type: ActionType.RemoveSet,
+                        exerciseIdx,
+                        setIdx,
+                    });
+                    Haptics.notificationAsync(
+                        Haptics.NotificationFeedbackType.Success
+                    );
+                },
+                {
+                    title: "Remove Set",
+                    message: "Are you sure?",
+                    enabled: shouldSkipWarning,
+                }
+            );
+        },
+        [workout]
+    );
 
     const onAddSet = useCallback((exerciseIdx: number) => {
         dispatch({ type: ActionType.AddSet, exerciseIdx });
@@ -453,8 +478,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                     Haptics.NotificationFeedbackType.Success
                 );
             },
-            "Remove Exercise",
-            "Are you sure?"
+            { title: "Remove Exercise", message: "Are you sure?" }
         );
     }, []);
 

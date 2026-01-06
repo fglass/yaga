@@ -223,8 +223,7 @@ export const useRunViewModel = (props: Props): ViewModel => {
                     Haptics.NotificationFeedbackType.Success
                 );
             },
-            "Finish Run",
-            "Are you sure?"
+            { title: "Finish Run", message: "Are you sure?" }
         );
     }, [
         canFinish,
@@ -244,10 +243,13 @@ export const useRunViewModel = (props: Props): ViewModel => {
                 await onCancel();
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             },
-            "Cancel Run",
-            "Are you sure?"
+            {
+                title: "Cancel Run",
+                message: "Are you sure?",
+                enabled: !hasStarted,
+            }
         );
-    }, [onCancel]);
+    }, [hasStarted, onCancel]);
 
     return {
         runName: run.name || "Run",

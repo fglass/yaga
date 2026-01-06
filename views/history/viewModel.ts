@@ -59,8 +59,7 @@ export const useHistoryViewModel = (): ViewModel => {
                 () => {
                     void deleteCompletedWorkout(workout.id);
                 },
-                "Delete Workout",
-                "Are you sure?"
+                { title: "Delete Workout", message: "Are you sure?" }
             );
         },
         [deleteCompletedWorkout]
