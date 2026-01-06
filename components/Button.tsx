@@ -17,7 +17,7 @@ interface Props {
     style?: StyleProp<ViewStyle>;
 }
 
-export default (props: Props) => {
+const Button = (props: Props) => {
     const buttonStyle = [styles.btn, props.style];
 
     if (props.colour) {
@@ -64,3 +64,5 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
 });
+
+export default Button;

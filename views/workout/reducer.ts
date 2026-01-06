@@ -1,5 +1,5 @@
 import produce from "immer";
-import { Exercise, Note, Set, Workout } from "../../model/types";
+import { Note, Set, Workout } from "../../model/types";
 import { generateGuid } from "../../utils/util";
 
 type Action = {

@@ -17,11 +17,13 @@ Avoid deprecated APIs; prefer the current recommended methods in library docs.
 ## Build, Test, and Development Commands
 
 -   `npm start`: Launches Metro via `expo start` for rapid local iteration.
+-   `npm run lint`: Runs ESLint across the TypeScript codebase.
 -   `npm test`: Runs the Jest unit test suite.
--   Use the `ios-simulator-skill` to verify UI changes on the iOS simulator.
 
 ## Testing Guidance
 
+-   Use the `ios-simulator-skill` to verify UI changes on the iOS simulator.
+-   Always run `npm run lint` after making any change.
 -   Always run tests after making changes to confirm no regressions.
 -   Add tests after adding features or fixing bugs. Only test meaningful behavior; do not add low-value tests.
 -   Keep tests at the `viewModel` level; avoid UI/snapshot tests for this project.
