@@ -68,6 +68,7 @@ eas build --platform ios --profile preview
 -   [ ] Bug: Workout timer resets on app reopen
 -   [x] Exercise history
 -   [ ] Exercise history graph
+-   [ ] Jump to historical workout
 -   [x] Go to history on workout close
 -   [x] Exercise category dropdown
 -   [ ] Exercise variation?
@@ -77,6 +78,7 @@ eas build --platform ios --profile preview
 -   [ ] Seed from [exercise list](https://exrx.net/Lists/Directory)/similar
 -   [ ] Sticky exercise note
 -   [ ] Progress overload tracker
+-   [ ] RIR
 
 ### Run View
 
@@ -122,10 +124,7 @@ eas build --platform ios --profile preview
 ---
 
 Dupe seated calf press
-Single arm row
 Double cable curl (dedupe/delete)
+Single arm row
 
-RIR
-Jump to historical workout
 Double tap to kb input weight/reps? Or adjust drag sensitivity
-Bug with run finish time: 25:01 -> :33
