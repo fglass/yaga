@@ -48,9 +48,10 @@ const HomeView = () => {
             iconColor: "#7AD3FF",
             label: "Week",
             thisLabel: "This",
-            thisValue: vm.runsThisWeek,
+            thisValue: vm.runDistanceThisWeek,
             lastLabel: "Last",
-            lastValue: vm.runsLastWeek,
+            lastValue: vm.runDistanceLastWeek,
+            isDistance: true,
         },
         {
             id: "run-month",
@@ -58,9 +59,10 @@ const HomeView = () => {
             iconColor: "#9BE28A",
             label: "Month",
             thisLabel: "This",
-            thisValue: vm.runsThisMonth,
+            thisValue: vm.runDistanceThisMonth,
             lastLabel: "Last",
-            lastValue: vm.runsLastMonth,
+            lastValue: vm.runDistanceLastMonth,
+            isDistance: true,
         },
         {
             id: "run-year",
@@ -68,9 +70,10 @@ const HomeView = () => {
             iconColor: "#FFC266",
             label: "Year",
             thisLabel: "This",
-            thisValue: vm.runsThisYear,
+            thisValue: vm.runDistanceThisYear,
             lastLabel: "Last",
-            lastValue: vm.runsLastYear,
+            lastValue: vm.runDistanceLastYear,
+            isDistance: true,
         },
     ];
 
@@ -78,6 +81,16 @@ const HomeView = () => {
         card,
         runningCards[index],
     ]);
+
+    const renderValue = (value: string | number, isDistance?: boolean) => {
+        const display = String(value ?? "");
+
+        if (!isDistance) {
+            return <Text style={styles.statValue}>{display}</Text>;
+        }
+
+        return <Text style={styles.statValueSmall}>{display}</Text>;
+    };
 
     return (
         <View style={styles.container}>
@@ -101,15 +114,22 @@ const HomeView = () => {
                                 style={styles.statIcon}
                             />
                             <Text style={styles.statLabel}>{card.label}</Text>
+                            {"isDistance" in card && card.isDistance ? (
+                                <Text style={styles.statLabelUnit}>km</Text>
+                            ) : null}
                         </View>
                         <View style={styles.statComparisonRow}>
                             <View style={styles.statComparison}>
                                 <Text style={styles.statComparisonLabel}>
                                     {card.thisLabel}
                                 </Text>
-                                <Text style={styles.statValue}>
-                                    {vm.isLoading ? "" : card.thisValue}
-                                </Text>
+                                {vm.isLoading
+                                    ? null
+                                    : renderValue(
+                                          card.thisValue,
+                                          "isDistance" in card &&
+                                              card.isDistance
+                                      )}
                             </View>
                             <View
                                 style={[
@@ -120,9 +140,13 @@ const HomeView = () => {
                                 <Text style={styles.statComparisonLabel}>
                                     {card.lastLabel}
                                 </Text>
-                                <Text style={styles.statValue}>
-                                    {vm.isLoading ? "" : card.lastValue}
-                                </Text>
+                                {vm.isLoading
+                                    ? null
+                                    : renderValue(
+                                          card.lastValue,
+                                          "isDistance" in card &&
+                                              card.isDistance
+                                      )}
                             </View>
                         </View>
                     </View>
@@ -180,6 +204,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#353C42",
         borderWidth: 1,
         borderColor: "rgba(255, 255, 255, 0.05)",
+        minHeight: 112,
     },
     statHeader: {
         flexDirection: "row",
@@ -217,6 +242,19 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: "700",
         color: "white",
+    },
+    statValueSmall: {
+        marginTop: 6,
+        fontSize: 22,
+        fontWeight: "700",
+        color: "white",
+    },
+    statLabelUnit: {
+        marginLeft: 6,
+        color: "rgba(255, 255, 255, 0.35)",
+        fontSize: 11,
+        letterSpacing: 1,
+        textTransform: "uppercase",
     },
 });
 
