@@ -232,9 +232,7 @@ const formatActivityName = (activityType: WorkoutActivityType): string => {
     return remapped[formatted as keyof typeof remapped] ?? formatted;
 };
 
-const mapWorkoutType = (
-    activityType: WorkoutActivityType
-): WorkoutType | "other" => {
+const mapWorkoutType = (activityType: WorkoutActivityType): WorkoutType => {
     if (activityType === WorkoutActivityType.running) {
         return "run";
     }
@@ -243,5 +241,7 @@ const mapWorkoutType = (
         return "strength";
     }
 
-    return "other";
+    throw new Error(
+        `Unsupported HealthKit workout type: ${activityType.toString()}`
+    );
 };
