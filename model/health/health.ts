@@ -188,6 +188,7 @@ const asHealthWorkout = (
         endDate,
         durationSeconds,
         activityType: sample.workoutActivityType,
+        workoutType: mapWorkoutType(sample.workoutActivityType),
         distance,
     };
 };
@@ -229,4 +230,18 @@ const formatActivityName = (activityType: WorkoutActivityType): string => {
     };
 
     return remapped[formatted as keyof typeof remapped] ?? formatted;
+};
+
+const mapWorkoutType = (
+    activityType: WorkoutActivityType
+): WorkoutType | "other" => {
+    if (activityType === WorkoutActivityType.running) {
+        return "run";
+    }
+
+    if (activityType === WorkoutActivityType.traditionalStrengthTraining) {
+        return "strength";
+    }
+
+    return "other";
 };

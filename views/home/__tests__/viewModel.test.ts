@@ -1,15 +1,4 @@
-jest.mock("@kingstinct/react-native-healthkit", () => ({
-    WorkoutActivityType: {
-        traditionalStrengthTraining: 1,
-        running: 2,
-    },
-}));
-
-jest.mock("expo-sqlite", () => ({
-    openDatabaseAsync: jest.fn(),
-}));
-
-import { computePeriodStats } from "../viewModel";
+import { computePeriodStats } from "../periodStats";
 
 describe("computePeriodStats", () => {
     it("sums distances into the expected periods", () => {
