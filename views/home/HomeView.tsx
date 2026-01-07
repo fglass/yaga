@@ -82,16 +82,6 @@ const HomeView = () => {
         runningCards[index],
     ]);
 
-    const renderValue = (value: string | number, isDistance?: boolean) => {
-        const display = String(value ?? "");
-
-        if (!isDistance) {
-            return <Text style={styles.statValue}>{display}</Text>;
-        }
-
-        return <Text style={styles.statValueSmall}>{display}</Text>;
-    };
-
     return (
         <View style={styles.container}>
             <View style={styles.headerRow}>
@@ -123,13 +113,11 @@ const HomeView = () => {
                                 <Text style={styles.statComparisonLabel}>
                                     {card.thisLabel}
                                 </Text>
-                                {vm.isLoading
-                                    ? null
-                                    : renderValue(
-                                          card.thisValue,
-                                          "isDistance" in card &&
-                                              card.isDistance
-                                      )}
+                                {vm.isLoading ? null : (
+                                    <Text style={styles.statValue}>
+                                        {card.thisValue}
+                                    </Text>
+                                )}
                             </View>
                             <View
                                 style={[
@@ -140,13 +128,11 @@ const HomeView = () => {
                                 <Text style={styles.statComparisonLabel}>
                                     {card.lastLabel}
                                 </Text>
-                                {vm.isLoading
-                                    ? null
-                                    : renderValue(
-                                          card.lastValue,
-                                          "isDistance" in card &&
-                                              card.isDistance
-                                      )}
+                                {vm.isLoading ? null : (
+                                    <Text style={styles.statValue}>
+                                        {card.lastValue}
+                                    </Text>
+                                )}
                             </View>
                         </View>
                     </View>
@@ -238,12 +224,6 @@ const styles = StyleSheet.create({
         textTransform: "uppercase",
     },
     statValue: {
-        marginTop: 6,
-        fontSize: 22,
-        fontWeight: "700",
-        color: "white",
-    },
-    statValueSmall: {
         marginTop: 6,
         fontSize: 22,
         fontWeight: "700",
