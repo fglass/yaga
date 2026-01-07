@@ -1,6 +1,6 @@
 import React from "react";
 import { useCompletedWorkouts, useDatabaseWriter } from "../../model/database";
-import { useAppleHealthWorkouts } from "../../model/health";
+import { useAppleHealthWorkouts } from "../../model/health/health.hooks";
 import { AppleHealthWorkout, CompletedWorkout } from "../../model/types";
 import {
     dedupeWorkoutsByStart,
@@ -12,14 +12,20 @@ export type HistoryItem =
     | { type: "local"; workout: CompletedWorkout; startDate: Date }
     | { type: "health"; workout: AppleHealthWorkout; startDate: Date };
 
+interface Props {
+    onSelectLocalWorkout: (workout: CompletedWorkout) => void;
+}
+
 interface ViewModel {
     combinedHistory: HistoryItem[];
     isAppleHealthLoading: boolean;
     onDeleteLocalWorkout: (workout: CompletedWorkout) => void;
+    onSelectLocalWorkout: (workout: CompletedWorkout) => void;
+    isLocalWorkoutSelectable: (workout: CompletedWorkout) => boolean;
     formatWorkoutDate: (date: Date | null | undefined) => string;
 }
 
-export const useHistoryViewModel = (): ViewModel => {
+export const useHistoryViewModel = (props: Props): ViewModel => {
     const completedWorkouts = useCompletedWorkouts();
     const { workouts: appleHealthWorkouts, isLoading: isAppleHealthLoading } =
         useAppleHealthWorkouts();
@@ -65,6 +71,21 @@ export const useHistoryViewModel = (): ViewModel => {
         [deleteCompletedWorkout]
     );
 
+    const isLocalWorkoutSelectable = React.useCallback(
+        (workout: CompletedWorkout) => workout.type === "strength",
+        [props.onSelectLocalWorkout]
+    );
+
+    const onSelectLocalWorkout = React.useCallback(
+        (workout: CompletedWorkout) => {
+            if (!isLocalWorkoutSelectable(workout)) {
+                return;
+            }
+            props.onSelectLocalWorkout(workout);
+        },
+        [isLocalWorkoutSelectable, props.onSelectLocalWorkout]
+    );
+
     const formatWorkoutDate = React.useCallback(
         (date: Date | null | undefined): string => {
             if (!date || Number.isNaN(date.getTime())) {
@@ -90,6 +111,8 @@ export const useHistoryViewModel = (): ViewModel => {
         combinedHistory,
         isAppleHealthLoading,
         onDeleteLocalWorkout,
+        onSelectLocalWorkout,
+        isLocalWorkoutSelectable,
         formatWorkoutDate,
     };
 };

@@ -1,6 +1,14 @@
 import { Alert } from "react-native";
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useReducer,
+    useRef,
+    useState,
+} from "react";
+import {
+    CompletedWorkout,
     Exercise,
     ExerciseCategory,
     ExerciseDef,
@@ -24,21 +32,33 @@ import { useTimers } from "./hooks";
 import { logAppleHealthWorkout } from "../../model/health";
 import * as Notifications from "expo-notifications";
 
-interface Props {
+type ActiveProps = {
+    mode?: "active";
     initialWorkout: Workout;
     onFinish: () => Promise<void>;
     onCancel: () => Promise<void>;
-}
+};
+
+type HistoryProps = {
+    mode: "history";
+    initialWorkout: CompletedWorkout;
+    onFinish: () => Promise<void>;
+    onCancel: () => Promise<void>;
+};
+
+type Props = ActiveProps | HistoryProps;
 
 interface ViewModel {
     isLoading: boolean;
     workout: Workout; // TODO: flatten?
+    startDateLabel: string;
     workoutDurationS: number;
     remainingRestTimeS: number;
     totalRestDurationS: number;
     exerciseDefs: Record<string, ExerciseDef>;
     historyExerciseId: string | null;
     activeModal: ModalType;
+    isHistoryMode: boolean;
     setActiveModal: (modalType: ModalType) => void;
     isModalActive: (modalType: ModalType) => boolean;
     onChangeWorkoutNotes: (notes: string) => void;
@@ -94,7 +114,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         ...props.initialWorkout,
     });
 
-    const exerciseDefs = useExerciseDefs(); // TODO: lift up?
+    const exerciseDefs = useExerciseDefs();
     const { completeWorkout, createExerciseDef } = useDatabaseWriter();
     const [activeModal, setActiveModal] = useState(ModalType.None);
     const [historyExerciseId, setHistoryExerciseId] = useState<string | null>(
@@ -105,20 +125,8 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     >({});
 
     const restNotificationIdRef = useRef<string | null>(null);
-    const {
-        workoutStartTime,
-        workoutDurationS,
-        remainingRestTimeS,
-        totalRestDurationS,
-        adjustRestTimer,
-        resetRestTimer,
-        cancelRestTimer,
-    } = useTimers({
-        onRestStart: (restEndTimeMs) =>
-            scheduleRestFinishNotification(restEndTimeMs),
-        onRestCancel: () => cancelRestFinishNotification(),
-        initialStartTimeMs: workout.startTimestamp,
-    });
+
+    const isHistoryMode = props.mode === "history";
 
     const cancelRestFinishNotification = useCallback(async () => {
         if (restNotificationIdRef.current == null) {
@@ -155,6 +163,22 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         [cancelRestFinishNotification]
     );
 
+    const noop = useCallback(() => {}, []);
+    const {
+        workoutStartTime,
+        workoutDurationS,
+        remainingRestTimeS,
+        totalRestDurationS,
+        adjustRestTimer,
+        resetRestTimer,
+        cancelRestTimer,
+    } = useTimers({
+        onRestStart: isHistoryMode ? noop : scheduleRestFinishNotification,
+        onRestCancel: isHistoryMode ? noop : cancelRestFinishNotification,
+        initialStartTimeMs: workout.startTimestamp,
+        isEnabled: !isHistoryMode,
+    });
+
     useEffect(() => {
         // Executed when app is in foreground
         const onNotification = (notification: Notifications.Notification) => {
@@ -170,8 +194,11 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     }, []);
 
     useEffect(() => {
+        if (isHistoryMode) {
+            return;
+        }
         saveActiveWorkout(workout); // Fire-and-forget
-    }, [workout]);
+    }, [isHistoryMode, workout]);
 
     const isLoading = Object.keys(exerciseDefs).length === 0;
 
@@ -188,6 +215,20 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     };
 
     const onFinishWorkout = async () => {
+        if (isHistoryMode) {
+            const completedWorkout = {
+                ...workout,
+                endTimestamp: props.initialWorkout.endTimestamp,
+            };
+
+            await completeWorkout(completedWorkout as CompletedWorkout);
+
+            cancelRestTimer();
+            await props.onFinish();
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            return;
+        }
+
         withWarning(
             async () => {
                 const finishDate = new Date();
@@ -197,7 +238,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                     endTimestamp: finishDate.getTime(),
                 };
 
-                await completeWorkout(completedWorkout);
+                await completeWorkout(completedWorkout as CompletedWorkout);
 
                 const durationHours = Math.max(0, workoutDurationS / 3600);
                 const calories = durationHours * CALORIES_PER_HOUR;
@@ -219,6 +260,10 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     };
 
     const onCancelWorkout = async () => {
+        if (isHistoryMode) {
+            await props.onCancel();
+            return;
+        }
         withWarning(
             async () => {
                 cancelRestTimer();
@@ -347,12 +392,12 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                 setIdx,
                 isFinished,
             });
-            if (isFinished) {
+            if (isFinished && !isHistoryMode) {
                 resetRestTimer();
             }
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         },
-        [resetRestTimer]
+        [isHistoryMode, resetRestTimer]
     );
 
     const onRemoveSet = useCallback(
@@ -489,10 +534,13 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
     const onAdjustRestTimer = useCallback(
         (deltaS: number) => {
+            if (isHistoryMode) {
+                return;
+            }
             adjustRestTimer(deltaS);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
-        [adjustRestTimer]
+        [adjustRestTimer, isHistoryMode]
     );
 
     const calculateSetDuration = (setIdx: number, exerciseIdx: number) => {
@@ -542,15 +590,30 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         setHistoryExerciseId(null);
     }, []);
 
+    const startDateLabel = useMemo(() => {
+        const date = new Date(workout.startTimestamp);
+        if (Number.isNaN(date.getTime())) {
+            return "Unknown date";
+        }
+
+        return date.toLocaleDateString(undefined, {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+        });
+    }, [workout.startTimestamp]);
+
     return {
         isLoading,
         workout,
+        startDateLabel,
         workoutDurationS,
         remainingRestTimeS,
         totalRestDurationS,
         exerciseDefs,
         historyExerciseId,
         activeModal,
+        isHistoryMode,
         setActiveModal,
         isModalActive,
         onChangeWorkoutNotes,

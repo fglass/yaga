@@ -46,6 +46,7 @@ enum Exercise {
     RomanianDeadlift = "fe5d9291-0be6-4dfd-9ca7-a9b8c05f2f52",
     RomanChairLegRaises = "4ce5ec6a-94aa-49b5-9144-81940d9dfa5f",
     ReverseFly = "ba9415ee-7c93-4eae-9996-3b2f5f3ee77e",
+    RowSingleArm = "2c2b6ed1-d6a1-47f8-9d5b-2f9e2c4d2d17",
     RowMachineSeated = "e55322b1-02a4-4eda-9476-fa7107bd8e2e",
     ShoulderPressDumbell = "8ebdd214-e6f9-40c9-b409-f15e5a883121",
     ShoulderPressMachine = "41d6aa23-c8b4-46f8-a738-769bb9ea2994",
@@ -86,6 +87,10 @@ export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
     },
     [Exercise.CableRow]: {
         name: "Cable Row",
+        category: "Back",
+    },
+    [Exercise.RowSingleArm]: {
+        name: "Single Arm Row",
         category: "Back",
     },
     [Exercise.RowMachineSeated]: {

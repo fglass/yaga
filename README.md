@@ -18,27 +18,28 @@ eas build --platform ios --profile preview
 
 ### General
 
--   [ ] Sessions?
+-   [ ] 🟢 Sessions?
 -   [x] SQLite
 -   [x] SQLite relational model
 -   [x] Apple Health export
 -   [x] Apple Health write toggle
--   [ ] iCloud sync?
+-   [ ] 🟢 iCloud sync?
 -   [x] Spreadsheet migration
--   [ ] Strong migration
+-   [ ] 🟡 Strong migration
 -   [x] Preview release
 -   [x] Update splash image
 -   [x] Test suite
--   [ ] Liquid glass refresh
+-   [ ] 🟡 Liquid glass refresh
+-   [ ] 🟢 Goal setting?
 
 ### Home View
 
 -   [x] Workouts per week/month/year
 -   [x] Runs per week/month/year
 -   [x] Apple Health read
--   [ ] Distance stats
--   [ ] Weekly targets?
--   [ ] Tap for history
+-   [x] Distance stats
+-   [ ] 🟢 Weekly targets?
+-   [ ] 🟡 Tap for history
 
 ### Workout View
 
@@ -53,32 +54,34 @@ eas build --platform ios --profile preview
 -   [x] Change set timer
 -   [x] Exercise reordering
 -   [x] Double tap "ditto"
--   [ ] New template adding
+-   [ ] 🟡 New template adding
 -   [x] Timer notification
--   [ ] Timer noise
+-   [ ] 🟢 Timer noise
 -   [x] Sticky timer progress bar
--   [ ] Exercise completion timer
+-   [ ] 🟡 Exercise completion timer
 -   [x] Disable exercise move above completed/active
--   [ ] Drag to reorder exercises
+-   [ ] 🟡 Drag to reorder exercises
 -   [x] Set/time box colouring
--   [ ] Active workout minimise
--   [ ] Warmup/superset/ignore sets
+-   [ ] 🟡 Active workout minimise
+-   [ ] 🔴 Warmup/superset/ignore sets
 -   [x] Bug: Keyboard position on bottom exercise
 -   [x] Bug: Long exercise name hides buttons
--   [ ] Bug: Workout timer resets on app reopen
+-   [ ] 🟡 Bug: Workout timer resets on app reopen
 -   [x] Exercise history
--   [ ] Exercise history graph
--   [ ] Jump to historical workout
+-   [ ] 🟡 Exercise history graph
+-   [ ] 🟡 Jump to historical workout
 -   [x] Go to history on workout close
 -   [x] Exercise category dropdown
--   [ ] Exercise variation?
+-   [ ] 🟡 Exercise variation?
 -   [x] Finish workout confirmation
--   [ ] Bug: Calories move goal
--   [ ] Finish confetti/fireworks
--   [ ] Seed from [exercise list](https://exrx.net/Lists/Directory)/similar
--   [ ] Sticky exercise note
--   [ ] Progress overload tracker
--   [ ] RIR
+-   [ ] 🟡 Bug: Calories move goal
+-   [ ] 🟢 Finish confetti/fireworks
+-   [ ] 🟢 Seed from [exercise list](https://exrx.net/Lists/Directory)/similar
+-   [ ] 🟡 Sticky exercise note
+-   [ ] 🔴 Progressive overload tracker
+-   [ ] 🟡 RIR
+-   [ ] 🟡 Dedupe/delete exercise degs e.g. seated calf press, cable curl
+-   [ ] 🟢 Double tap to kb input weight/reps? Or adjust drag sensitivity
 
 ### Run View
 
@@ -88,9 +91,9 @@ eas build --platform ios --profile preview
 -   [x] Pause run on finish
 -   [x] Strava write
 -   [x] Strava auth cache
--   [ ] Check: timer accuracy
--   [ ] Display heart rate
--   [ ] Strava shoe setting
+-   [ ] 🔴 Check: timer accuracy
+-   [ ] 🟢 Display heart rate
+-   [ ] 🟢 Strava shoe setting
 -   [x] Bug: Incorrect duration
 
 ### Plan View
@@ -103,28 +106,18 @@ eas build --platform ios --profile preview
 ### History View
 
 -   [x] Show completed
--   [ ] View completed
+-   [x] View completed
 -   [x] Delete completed
 -   [x] Apple Health read
 -   [x] Dedupe
--   [ ] Maybe: workout deletion bug
+-   [ ] 🟡 Maybe: workout deletion bug
 
 ## Incubator
 
--   Goal setting & progress tracking
--   Design
+-   Design:
     -   Accordians
     -   [Example](https://dribbble.com/shots/25596307-Workout-Tracker-Gym-App)
     -   [Palette](https://dribbble.com/shots/21782757-Wi-Fi-Scan-Diagnostics-app)
 -   [iOS design](https://developer.apple.com/design/resources/)
--   Native
     -   https://docs.expo.dev/router/advanced/native-tabs/
     -   https://docs.expo.dev/versions/latest/sdk/glass-effect/
-
----
-
-Dupe seated calf press
-Double cable curl (dedupe/delete)
-Single arm row
-
-Double tap to kb input weight/reps? Or adjust drag sensitivity

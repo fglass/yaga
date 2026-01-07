@@ -9,12 +9,14 @@ interface Props {
     onRestStart: (endTimeMs: number) => void;
     onRestCancel: () => void;
     initialStartTimeMs?: number;
+    isEnabled?: boolean;
 }
 
 export const useTimers = ({
     onRestStart,
     onRestCancel,
     initialStartTimeMs,
+    isEnabled = true,
 }: Props) => {
     const workoutStartTimeRef = useRef(initialStartTimeMs ?? Date.now());
     const [workoutDurationS, setWorkoutDurationS] = useState(0);
@@ -28,6 +30,9 @@ export const useTimers = ({
     );
 
     useEffect(() => {
+        if (!isEnabled) {
+            return;
+        }
         const intervalId = setInterval(() => {
             setWorkoutDurationS(
                 Math.round((Date.now() - workoutStartTimeRef.current) / 1000)
@@ -40,7 +45,7 @@ export const useTimers = ({
             );
         }, 250); // Run every 250ms to help with UI syncing
         return () => clearInterval(intervalId);
-    }, [totalRestDurationS]);
+    }, [isEnabled, totalRestDurationS]);
 
     return {
         workoutStartTime: workoutStartTimeRef.current,
@@ -49,6 +54,9 @@ export const useTimers = ({
         totalRestDurationS,
         adjustRestTimer: useCallback(
             (deltaS: number) => {
+                if (!isEnabled) {
+                    return;
+                }
                 setTotalRestDurationS((prevTotal) =>
                     Math.max(prevTotal + deltaS, 0)
                 );
@@ -60,17 +68,23 @@ export const useTimers = ({
                     return next;
                 });
             },
-            [onRestStart]
+            [isEnabled, onRestStart]
         ),
         resetRestTimer: useCallback(() => {
+            if (!isEnabled) {
+                return;
+            }
             restEndTimeRef.current = Date.now() + totalRestDurationS * 1000;
             setRemainingRestTimeS(totalRestDurationS);
             onRestStart(restEndTimeRef.current);
-        }, [onRestStart, totalRestDurationS]),
+        }, [isEnabled, onRestStart, totalRestDurationS]),
         cancelRestTimer: useCallback(() => {
+            if (!isEnabled) {
+                return;
+            }
             restEndTimeRef.current = Date.now();
             setRemainingRestTimeS(-1);
             onRestCancel();
-        }, [onRestCancel]),
+        }, [isEnabled, onRestCancel]),
     };
 };

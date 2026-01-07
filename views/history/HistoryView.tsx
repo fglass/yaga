@@ -1,5 +1,11 @@
 import React from "react";
-import { Text, StyleSheet, FlatList, View } from "react-native";
+import {
+    Text,
+    StyleSheet,
+    FlatList,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { CompletedWorkout, AppleHealthWorkout } from "../../model/types";
 import {
@@ -10,13 +16,21 @@ import {
 import Deletable from "../../components/Deletable";
 import { HistoryItem, useHistoryViewModel } from "./viewModel";
 
-const HistoryView = () => {
+interface Props {
+    onSelectWorkout: (workout: CompletedWorkout) => void;
+}
+
+const HistoryView = (props: Props) => {
     const {
         combinedHistory,
         isAppleHealthLoading,
         onDeleteLocalWorkout,
+        onSelectLocalWorkout,
+        isLocalWorkoutSelectable,
         formatWorkoutDate,
-    } = useHistoryViewModel();
+    } = useHistoryViewModel({
+        onSelectLocalWorkout: props.onSelectWorkout,
+    });
 
     const renderHistoryItem = (item: HistoryItem) => {
         if (item.type === "local") {
@@ -34,18 +48,34 @@ const HistoryView = () => {
         );
         const isRun = workout.type === "run";
 
+        const workoutContent = (
+            <View style={styles.workoutCard}>
+                <Text style={styles.workoutTitle}>
+                    {workout.name}
+                    {isRun ? ` ${workout.distance?.toFixed(2)}K ` : ""}
+                </Text>
+                <Text style={styles.workoutMeta}>
+                    {workoutDate} · {formatDuration(durationSeconds)}
+                </Text>
+            </View>
+        );
+
         return (
             <View style={styles.swipeContainer}>
                 <Deletable onDelete={() => onDeleteLocalWorkout(workout)}>
-                    <View key={workout.id} style={styles.workoutCard}>
-                        <Text style={styles.workoutTitle}>
-                            {workout.name}
-                            {isRun ? ` ${workout.distance?.toFixed(2)}K ` : ""}
-                        </Text>
-                        <Text style={styles.workoutMeta}>
-                            {workoutDate} · {formatDuration(durationSeconds)}
-                        </Text>
-                    </View>
+                    {isLocalWorkoutSelectable(workout) ? (
+                        <TouchableOpacity
+                            activeOpacity={0.7}
+                            accessibilityRole="button"
+                            accessibilityLabel={`${workout.name} workout`}
+                            accessibilityHint="View workout details"
+                            onPress={() => onSelectLocalWorkout(workout)}
+                        >
+                            {workoutContent}
+                        </TouchableOpacity>
+                    ) : (
+                        workoutContent
+                    )}
                 </Deletable>
             </View>
         );
