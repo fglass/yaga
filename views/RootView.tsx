@@ -16,6 +16,7 @@ import {
     useActiveWorkout,
     useDatabaseWriter,
 } from "../model/database";
+import { CompletedWorkout } from "../model/types";
 
 // Run during module initialisation, before view renders
 if (typeof window !== "undefined") {
@@ -24,6 +25,9 @@ if (typeof window !== "undefined") {
 
 const RootView = () => {
     const activeWorkout = useActiveWorkout();
+    const [historyWorkout, setHistoryWorkout] =
+        useState<CompletedWorkout | null>(null);
+
     const { saveActiveWorkout } = useDatabaseWriter();
     const [activeTab, setActiveTab] = useState<NavigationTab>("home");
 
@@ -36,12 +40,22 @@ const RootView = () => {
         await saveActiveWorkout(null);
     };
 
+    const onFinishHistoryWorkout = async () => {
+        setHistoryWorkout(null);
+        setActiveTab("history");
+    };
+
+    const onCancelHistoryWorkout = async () => {
+        setHistoryWorkout(null);
+        setActiveTab("history");
+    };
+
     const renderTab = () => {
         switch (activeTab) {
             case "plan":
                 return <PlanView />;
             case "history":
-                return <HistoryView />;
+                return <HistoryView onSelectWorkout={setHistoryWorkout} />;
             case "home":
             default:
                 return <HomeView />;
@@ -50,7 +64,10 @@ const RootView = () => {
 
     return (
         <GestureHandlerRootView style={styles.container}>
-            <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+            <SafeAreaView
+                style={styles.safeArea}
+                edges={["top", "left", "right"]}
+            >
                 {activeWorkout ? (
                     activeWorkout.type === "run" ? (
                         <RunView
@@ -60,11 +77,19 @@ const RootView = () => {
                         />
                     ) : (
                         <WorkoutView
+                            mode="active"
                             initialWorkout={activeWorkout}
                             onFinish={onFinishWorkout}
                             onCancel={onCancelWorkout}
                         />
                     )
+                ) : historyWorkout ? (
+                    <WorkoutView
+                        mode="history"
+                        initialWorkout={historyWorkout}
+                        onFinish={onFinishHistoryWorkout}
+                        onCancel={onCancelHistoryWorkout}
+                    />
                 ) : (
                     <View style={styles.nonWorkoutContainer}>
                         <View style={styles.contentArea}>{renderTab()}</View>

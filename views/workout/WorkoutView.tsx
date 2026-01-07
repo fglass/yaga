@@ -16,17 +16,34 @@ import AdjustableNumberInput from "./AdjustableNumberInput";
 import Button from "../../components/Button";
 import CountdownTimer from "../../components/CountdownTimer";
 import Deletable from "../../components/Deletable";
-import { Exercise, ModalType, Note, Set, Workout } from "../../model/types";
+import {
+    CompletedWorkout,
+    Exercise,
+    ModalType,
+    Note,
+    Set,
+    Workout,
+} from "../../model/types";
 import { formatTime } from "../../utils/util";
 import { useWorkoutViewModel } from "./viewModel";
 import { styles } from "./styles";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
-interface Props {
+type ActiveProps = {
+    mode: "active";
     initialWorkout: Workout;
     onFinish: () => Promise<void>;
     onCancel: () => Promise<void>;
-}
+};
+
+type HistoryProps = {
+    mode: "history";
+    initialWorkout: CompletedWorkout;
+    onFinish: () => Promise<void>;
+    onCancel: () => Promise<void>;
+};
+
+type Props = ActiveProps | HistoryProps;
 
 const WorkoutView = (props: Props) => {
     const vm = useWorkoutViewModel(props);
@@ -74,7 +91,9 @@ const WorkoutView = (props: Props) => {
                 <View style={styles.headerText}>
                     <Text style={styles.title}>{vm.workout.name}</Text>
                     <Text style={[styles.subtitle, styles.headerSubtitle]}>
-                        {formatTime(vm.workoutDurationS)}
+                        {vm.isHistoryMode
+                            ? vm.startDateLabel
+                            : formatTime(vm.workoutDurationS)}
                     </Text>
                     <TextInput
                         style={styles.notesInput}
@@ -379,7 +398,7 @@ const WorkoutView = (props: Props) => {
                     style={[styles.footerButton, styles.footerButtonSpacing]}
                 />
                 <Button
-                    label="Finish"
+                    label={vm.isHistoryMode ? "Save" : "Finish"}
                     colour="success"
                     onPress={vm.onFinishWorkout}
                     style={[styles.footerButton, styles.footerButtonSpacing]}
@@ -395,7 +414,7 @@ const WorkoutView = (props: Props) => {
     );
 
     const renderRestTimer = () => {
-        if (vm.remainingRestTimeS < 0) {
+        if (vm.isHistoryMode || vm.remainingRestTimeS < 0) {
             return null;
         }
 
