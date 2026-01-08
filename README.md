@@ -83,7 +83,7 @@ eas build --platform ios --profile preview
 -   [ ] 🟡 RIR
 -   [ ] 🟡 Dedupe/delete exercise degs e.g. seated calf press, cable curl
 -   [ ] 🟢 Double tap to kb input weight/reps? Or adjust drag sensitivity
--   [ ] 🔴 Bug: sometimes double rest timer (after adjust?)
+-   [x] 🔴 Bug: sometimes double rest timer (after adjust?)
 
 ### Run View
 
