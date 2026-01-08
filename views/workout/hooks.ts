@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { fetchRecentSetsForExercises } from "../../model/database";
+import type { Set } from "../../model/types";
 
 export const DEFAULT_REST_DURATION_S = 90;
 
@@ -87,4 +89,64 @@ export const useTimers = ({
             onRestCancel();
         }, [isEnabled, onRestCancel]),
     };
+};
+
+type RecentSetsEntry = { finishedAt: number; sets: Set[] };
+
+export const useRecentSetsForExercises = (
+    exerciseIds: string[],
+    nWorkouts: number,
+    isEnabled = true
+) => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [historySets, setHistorySets] = useState<
+        Record<string, RecentSetsEntry[]>
+    >({});
+
+    const exerciseIdsKey = useMemo(() => {
+        const uniqueIds = Array.from(new Set(exerciseIds)).filter(Boolean);
+        uniqueIds.sort();
+        return uniqueIds.join("|");
+    }, [exerciseIds]);
+
+    useEffect(() => {
+        let isActive = true;
+
+        if (!isEnabled || exerciseIdsKey.length === 0 || nWorkouts <= 0) {
+            setHistorySets({});
+            setIsLoading(false);
+            return () => {
+                isActive = false;
+            };
+        }
+
+        setIsLoading(true);
+        const ids = exerciseIdsKey.split("|");
+
+        fetchRecentSetsForExercises(ids, nWorkouts)
+            .then((history) => {
+                if (!isActive) {
+                    return;
+                }
+                setHistorySets(history);
+            })
+            .catch(() => {
+                if (!isActive) {
+                    return;
+                }
+                setHistorySets({});
+            })
+            .finally(() => {
+                if (!isActive) {
+                    return;
+                }
+                setIsLoading(false);
+            });
+
+        return () => {
+            isActive = false;
+        };
+    }, [exerciseIdsKey, isEnabled, nWorkouts]);
+
+    return { isLoading, historySets };
 };

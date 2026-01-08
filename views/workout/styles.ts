@@ -164,6 +164,12 @@ export const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: "rgba(255, 255, 255, 0.08)",
     },
+    tdImproved: {
+        color: "#65CA79",
+    },
+    tdDeclined: {
+        color: "#EC6569",
+    },
     tdBtn: {
         width: 32,
         alignItems: "center",

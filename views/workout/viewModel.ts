@@ -15,6 +15,7 @@ import {
     ModalType,
     Workout,
 } from "../../model/types";
+import type { Set } from "../../model/types";
 import { workoutProducer, ActionType } from "./reducer";
 import {
     saveActiveWorkout,
@@ -28,9 +29,10 @@ import {
 } from "../../utils/util";
 import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
 import * as Haptics from "expo-haptics";
-import { useTimers } from "./hooks";
+import { useRecentSetsForExercises, useTimers } from "./hooks";
 import { logAppleHealthWorkout } from "../../model/health";
 import * as Notifications from "expo-notifications";
+import { compareSetEpley1RM, SetProgression } from "./calculations";
 
 type ActiveProps = {
     mode?: "active";
@@ -103,6 +105,7 @@ interface ViewModel {
         setIdx: number,
         exerciseIdx: number
     ) => string | null;
+    getSetProgress: (exerciseIdx: number, setIdx: number) => SetProgression;
     onShowExerciseHistory: (exerciseId: string) => void;
     onCloseExerciseHistory: () => void;
 }
@@ -128,6 +131,25 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const restScheduleTokenRef = useRef(0);
 
     const isHistoryMode = props.mode === "history";
+
+    const exerciseIds = useMemo(
+        () => workout.exercises.map((exercise) => exercise.exerciseId),
+        [workout.exercises]
+    );
+    const { historySets: recentSetsByExerciseId } =
+        useRecentSetsForExercises(exerciseIds, 1, !isHistoryMode);
+    const previousSetsByExerciseId = useMemo(() => {
+        const next: Record<string, Set[]> = {};
+        for (const [exerciseId, history] of Object.entries(
+            recentSetsByExerciseId
+        )) {
+            const sets = history?.[0]?.sets;
+            if (sets && sets.length > 0) {
+                next[exerciseId] = sets;
+            }
+        }
+        return next;
+    }, [recentSetsByExerciseId]);
 
     const cancelScheduledRestNotification = useCallback(async () => {
         if (restNotificationIdRef.current == null) {
@@ -598,6 +620,29 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         return `${nMins}m${nSeconds.toString().padStart(2, "0")}s`;
     };
 
+    const getSetProgress = useCallback(
+        (exerciseIdx: number, setIdx: number) => {
+            const exercise = workout.exercises[exerciseIdx];
+            if (!exercise) {
+                return 0;
+            }
+
+            const previousSets = previousSetsByExerciseId[exercise.exerciseId];
+            const previousSet = previousSets?.[setIdx];
+            if (!previousSet) {
+                return 0;
+            }
+
+            const currentSet = exercise.sets[setIdx];
+            if (!currentSet) {
+                return 0;
+            }
+
+            return compareSetEpley1RM(currentSet, previousSet);
+        },
+        [previousSetsByExerciseId, workout.exercises]
+    );
+
     const onShowExerciseHistory = useCallback((exerciseId: string) => {
         setActiveModal(ModalType.ExerciseHistory);
         setHistoryExerciseId(exerciseId);
@@ -657,6 +702,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onCancelWorkout,
         onAdjustRestTimer,
         calculateSetDuration,
+        getSetProgress,
         onShowExerciseHistory,
         onCloseExerciseHistory,
     };
