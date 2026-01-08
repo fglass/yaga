@@ -88,14 +88,6 @@ export const useHomeViewModel = () => {
     };
 };
 
-const formatDistance = (distance: number) => {
-    if (!Number.isFinite(distance)) {
-        return 0;
-    }
-
-    return Math.floor(distance);
-};
-
 type PeriodStats = {
     week: {
         current: number;
@@ -211,4 +203,18 @@ const addDays = (reference: Date, days: number) => {
     const date = new Date(reference);
     date.setDate(date.getDate() + days);
     return date;
+};
+
+const formatDistance = (distance: number) => {
+    if (!Number.isFinite(distance)) {
+        return "0";
+    }
+
+    const normalized = Math.max(0, distance);
+
+    if (normalized < 100) {
+        return normalized.toFixed(1);
+    }
+
+    return `${Math.floor(normalized)}`;
 };
