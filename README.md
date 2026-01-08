@@ -121,3 +121,7 @@ eas build --platform ios --profile preview
 -   [iOS design](https://developer.apple.com/design/resources/)
     -   https://docs.expo.dev/router/advanced/native-tabs/
     -   https://docs.expo.dev/versions/latest/sdk/glass-effect/
+
+---
+
+Add arrow to selectable workouts

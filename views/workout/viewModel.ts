@@ -577,7 +577,11 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
         const nMins = Math.floor(totalSeconds / 60);
         const nSeconds = totalSeconds % 60;
-        return `${nMins}m${nSeconds.toString().padStart(2, "0")}s`;
+        const warningSuffix = totalSeconds >= 600 ? "!" : "";
+
+        return `${nMins}m${nSeconds
+            .toString()
+            .padStart(2, "0")}s${warningSuffix}`;
     };
 
     const onShowExerciseHistory = useCallback((exerciseId: string) => {
