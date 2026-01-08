@@ -125,19 +125,24 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     >({});
 
     const restNotificationIdRef = useRef<string | null>(null);
+    const restScheduleTokenRef = useRef(0);
 
     const isHistoryMode = props.mode === "history";
 
-    const cancelRestFinishNotification = useCallback(async () => {
+    const cancelScheduledRestNotification = useCallback(async () => {
         if (restNotificationIdRef.current == null) {
             return;
         }
 
-        await Notifications.cancelScheduledNotificationAsync(
-            restNotificationIdRef.current
-        );
+        const notificationId = restNotificationIdRef.current;
         restNotificationIdRef.current = null;
+        await Notifications.cancelScheduledNotificationAsync(notificationId);
     }, []);
+
+    const cancelRestFinishNotification = useCallback(async () => {
+        restScheduleTokenRef.current += 1;
+        await cancelScheduledRestNotification();
+    }, [cancelScheduledRestNotification]);
 
     const scheduleRestFinishNotification = useCallback(
         async (endTimeMs: number) => {
@@ -146,9 +151,11 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                 return;
             }
 
-            await cancelRestFinishNotification();
+            const scheduleToken = restScheduleTokenRef.current + 1;
+            restScheduleTokenRef.current = scheduleToken;
+            await cancelScheduledRestNotification();
 
-            restNotificationIdRef.current =
+            const notificationId =
                 await Notifications.scheduleNotificationAsync({
                     content: {
                         title: "🕛 Rest Finished",
@@ -159,8 +166,18 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                         date: new Date(endTimeMs),
                     },
                 });
+
+            // Cancel stale schedules that resolve after a newer rest update
+            // E.g., on immediate timer adjust
+            if (restScheduleTokenRef.current !== scheduleToken) {
+                await Notifications.cancelScheduledNotificationAsync(
+                    notificationId
+                );
+                return;
+            }
+            restNotificationIdRef.current = notificationId;
         },
-        [cancelRestFinishNotification]
+        [cancelScheduledRestNotification]
     );
 
     const noop = useCallback(() => {}, []);
@@ -571,17 +588,14 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             (set.finishTime - prevFinishTime) / 1000
         );
 
-        if (totalSeconds <= 0) {
+        if (totalSeconds <= 0 || totalSeconds > 600) {
             return "-";
         }
 
         const nMins = Math.floor(totalSeconds / 60);
         const nSeconds = totalSeconds % 60;
-        const warningSuffix = totalSeconds >= 600 ? "!" : "";
 
-        return `${nMins}m${nSeconds
-            .toString()
-            .padStart(2, "0")}s${warningSuffix}`;
+        return `${nMins}m${nSeconds.toString().padStart(2, "0")}s`;
     };
 
     const onShowExerciseHistory = useCallback((exerciseId: string) => {

@@ -80,10 +80,16 @@ const WorkoutView = (props: Props) => {
         }, 0);
     };
 
-    const contentBottomPadding = useMemo(
-        () => 16 + (isLastExerciseInputFocused ? keyboardHeight : 48),
-        [isLastExerciseInputFocused, keyboardHeight]
-    );
+    const isRestTimerVisible =
+        !vm.isHistoryMode && vm.remainingRestTimeS >= 0;
+
+    const contentBottomPadding = useMemo(() => {
+        if (isLastExerciseInputFocused) {
+            return 16 + keyboardHeight;
+        }
+
+        return isRestTimerVisible ? 64 : 16;
+    }, [isLastExerciseInputFocused, keyboardHeight, isRestTimerVisible]);
 
     const renderHeader = () => {
         return (
@@ -280,7 +286,6 @@ const WorkoutView = (props: Props) => {
 
     const renderSet = (set: Set, setIdx: number, exerciseIdx: number) => {
         const isFinished = set.finishTime !== undefined;
-        // TODO: render below
         const duration = vm.calculateSetDuration(setIdx, exerciseIdx);
         return (
             <View style={styles.setSwipeContainer} key={set.id}>
@@ -414,7 +419,7 @@ const WorkoutView = (props: Props) => {
     );
 
     const renderRestTimer = () => {
-        if (vm.isHistoryMode || vm.remainingRestTimeS < 0) {
+        if (!isRestTimerVisible) {
             return null;
         }
 
