@@ -181,6 +181,11 @@ const asHealthWorkout = (
                   Math.round((endDate.getTime() - startDate.getTime()) / 1000)
               );
 
+    const workoutType = mapWorkoutType(sample.workoutActivityType);
+    if (workoutType == null) {
+        return null;
+    }
+
     return {
         id: sample.uuid,
         name: formatActivityName(sample.workoutActivityType),
@@ -188,7 +193,7 @@ const asHealthWorkout = (
         endDate,
         durationSeconds,
         activityType: sample.workoutActivityType,
-        workoutType: mapWorkoutType(sample.workoutActivityType),
+        workoutType,
         distance,
     };
 };
@@ -232,7 +237,9 @@ const formatActivityName = (activityType: WorkoutActivityType): string => {
     return remapped[formatted as keyof typeof remapped] ?? formatted;
 };
 
-const mapWorkoutType = (activityType: WorkoutActivityType): WorkoutType => {
+const mapWorkoutType = (
+    activityType: WorkoutActivityType
+): WorkoutType | null => {
     if (activityType === WorkoutActivityType.running) {
         return "run";
     }
@@ -241,7 +248,8 @@ const mapWorkoutType = (activityType: WorkoutActivityType): WorkoutType => {
         return "strength";
     }
 
-    throw new Error(
+    console.warn(
         `Unsupported HealthKit workout type: ${activityType.toString()}`
     );
+    return null;
 };
