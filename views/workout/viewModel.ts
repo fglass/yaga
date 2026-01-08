@@ -650,7 +650,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
     const onCloseExerciseHistory = useCallback(() => {
         setActiveModal(ModalType.None);
-        setHistoryExerciseId(null);
     }, []);
 
     const startDateLabel = useMemo(() => {

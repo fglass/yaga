@@ -113,7 +113,6 @@ export const useRecentSetsForExercises = (
         let isActive = true;
 
         if (!isEnabled || exerciseIdsKey.length === 0 || nWorkouts <= 0) {
-            setHistorySets({});
             setIsLoading(false);
             return () => {
                 isActive = false;
