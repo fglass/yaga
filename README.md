@@ -79,11 +79,12 @@ eas build --platform ios --profile preview
 -   [ ] 🟢 Finish confetti/fireworks
 -   [ ] 🟢 Seed from [exercise list](https://exrx.net/Lists/Directory)/similar
 -   [ ] 🟡 Sticky exercise note
--   [ ] 🔴 Progressive overload tracker
+-   [x] Progressive overload tracker
+-   [ ] Advanced progressive overload calcs
 -   [ ] 🟡 RIR
 -   [ ] 🟡 Dedupe/delete exercise degs e.g. seated calf press, cable curl
 -   [ ] 🟢 Double tap to kb input weight/reps? Or adjust drag sensitivity
--   [x] 🔴 Bug: sometimes double rest timer (after adjust?)
+-   [x] Bug: Double rest timer after adjust?
 
 ### Run View
 

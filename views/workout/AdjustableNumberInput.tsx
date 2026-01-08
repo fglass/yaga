@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { TextInput, TextInputProps, View } from "react-native";
+import { StyleProp, TextInput, TextInputProps, TextStyle, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { styles } from "./styles";
 
@@ -15,6 +15,7 @@ interface AdjustableNumberInputProps {
     onFocus?: () => void;
     onBlur?: () => void;
     isFinished?: boolean;
+    inputStyle?: StyleProp<TextStyle>;
 }
 
 const AdjustableNumberInput = ({
@@ -26,6 +27,7 @@ const AdjustableNumberInput = ({
     onFocus,
     onBlur,
     isFinished,
+    inputStyle,
 }: AdjustableNumberInputProps) => {
     const inputRef = useRef<TextInput>(null);
     const [allowSoftInput, setAllowSoftInput] = useState(false);
@@ -112,6 +114,7 @@ const AdjustableNumberInput = ({
                                 ? styles.tdFocusedFinished
                                 : styles.tdFocused),
                         isFinished && styles.tdFinished,
+                        inputStyle,
                     ]}
                     value={value}
                     onChangeText={onChangeText}

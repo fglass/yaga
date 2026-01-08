@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
     ActivityIndicator,
     ScrollView,
@@ -7,8 +7,7 @@ import {
     View,
 } from "react-native";
 import ModalDialog from "../../components/ModalDialog";
-import { Set } from "../../model/types";
-import { fetchRecentSetsForExercises } from "../../model/database";
+import { useRecentSetsForExercises } from "./hooks";
 
 interface Props {
     isVisible: boolean;
@@ -16,65 +15,16 @@ interface Props {
     onClose: () => void;
 }
 
-const useExerciseHistory = (exerciseId: string | null, isVisible: boolean) => {
-    const [isLoading, setIsLoading] = useState(false);
-    const [historySets, setHistorySets] = useState<
-        { finishedAt: number; sets: Set[] }[]
-    >([]);
-
-    useEffect(() => {
-        let isActive = true;
-        if (!isVisible || !exerciseId) {
-            setHistorySets([]);
-            setIsLoading(false);
-            return () => {
-                isActive = false;
-            };
-        }
-
-        setIsLoading(true);
-        fetchRecentSetsForExercises([exerciseId], 3)
-            .then((history) => {
-                if (!isActive) {
-                    return;
-                }
-                setHistorySets(history[exerciseId] ?? []);
-            })
-            .catch(() => {
-                if (!isActive) {
-                    return;
-                }
-                setHistorySets([]);
-            })
-            .finally(() => {
-                if (!isActive) {
-                    return;
-                }
-                setIsLoading(false);
-            });
-
-        return () => {
-            isActive = false;
-        };
-    }, [exerciseId, isVisible]);
-
-    return { isLoading, historySets };
-};
-
 const ExerciseHistoryModal = (props: Props) => {
-    const { isLoading, historySets } = useExerciseHistory(
-        props.exerciseId,
-        props.isVisible
+    const exerciseId = props.exerciseId;
+    const { isLoading, historySets } = useRecentSetsForExercises(
+        exerciseId ? [exerciseId] : [],
+        3,
+        props.isVisible && exerciseId != null
     );
+    const exerciseHistorySets = exerciseId ? historySets[exerciseId] ?? [] : [];
 
-    const formatDate = (timestamp: number) =>
-        new Date(timestamp).toLocaleDateString("en-GB", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-        });
-
-    const visibleHistorySets = historySets
+    const visibleHistorySets = exerciseHistorySets
         .map((entry) => ({
             ...entry,
             sets: entry.sets.filter(
@@ -82,6 +32,13 @@ const ExerciseHistoryModal = (props: Props) => {
             ),
         }))
         .filter((entry) => entry.sets.length > 0);
+
+    const formatDate = (timestamp: number) =>
+        new Date(timestamp).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+        });
 
     return (
         <ModalDialog

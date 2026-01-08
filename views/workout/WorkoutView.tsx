@@ -287,6 +287,13 @@ const WorkoutView = (props: Props) => {
     const renderSet = (set: Set, setIdx: number, exerciseIdx: number) => {
         const isFinished = set.finishTime !== undefined;
         const duration = vm.calculateSetDuration(setIdx, exerciseIdx);
+        const progress = vm.getSetProgress(exerciseIdx, setIdx);
+        let progressStyle = undefined;
+        if (progress === 1) {
+            progressStyle = styles.tdImproved;
+        } else if (progress === -1) {
+            progressStyle = styles.tdDeclined;
+        }
         return (
             <View style={styles.setSwipeContainer} key={set.id}>
                 <Deletable onDelete={() => vm.onRemoveSet(exerciseIdx, setIdx)}>
@@ -338,6 +345,7 @@ const WorkoutView = (props: Props) => {
                             onBlur={handleSetInputBlur}
                             inputMode="decimal"
                             isFinished={isFinished}
+                            inputStyle={progressStyle}
                         />
                         <AdjustableNumberInput
                             value={set.reps}
@@ -352,6 +360,7 @@ const WorkoutView = (props: Props) => {
                             onBlur={handleSetInputBlur}
                             inputMode="decimal"
                             isFinished={isFinished}
+                            inputStyle={progressStyle}
                         />
                         <TextInput
                             style={[
