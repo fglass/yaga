@@ -31,6 +31,7 @@ eas build --platform ios --profile preview
 -   [x] Test suite
 -   [ ] 🟡 Liquid glass refresh
 -   [ ] 🟢 Goal setting?
+-   [ ] 🟢 Native port
 
 ### Home View
 
@@ -82,6 +83,7 @@ eas build --platform ios --profile preview
 -   [ ] 🟡 RIR
 -   [ ] 🟡 Dedupe/delete exercise degs e.g. seated calf press, cable curl
 -   [ ] 🟢 Double tap to kb input weight/reps? Or adjust drag sensitivity
+-   [ ] 🔴 Bug: sometimes double rest timer (after adjust?)
 
 ### Run View
 
@@ -121,7 +123,3 @@ eas build --platform ios --profile preview
 -   [iOS design](https://developer.apple.com/design/resources/)
     -   https://docs.expo.dev/router/advanced/native-tabs/
     -   https://docs.expo.dev/versions/latest/sdk/glass-effect/
-
----
-
-Add arrow to selectable workouts
