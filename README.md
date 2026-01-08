@@ -80,11 +80,12 @@ eas build --platform ios --profile preview
 -   [ ] 🟢 Seed from [exercise list](https://exrx.net/Lists/Directory)/similar
 -   [ ] 🟡 Sticky exercise note
 -   [x] Progressive overload tracker
--   [ ] Advanced progressive overload calcs
+-   [ ] 🟡 Advanced progressive overload calcs
 -   [ ] 🟡 RIR
--   [ ] 🟡 Dedupe/delete exercise degs e.g. seated calf press, cable curl
--   [ ] 🟢 Double tap to kb input weight/reps? Or adjust drag sensitivity
+-   [ ] 🔴 Dedupe/delete exercise degs e.g. seated calf press, cable curl
+-   [ ] 🟡 Double tap to kb input weight/reps? Or adjust drag sensitivity
 -   [x] Bug: Double rest timer after adjust?
+-   [ ] 🟢 Maintainability refactor
 
 ### Run View
 
