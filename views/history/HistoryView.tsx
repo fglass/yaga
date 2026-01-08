@@ -48,22 +48,32 @@ const HistoryView = (props: Props) => {
         );
         const isRun = workout.type === "run";
 
+        const isSelectable = isLocalWorkoutSelectable(workout);
         const workoutContent = (
-            <View style={styles.workoutCard}>
-                <Text style={styles.workoutTitle}>
-                    {workout.name}
-                    {isRun ? ` ${workout.distance?.toFixed(2)}K ` : ""}
-                </Text>
-                <Text style={styles.workoutMeta}>
-                    {workoutDate} · {formatDuration(durationSeconds)}
-                </Text>
+            <View style={[styles.workoutCard, styles.workoutCardRow]}>
+                <View style={styles.workoutTextBlock}>
+                    <Text style={styles.workoutTitle}>
+                        {workout.name}
+                        {isRun ? ` ${workout.distance?.toFixed(2)}K ` : ""}
+                    </Text>
+                    <Text style={styles.workoutMeta}>
+                        {workoutDate} · {formatDuration(durationSeconds)}
+                    </Text>
+                </View>
+                {isSelectable ? (
+                    <Ionicons
+                        name="chevron-forward"
+                        color="white"
+                        size={20}
+                    />
+                ) : null}
             </View>
         );
 
         return (
             <View style={styles.swipeContainer}>
                 <Deletable onDelete={() => onDeleteLocalWorkout(workout)}>
-                    {isLocalWorkoutSelectable(workout) ? (
+                    {isSelectable ? (
                         <TouchableOpacity
                             activeOpacity={0.7}
                             accessibilityRole="button"
@@ -135,6 +145,9 @@ const HistoryView = (props: Props) => {
                             : `health-${item.workout.id}`
                     }
                     renderItem={({ item }) => renderHistoryItem(item)}
+                    ListFooterComponent={() => (
+                        <View style={styles.listFooterSpacing} />
+                    )}
                     ItemSeparatorComponent={() => (
                         <View style={styles.separator} />
                     )}
@@ -150,7 +163,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingHorizontal: 20,
-        paddingBottom: 24,
     },
     header: {
         flexDirection: "row",
@@ -169,7 +181,9 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     },
     listContent: {
-        paddingBottom: 24,
+    },
+    listFooterSpacing: {
+        height: 8,
     },
     swipeContainer: {
         borderRadius: 16,
@@ -192,6 +206,15 @@ const styles = StyleSheet.create({
         color: "rgba(255, 255, 255, 0.65)",
         marginTop: 4,
         fontSize: 12,
+    },
+    workoutCardRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+    },
+    workoutTextBlock: {
+        flex: 1,
+        marginRight: 12,
     },
     healthHeader: {
         flexDirection: "row",
