@@ -14,6 +14,8 @@ export const EXERCISE_CATEGORIES = [
 
 export type ExerciseCategory = (typeof EXERCISE_CATEGORIES)[number];
 
+export type WorkoutMetadata = Record<string, string | number | boolean | null>;
+
 export interface ExerciseDef {
     name: string;
     category: ExerciseCategory;
@@ -33,6 +35,7 @@ export interface Workout {
     exercises: Exercise[];
     notes: string;
     type: WorkoutType;
+    metadata: WorkoutMetadata;
     startTimestamp: number;
     // Running only
     distance?: number;

@@ -45,9 +45,11 @@ export interface ImportViewModelDeps {
         name: string,
         defs: Record<string, ExerciseDef>
     ) => Array<{ id: string; name: string }>;
+    importedBy: string;
     importWorkouts: (
         data: ImportData,
-        mapping: Record<string, ExerciseMapping>
+        mapping: Record<string, ExerciseMapping>,
+        importedBy: string
     ) => Promise<{
         workoutsAdded: number;
         workoutsSkipped: number;
@@ -339,7 +341,8 @@ export const createImportViewModelCore = ({
         try {
             const result = await deps.importWorkouts(
                 importData,
-                finalMapping
+                finalMapping,
+                deps.importedBy
             );
             deps.invalidateQueries(deps.queryKeys.completedWorkouts);
             deps.invalidateQueries(deps.queryKeys.exerciseDefs);

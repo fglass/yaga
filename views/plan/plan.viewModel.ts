@@ -30,6 +30,7 @@ export const usePlanViewModel = () => {
             id: generateGuid(),
             startTimestamp: Date.now(),
             exercises,
+            metadata: {},
         });
     };
 
@@ -47,6 +48,7 @@ export const usePlanViewModel = () => {
             exercises: [],
             notes: "",
             type: "strength",
+            metadata: {},
             startTimestamp: Date.now(),
         });
     };
@@ -58,6 +60,7 @@ export const usePlanViewModel = () => {
             exercises: [],
             notes: "",
             type: "run",
+            metadata: {},
             startTimestamp: Date.now(),
             distance: 0,
         });

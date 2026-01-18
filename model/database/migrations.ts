@@ -48,4 +48,12 @@ export const MIGRATIONS: string[] = [
         finished_at INTEGER
     );
     `,
+    `
+    ALTER TABLE workouts
+    ADD COLUMN metadata_json TEXT NOT NULL DEFAULT '{}';
+
+    UPDATE workouts
+    SET metadata_json = '{}'
+    WHERE metadata_json IS NULL OR metadata_json = '';
+    `,
 ];

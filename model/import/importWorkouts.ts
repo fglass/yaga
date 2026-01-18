@@ -14,8 +14,11 @@ import { CompletedWorkout, Exercise, Set as WorkoutSet } from "../types";
 
 export const importWorkouts = async (
     data: ImportData,
-    mapping: Record<string, ExerciseMapping>
+    mapping: Record<string, ExerciseMapping>,
+    importedBy: string
 ): Promise<ImportSummary> => {
+    const startTime = Date.now();
+    
     const existingWorkoutKeys = new Set(
         await fetchCompletedWorkoutKeys()
     );
@@ -25,6 +28,8 @@ export const importWorkouts = async (
     let workoutsAdded = 0;
     let workoutsSkipped = 0;
     let newExerciseDefs = 0;
+
+    const importStamp = `${importedBy}@${new Date().toISOString()}`;
 
     for (const workout of data.workouts) {
         if (existingWorkoutKeys.has(workout.key)) {
@@ -81,6 +86,9 @@ export const importWorkouts = async (
             name: workout.name,
             notes: workout.workoutNotes ?? "",
             type: "strength",
+            metadata: {
+                importedBy: importStamp,
+            },
             startTimestamp: workout.startedAt,
             endTimestamp: workout.finishedAt,
             exercises,
@@ -90,6 +98,7 @@ export const importWorkouts = async (
         workoutsAdded += 1;
     }
 
+    console.log(`Workouts imported in ${Date.now() - startTime}ms`);
     return {
         workoutsAdded,
         workoutsSkipped,

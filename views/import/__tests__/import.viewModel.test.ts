@@ -49,6 +49,7 @@ const createTestViewModel = () => {
         }),
         matchExerciseName: () => null,
         suggestExerciseMatches: () => [],
+        importedBy: "strong-csv",
         importWorkouts: async () => ({
             workoutsAdded: 0,
             workoutsSkipped: 0,
