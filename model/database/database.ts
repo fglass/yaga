@@ -7,6 +7,7 @@ import {
     Note,
     Set,
     Workout,
+    WorkoutMetadata,
     WorkoutTemplate,
     WorkoutType,
 } from "../types";
@@ -157,14 +158,15 @@ export const saveActiveWorkout = async (workout: Workout | null) => {
     await runInTransaction(async (db) => {
         await db.runAsync(
             `INSERT OR REPLACE INTO workouts
-             (id, name, notes, type, status, started_at, finished_at, distance)
-             VALUES (?, ?, ?, ?, 'active', ?, NULL, ?)`,
+             (id, name, notes, type, status, started_at, finished_at, distance, metadata_json)
+             VALUES (?, ?, ?, ?, 'active', ?, NULL, ?, ?)`,
             workout.id,
             workout.name,
             workout.notes,
             workout.type,
             workout.startTimestamp,
-            workout.distance ?? null
+            workout.distance ?? null,
+            JSON.stringify(workout.metadata)
         );
 
         await db.runAsync(
@@ -225,15 +227,16 @@ export const completeWorkout = async (workout: CompletedWorkout) => {
     await runInTransaction(async (db) => {
         await db.runAsync(
             `INSERT OR REPLACE INTO workouts
-             (id, name, notes, type, status, started_at, finished_at, distance)
-             VALUES (?, ?, ?, ?, 'completed', ?, ?, ?)`,
+             (id, name, notes, type, status, started_at, finished_at, distance, metadata_json)
+             VALUES (?, ?, ?, ?, 'completed', ?, ?, ?, ?)`,
             workout.id,
             workout.name,
             workout.notes,
             workout.type,
             workout.startTimestamp,
             workout.endTimestamp,
-            workout.distance ?? null
+            workout.distance ?? null,
+            JSON.stringify(workout.metadata)
         );
 
         await db.runAsync(
@@ -360,8 +363,9 @@ export const fetchActiveWorkout = async (): Promise<Workout | null> => {
         type: WorkoutType;
         started_at: number;
         distance: number | null;
+        metadata_json: string;
     }>(
-        "SELECT id, name, notes, type, distance, started_at FROM workouts WHERE status = 'active' LIMIT 1"
+        "SELECT id, name, notes, type, distance, started_at, metadata_json FROM workouts WHERE status = 'active' LIMIT 1"
     );
 
     if (!row) {
@@ -378,6 +382,7 @@ export const fetchActiveWorkout = async (): Promise<Workout | null> => {
         notes: row.notes,
         type: row.type,
         exercises,
+        metadata: parseMetadataJson(row.metadata_json),
         startTimestamp: row.started_at,
         distance: row.distance ?? undefined,
     };
@@ -447,6 +452,7 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
         workout_distance: number | null;
         workout_started_at: number;
         workout_finished_at: number | null;
+        workout_metadata_json: string;
         exercise_id: string | null;
         exercise_def_id: string | null;
         exercise_position: number | null;
@@ -464,6 +470,7 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
                 workouts.distance as workout_distance,
                 workouts.started_at as workout_started_at,
                 workouts.finished_at as workout_finished_at,
+                workouts.metadata_json as workout_metadata_json,
                 exercises.id as exercise_id,
                 exercises.exercise_def_id as exercise_def_id,
                 exercises.position as exercise_position,
@@ -493,6 +500,7 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
                 type: row.workout_type,
                 exercises: [],
                 distance: row.workout_distance ?? undefined,
+                metadata: parseMetadataJson(row.workout_metadata_json),
                 startTimestamp: row.workout_started_at,
                 endTimestamp: row.workout_finished_at ?? 0,
             } as CompletedWorkout;
@@ -629,6 +637,19 @@ const parseNotesJson = (raw: string): Note[] => {
     } catch (error) {
         console.warn("Failed to parse notes JSON", error);
         return [];
+    }
+};
+
+const parseMetadataJson = (raw: string): WorkoutMetadata => {
+    try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+            return parsed as WorkoutMetadata;
+        }
+        return {};
+    } catch (error) {
+        console.warn("Failed to parse metadata JSON", error);
+        return {};
     }
 };
 

@@ -66,6 +66,7 @@ export const useImportViewModel = ({
 
     const deps = useMemo(
         () => ({
+            // TODO: make not-specific to Strong
             fetchExerciseDefs,
             readFileText: async (uri: string) => {
                 const sourceFile = new ExpoFile(uri);
@@ -76,6 +77,7 @@ export const useImportViewModel = ({
             buildImportData,
             matchExerciseName,
             suggestExerciseMatches,
+            importedBy: "strong-csv",
             importWorkouts,
             inferExerciseCategory,
             alert: Alert.alert,
