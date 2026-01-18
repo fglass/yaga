@@ -248,8 +248,5 @@ const mapWorkoutType = (
         return "strength";
     }
 
-    console.warn(
-        `Unsupported HealthKit workout type: ${activityType.toString()}`
-    );
     return null;
 };
