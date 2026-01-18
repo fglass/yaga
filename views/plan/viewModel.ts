@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as DocumentPicker from "expo-document-picker";
 import { useWorkoutTemplates, useDatabaseWriter } from "../../model/database";
 import { WorkoutTemplate } from "../../model/types";
 import { generateGuid } from "../../utils/util";
@@ -25,6 +26,9 @@ export const usePlanViewModel = () => {
     const [isStravaLoggingEnabled, setStravaLoggingEnabledState] = useState(
         getStravaLoggingEnabled()
     );
+    const [isImportVisible, setImportVisible] = useState(false);
+    const [importFileUri, setImportFileUri] = useState<string | null>(null);
+    const [importFileName, setImportFileName] = useState<string | null>(null);
 
     const selectTemplate = async (workout: WorkoutTemplate) => {
         const baseExercises = workout.exercises.map((exercise) => ({
@@ -109,6 +113,32 @@ export const usePlanViewModel = () => {
         alert(token ? "Strava auth successful" : "Strava auth failed");
     };
 
+    const openImportFromStrong = async () => {
+        const result = await DocumentPicker.getDocumentAsync({
+            copyToCacheDirectory: true,
+            type: "*/*",
+        });
+
+        if (result.canceled) {
+            return;
+        }
+
+        const file = result.assets?.[0];
+        if (!file?.uri) {
+            return;
+        }
+
+        setImportFileUri(file.uri);
+        setImportFileName(file.name ?? null);
+        setImportVisible(true);
+    };
+
+    const closeImportFromStrong = () => {
+        setImportVisible(false);
+        setImportFileUri(null);
+        setImportFileName(null);
+    };
+
     return {
         templates,
         isTemplatesLoading,
@@ -126,5 +156,10 @@ export const usePlanViewModel = () => {
         toggleStravaLogging,
         authStrava,
         startRun,
+        isImportVisible,
+        importFileUri,
+        importFileName,
+        openImportFromStrong,
+        closeImportFromStrong,
     };
 };

@@ -25,13 +25,14 @@ eas build --platform ios --profile preview
 -   [x] Apple Health write toggle
 -   [ ] 🟢 iCloud sync?
 -   [x] Spreadsheet migration
--   [ ] 🟡 Strong migration
 -   [x] Preview release
 -   [x] Update splash image
 -   [x] Test suite
 -   [ ] 🟡 Liquid glass refresh
 -   [ ] 🟢 Goal setting?
 -   [ ] 🟢 Native port
+-   [ ] 🟢 CI/CD
+-   [ ] 🟢 Release?
 
 ### Home View
 
@@ -41,6 +42,12 @@ eas build --platform ios --profile preview
 -   [x] Distance stats
 -   [ ] 🟢 Weekly targets?
 -   [ ] 🟡 Tap for history
+-   [ ] 🟡 Tap for run count
+-   [ ] 🟢 Mindfulness
+-   [ ] 🔴 Bug: UI flash on init?
+-   [ ] 🟡 Move settings here
+-   [ ] 🔴 Perf: Completed workout fetch
+
 
 ### Workout View
 
@@ -82,10 +89,16 @@ eas build --platform ios --profile preview
 -   [x] Progressive overload tracker
 -   [ ] 🟡 Advanced progressive overload calcs
 -   [ ] 🟡 RIR
--   [ ] 🔴 Dedupe/delete exercise degs e.g. seated calf press, cable curl
 -   [ ] 🟡 Double tap to kb input weight/reps? Or adjust drag sensitivity
 -   [x] Bug: Double rest timer after adjust?
 -   [ ] 🟢 Maintainability refactor
+-   [ ] 🟢 Cardio exercise?
+-   [ ] 🔴 Delete exercise def e.g. seated calf press, cable curl
+-   [ ] 🔴 Merge exercise def
+-   [ ] 🟢 Rename exercise def
+-   [ ] 🟡 Shake to undo
+-   [ ] 🔴 Bug: no delta with 0kg? E.g. pull up
+-   [ ] 🔴 Bug: history view progressive overload
 
 ### Run View
 
@@ -106,6 +119,7 @@ eas build --platform ios --profile preview
 -   [x] Workout creation
 -   [x] Admin panel
 -   [x] New run
+-   [ ] 🟡 Template last done
 
 ### History View
 
@@ -116,6 +130,12 @@ eas build --platform ios --profile preview
 -   [x] Dedupe
 -   [ ] 🟡 Maybe: workout deletion bug
 
+### Import View
+
+-   [x] Strong migration
+-   [ ] 🟢 Merge with SQLite import
+-   [ ] 🟢 Merge/overwrite option
+
 ## Incubator
 
 -   Design:
@@ -125,3 +145,6 @@ eas build --platform ios --profile preview
 -   [iOS design](https://developer.apple.com/design/resources/)
     -   https://docs.expo.dev/router/advanced/native-tabs/
     -   https://docs.expo.dev/versions/latest/sdk/glass-effect/
+- Skills:
+    https://github.com/expo/skills/tree/main/plugins/expo-app-design
+    https://vercel.com/blog/introducing-react-best-practices

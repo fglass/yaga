@@ -29,4 +29,5 @@ Avoid deprecated APIs; prefer the current recommended methods in library docs.
 
 -   Always run tests after making changes to confirm no regressions.
 -   Add tests after adding features or fixing bugs. Only test meaningful behavior; do not add low-value tests.
+-   Prefer single-responsibility tests; split large tests into focused cases and use parameterized tests where helpful.
 -   Keep tests at the `viewModel` level; avoid UI/snapshot tests for this project.

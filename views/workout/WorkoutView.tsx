@@ -80,8 +80,7 @@ const WorkoutView = (props: Props) => {
         }, 0);
     };
 
-    const isRestTimerVisible =
-        !vm.isHistoryMode && vm.remainingRestTimeS >= 0;
+    const isRestTimerVisible = !vm.isHistoryMode && vm.remainingRestTimeS >= 0;
 
     const contentBottomPadding = useMemo(() => {
         if (isLastExerciseInputFocused) {
