@@ -437,33 +437,97 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
     await ensureDatabase();
 
     const db = await getDatabase();
+
+    // Single join + in-memory grouping to avoid N+1 queries
     const rows = await db.getAllAsync<{
-        id: string;
-        name: string;
-        notes: string;
-        type: WorkoutType;
-        distance: number | null;
-        started_at: number;
-        finished_at: number | null;
+        workout_id: string;
+        workout_name: string;
+        workout_notes: string;
+        workout_type: WorkoutType;
+        workout_distance: number | null;
+        workout_started_at: number;
+        workout_finished_at: number | null;
+        exercise_id: string | null;
+        exercise_def_id: string | null;
+        exercise_position: number | null;
+        exercise_notes_json: string | null;
+        set_id: string | null;
+        set_position: number | null;
+        set_weight: string | null;
+        set_reps: string | null;
+        set_finished_at: number | null;
     }>(
-        "SELECT id, name, notes, type, distance, started_at, finished_at FROM workouts WHERE status = 'completed'"
+        `SELECT workouts.id as workout_id,
+                workouts.name as workout_name,
+                workouts.notes as workout_notes,
+                workouts.type as workout_type,
+                workouts.distance as workout_distance,
+                workouts.started_at as workout_started_at,
+                workouts.finished_at as workout_finished_at,
+                exercises.id as exercise_id,
+                exercises.exercise_def_id as exercise_def_id,
+                exercises.position as exercise_position,
+                exercises.notes_json as exercise_notes_json,
+                sets.id as set_id,
+                sets.position as set_position,
+                sets.weight as set_weight,
+                sets.reps as set_reps,
+                sets.finished_at as set_finished_at
+         FROM workouts
+         LEFT JOIN exercises ON exercises.workout_id = workouts.id
+         LEFT JOIN sets ON sets.exercise_id = exercises.id
+         WHERE workouts.status = 'completed'
+         ORDER BY workouts.finished_at DESC, exercises.position, sets.position`
     );
 
-    const completed = await Promise.all(
-        rows.map(async (row) => {
-            const exercises = await fetchExercisesForWorkout(db, row.id);
-            return {
-                id: row.id,
-                name: row.name,
-                notes: row.notes,
-                type: row.type,
-                exercises,
-                distance: row.distance ?? undefined,
-                startTimestamp: row.started_at,
-                endTimestamp: row.finished_at ?? 0,
+    const workoutMap = new Map<string, CompletedWorkout>();
+    const exerciseMap = new Map<string, Exercise>();
+
+    for (const row of rows) {
+        let workout = workoutMap.get(row.workout_id);
+        if (!workout) {
+            workout = {
+                id: row.workout_id,
+                name: row.workout_name,
+                notes: row.workout_notes,
+                type: row.workout_type,
+                exercises: [],
+                distance: row.workout_distance ?? undefined,
+                startTimestamp: row.workout_started_at,
+                endTimestamp: row.workout_finished_at ?? 0,
             } as CompletedWorkout;
-        })
-    );
+            workoutMap.set(row.workout_id, workout);
+        }
+
+        if (!row.exercise_id || !row.exercise_def_id) {
+            continue;
+        }
+
+        let exercise = exerciseMap.get(row.exercise_id);
+        if (!exercise) {
+            exercise = {
+                id: row.exercise_id,
+                exerciseId: row.exercise_def_id,
+                notes: parseNotesJson(row.exercise_notes_json ?? "[]"),
+                sets: [],
+            } as Exercise;
+            exerciseMap.set(row.exercise_id, exercise);
+            workout.exercises.push(exercise);
+        }
+
+        if (!row.set_id) {
+            continue;
+        }
+
+        exercise.sets.push({
+            id: row.set_id,
+            weight: row.set_weight ?? "",
+            reps: row.set_reps ?? "",
+            finishTime: row.set_finished_at ?? undefined,
+        } as Set);
+    }
+
+    const completed = Array.from(workoutMap.values());
 
     console.log(`Completed workouts fetched in ${Date.now() - startTime}ms`);
     return completed;

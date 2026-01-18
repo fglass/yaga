@@ -46,7 +46,7 @@ eas build --platform ios --profile preview
 -   [ ] 🟢 Mindfulness
 -   [ ] 🔴 Bug: UI flash on init?
 -   [ ] 🟡 Move settings here
--   [ ] 🔴 Perf: Completed workout fetch
+-   [x] 🔴 Perf: Completed workout fetch
 
 
 ### Workout View
@@ -133,7 +133,7 @@ eas build --platform ios --profile preview
 ### Import View
 
 -   [x] Strong migration
--   [ ] 🟢 Merge with SQLite import
+-   [ ] 🟡 Add SQLite import
 -   [ ] 🟢 Merge/overwrite option
 
 ## Incubator
