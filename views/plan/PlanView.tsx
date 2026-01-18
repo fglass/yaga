@@ -18,6 +18,7 @@ import {
     resetDatabase,
 } from "../../model/database";
 import ModalDialog from "../../components/ModalDialog";
+import ImportView from "../import/ImportView";
 import { usePlanViewModel } from "./viewModel";
 
 const PlanView = () => {
@@ -79,12 +80,13 @@ const PlanView = () => {
                         ? "Disable Strava Logging"
                         : "Enable Strava Logging",
                     "Auth Strava",
+                    "Import Strong App",
                     "Export Database",
                     "Import Database",
                     "Reset Database",
                 ],
                 cancelButtonIndex: 0,
-                destructiveButtonIndex: [5, 6],
+                destructiveButtonIndex: [6, 7],
             },
             (btnIdx) => {
                 if (btnIdx === 1) {
@@ -94,10 +96,12 @@ const PlanView = () => {
                 } else if (btnIdx === 3) {
                     void vm.authStrava();
                 } else if (btnIdx === 4) {
-                    exportDatabase();
+                    void vm.openImportFromStrong();
                 } else if (btnIdx === 5) {
-                    importDatabase();
+                    exportDatabase();
                 } else if (btnIdx === 6) {
+                    importDatabase();
+                } else if (btnIdx === 7) {
                     resetDatabase();
                 }
             }
@@ -225,6 +229,14 @@ const PlanView = () => {
                         </View>
                     </KeyboardAvoidingView>
                 </ModalDialog>
+            )}
+            {vm.isImportVisible && (
+                <ImportView
+                    isVisible={vm.isImportVisible}
+                    onClose={vm.closeImportFromStrong}
+                    fileUri={vm.importFileUri}
+                    fileName={vm.importFileName}
+                />
             )}
         </View>
     );

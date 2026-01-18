@@ -52,6 +52,8 @@ module.exports = [
                 ecmaFeatures: {
                     jsx: true,
                 },
+                project: './tsconfig.json',
+                tsconfigRootDir: __dirname,
             },
             globals: {
                 ...globals.node,
@@ -85,6 +87,24 @@ module.exports = [
             'react/jsx-uses-react': 'off',
             'react/react-in-jsx-scope': 'off',
             'react/prop-types': 'off',
+        },
+    },
+    {
+        files: ['**/*.{js,jsx,ts,tsx,mjs,cjs}'],
+        ignores: ['model/database/**'],
+        rules: {
+            'no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: ['**/model/database/*'],
+                            message:
+                                'Import from model/database (index.ts) instead of deep paths.',
+                        },
+                    ],
+                },
+            ],
         },
     },
 ];

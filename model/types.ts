@@ -1,14 +1,18 @@
 export type WorkoutType = "strength" | "run";
 
-export type ExerciseCategory =
-    | "Back"
-    | "Biceps"
-    | "Chest"
-    | "Core"
-    | "Legs"
-    | "Neck"
-    | "Shoulders"
-    | "Triceps";
+export const EXERCISE_CATEGORIES = [
+    "Back",
+    "Biceps",
+    "Chest",
+    "Core",
+    "Legs",
+    "Neck",
+    "Shoulders",
+    "Triceps",
+    "Other",
+] as const;
+
+export type ExerciseCategory = (typeof EXERCISE_CATEGORIES)[number];
 
 export interface ExerciseDef {
     name: string;

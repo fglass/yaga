@@ -284,20 +284,46 @@ export const createExerciseDef = async (def: ExerciseDef): Promise<string> => {
 export const fetchExerciseDefs = async (): Promise<
     Record<string, ExerciseDef>
 > => {
+    const startTime = Date.now();
     await ensureDatabase();
+
     const db = await getDatabase();
     const rows = await db.getAllAsync<{
         id: string;
         name: string;
         category: ExerciseCategory;
     }>("SELECT id, name, category FROM exercise_defs ORDER BY name");
-    return rows.reduce<Record<string, ExerciseDef>>((acc, row) => {
+    const defs = rows.reduce<Record<string, ExerciseDef>>((acc, row) => {
         acc[row.id] = { name: row.name, category: row.category };
         return acc;
     }, {});
+
+    console.log(`Exercise defs fetched in ${Date.now() - startTime}ms`);
+    return defs
+};
+
+export const fetchCompletedWorkoutKeys = async (): Promise<string[]> => {
+    const startTime = Date.now();
+    await ensureDatabase();
+
+    const db = await getDatabase();
+    const rows = await db.getAllAsync<{
+        name: string;
+        started_at: number;
+    }>(
+        "SELECT name, started_at FROM workouts WHERE status = 'completed'"
+    );
+
+    const keys =  rows.map((row) => `${row.name}__${row.started_at}`);
+
+    console.log(
+        `Completed workout keys fetched in ${Date.now() - startTime}ms`
+    );
+    return keys;
 };
 
 export const fetchWorkoutTemplates = async (): Promise<WorkoutTemplate[]> => {
+    const startTime = Date.now();
     await ensureDatabase();
     const db = await getDatabase();
     const rows = await db.getAllAsync<{
@@ -310,17 +336,22 @@ export const fetchWorkoutTemplates = async (): Promise<WorkoutTemplate[]> => {
         "SELECT id, name, notes, type, definition_json FROM templates ORDER BY rowid"
     );
 
-    return rows.map((row) => ({
+    const templates =  rows.map((row) => ({
         id: row.id,
         name: row.name,
         notes: row.notes,
         type: row.type,
         exercises: parseDefinitionJson(row.definition_json),
     }));
+
+    console.log(`Workout templates fetched in ${Date.now() - startTime}ms`);
+    return templates
 };
 
 export const fetchActiveWorkout = async (): Promise<Workout | null> => {
+    const startTime = Date.now();
     await ensureDatabase();
+
     const db = await getDatabase();
     const row = await db.getFirstAsync<{
         id: string;
@@ -334,10 +365,13 @@ export const fetchActiveWorkout = async (): Promise<Workout | null> => {
     );
 
     if (!row) {
+        console.log(`Active workout fetched in ${Date.now() - startTime}ms`);
         return null;
     }
 
     const exercises = await fetchExercisesForWorkout(db, row.id);
+
+    console.log(`Active workout fetched in ${Date.now() - startTime}ms`);
     return {
         id: row.id,
         name: row.name,
@@ -399,6 +433,7 @@ const fetchExercisesForWorkout = async (
 };
 
 export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
+    const startTime = Date.now();
     await ensureDatabase();
 
     const db = await getDatabase();
@@ -430,6 +465,7 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
         })
     );
 
+    console.log(`Completed workouts fetched in ${Date.now() - startTime}ms`);
     return completed;
 };
 
@@ -437,9 +473,11 @@ export const fetchRecentSetsForExercises = async (
     exerciseIds: string[],
     nWorkouts: number
 ): Promise<Record<string, { finishedAt: number; sets: Set[] }[]>> => {
+    const startTime = Date.now();
     await ensureDatabase();
 
     if (exerciseIds.length === 0 || nWorkouts <= 0) {
+        console.log(`Recent sets fetched in ${Date.now() - startTime}ms`);
         return {};
     }
 
@@ -474,6 +512,7 @@ export const fetchRecentSetsForExercises = async (
     );
 
     if (rows.length === 0) {
+        console.log(`Recent sets fetched in ${Date.now() - startTime}ms`);
         return {};
     }
 
@@ -513,6 +552,7 @@ export const fetchRecentSetsForExercises = async (
         }
     }
 
+    console.log(`Recent sets fetched in ${Date.now() - startTime}ms`);
     return result;
 };
 

@@ -12,6 +12,7 @@ web-build/
 .idea/
 .claude
 *.db
+*.csv
 *.env
 
 # macOS
