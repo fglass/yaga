@@ -5,7 +5,7 @@ import { saveActiveWorkout, useDatabaseWriter } from "../../model/database";
 import { generateGuid, withWarning } from "../../utils/util";
 import { logAppleHealthWorkout } from "../../model/health";
 import { logStravaWorkout } from "../../model/strava";
-import { computeRunDistance } from "./calculations";
+import { computeRunDistance } from "./run.calculations";
 
 interface Props {
     initialRun: Workout;

@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useHomeViewModel } from "./viewModel";
+import { useHomeViewModel } from "./home.viewModel";
 
 const HomeView = () => {
     const vm = useHomeViewModel();

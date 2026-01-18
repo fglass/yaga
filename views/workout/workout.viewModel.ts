@@ -16,7 +16,7 @@ import {
     Workout,
 } from "../../model/types";
 import type { Set } from "../../model/types";
-import { workoutProducer, ActionType } from "./reducer";
+import { workoutProducer, ActionType } from "./workout.reducer";
 import {
     saveActiveWorkout,
     useDatabaseWriter,
@@ -29,10 +29,10 @@ import {
 } from "../../utils/util";
 import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
 import * as Haptics from "expo-haptics";
-import { useRecentSetsForExercises, useTimers } from "./hooks";
+import { useRecentSetsForExercises, useTimers } from "./workout.hooks";
 import { logAppleHealthWorkout } from "../../model/health";
 import * as Notifications from "expo-notifications";
-import { compareSetEpley1RM, SetProgression } from "./calculations";
+import { compareSetEpley1RM, SetProgression } from "./workout.calculations";
 
 type ActiveProps = {
     mode?: "active";

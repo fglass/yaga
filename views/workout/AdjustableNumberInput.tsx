@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { StyleProp, TextInput, TextInputProps, TextStyle, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { styles } from "./styles";
+import { styles } from "./workout.styles";
 
 const DRAG_DISTANCE_PER_STEP_PX = 12;
 const DRAG_START_THRESHOLD_PX = 8;

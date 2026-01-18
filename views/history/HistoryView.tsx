@@ -14,7 +14,7 @@ import {
     parseWorkoutTimestamp,
 } from "../../utils/util";
 import Deletable from "../../components/Deletable";
-import { HistoryItem, useHistoryViewModel } from "./viewModel";
+import { HistoryItem, useHistoryViewModel } from "./history.viewModel";
 
 interface Props {
     onSelectWorkout: (workout: CompletedWorkout) => void;

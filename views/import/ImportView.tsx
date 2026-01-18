@@ -14,7 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ModalDialog from "../../components/ModalDialog";
 import CategoryDropdown from "../../components/CategoryDropdown";
 import { ExerciseCategory } from "../../model/types";
-import { useImportViewModel } from "./viewModel";
+import { useImportViewModel } from "./import.viewModel";
 
 interface Props {
     isVisible: boolean;

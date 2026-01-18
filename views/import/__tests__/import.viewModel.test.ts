@@ -3,8 +3,8 @@ import {
     createImportViewModelCore,
     createImportViewModelState,
     createInitialImportViewModelState,
-} from "../viewModel.core";
-import { inferExerciseCategory } from "../viewModel.helpers";
+} from "../import.viewModel.core";
+import { inferExerciseCategory } from "../import.viewModel.helpers";
 
 const createTestViewModel = () => {
     const exerciseDefs: Record<string, ExerciseDef> = {

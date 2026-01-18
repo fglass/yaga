@@ -25,8 +25,8 @@ import {
     Workout,
 } from "../../model/types";
 import { formatTime } from "../../utils/util";
-import { useWorkoutViewModel } from "./viewModel";
-import { styles } from "./styles";
+import { useWorkoutViewModel } from "./workout.viewModel";
+import { styles } from "./workout.styles";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 type ActiveProps = {
