@@ -1,12 +1,54 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ActionSheetIOS } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { exportDatabase, importDatabase, resetDatabase } from "../../model/database";
+import ImportView from "../import/ImportView";
 import { useHomeViewModel } from "./home.viewModel";
 
 const HomeView = () => {
     const vm = useHomeViewModel();
 
     const isDevBuild = process.env.EXPO_PUBLIC_APP_VARIANT === "development";
+
+    const onAdminSettings = () =>
+        ActionSheetIOS.showActionSheetWithOptions(
+            {
+                title: "Settings",
+                options: [
+                    "Cancel",
+                    vm.isHealthLoggingEnabled
+                        ? "Disable Health Logging"
+                        : "Enable Health Logging",
+                    vm.isStravaLoggingEnabled
+                        ? "Disable Strava Logging"
+                        : "Enable Strava Logging",
+                    "Auth Strava",
+                    "Import Strong App",
+                    "Export Database",
+                    "Import Database",
+                    "Reset Database",
+                ],
+                cancelButtonIndex: 0,
+                destructiveButtonIndex: [6, 7],
+            },
+            (btnIdx) => {
+                if (btnIdx === 1) {
+                    vm.toggleHealthLogging();
+                } else if (btnIdx === 2) {
+                    vm.toggleStravaLogging();
+                } else if (btnIdx === 3) {
+                    void vm.authStrava();
+                } else if (btnIdx === 4) {
+                    void vm.openImportFromStrong();
+                } else if (btnIdx === 5) {
+                    exportDatabase();
+                } else if (btnIdx === 6) {
+                    importDatabase();
+                } else if (btnIdx === 7) {
+                    resetDatabase();
+                }
+            }
+        );
 
     const statCards = [
         {
@@ -86,10 +128,22 @@ const HomeView = () => {
         <View style={styles.container}>
             <View style={styles.headerRow}>
                 <View style={styles.headerTopRow}>
-                    <Text style={styles.title}>YAGA</Text>
-                    {isDevBuild ? (
-                        <Text style={styles.devBadge}>DEV</Text>
-                    ) : null}
+                    <View style={styles.headerTitleRow}>
+                        <Text style={styles.title}>YAGA</Text>
+                        {isDevBuild ? (
+                            <Text style={styles.devBadge}>DEV</Text>
+                        ) : null}
+                    </View>
+                    <TouchableOpacity
+                        style={styles.adminButton}
+                        onPress={onAdminSettings}
+                    >
+                        <Ionicons
+                            name="settings-sharp"
+                            color="white"
+                            size={20}
+                        />
+                    </TouchableOpacity>
                 </View>
                 <Text style={styles.subtitle}>Yet Another Gym App</Text>
             </View>
@@ -138,6 +192,14 @@ const HomeView = () => {
                     </View>
                 ))}
             </View>
+            {vm.isImportVisible && (
+                <ImportView
+                    isVisible={vm.isImportVisible}
+                    onClose={vm.closeImportFromStrong}
+                    fileUri={vm.importFileUri}
+                    fileName={vm.importFileName}
+                />
+            )}
         </View>
     );
 };
@@ -159,7 +221,11 @@ const styles = StyleSheet.create({
     headerTopRow: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "flex-start",
+        justifyContent: "space-between",
+    },
+    headerTitleRow: {
+        flexDirection: "row",
+        alignItems: "center",
     },
     subtitle: {
         marginTop: 4,
@@ -176,6 +242,14 @@ const styles = StyleSheet.create({
         textTransform: "uppercase",
         overflow: "hidden",
         marginLeft: 8,
+    },
+    adminButton: {
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        backgroundColor: "rgba(255, 255, 255, 0.08)",
+        alignItems: "center",
+        justifyContent: "center",
     },
     statsGrid: {
         flexDirection: "row",

@@ -5,20 +5,13 @@ import {
     TouchableOpacity,
     FlatList,
     View,
-    ActionSheetIOS,
     TextInput,
     KeyboardAvoidingView,
     Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { WorkoutTemplate } from "../../model/types";
-import {
-    exportDatabase,
-    importDatabase,
-    resetDatabase,
-} from "../../model/database";
 import ModalDialog from "../../components/ModalDialog";
-import ImportView from "../import/ImportView";
 import { usePlanViewModel } from "./plan.viewModel";
 
 const PlanView = () => {
@@ -67,46 +60,6 @@ const PlanView = () => {
         </View>
     );
 
-    const onAdminSettings = () =>
-        ActionSheetIOS.showActionSheetWithOptions(
-            {
-                title: "Settings",
-                options: [
-                    "Cancel",
-                    vm.isHealthLoggingEnabled
-                        ? "Disable Health Logging"
-                        : "Enable Health Logging",
-                    vm.isStravaLoggingEnabled
-                        ? "Disable Strava Logging"
-                        : "Enable Strava Logging",
-                    "Auth Strava",
-                    "Import Strong App",
-                    "Export Database",
-                    "Import Database",
-                    "Reset Database",
-                ],
-                cancelButtonIndex: 0,
-                destructiveButtonIndex: [6, 7],
-            },
-            (btnIdx) => {
-                if (btnIdx === 1) {
-                    vm.toggleHealthLogging();
-                } else if (btnIdx === 2) {
-                    vm.toggleStravaLogging();
-                } else if (btnIdx === 3) {
-                    void vm.authStrava();
-                } else if (btnIdx === 4) {
-                    void vm.openImportFromStrong();
-                } else if (btnIdx === 5) {
-                    exportDatabase();
-                } else if (btnIdx === 6) {
-                    importDatabase();
-                } else if (btnIdx === 7) {
-                    resetDatabase();
-                }
-            }
-        );
-
     const renderTemplate = ({ item }: { item: WorkoutTemplate }) => (
         <TouchableOpacity
             style={styles.workoutCard}
@@ -154,16 +107,6 @@ const PlanView = () => {
                         onPress={vm.openCreateModal}
                     >
                         <Ionicons name="add-sharp" color="white" size={20} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.adminButton}
-                        onPress={onAdminSettings}
-                    >
-                        <Ionicons
-                            name="settings-sharp"
-                            color="white"
-                            size={20}
-                        />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -229,14 +172,6 @@ const PlanView = () => {
                         </View>
                     </KeyboardAvoidingView>
                 </ModalDialog>
-            )}
-            {vm.isImportVisible && (
-                <ImportView
-                    isVisible={vm.isImportVisible}
-                    onClose={vm.closeImportFromStrong}
-                    fileUri={vm.importFileUri}
-                    fileName={vm.importFileName}
-                />
             )}
         </View>
     );
