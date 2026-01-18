@@ -1,7 +1,7 @@
 import { Alert } from "react-native";
 import { ExerciseMapping, ImportData } from "../../model/import/import.types";
 import { ExerciseCategory, ExerciseDef } from "../../model/types";
-import { inferExerciseCategory } from "./viewModel.helpers";
+import { inferExerciseCategory } from "./import.viewModel.helpers";
 
 export interface ImportSummary {
     totalRows: number;

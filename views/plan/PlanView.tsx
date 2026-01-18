@@ -19,7 +19,7 @@ import {
 } from "../../model/database";
 import ModalDialog from "../../components/ModalDialog";
 import ImportView from "../import/ImportView";
-import { usePlanViewModel } from "./viewModel";
+import { usePlanViewModel } from "./plan.viewModel";
 
 const PlanView = () => {
     const vm = usePlanViewModel();

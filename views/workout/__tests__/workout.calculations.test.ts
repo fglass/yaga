@@ -1,4 +1,4 @@
-import { compareSetEpley1RM, calculateEpley1RM } from "../calculations";
+import { compareSetEpley1RM, calculateEpley1RM } from "../workout.calculations";
 
 const makeSet = (weight: string, reps: string) => ({
     id: "set-1",

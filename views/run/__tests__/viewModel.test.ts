@@ -1,4 +1,4 @@
-import { computeRunDistance } from "../calculations";
+import { computeRunDistance } from "../run.calculations";
 
 describe("computeRunDistance", () => {
     it("calculates distance from a constant pace over a fixed duration", () => {

@@ -13,11 +13,11 @@ import {
 } from "../../model/import/import.helpers";
 import { importWorkouts } from "../../model/import/importWorkouts";
 import { QueryKey, fetchExerciseDefs } from "../../model/database";
-import { inferExerciseCategory } from "./viewModel.helpers";
+import { inferExerciseCategory } from "./import.viewModel.helpers";
 import {
     createImportViewModelCore,
     createInitialImportViewModelState,
-} from "./viewModel.core";
+} from "./import.viewModel.core";
 
 export interface UseImportViewModelParams {
     fileUri: string | null;

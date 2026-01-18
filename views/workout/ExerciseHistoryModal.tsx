@@ -7,7 +7,7 @@ import {
     View,
 } from "react-native";
 import ModalDialog from "../../components/ModalDialog";
-import { useRecentSetsForExercises } from "./hooks";
+import { useRecentSetsForExercises } from "./workout.hooks";
 
 interface Props {
     isVisible: boolean;

@@ -11,7 +11,7 @@ import { useKeepAwake } from "expo-keep-awake";
 import Button from "../../components/Button";
 import { Workout } from "../../model/types";
 import { formatTime } from "../../utils/util";
-import { useRunViewModel } from "./viewModel";
+import { useRunViewModel } from "./run.viewModel";
 
 interface Props {
     initialRun: Workout;

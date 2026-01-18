@@ -4,9 +4,14 @@
 
 This project targets iOS only; do not add Android-specific code or configuration.
 
-The Expo entry point lives in `App.tsx`, which wires `views/RootView` into the React Query provider. Feature-specific screens sit under `views/`, shared UI primitives belong in `components/`, and domain logic is grouped in `model/` and `util.ts`. Static assets (fonts, icons, images) live in `assets/`, while `dist/` contains generated bundles—never edit files there directly. Keep SQLite schemas and migrations colocated with the modules that depend on them so DB changes ship with their owning feature.
+The Expo entry point lives in `App.tsx`, which wires `views/RootView` into the React Query provider. Feature-specific screens sit under `views/`, shared UI primitives belong in `components/`, and domain logic is grouped in `model/`. Static assets (fonts, icons, images) live in `assets/`, while `dist/` contains generated bundles—never edit files there directly.
 
-Each screen owns a companion `viewModel` that gathers data from React Query, the SQLite layer, and any domain helpers before handing ready-to-render props down to the JSX. Place these in the same folder as their screen inside `views/`, name the module `viewModel.ts`, and expose a hook like `useFeatureViewModel` whose return object (often consumed as `const vm = ...`) contains serializable state and callback handlers. `viewModel`s are responsible for orchestrating side-effects (mutations, navigation helpers, analytics) so components stay declarative and unit-testable; share common logic by delegating to modules in `model/` or `util.ts` rather than coupling screens together.
+Each screen owns a companion `viewModel` that gathers data from React Query, the SQLite layer, and any domain helpers before handing ready-to-render props down to the JSX. Place these in the same folder as their screen inside `views/`, and expose a hook like `useFeatureViewModel` whose return object (often consumed as `const vm = ...`) contains serializable state and callback handlers. `viewModel`s are responsible for orchestrating side-effects (mutations, navigation helpers, analytics) so components stay declarative and unit-testable; share common logic by delegating to modules in `model/` or `util.ts` rather than coupling screens together.
+
+Use dependency injection (functional core, imperative shell) in view models. Suggestions:
+-   Define a `deps` object in the hook and pass it into the core so tests can swap real IO/alerts/queries with fakes.
+-   Keep the core module free of React hooks; accept `{ getState, setState, deps }` and return behavior methods.
+-   In tests, build the core with a lightweight state harness so behavior can be exercised without React.
 
 ## Coding Style & Naming Conventions
 
