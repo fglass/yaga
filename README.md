@@ -62,8 +62,9 @@ eas build --platform ios --profile preview
 -   [ ] 🟡 Shake to undo
 -   [ ] 🔴 Bug: no delta with 0kg? E.g. pull up
 -   [ ] 🔴 Bug: history view progressive overload
-- [ ] 🟡 Touch workout title to see history
-- [ ] 🟡 Rework exercise notes
+-   [ ] 🟡 Touch workout title to see history
+-   [ ] 🟡 Rework exercise notes
+-   [ ] 🔴 Bug: bottom timer clipping
 
 ### Run View
 
@@ -110,6 +111,3 @@ Strong notes?
 Strong warmup sets
 No history if mapped? Check
 Check history not overwritten
-
-Bottom timer clipping
-Exercise history scrolling

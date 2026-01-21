@@ -19,7 +19,7 @@ const ExerciseHistoryModal = (props: Props) => {
     const exerciseId = props.exerciseId;
     const { isLoading, historySets } = useRecentSetsForExercises(
         exerciseId ? [exerciseId] : [],
-        3,
+        5,
         props.isVisible && exerciseId != null
     );
     const exerciseHistorySets = exerciseId ? historySets[exerciseId] ?? [] : [];
@@ -45,14 +45,18 @@ const ExerciseHistoryModal = (props: Props) => {
             title="History"
             isVisible={props.isVisible}
             onClose={props.onClose}
-            maxHeight="70%"
+            maxHeight="45%"
         >
             {isLoading ? (
                 <ActivityIndicator style={styles.loading} color="white" />
             ) : visibleHistorySets.length === 0 ? (
                 <Text style={styles.emptyText}>Nothing yet!</Text>
             ) : (
-                <ScrollView showsVerticalScrollIndicator={false}>
+                <ScrollView
+                    style={styles.scroll}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                >
                     <View style={styles.tableHeader}>
                         <Text style={styles.headerSetCell}>Set</Text>
                         <Text style={styles.headerWeightCell}>Weight</Text>
@@ -97,6 +101,13 @@ const styles = StyleSheet.create({
         color: "rgba(255, 255, 255, 0.7)",
         textAlign: "center",
         paddingVertical: 10,
+    },
+    scroll: {
+        maxHeight: "100%",
+        minHeight: 0,
+    },
+    scrollContent: {
+        paddingBottom: 8,
     },
     session: {
         paddingVertical: 6,
