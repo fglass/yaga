@@ -3,7 +3,7 @@ import {
     View,
     Text,
     StyleSheet,
-    TouchableOpacity,
+    Pressable,
     Modal,
     DimensionValue,
 } from "react-native";
@@ -34,29 +34,24 @@ const ModalDialog = ({
         transparent
         animationType="fade"
     >
-        <TouchableOpacity
-            style={styles.container}
-            activeOpacity={1}
-            onPress={onClose}
-        >
+        <View style={styles.container}>
+            <Pressable style={styles.backdrop} onPress={onClose} />
             <View
                 style={[
                     styles.modal,
                     maxHeight != null ? { maxHeight } : undefined,
                 ]}
-                onStartShouldSetResponder={() => true}
-                onTouchEnd={(e) => e.stopPropagation()}
             >
                 <View style={styles.header}>
                     <Text style={styles.title}>{title}</Text>
                     <View style={styles.headerButtons}>
                         {headerAction}
-                        <TouchableOpacity
+                        <Pressable
                             style={styles.closeButton}
                             onPress={onClose}
                         >
                             <Ionicons name="close" color="white" size={18} />
-                        </TouchableOpacity>
+                        </Pressable>
                     </View>
                 </View>
                 <View
@@ -69,7 +64,7 @@ const ModalDialog = ({
                 />
                 <View style={styles.content}>{children}</View>
             </View>
-        </TouchableOpacity>
+        </View>
     </Modal>
 );
 
@@ -80,6 +75,9 @@ const styles = StyleSheet.create({
         paddingVertical: 24,
         alignItems: "center",
         justifyContent: "center",
+    },
+    backdrop: {
+        ...StyleSheet.absoluteFillObject,
         backgroundColor: "rgba(42, 49, 53, 0.9)",
     },
     modal: {
@@ -129,10 +127,9 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     content: {
-        flexGrow: 1,
-        flexShrink: 1,
         width: "100%",
         minHeight: 0,
+        flexShrink: 1,
     },
 });
 
