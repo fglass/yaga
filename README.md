@@ -99,6 +99,7 @@ eas build --platform ios --profile preview
 -   [ ] 🟡 Shake to undo
 -   [ ] 🔴 Bug: no delta with 0kg? E.g. pull up
 -   [ ] 🔴 Bug: history view progressive overload
+- [ ] 🟡 Touch workout title to see history
 
 ### Run View
 
@@ -148,3 +149,27 @@ eas build --platform ios --profile preview
 - Skills:
     https://github.com/expo/skills/tree/main/plugins/expo-app-design
     https://vercel.com/blog/introducing-react-best-practices
+
+---
+
+Map exercise keyboard
+Import exercise text clipping
+Tweak infer keywords
+Import complete haptic
+Bottom timer clipping
+
+Goals: if X in Y then ✅ 
+Exercise category local classifier
+Note haptic
+Rework exercise notes
+
+Exercise history scrolling
+Home text init effect/delay boot
+Home header consistency
+Strong int conversion
+Strong notes?
+Strong warmup sets
+Remove set no warning if not finished
+Remove exercise if no set finished
+No history if mapped? Check
+Check history not overwritten
