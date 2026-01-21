@@ -136,6 +136,7 @@ eas build --platform ios --profile preview
 -   [x] Strong migration
 -   [ ] 🟡 Add SQLite import
 -   [ ] 🟢 Merge/overwrite option
+- [ ] 🟢 Exercise category local classifier
 
 ## Incubator
 
@@ -152,21 +153,18 @@ eas build --platform ios --profile preview
 
 ---
 
+Import:
 Map exercise keyboard
 Import exercise text clipping
 Tweak infer keywords
-Bottom timer clipping
-
-Exercise category local classifier
-Rework exercise notes
-
-Exercise history scrolling
-Home text init effect/delay boot
-Home header consistency
 Strong int conversion
 Strong notes?
 Strong warmup sets
-Remove set no warning if not finished
-Remove exercise if no set finished
 No history if mapped? Check
 Check history not overwritten
+
+Rework exercise notes
+Bottom timer clipping
+Exercise history scrolling
+Home text init effect/delay boot
+Home header consistency

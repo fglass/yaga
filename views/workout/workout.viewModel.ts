@@ -302,6 +302,9 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             await props.onCancel();
             return;
         }
+        const hasFinishedSet = workout.exercises.some((exercise) =>
+            exercise.sets.some((set) => set.finishTime !== undefined)
+        );
         withWarning(
             async () => {
                 cancelRestTimer();
@@ -311,7 +314,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             {
                 title: "Cancel Workout",
                 message: "Are you sure?",
-                enabled: workout.exercises.length === 0,
+                enabled: !hasFinishedSet,
             }
         );
     };
@@ -430,8 +433,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         (exerciseIdx: number, setIdx: number) => {
             const set = workout.exercises[exerciseIdx]?.sets[setIdx];
             const shouldSkipWarning =
-                set == null ||
-                (!set.weight && !set.reps && set.finishTime === undefined);
+                set == null || set.finishTime === undefined;
 
             withWarning(
                 () => {
@@ -540,6 +542,12 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     }, []);
 
     const onRemoveExercise = useCallback((exerciseIdx: number) => {
+        const hasFinishedSet =
+            workout.exercises[exerciseIdx]?.sets.some(
+                (entry) => entry.finishTime !== undefined
+            ) ?? false;
+        const shouldSkipWarning = !hasFinishedSet;
+
         withWarning(
             () => {
                 dispatch({
@@ -550,9 +558,13 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                     Haptics.NotificationFeedbackType.Success
                 );
             },
-            { title: "Remove Exercise", message: "Are you sure?" }
+            {
+                title: "Remove Exercise",
+                message: "Are you sure?",
+                enabled: shouldSkipWarning,
+            }
         );
-    }, []);
+    }, [workout.exercises]);
 
     const onMoveExercise = useCallback((exerciseIdx: number, delta: number) => {
         dispatch({ type: ActionType.MoveExercise, exerciseIdx, delta });
