@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert } from "react-native";
 import { File as ExpoFile } from "expo-file-system";
 import { useQueryClient } from "@tanstack/react-query";
+import * as Haptics from "expo-haptics";
 import {
     STRONG_REQUIRED_COLUMNS,
     buildImportData,
@@ -17,6 +18,7 @@ import { inferExerciseCategory } from "./import.viewModel.helpers";
 import {
     createImportViewModelCore,
     createInitialImportViewModelState,
+    ImportViewModelDeps,
 } from "./import.viewModel.core";
 
 export interface UseImportViewModelParams {
@@ -64,7 +66,7 @@ export const useImportViewModel = ({
 
     const getState = useCallback(() => stateRef.current, []);
 
-    const deps = useMemo(
+    const deps = useMemo<ImportViewModelDeps>(
         () => ({
             // TODO: make not-specific to Strong
             fetchExerciseDefs,
@@ -78,7 +80,13 @@ export const useImportViewModel = ({
             matchExerciseName,
             suggestExerciseMatches,
             importedBy: "strong-csv",
-            importWorkouts,
+            importWorkouts: async (data, mapping, importedBy) => {
+                const result = await importWorkouts(data, mapping, importedBy);
+                Haptics.notificationAsync(
+                    Haptics.NotificationFeedbackType.Success
+                );
+                return result;
+            },
             inferExerciseCategory,
             alert: Alert.alert,
             invalidateQueries: (queryKey: unknown[]) =>

@@ -1,5 +1,10 @@
 import { Alert } from "react-native";
-import { ExerciseMapping, ImportData } from "../../model/import/import.types";
+import {
+    ExerciseMapping,
+    ImportData,
+    ImportParseResult,
+    ImportRow,
+} from "../../model/import/import.types";
 import { ExerciseCategory, ExerciseDef } from "../../model/types";
 import { inferExerciseCategory } from "./import.viewModel.helpers";
 
@@ -31,12 +36,8 @@ export interface ImportViewModelDeps {
     fetchExerciseDefs: () => Promise<Record<string, ExerciseDef>>;
     readFileText: (uri: string) => Promise<string>;
     requiredColumns: string[];
-    parseStrongCsv: (text: string) => {
-        rows: unknown[];
-        errors: string[];
-        totalRows: number;
-    };
-    buildImportData: (rows: unknown[]) => ImportData;
+    parseStrongCsv: (text: string) => ImportParseResult;
+    buildImportData: (rows: ImportRow[]) => ImportData;
     matchExerciseName: (
         name: string,
         defs: Record<string, ExerciseDef>

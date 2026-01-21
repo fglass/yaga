@@ -29,7 +29,7 @@ eas build --platform ios --profile preview
 -   [x] Update splash image
 -   [x] Test suite
 -   [ ] 🟡 Liquid glass refresh
--   [ ] 🟢 Goal setting?
+-   [ ] 🟢 Goals: if X in Y then ✅ 
 -   [ ] 🟢 Native port
 -   [ ] 🟢 CI/CD
 -   [ ] 🟢 Release?
@@ -155,12 +155,9 @@ eas build --platform ios --profile preview
 Map exercise keyboard
 Import exercise text clipping
 Tweak infer keywords
-Import complete haptic
 Bottom timer clipping
 
-Goals: if X in Y then ✅ 
 Exercise category local classifier
-Note haptic
 Rework exercise notes
 
 Exercise history scrolling
