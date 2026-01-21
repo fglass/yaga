@@ -126,14 +126,17 @@ const HomeView = () => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.headerRow}>
-                <View style={styles.headerTopRow}>
+            <View style={styles.header}>
+                <View>
                     <View style={styles.headerTitleRow}>
                         <Text style={styles.title}>YAGA</Text>
                         {isDevBuild ? (
                             <Text style={styles.devBadge}>DEV</Text>
                         ) : null}
                     </View>
+                    <Text style={styles.subtitle}>Yet Another Gym App</Text>
+                </View>
+                <View style={styles.headerActions}>
                     <TouchableOpacity
                         style={styles.adminButton}
                         onPress={onAdminSettings}
@@ -145,7 +148,6 @@ const HomeView = () => {
                         />
                     </TouchableOpacity>
                 </View>
-                <Text style={styles.subtitle}>Yet Another Gym App</Text>
             </View>
             <View style={styles.statsGrid}>
                 {interleavedCards.map((card) => (
@@ -167,11 +169,14 @@ const HomeView = () => {
                                 <Text style={styles.statComparisonLabel}>
                                     {card.thisLabel}
                                 </Text>
-                                {vm.isLoading ? null : (
-                                    <Text style={styles.statValue}>
-                                        {card.thisValue}
-                                    </Text>
-                                )}
+                                <Text
+                                    style={[
+                                        styles.statValue,
+                                        vm.isLoading && styles.statValueLoading,
+                                    ]}
+                                >
+                                    {card.thisValue}
+                                </Text>
                             </View>
                             <View
                                 style={[
@@ -182,11 +187,14 @@ const HomeView = () => {
                                 <Text style={styles.statComparisonLabel}>
                                     {card.lastLabel}
                                 </Text>
-                                {vm.isLoading ? null : (
-                                    <Text style={styles.statValue}>
-                                        {card.lastValue}
-                                    </Text>
-                                )}
+                                <Text
+                                    style={[
+                                        styles.statValue,
+                                        vm.isLoading && styles.statValueLoading,
+                                    ]}
+                                >
+                                    {card.lastValue}
+                                </Text>
                             </View>
                         </View>
                     </View>
@@ -215,21 +223,24 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         color: "white",
     },
-    headerRow: {
-        marginBottom: 24,
-    },
-    headerTopRow: {
+    header: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
+        marginBottom: 18,
     },
-    headerTitleRow: {
+    headerActions: {
         flexDirection: "row",
         alignItems: "center",
     },
     subtitle: {
         marginTop: 4,
         color: "rgba(255, 255, 255, 0.7)",
+        marginBottom: 6,
+    },
+    headerTitleRow: {
+        flexDirection: "row",
+        alignItems: "center",
     },
     devBadge: {
         paddingHorizontal: 10,
@@ -302,6 +313,9 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: "700",
         color: "white",
+    },
+    statValueLoading: {
+        opacity: 0,
     },
     statLabelUnit: {
         marginLeft: 6,
