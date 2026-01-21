@@ -81,7 +81,6 @@ interface ViewModel {
         delta: number
     ) => void;
     onAdjustReps: (exerciseIdx: number, setIdx: number, delta: number) => void;
-    onDecrementRep: (exerciseIdx: number, setIdx: number) => void;
     onFinishSet: (
         exerciseIdx: number,
         setIdx: number,
@@ -307,7 +306,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             async () => {
                 cancelRestTimer();
                 await props.onCancel();
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             },
             {
                 title: "Cancel Workout",
@@ -411,18 +410,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         [workout.exercises]
     );
 
-    const onDecrementRep = useCallback(
-        (exerciseIdx: number, setIdx: number) => {
-            dispatch({
-                type: ActionType.DecrementReps,
-                exerciseIdx,
-                setIdx,
-            });
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        },
-        []
-    );
-
     const onFinishSet = useCallback(
         (exerciseIdx: number, setIdx: number, isFinished: boolean) => {
             dispatch({
@@ -503,7 +490,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
     const onAddExerciseNote = useCallback((exerciseIdx: number) => {
         dispatch({ type: ActionType.AddExerciseNote, exerciseIdx });
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }, []);
 
     const isNotesExpanded = (exercise: Exercise) => {
@@ -526,6 +513,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                 ...prev,
                 [exercise.id]: !isNotesExpanded(exercise),
             }));
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         }
     };
 
@@ -568,7 +556,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
     const onMoveExercise = useCallback((exerciseIdx: number, delta: number) => {
         dispatch({ type: ActionType.MoveExercise, exerciseIdx, delta });
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }, []);
 
     const onAdjustRestTimer = useCallback(
@@ -577,7 +565,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                 return;
             }
             adjustRestTimer(deltaS);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         },
         [adjustRestTimer, isHistoryMode]
     );
@@ -684,7 +672,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onChangeRep,
         onAdjustWeight,
         onAdjustReps,
-        onDecrementRep,
         onFinishSet,
         onRemoveSet,
         onAddSet,
