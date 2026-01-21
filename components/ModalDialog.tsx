@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    Modal,
+    DimensionValue,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 interface Props {
@@ -7,7 +14,7 @@ interface Props {
     isVisible: boolean;
     children: React.ReactNode;
     onClose: () => void;
-    maxHeight?: number | string;
+    maxHeight?: DimensionValue;
     headerAction?: React.ReactNode;
     headerSpacing?: number;
 }
@@ -33,7 +40,10 @@ const ModalDialog = ({
             onPress={onClose}
         >
             <View
-                style={[styles.modal, maxHeight && { maxHeight }]}
+                style={[
+                    styles.modal,
+                    maxHeight != null ? { maxHeight } : undefined,
+                ]}
                 onStartShouldSetResponder={() => true}
                 onTouchEnd={(e) => e.stopPropagation()}
             >

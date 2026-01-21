@@ -1,4 +1,5 @@
 import { ExerciseDef } from "../../../model/types";
+import { ImportParseResult } from "../../../model/import/import.types";
 import {
     createImportViewModelCore,
     createImportViewModelState,
@@ -40,7 +41,11 @@ const createTestViewModel = () => {
         fetchExerciseDefs: async () => exerciseDefs,
         readFileText: async () => "",
         requiredColumns: ["col"],
-        parseStrongCsv: () => ({ rows: [], errors: [], totalRows: 0 }),
+        parseStrongCsv: (): ImportParseResult => ({
+            rows: [],
+            errors: [],
+            totalRows: 0,
+        }),
         buildImportData: () => ({
             rows: [],
             workouts: [],
