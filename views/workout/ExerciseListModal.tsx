@@ -14,6 +14,7 @@ import ModalDialog from "../../components/ModalDialog";
 import EditExerciseModal from "./EditExerciseModal";
 import NewExerciseModal from "./NewExerciseModal";
 import type { ExerciseCategory, ExerciseDef } from "../../model/types";
+import { UNKNOWN_EXERCISE_DEF_ID } from "../../model/database";
 import { withWarning } from "../../utils/util";
 
 interface Props {
@@ -27,6 +28,7 @@ interface Props {
         exerciseId: string,
         def: ExerciseDef
     ) => Promise<void>;
+    onDeleteExerciseDef: (exerciseDefId: string) => Promise<string>;
     onClose: () => void;
 }
 
@@ -56,6 +58,9 @@ const ExerciseListModal = (props: Props) => {
     const { items, listHeight, minListHeight, categories } = useMemo(() => {
         const grouped: Record<string, ExerciseItem[]> = {};
         Object.entries(exerciseDefs).forEach(([id, def]) => {
+            if (id === UNKNOWN_EXERCISE_DEF_ID) {
+                return;
+            }
             const category = def.category?.trim().length
                 ? def.category.trim()
                 : "Other";
@@ -189,15 +194,12 @@ const ExerciseListModal = (props: Props) => {
                 } else if (buttonIndex === 1) {
                     withWarning(
                         () => {
-                            // TODO: implement deleting
-                            Alert.alert(
-                                "Delete Exercise",
-                                `deleting exercise ${exercise.name}`
-                            );
+                            props.onDeleteExerciseDef(exerciseDefId);
                         },
                         {
                             title: `Delete ${exercise.name}`,
-                            message: "Are you sure?",
+                            message:
+                                "Existing exercises will be marked as unknown",
                         }
                     );
                 }

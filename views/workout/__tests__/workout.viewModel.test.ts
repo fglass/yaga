@@ -5,17 +5,19 @@ import {
     createWorkoutViewModelState,
 } from "../workout.viewModel.core";
 
-const createTestViewModel = (
-    overrides?: Partial<{
-        generateGuid: () => string;
-        prefillExerciseFromHistory: (
-            exerciseId: string,
-            exercise: Exercise
-        ) => Promise<Exercise>;
-        updateExerciseDef: (exerciseId: string, def: ExerciseDef) => Promise<void>;
-    }>
-) => {
-    const baseWorkout: Workout = {
+type Overrides = Partial<{
+    baseWorkout: Workout;
+    generateGuid: () => string;
+    prefillExerciseFromHistory: (
+        exerciseId: string,
+        exercise: Exercise
+    ) => Promise<Exercise>;
+    updateExerciseDef: (exerciseId: string, def: ExerciseDef) => Promise<void>;
+    deleteExerciseDef: (exerciseDefId: string) => Promise<string>;
+}>;
+
+const createTestViewModel = (overrides?: Overrides) => {
+    const fallbackWorkout: Workout = {
         id: "workout-1",
         name: "Workout",
         exercises: [],
@@ -24,6 +26,8 @@ const createTestViewModel = (
         metadata: {},
         startTimestamp: 0,
     };
+    const baseWorkout = overrides?.baseWorkout ?? fallbackWorkout;
+
     const state = createWorkoutViewModelState(
         createInitialWorkoutViewModelState(baseWorkout)
     );
@@ -34,6 +38,7 @@ const createTestViewModel = (
             exercise: Exercise
         ) => exercise,
         updateExerciseDef: async () => undefined,
+        deleteExerciseDef: async () => "unknown-def",
         ...overrides,
     };
     const vm = createWorkoutViewModelCore({
@@ -73,5 +78,42 @@ describe("workout view model core", () => {
             "exercise-1",
             updatedDef
         );
+    });
+
+    it("deletes exercise def and replaces with unknown", async () => {
+        const baseWorkout: Workout = {
+            id: "workout-1",
+            name: "Workout",
+            exercises: [
+                {
+                    id: "exercise-1",
+                    exerciseId: "exercise-def-1",
+                    notes: [],
+                    sets: [],
+                },
+                {
+                    id: "exercise-2",
+                    exerciseId: "exercise-def-2",
+                    notes: [],
+                    sets: [],
+                },
+            ],
+            notes: "",
+            type: "strength",
+            metadata: {},
+            startTimestamp: 0,
+        };
+        const deleteExerciseDef = jest.fn(async () => "unknown-def");
+        const { state, vm } = createTestViewModel({
+            baseWorkout,
+            deleteExerciseDef,
+        });
+
+        await vm.deleteExerciseDef("exercise-def-1");
+
+        const workout = state.getState().workout;
+        expect(workout.exercises).toHaveLength(2);
+        expect(workout.exercises[0].exerciseId).toBe("unknown-def");
+        expect(workout.exercises[1].exerciseId).toBe("exercise-def-2");
     });
 });

@@ -62,6 +62,9 @@ export const styles = StyleSheet.create({
         flexShrink: 1,
         paddingRight: 8,
     },
+    cardHeaderTitleDisabled: {
+        opacity: 0.6,
+    },
     cardHeaderRight: {
         flexDirection: "row",
         alignItems: "center",
@@ -89,6 +92,9 @@ export const styles = StyleSheet.create({
         fontWeight: "600",
         color: "white",
         flexShrink: 1,
+    },
+    cardTitleDisabled: {
+        color: "rgba(255, 255, 255, 0.6)",
     },
     noteContainer: {
         marginTop: 4,

@@ -1,4 +1,8 @@
-import { EXERCISE_DEFS, WORKOUT_TEMPLATES } from "./database.data";
+import {
+    EXERCISE_DEFS,
+    UNKNOWN_EXERCISE_DEF_ID,
+    WORKOUT_TEMPLATES,
+} from "./database.data";
 import {
     CompletedWorkout,
     Exercise,
@@ -298,6 +302,32 @@ export const updateExerciseDef = async (params: {
     );
 };
 
+export const deleteExerciseDef = async (
+    exerciseDefId: string
+): Promise<string> => {
+    await ensureDatabase();
+
+    return await runInTransaction(async (db) => {
+        const unknownId = UNKNOWN_EXERCISE_DEF_ID;
+
+        if (exerciseDefId === unknownId) {
+            return unknownId;
+        }
+
+        await db.runAsync(
+            "UPDATE exercises SET exercise_def_id = ? WHERE exercise_def_id = ?",
+            unknownId,
+            exerciseDefId
+        );
+        await db.runAsync(
+            "DELETE FROM exercise_defs WHERE id = ?",
+            exerciseDefId
+        );
+
+        return unknownId;
+    });
+};
+
 /* Read operations */
 
 export const fetchExerciseDefs = async (): Promise<
@@ -318,7 +348,7 @@ export const fetchExerciseDefs = async (): Promise<
     }, {});
 
     console.log(`Exercise defs fetched in ${Date.now() - startTime}ms`);
-    return defs
+    return defs;
 };
 
 export const fetchCompletedWorkoutKeys = async (): Promise<string[]> => {
@@ -329,11 +359,9 @@ export const fetchCompletedWorkoutKeys = async (): Promise<string[]> => {
     const rows = await db.getAllAsync<{
         name: string;
         started_at: number;
-    }>(
-        "SELECT name, started_at FROM workouts WHERE status = 'completed'"
-    );
+    }>("SELECT name, started_at FROM workouts WHERE status = 'completed'");
 
-    const keys =  rows.map((row) => `${row.name}__${row.started_at}`);
+    const keys = rows.map((row) => `${row.name}__${row.started_at}`);
 
     console.log(
         `Completed workout keys fetched in ${Date.now() - startTime}ms`
@@ -355,7 +383,7 @@ export const fetchWorkoutTemplates = async (): Promise<WorkoutTemplate[]> => {
         "SELECT id, name, notes, type, definition_json FROM templates ORDER BY rowid"
     );
 
-    const templates =  rows.map((row) => ({
+    const templates = rows.map((row) => ({
         id: row.id,
         name: row.name,
         notes: row.notes,
@@ -364,7 +392,7 @@ export const fetchWorkoutTemplates = async (): Promise<WorkoutTemplate[]> => {
     }));
 
     console.log(`Workout templates fetched in ${Date.now() - startTime}ms`);
-    return templates
+    return templates;
 };
 
 export const fetchActiveWorkout = async (): Promise<Workout | null> => {

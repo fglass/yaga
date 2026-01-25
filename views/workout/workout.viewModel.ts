@@ -102,6 +102,7 @@ interface ViewModel {
         exerciseId: string,
         def: ExerciseDef
     ) => Promise<void>;
+    onDeleteExerciseDef: (exerciseDefId: string) => Promise<string>;
     onFinishWorkout: () => Promise<void>;
     onCancelWorkout: () => Promise<void>;
     onAdjustRestTimer: (deltaS: number) => void;
@@ -123,8 +124,13 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const workoutRef = useRef(workout); // Keep latest workout for core updates (SyncWorkout).
 
     const exerciseDefs = useExerciseDefs();
-    const { completeWorkout, createExerciseDef, updateExerciseDef } =
-        useDatabaseWriter();
+    const {
+        completeWorkout,
+        createExerciseDef,
+        updateExerciseDef,
+        deleteExerciseDef,
+    } = useDatabaseWriter();
+    useDatabaseWriter();
     const [activeModal, setActiveModal] = useState(ModalType.None);
     const [historyExerciseId, setHistoryExerciseId] = useState<string | null>(
         null
@@ -136,15 +142,13 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const restNotificationIdRef = useRef<string | null>(null);
     const restScheduleTokenRef = useRef(0);
 
-    const isHistoryMode = props.mode === "history";
-
     const workoutCore = useMemo(
         () =>
             createWorkoutViewModelCore({
                 setState: (updater) => {
+                    // Sync core-updated workout into reducer state
                     const next = updater({ workout: workoutRef.current });
                     if (next.workout !== workoutRef.current) {
-                        // Sync core-updated workout into reducer state
                         workoutRef.current = next.workout;
                         dispatch({
                             type: ActionType.SyncWorkout,
@@ -156,15 +160,18 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                     generateGuid,
                     prefillExerciseFromHistory,
                     updateExerciseDef,
+                    deleteExerciseDef,
                 },
             }),
-        [updateExerciseDef]
+        [deleteExerciseDef, updateExerciseDef]
     );
 
     const exerciseIds = useMemo(
         () => workout.exercises.map((exercise) => exercise.exerciseId),
         [workout.exercises]
     );
+
+    const isHistoryMode = props.mode === "history";
     const { historySets: recentSetsByExerciseId } = useRecentSetsForExercises(
         exerciseIds,
         1,
@@ -719,6 +726,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onMoveExercise,
         onCreateExerciseDef,
         onUpdateExerciseDef: workoutCore.updateExerciseDef,
+        onDeleteExerciseDef: workoutCore.deleteExerciseDef,
         onFinishWorkout,
         onCancelWorkout,
         onAdjustRestTimer,
