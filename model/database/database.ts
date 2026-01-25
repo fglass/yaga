@@ -282,6 +282,21 @@ export const createExerciseDef = async (def: ExerciseDef): Promise<string> => {
     return exerciseId;
 };
 
+export const updateExerciseDef = async (params: {
+    id: string;
+    def: ExerciseDef;
+}): Promise<void> => {
+    await ensureDatabase();
+
+    const db = await getDatabase();
+    await db.runAsync(
+        "UPDATE exercise_defs SET name = ?, category = ? WHERE id = ?",
+        params.def.name,
+        params.def.category,
+        params.id
+    );
+};
+
 /* Read operations */
 
 export const fetchExerciseDefs = async (): Promise<

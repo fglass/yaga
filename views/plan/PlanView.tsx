@@ -47,7 +47,7 @@ const PlanView = () => {
             onPress={onStartNewRun}
         >
             <View style={styles.newCardContent}>
-                <Text style={styles.workoutName}>New Run</Text>
+                <Text style={styles.workoutName}>New Treadmill</Text>
             </View>
             <Ionicons name="chevron-forward" color="white" size={20} />
         </TouchableOpacity>
