@@ -1,4 +1,4 @@
-import { generateGuid } from "../../utils/util";
+import { generateGuid } from "../../utils/guid";
 import { normalizeExerciseName } from "./import.helpers";
 import {
     ExerciseMapping,

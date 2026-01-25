@@ -1,4 +1,4 @@
-import { generateGuid } from "../../utils/util";
+import { generateGuid } from "../../utils/guid";
 import { ExerciseDef, WorkoutTemplate } from "../types";
 
 enum Exercise {

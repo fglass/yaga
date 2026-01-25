@@ -117,7 +117,7 @@ const WorkoutView = (props: Props) => {
                 isVisible={vm.isModalActive(ModalType.ExerciseList)}
                 onAddExercise={vm.onAddExercise}
                 onCreateExerciseDef={vm.onCreateExerciseDef}
-                onUpdateExerciseDef={vm.updateExerciseDef}
+                onUpdateExerciseDef={vm.onUpdateExerciseDef}
                 onClose={() => vm.setActiveModal(ModalType.None)}
             />
             <ExerciseHistoryModal

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useWorkoutTemplates, useDatabaseWriter } from "../../model/database";
 import { WorkoutTemplate } from "../../model/types";
-import { generateGuid } from "../../utils/util";
+import { generateGuid } from "../../utils/guid";
 import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
 
 export const usePlanViewModel = () => {

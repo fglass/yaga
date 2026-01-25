@@ -88,25 +88,6 @@ export const dedupeWorkoutsByStart = <T extends { startDate: Date }>(
     }, []);
 };
 
-export const generateGuid = (): string => {
-    const S4 = () =>
-        (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-    return (
-        S4() +
-        S4() +
-        "-" +
-        S4() +
-        "-" +
-        S4() +
-        "-" +
-        S4() +
-        "-" +
-        S4() +
-        S4() +
-        S4()
-    );
-};
-
 const isExpoDevLauncherAvailable =
     NativeModules != null &&
     (NativeModules as Record<string, unknown>).EXDevLauncher !== undefined;
