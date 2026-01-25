@@ -1,15 +1,14 @@
 import * as SQLite from "expo-sqlite";
 import { MIGRATIONS } from "./migrations";
 
-const DB_NAME = process.env.EXPO_PUBLIC_DB_NAME;
-console.log("Database:", DB_NAME);
+let dbName = process.env.EXPO_PUBLIC_DB_NAME;
 
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
 let initPromise: Promise<void> | null = null;
 
 export const getDatabase = async () => {
     if (databasePromise == null) {
-        databasePromise = SQLite.openDatabaseAsync(DB_NAME);
+        databasePromise = SQLite.openDatabaseAsync(dbName);
     }
     return databasePromise;
 };
@@ -20,11 +19,16 @@ export const resetDatabaseConnection = async () => {
         const closeAsync = (db as { closeAsync?: () => Promise<void> })
             .closeAsync;
         if (closeAsync) {
-            await closeAsync();
+            await db.closeAsync();
         }
     }
     databasePromise = null;
     initPromise = null;
+};
+
+export const setDatabaseNameForTests = async (name: string) => {
+    dbName = name;
+    await resetDatabaseConnection();
 };
 
 const getSchemaVersion = async (db: SQLite.SQLiteDatabase) => {

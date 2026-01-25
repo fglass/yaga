@@ -32,6 +32,10 @@ type Deps = {
     ) => Promise<Exercise>;
     updateExerciseDef: (exerciseId: string, def: ExerciseDef) => Promise<void>;
     deleteExerciseDef: (exerciseDefId: string) => Promise<string>;
+    mergeExerciseDefs: (
+        targetExerciseDefId: string,
+        sourceExerciseDefIds: string[]
+    ) => Promise<void>;
 };
 
 export const createWorkoutViewModelCore = (params: {
@@ -92,9 +96,35 @@ export const createWorkoutViewModelCore = (params: {
         return replacementId;
     };
 
+    const mergeExerciseDefs = async (
+        targetExerciseDefId: string,
+        sourceExerciseDefIds: string[]
+    ) => {
+        const sources = sourceExerciseDefIds.filter(
+            (id) => id !== targetExerciseDefId
+        );
+        if (sources.length === 0) {
+            return;
+        }
+        await deps.mergeExerciseDefs(targetExerciseDefId, sources);
+        // Keep local state consistent with reassigned exercise defs
+        setState((state) => ({
+            ...state,
+            workout: {
+                ...state.workout,
+                exercises: state.workout.exercises.map((exercise) =>
+                    sources.includes(exercise.exerciseId)
+                        ? { ...exercise, exerciseId: targetExerciseDefId }
+                        : exercise
+                ),
+            },
+        }));
+    };
+
     return {
         onAddExercise,
         updateExerciseDef,
         deleteExerciseDef,
+        mergeExerciseDefs,
     };
 };

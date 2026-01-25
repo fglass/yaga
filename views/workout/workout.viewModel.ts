@@ -23,7 +23,8 @@ import {
     useDatabaseWriter,
     useExerciseDefs,
 } from "../../model/database";
-import { ensureNotificationPermission, withWarning } from "../../utils/util";
+import { withWarning } from "../../utils/util";
+import { ensureNotificationPermission } from "../../utils/notifications";
 import { generateGuid } from "../../utils/guid";
 import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
 import * as Haptics from "expo-haptics";
@@ -103,6 +104,10 @@ interface ViewModel {
         def: ExerciseDef
     ) => Promise<void>;
     onDeleteExerciseDef: (exerciseDefId: string) => Promise<string>;
+    onMergeExerciseDefs: (
+        targetExerciseDefId: string,
+        sourceExerciseDefIds: string[]
+    ) => Promise<void>;
     onFinishWorkout: () => Promise<void>;
     onCancelWorkout: () => Promise<void>;
     onAdjustRestTimer: (deltaS: number) => void;
@@ -129,6 +134,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         createExerciseDef,
         updateExerciseDef,
         deleteExerciseDef,
+        mergeExerciseDefs,
     } = useDatabaseWriter();
     useDatabaseWriter();
     const [activeModal, setActiveModal] = useState(ModalType.None);
@@ -161,9 +167,10 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                     prefillExerciseFromHistory,
                     updateExerciseDef,
                     deleteExerciseDef,
+                    mergeExerciseDefs,
                 },
             }),
-        [deleteExerciseDef, updateExerciseDef]
+        [deleteExerciseDef, mergeExerciseDefs, updateExerciseDef]
     );
 
     const exerciseIds = useMemo(
@@ -727,6 +734,16 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onCreateExerciseDef,
         onUpdateExerciseDef: workoutCore.updateExerciseDef,
         onDeleteExerciseDef: workoutCore.deleteExerciseDef,
+        onMergeExerciseDefs: async (
+            targetExerciseDefId: string,
+            sourceExerciseDefIds: string[]
+        ) => {
+            await workoutCore.mergeExerciseDefs(
+                targetExerciseDefId,
+                sourceExerciseDefIds
+            );
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        },
         onFinishWorkout,
         onCancelWorkout,
         onAdjustRestTimer,

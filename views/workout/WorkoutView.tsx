@@ -120,6 +120,7 @@ const WorkoutView = (props: Props) => {
                 onCreateExerciseDef={vm.onCreateExerciseDef}
                 onUpdateExerciseDef={vm.onUpdateExerciseDef}
                 onDeleteExerciseDef={vm.onDeleteExerciseDef}
+                onMergeExerciseDefs={vm.onMergeExerciseDefs}
                 onClose={() => vm.setActiveModal(ModalType.None)}
             />
             <ExerciseHistoryModal

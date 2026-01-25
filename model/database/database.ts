@@ -17,6 +17,7 @@ import {
 } from "../types";
 import * as DocumentPicker from "expo-document-picker";
 import { File as ExpoFile } from "expo-file-system";
+import type * as SQLite from "expo-sqlite";
 import { shareFile, withWarning } from "../../utils/util";
 import { generateGuid } from "../../utils/guid";
 import {
@@ -331,34 +332,10 @@ export const deleteExerciseDef = async (
             exerciseDefId
         );
 
-        // Remove the exercise from templates entirely
-        // NOTE: This could be optimised
-        const templates = await db.getAllAsync<{
-            id: string;
-            definition_json: string;
-        }>("SELECT id, definition_json FROM templates");
-        for (const template of templates) {
-            let parsed: Exercise[] = [];
-            try {
-                parsed = JSON.parse(template.definition_json);
-            } catch (error) {
-                console.warn("Failed to parse definition JSON", error);
-                continue;
-            }
-
-            const filtered = parsed.filter(
-                (exercise) => exercise.exerciseId !== exerciseDefId
-            );
-            if (filtered.length === parsed.length) {
-                continue;
-            }
-
-            await db.runAsync(
-                "UPDATE templates SET definition_json = ? WHERE id = ?",
-                JSON.stringify(filtered),
-                template.id
-            );
-        }
+        // Remove the exercise from templates entirely.
+        await updateTemplateDefinitions(db, (exercise) =>
+            exercise.exerciseId === exerciseDefId ? null : exercise
+        );
 
         // Delete the exercise definition itself
         await db.runAsync(
@@ -368,6 +345,45 @@ export const deleteExerciseDef = async (
 
         console.log(`Exercise def deleted in ${Date.now() - startTime}ms`);
         return unknownId;
+    });
+};
+
+export const mergeExerciseDefs = async (
+    targetExerciseDefId: string,
+    sourceExerciseDefIds: string[]
+): Promise<void> => {
+    await ensureDatabase();
+
+    const sources = sourceExerciseDefIds.filter(
+        (id): id is string => Boolean(id) && id !== targetExerciseDefId
+    );
+    if (sources.length === 0) {
+        return;
+    }
+
+    await runInTransaction(async (db) => {
+        // Reassign existing workout exercises to the target def
+        await db.runAsync(
+            `UPDATE exercises
+             SET exercise_def_id = ?
+             WHERE exercise_def_id IN (${sources.map(() => "?").join(",")})`,
+            targetExerciseDefId,
+            ...sources
+        );
+
+        await updateTemplateDefinitions(db, (exercise) =>
+            sources.includes(exercise.exerciseId)
+                ? { ...exercise, exerciseId: targetExerciseDefId }
+                : exercise
+        );
+
+        // Delete merged exercise definitions
+        await db.runAsync(
+            `DELETE FROM exercise_defs WHERE id IN (${sources
+                .map(() => "?")
+                .join(",")})`,
+            ...sources
+        );
     });
 };
 
@@ -747,5 +763,32 @@ const parseDefinitionJson = (raw: string): Exercise[] => {
     } catch (error) {
         console.warn("Failed to parse definition JSON", error);
         return [];
+    }
+};
+
+const updateTemplateDefinitions = async (
+    db: SQLite.SQLiteDatabase,
+    mapExercise: (exercise: Exercise) => Exercise | null
+) => {
+    const templates = await db.getAllAsync<{
+        id: string;
+        definition_json: string;
+    }>("SELECT id, definition_json FROM templates");
+
+    for (const template of templates) {
+        const parsed = parseDefinitionJson(template.definition_json);
+        const mapped = parsed
+            .map(mapExercise)
+            .filter((exercise): exercise is Exercise => exercise !== null);
+        const nextDefinitionJson = JSON.stringify(mapped);
+        if (nextDefinitionJson === template.definition_json) {
+            continue;
+        }
+
+        await db.runAsync(
+            "UPDATE templates SET definition_json = ? WHERE id = ?",
+            nextDefinitionJson,
+            template.id
+        );
     }
 };

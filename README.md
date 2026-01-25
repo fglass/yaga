@@ -22,6 +22,8 @@ Target: **Mar 1** 🎯
 
 -   [x] Lock MVP scope
 -   [ ] Exercise def management (delete/merge/rename)
+    -   Fix expo-asset thing
+    -   Clean up database tests
 -   [ ] History view bug fixes (progressive overload + deletion)
 -   [ ] Native UI refresh
 
@@ -99,7 +101,6 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Advanced progressive overload calcs
 -   [ ] 🟡 RIR
 -   [ ] 🟢 Cardio exercise?
--   [ ] 🔴 Merge exercise def
 -   [ ] 🟡 Shake to undo
 -   [ ] 🔴 Bug: no delta with 0kg? E.g. pull up
 -   [ ] 🔴 Bug: history view progressive overload
