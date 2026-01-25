@@ -1,5 +1,7 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import {
+    ActionSheetIOS,
+    Alert,
     Text,
     StyleSheet,
     TouchableOpacity,
@@ -9,12 +11,22 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useExerciseDefs } from "../../model/database";
 import ModalDialog from "../../components/ModalDialog";
-import type { ExerciseDef } from "../../model/types";
+import EditExerciseModal from "./EditExerciseModal";
+import NewExerciseModal from "./NewExerciseModal";
+import type { ExerciseCategory, ExerciseDef } from "../../model/types";
+import { withWarning } from "../../utils/util";
 
 interface Props {
     isVisible: boolean;
-    onSelect: (exerciseId: string) => void;
-    onNew: () => void;
+    onAddExercise: (exerciseId: string) => void;
+    onCreateExerciseDef: (
+        name: string,
+        category: ExerciseCategory
+    ) => Promise<void>;
+    onUpdateExerciseDef: (
+        exerciseId: string,
+        def: ExerciseDef
+    ) => Promise<void>;
     onClose: () => void;
 }
 
@@ -28,7 +40,18 @@ const MIN_LIST_ITEMS = 5;
 
 const ExerciseListModal = (props: Props) => {
     const exerciseDefs = useExerciseDefs();
+
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
+    const [selectedExerciseIds, setSelectedExerciseIds] = useState<string[]>(
+        []
+    );
+
+    const [editingExerciseDef, setEditingExerciseDef] = useState<string | null>(
+        null
+    );
+    const [isNewModalVisible, setIsNewModalVisible] = useState(false);
+
+    const suppressPressRef = useRef(false); // Skip tap after long-press opens action sheet
 
     const { items, listHeight, minListHeight, categories } = useMemo(() => {
         const grouped: Record<string, ExerciseItem[]> = {};
@@ -43,7 +66,18 @@ const ExerciseListModal = (props: Props) => {
         });
 
         const sectionEntries = Object.entries(grouped)
-            .sort((a, b) => a[0].localeCompare(b[0]))
+            .sort((a, b) => {
+                // Move 'Other' to end
+                const aIsOther = a[0].toLowerCase() === "other";
+                const bIsOther = b[0].toLowerCase() === "other";
+                if (aIsOther && !bIsOther) {
+                    return 1;
+                }
+                if (!aIsOther && bIsOther) {
+                    return -1;
+                }
+                return a[0].localeCompare(b[0]);
+            })
             .map(([category, items]) => ({
                 title: category,
                 data: items.sort((itemA, itemB) =>
@@ -86,19 +120,116 @@ const ExerciseListModal = (props: Props) => {
     }, [exerciseDefs, activeCategory]);
 
     useEffect(() => {
+        if (!props.isVisible) {
+            setSelectedExerciseIds([]);
+            setEditingExerciseDef(null);
+            setIsNewModalVisible(false);
+        }
+    }, [props.isVisible]);
+
+    useEffect(() => {
         if (activeCategory !== null && !categories.includes(activeCategory)) {
             setActiveCategory(null);
         }
     }, [activeCategory, categories]);
 
+    const toggleSelection = (exerciseId: string) => {
+        setSelectedExerciseIds((current) => {
+            if (current.includes(exerciseId)) {
+                return current.filter((id) => id !== exerciseId);
+            }
+            return [...current, exerciseId];
+        });
+    };
+
+    const onAddSelected = () => {
+        if (!selectedExerciseIds.length) {
+            return;
+        }
+        selectedExerciseIds.forEach((id) => props.onAddExercise(id));
+        props.onClose();
+        setSelectedExerciseIds([]);
+    };
+
+    const onMergeSelected = () => {
+        if (selectedExerciseIds.length < 2) {
+            return;
+        }
+        const [primaryId, ...restIds] = selectedExerciseIds;
+        const primaryName = exerciseDefs[primaryId]?.name ?? "Unknown";
+        const restNames = restIds
+            .map((id) => exerciseDefs[id]?.name ?? "Unknown")
+            .join(", ");
+
+        // TODO: implement merging
+        Alert.alert(
+            "Merge Exercises",
+            `merging exercise ${primaryName} with exercises ${restNames}`
+        );
+    };
+
+    const canMerge = selectedExerciseIds.length >= 2;
+
+    const onOpenActions = (exerciseDefId: string) => {
+        const exercise = exerciseDefs[exerciseDefId];
+        if (!exercise) {
+            return;
+        }
+
+        suppressPressRef.current = true;
+        ActionSheetIOS.showActionSheetWithOptions(
+            {
+                options: ["Edit", "Delete", "Cancel"],
+                cancelButtonIndex: 2,
+                destructiveButtonIndex: 1,
+            },
+            (buttonIndex) => {
+                if (buttonIndex === 0) {
+                    setEditingExerciseDef(exerciseDefId);
+                } else if (buttonIndex === 1) {
+                    withWarning(
+                        () => {
+                            // TODO: implement deleting
+                            Alert.alert(
+                                "Delete Exercise",
+                                `deleting exercise ${exercise.name}`
+                            );
+                        },
+                        {
+                            title: `Delete ${exercise.name}`,
+                            message: "Are you sure?",
+                        }
+                    );
+                }
+                suppressPressRef.current = false;
+            }
+        );
+    };
+
     const headerAction = (
-        <TouchableOpacity
-            style={styles.newButton}
-            onPress={props.onNew}
-            accessibilityRole="button"
-        >
-            <Ionicons name="add" color="white" size={20} />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+            {canMerge && (
+                <TouchableOpacity
+                    style={styles.mergeButton}
+                    onPress={onMergeSelected}
+                    accessibilityRole="button"
+                >
+                    <Ionicons
+                        name="git-merge"
+                        color="white"
+                        size={18}
+                        style={styles.mergeIcon}
+                    />
+                </TouchableOpacity>
+            )}
+            <TouchableOpacity
+                style={styles.newButton}
+                onPress={() => setIsNewModalVisible(true)}
+                accessibilityRole="button"
+            >
+                <Ionicons name="add" color="white" size={20} />
+            </TouchableOpacity>
+        </View>
     );
 
     return (
@@ -152,18 +283,34 @@ const ExerciseListModal = (props: Props) => {
                     keyExtractor={(item) => item[0]}
                     renderItem={({ item }) => (
                         <TouchableOpacity
-                            style={styles.exerciseItem}
+                            style={[
+                                styles.exerciseItem,
+                                selectedExerciseIds.includes(item[0]) &&
+                                    styles.exerciseItemSelected,
+                            ]}
                             onPress={() => {
-                                props.onSelect(item[0]);
-                                props.onClose();
+                                if (suppressPressRef.current) {
+                                    suppressPressRef.current = false;
+                                    return;
+                                }
+                                toggleSelection(item[0]);
                             }}
+                            onLongPress={() => onOpenActions(item[0])}
                         >
                             <Text style={styles.exerciseText}>
                                 {item[1].name}
                             </Text>
                             <Ionicons
-                                name="add-outline"
-                                color="rgba(255, 255, 255, 0.65)"
+                                name={
+                                    selectedExerciseIds.includes(item[0])
+                                        ? "add-circle"
+                                        : "add-outline"
+                                }
+                                color={
+                                    selectedExerciseIds.includes(item[0])
+                                        ? "#58A5F9"
+                                        : "rgba(255, 255, 255, 0.65)"
+                                }
                                 size={18}
                             />
                         </TouchableOpacity>
@@ -173,6 +320,46 @@ const ExerciseListModal = (props: Props) => {
                     contentContainerStyle={styles.listContent}
                 />
             </View>
+            <TouchableOpacity
+                style={[
+                    styles.addSelectedButton,
+                    !selectedExerciseIds.length &&
+                        styles.addSelectedButtonDisabled,
+                ]}
+                onPress={onAddSelected}
+                disabled={!selectedExerciseIds.length}
+            >
+                <Text style={styles.addSelectedButtonText}>Add</Text>
+            </TouchableOpacity>
+            <EditExerciseModal
+                isVisible={editingExerciseDef !== null}
+                exerciseId={editingExerciseDef}
+                exercise={
+                    editingExerciseDef
+                        ? exerciseDefs[editingExerciseDef] ?? null
+                        : null
+                }
+                onSave={async (exerciseId, name, category) => {
+                    await props.onUpdateExerciseDef(exerciseId, {
+                        name,
+                        category,
+                    });
+                    setEditingExerciseDef(null);
+                    suppressPressRef.current = false;
+                }}
+                onClose={() => {
+                    setEditingExerciseDef(null);
+                    suppressPressRef.current = false;
+                }}
+            />
+            <NewExerciseModal
+                isVisible={isNewModalVisible}
+                onCreate={async (name, category) => {
+                    await props.onCreateExerciseDef(name, category);
+                    setIsNewModalVisible(false);
+                }}
+                onClose={() => setIsNewModalVisible(false)}
+            />
         </ModalDialog>
     );
 };
@@ -204,10 +391,19 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between",
     },
+    exerciseItemSelected: {
+        backgroundColor: "rgba(88, 165, 249, 0.2)",
+        borderColor: "rgba(88, 165, 249, 0.5)",
+    },
     exerciseText: {
         color: "white",
         fontWeight: "600",
         fontSize: 14,
+    },
+    headerActions: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
     },
     newButton: {
         width: 32,
@@ -216,6 +412,36 @@ const styles = StyleSheet.create({
         backgroundColor: "#58A5F9",
         alignItems: "center",
         justifyContent: "center",
+    },
+    mergeButton: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: "#58A5F9",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    mergeIcon: {
+        marginLeft: 2,
+    },
+    mergeButtonDisabled: {
+        opacity: 0.4,
+    },
+    addSelectedButton: {
+        width: "100%",
+        borderRadius: 10,
+        paddingVertical: 10,
+        alignItems: "center",
+        backgroundColor: "#58A5F9",
+        marginTop: 8,
+    },
+    addSelectedButtonDisabled: {
+        opacity: 0.5,
+    },
+    addSelectedButtonText: {
+        color: "white",
+        fontWeight: "600",
+        fontSize: 16,
     },
     filterRow: {
         marginTop: -6,

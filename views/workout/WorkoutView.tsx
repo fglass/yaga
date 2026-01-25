@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import ExerciseListModal from "./ExerciseListModal";
-import NewExerciseModal from "./NewExerciseModal";
 import ExerciseHistoryModal from "./ExerciseHistoryModal";
 import AdjustableNumberInput from "./AdjustableNumberInput";
 import Button from "../../components/Button";
@@ -116,14 +115,10 @@ const WorkoutView = (props: Props) => {
         <>
             <ExerciseListModal
                 isVisible={vm.isModalActive(ModalType.ExerciseList)}
-                onSelect={vm.onAddExercise}
-                onNew={() => vm.setActiveModal(ModalType.NewExercise)}
+                onAddExercise={vm.onAddExercise}
+                onCreateExerciseDef={vm.onCreateExerciseDef}
+                onUpdateExerciseDef={vm.updateExerciseDef}
                 onClose={() => vm.setActiveModal(ModalType.None)}
-            />
-            <NewExerciseModal
-                isVisible={vm.isModalActive(ModalType.NewExercise)}
-                onCreate={vm.onCreateExerciseDef}
-                onClose={() => vm.setActiveModal(ModalType.ExerciseList)}
             />
             <ExerciseHistoryModal
                 isVisible={vm.isModalActive(ModalType.ExerciseHistory)}

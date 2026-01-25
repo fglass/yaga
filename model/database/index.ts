@@ -5,6 +5,7 @@ export {
     importDatabase,
     resetDatabase,
     createExerciseDef,
+    updateExerciseDef,
     completeWorkout,
     saveActiveWorkout,
     fetchExerciseDefs,

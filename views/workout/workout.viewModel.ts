@@ -96,7 +96,11 @@ interface ViewModel {
     onAddExercise: (exerciseId: string) => Promise<void>;
     onRemoveExercise: (exerciseIdx: number) => void;
     onMoveExercise: (exerciseIdx: number, delta: number) => void;
-    onCreateExerciseDef: (name: string, category: ExerciseCategory) => void;
+    onCreateExerciseDef: (
+        name: string,
+        category: ExerciseCategory
+    ) => Promise<void>;
+    updateExerciseDef: (exerciseId: string, def: ExerciseDef) => Promise<void>;
     onFinishWorkout: () => Promise<void>;
     onCancelWorkout: () => Promise<void>;
     onAdjustRestTimer: (deltaS: number) => void;
@@ -117,7 +121,8 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     });
 
     const exerciseDefs = useExerciseDefs();
-    const { completeWorkout, createExerciseDef } = useDatabaseWriter();
+    const { completeWorkout, createExerciseDef, updateExerciseDef } =
+        useDatabaseWriter();
     const [activeModal, setActiveModal] = useState(ModalType.None);
     const [historyExerciseId, setHistoryExerciseId] = useState<string | null>(
         null
@@ -135,8 +140,11 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         () => workout.exercises.map((exercise) => exercise.exerciseId),
         [workout.exercises]
     );
-    const { historySets: recentSetsByExerciseId } =
-        useRecentSetsForExercises(exerciseIds, 1, !isHistoryMode);
+    const { historySets: recentSetsByExerciseId } = useRecentSetsForExercises(
+        exerciseIds,
+        1,
+        !isHistoryMode
+    );
     const previousSetsByExerciseId = useMemo(() => {
         const next: Record<string, Set[]> = {};
         for (const [exerciseId, history] of Object.entries(
@@ -249,7 +257,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     ) => {
         const exerciseId = await createExerciseDef({ name, category });
         onAddExercise(exerciseId);
-        setActiveModal(ModalType.None);
+        setActiveModal(ModalType.ExerciseList);
     };
 
     const onFinishWorkout = async () => {
@@ -541,30 +549,33 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }, []);
 
-    const onRemoveExercise = useCallback((exerciseIdx: number) => {
-        const hasFinishedSet =
-            workout.exercises[exerciseIdx]?.sets.some(
-                (entry) => entry.finishTime !== undefined
-            ) ?? false;
-        const shouldSkipWarning = !hasFinishedSet;
+    const onRemoveExercise = useCallback(
+        (exerciseIdx: number) => {
+            const hasFinishedSet =
+                workout.exercises[exerciseIdx]?.sets.some(
+                    (entry) => entry.finishTime !== undefined
+                ) ?? false;
+            const shouldSkipWarning = !hasFinishedSet;
 
-        withWarning(
-            () => {
-                dispatch({
-                    type: ActionType.RemoveExercise,
-                    exerciseIdx,
-                });
-                Haptics.notificationAsync(
-                    Haptics.NotificationFeedbackType.Success
-                );
-            },
-            {
-                title: "Remove Exercise",
-                message: "Are you sure?",
-                enabled: shouldSkipWarning,
-            }
-        );
-    }, [workout.exercises]);
+            withWarning(
+                () => {
+                    dispatch({
+                        type: ActionType.RemoveExercise,
+                        exerciseIdx,
+                    });
+                    Haptics.notificationAsync(
+                        Haptics.NotificationFeedbackType.Success
+                    );
+                },
+                {
+                    title: "Remove Exercise",
+                    message: "Are you sure?",
+                    enabled: shouldSkipWarning,
+                }
+            );
+        },
+        [workout.exercises]
+    );
 
     const onMoveExercise = useCallback((exerciseIdx: number, delta: number) => {
         dispatch({ type: ActionType.MoveExercise, exerciseIdx, delta });
@@ -696,6 +707,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onRemoveExercise,
         onMoveExercise,
         onCreateExerciseDef,
+        updateExerciseDef,
         onFinishWorkout,
         onCancelWorkout,
         onAdjustRestTimer,

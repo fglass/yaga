@@ -24,7 +24,7 @@ const NewExerciseModal = (props: Props) => {
     const canSubmit = name.trim() !== "" && category !== "";
 
     useEffect(() => {
-        if (!props.isVisible) {
+        if (props.isVisible) {
             setName("");
             setCategory("");
         }
@@ -35,8 +35,6 @@ const NewExerciseModal = (props: Props) => {
             return;
         }
         props.onCreate(name.trim(), category as ExerciseCategory);
-        setName("");
-        setCategory("");
     };
 
     return (
