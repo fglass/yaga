@@ -99,7 +99,6 @@ Target: **Mar 1** 🎯
 -   [ ] 🟢 Cardio exercise?
 -   [ ] 🔴 Delete exercise def e.g. seated calf press, cable curl
 -   [ ] 🔴 Merge exercise def
--   [ ] 🟢 Rename exercise def
 -   [ ] 🟡 Shake to undo
 -   [ ] 🔴 Bug: no delta with 0kg? E.g. pull up
 -   [ ] 🔴 Bug: history view progressive overload

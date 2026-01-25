@@ -1,5 +1,5 @@
 import { Exercise, Set } from "../model/types";
-import { generateGuid } from "./util";
+import { generateGuid } from "./guid";
 import { fetchRecentSetsForExercises } from "../model/database";
 
 export const prefillExerciseFromHistory = async (

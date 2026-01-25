@@ -7,7 +7,8 @@ import {
     StravaConfig,
     StravaToken,
 } from "./strava.types";
-import { generateGuid, getWorkoutDurationSeconds } from "../../utils/util";
+import { getWorkoutDurationSeconds } from "../../utils/util";
+import { generateGuid } from "../../utils/guid";
 import {
     clearStravaToken,
     loadStravaToken,

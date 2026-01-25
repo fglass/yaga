@@ -17,16 +17,14 @@ import {
 } from "../../model/types";
 import type { Set } from "../../model/types";
 import { workoutProducer, ActionType } from "./workout.reducer";
+import { createWorkoutViewModelCore } from "./workout.viewModel.core";
 import {
     saveActiveWorkout,
     useDatabaseWriter,
     useExerciseDefs,
 } from "../../model/database";
-import {
-    ensureNotificationPermission,
-    generateGuid,
-    withWarning,
-} from "../../utils/util";
+import { ensureNotificationPermission, withWarning } from "../../utils/util";
+import { generateGuid } from "../../utils/guid";
 import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
 import * as Haptics from "expo-haptics";
 import { useRecentSetsForExercises, useTimers } from "./workout.hooks";
@@ -100,7 +98,10 @@ interface ViewModel {
         name: string,
         category: ExerciseCategory
     ) => Promise<void>;
-    updateExerciseDef: (exerciseId: string, def: ExerciseDef) => Promise<void>;
+    onUpdateExerciseDef: (
+        exerciseId: string,
+        def: ExerciseDef
+    ) => Promise<void>;
     onFinishWorkout: () => Promise<void>;
     onCancelWorkout: () => Promise<void>;
     onAdjustRestTimer: (deltaS: number) => void;
@@ -119,6 +120,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const [workout, dispatch] = useReducer(workoutProducer, {
         ...props.initialWorkout,
     });
+    const workoutRef = useRef(workout); // Keep latest workout for core updates (SyncWorkout).
 
     const exerciseDefs = useExerciseDefs();
     const { completeWorkout, createExerciseDef, updateExerciseDef } =
@@ -135,6 +137,29 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const restScheduleTokenRef = useRef(0);
 
     const isHistoryMode = props.mode === "history";
+
+    const workoutCore = useMemo(
+        () =>
+            createWorkoutViewModelCore({
+                setState: (updater) => {
+                    const next = updater({ workout: workoutRef.current });
+                    if (next.workout !== workoutRef.current) {
+                        // Sync core-updated workout into reducer state
+                        workoutRef.current = next.workout;
+                        dispatch({
+                            type: ActionType.SyncWorkout,
+                            workout: next.workout,
+                        });
+                    }
+                },
+                deps: {
+                    generateGuid,
+                    prefillExerciseFromHistory,
+                    updateExerciseDef,
+                },
+            }),
+        [updateExerciseDef]
+    );
 
     const exerciseIds = useMemo(
         () => workout.exercises.map((exercise) => exercise.exerciseId),
@@ -226,6 +251,10 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     });
 
     useEffect(() => {
+        workoutRef.current = workout;
+    }, [workout]);
+
+    useEffect(() => {
         // Executed when app is in foreground
         const onNotification = (notification: Notifications.Notification) => {
             const { title } = notification.request.content;
@@ -256,7 +285,8 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         category: ExerciseCategory
     ) => {
         const exerciseId = await createExerciseDef({ name, category });
-        onAddExercise(exerciseId);
+        await workoutCore.onAddExercise(exerciseId);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         setActiveModal(ModalType.ExerciseList);
     };
 
@@ -527,28 +557,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         }
     };
 
-    const onAddExercise = useCallback(async (exerciseId: string) => {
-        const newExercise = {
-            id: generateGuid(),
-            exerciseId,
-            notes: [],
-            sets: [
-                {
-                    id: generateGuid(),
-                    weight: "",
-                    reps: "",
-                    finishTime: undefined,
-                },
-            ],
-        };
-        const exercise = await prefillExerciseFromHistory(
-            exerciseId,
-            newExercise
-        );
-        dispatch({ type: ActionType.AddExercise, exerciseId, exercise });
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }, []);
-
     const onRemoveExercise = useCallback(
         (exerciseIdx: number) => {
             const hasFinishedSet =
@@ -703,11 +711,14 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onAddExerciseNote,
         isNotesExpanded,
         onNoteButtonPress,
-        onAddExercise,
+        onAddExercise: async (exerciseId: string) => {
+            await workoutCore.onAddExercise(exerciseId);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        },
         onRemoveExercise,
         onMoveExercise,
         onCreateExerciseDef,
-        updateExerciseDef,
+        onUpdateExerciseDef: workoutCore.updateExerciseDef,
         onFinishWorkout,
         onCancelWorkout,
         onAdjustRestTimer,

@@ -11,6 +11,7 @@ Each screen owns a companion `viewModel` that gathers data from React Query, the
 Use dependency injection (functional core, imperative shell) in view models. Suggestions:
 -   Define a `deps` object in the hook and pass it into the core so tests can swap real IO/alerts/queries with fakes.
 -   Keep the core module free of React hooks; accept `{ getState, setState, deps }` and return behavior methods.
+-   Keep side effects (haptics, alerts, analytics) in the hook wrapper, not in the core.
 -   In tests, build the core with a lightweight state harness so behavior can be exercised without React.
 
 ## Coding Style & Naming Conventions

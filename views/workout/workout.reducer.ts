@@ -1,6 +1,6 @@
 import produce from "immer";
 import { Note, Set, Workout } from "../../model/types";
-import { generateGuid } from "../../utils/util";
+import { generateGuid } from "../../utils/guid";
 
 type Action = {
     type: ActionType;
@@ -23,6 +23,7 @@ export enum ActionType {
     AddExercise = "add-exercise",
     RemoveExercise = "remove-exercise",
     MoveExercise = "move-exercise",
+    SyncWorkout = "sync-workout",
 }
 
 export const workoutProducer = produce((draft: Workout, action: Action) => {
@@ -118,11 +119,14 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
         case ActionType.RemoveExercise:
             draft.exercises.splice(action.exerciseIdx, 1);
             break;
+        case ActionType.SyncWorkout:
+            // Immer allows returning a new state to replace the draft
+            return action.workout as Workout;
         default:
             console.error("Unknown action type: ", action.type);
             break;
     }
-});
+}) as (state: Workout, action: Action) => Workout;
 
 const createNewSet = (): Set => ({
     id: generateGuid(),

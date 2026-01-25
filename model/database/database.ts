@@ -13,7 +13,8 @@ import {
 } from "../types";
 import * as DocumentPicker from "expo-document-picker";
 import { File as ExpoFile } from "expo-file-system";
-import { generateGuid, shareFile, withWarning } from "../../utils/util";
+import { shareFile, withWarning } from "../../utils/util";
+import { generateGuid } from "../../utils/guid";
 import {
     ensureDatabase,
     getDatabase,
