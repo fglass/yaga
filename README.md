@@ -97,7 +97,6 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Advanced progressive overload calcs
 -   [ ] 🟡 RIR
 -   [ ] 🟢 Cardio exercise?
--   [ ] 🔴 Delete exercise def e.g. seated calf press, cable curl
 -   [ ] 🔴 Merge exercise def
 -   [ ] 🟡 Shake to undo
 -   [ ] 🔴 Bug: no delta with 0kg? E.g. pull up

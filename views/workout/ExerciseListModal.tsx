@@ -16,6 +16,7 @@ import NewExerciseModal from "./NewExerciseModal";
 import type { ExerciseCategory, ExerciseDef } from "../../model/types";
 import { UNKNOWN_EXERCISE_DEF_ID } from "../../model/database";
 import { withWarning } from "../../utils/util";
+import * as Haptics from "expo-haptics";
 
 interface Props {
     isVisible: boolean;
@@ -195,6 +196,9 @@ const ExerciseListModal = (props: Props) => {
                     withWarning(
                         () => {
                             props.onDeleteExerciseDef(exerciseDefId);
+                            Haptics.impactAsync(
+                                Haptics.ImpactFeedbackStyle.Medium
+                            );
                         },
                         {
                             title: `Delete ${exercise.name}`,
@@ -346,6 +350,7 @@ const ExerciseListModal = (props: Props) => {
                         name,
                         category,
                     });
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                     setEditingExerciseDef(null);
                     suppressPressRef.current = false;
                 }}

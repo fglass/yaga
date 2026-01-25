@@ -107,6 +107,13 @@ export const resetDatabase = () => {
 /* Write functions */
 
 const seedInitialData = async () => {
+    const db = await getDatabase();
+    const existing = await db.getFirstAsync<{ count: number }>(
+        "SELECT COUNT(*) as count FROM exercise_defs"
+    );
+    if ((existing?.count ?? 0) > 0) {
+        return;
+    }
     await ensureDatabase();
 
     await runInTransaction(async (dbTx) => {

@@ -9,10 +9,15 @@ The Expo entry point lives in `App.tsx`, which wires `views/RootView` into the R
 Each screen owns a companion `viewModel` that gathers data from React Query, the SQLite layer, and any domain helpers before handing ready-to-render props down to the JSX. Place these in the same folder as their screen inside `views/`, and expose a hook like `useFeatureViewModel` whose return object (often consumed as `const vm = ...`) contains serializable state and callback handlers. `viewModel`s are responsible for orchestrating side-effects (mutations, navigation helpers, analytics) so components stay declarative and unit-testable; share common logic by delegating to modules in `model/` or `util.ts` rather than coupling screens together.
 
 Use dependency injection (functional core, imperative shell) in view models. Suggestions:
+
 -   Define a `deps` object in the hook and pass it into the core so tests can swap real IO/alerts/queries with fakes.
 -   Keep the core module free of React hooks; accept `{ getState, setState, deps }` and return behavior methods.
 -   Keep side effects (haptics, alerts, analytics) in the hook wrapper, not in the core.
 -   In tests, build the core with a lightweight state harness so behavior can be exercised without React.
+
+## UI Preferences
+
+-   Always use haptics on confirmed user actions (e.g., save/delete), but not on every intermediate tap.
 
 ## Coding Style & Naming Conventions
 
