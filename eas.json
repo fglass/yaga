@@ -10,17 +10,20 @@
       "env": {
         "EXPO_PUBLIC_APP_VARIANT": "development",
         "EXPO_PUBLIC_DB_NAME": "yaga-dev.db"
-      }
+      },
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_APP_VARIANT": "preview",
         "EXPO_PUBLIC_DB_NAME": "yaga-preview.db"
-      }
+      },
+      "channel": "preview"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "channel": "production"
     }
   },
   "submit": {
