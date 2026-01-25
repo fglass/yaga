@@ -7,6 +7,7 @@ export {
     createExerciseDef,
     updateExerciseDef,
     deleteExerciseDef,
+    mergeExerciseDefs,
     completeWorkout,
     saveActiveWorkout,
     fetchExerciseDefs,

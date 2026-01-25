@@ -5,6 +5,7 @@ import {
     createExerciseDef,
     updateExerciseDef,
     deleteExerciseDef,
+    mergeExerciseDefs,
     createWorkoutTemplate,
     deleteCompletedWorkout,
     fetchActiveWorkout,
@@ -138,6 +139,26 @@ export const useDatabaseWriter = () => {
         },
     });
 
+    const mergeExerciseDefsMutation = useMutation({
+        mutationFn: async (params: {
+            targetExerciseDefId: string;
+            sourceExerciseDefIds: string[];
+        }) =>
+            await mergeExerciseDefs(
+                params.targetExerciseDefId,
+                params.sourceExerciseDefIds
+            ),
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [QueryKey.ExerciseDefs],
+                refetchType: "active",
+            });
+            queryClient.invalidateQueries({
+                queryKey: [QueryKey.Workouts],
+            });
+        },
+    });
+
     const createWorkoutTemplateMutation = useMutation({
         mutationFn: createWorkoutTemplate,
         onSuccess: () => {
@@ -167,6 +188,15 @@ export const useDatabaseWriter = () => {
             await updateExerciseDefMutation.mutateAsync({ id, def }),
         deleteExerciseDef: async (exerciseDefId: string) =>
             await deleteExerciseDefMutation.mutateAsync(exerciseDefId),
+        mergeExerciseDefs: async (
+            targetExerciseDefId: string,
+            sourceExerciseDefIds: string[]
+        ) => {
+            await mergeExerciseDefsMutation.mutateAsync({
+                targetExerciseDefId,
+                sourceExerciseDefIds,
+            });
+        },
         createWorkoutTemplate: async (template: WorkoutTemplate) =>
             await createWorkoutTemplateMutation.mutateAsync(template),
         deleteCompletedWorkout: async (workoutId: string) =>

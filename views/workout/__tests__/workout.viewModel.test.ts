@@ -14,6 +14,10 @@ type Overrides = Partial<{
     ) => Promise<Exercise>;
     updateExerciseDef: (exerciseId: string, def: ExerciseDef) => Promise<void>;
     deleteExerciseDef: (exerciseDefId: string) => Promise<string>;
+    mergeExerciseDefs: (
+        targetExerciseDefId: string,
+        sourceExerciseDefIds: string[]
+    ) => Promise<void>;
 }>;
 
 const createTestViewModel = (overrides?: Overrides) => {
@@ -39,6 +43,7 @@ const createTestViewModel = (overrides?: Overrides) => {
         ) => exercise,
         updateExerciseDef: async () => undefined,
         deleteExerciseDef: async () => "unknown-def",
+        mergeExerciseDefs: async () => undefined,
         ...overrides,
     };
     const vm = createWorkoutViewModelCore({
@@ -114,6 +119,42 @@ describe("workout view model core", () => {
         const workout = state.getState().workout;
         expect(workout.exercises).toHaveLength(2);
         expect(workout.exercises[0].exerciseId).toBe("unknown-def");
+        expect(workout.exercises[1].exerciseId).toBe("exercise-def-2");
+    });
+
+    it("merges exercise definitions and reassigns them in workout", async () => {
+        const baseWorkout: Workout = {
+            id: "workout-1",
+            name: "Workout",
+            exercises: [
+                {
+                    id: "exercise-1",
+                    exerciseId: "exercise-def-1",
+                    notes: [],
+                    sets: [],
+                },
+                {
+                    id: "exercise-2",
+                    exerciseId: "exercise-def-2",
+                    notes: [],
+                    sets: [],
+                },
+            ],
+            notes: "",
+            type: "strength",
+            metadata: {},
+            startTimestamp: 0,
+        };
+        const mergeExerciseDefs = jest.fn(async () => undefined);
+        const { state, vm } = createTestViewModel({
+            baseWorkout,
+            mergeExerciseDefs,
+        });
+
+        await vm.mergeExerciseDefs("exercise-def-2", ["exercise-def-1"]);
+
+        const workout = state.getState().workout;
+        expect(workout.exercises[0].exerciseId).toBe("exercise-def-2");
         expect(workout.exercises[1].exerciseId).toBe("exercise-def-2");
     });
 });

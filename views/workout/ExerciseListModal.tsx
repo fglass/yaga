@@ -1,7 +1,6 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import {
     ActionSheetIOS,
-    Alert,
     Text,
     StyleSheet,
     TouchableOpacity,
@@ -13,6 +12,7 @@ import { useExerciseDefs } from "../../model/database";
 import ModalDialog from "../../components/ModalDialog";
 import EditExerciseModal from "./EditExerciseModal";
 import NewExerciseModal from "./NewExerciseModal";
+import MergeExerciseModal from "./MergeExerciseModal";
 import type { ExerciseCategory, ExerciseDef } from "../../model/types";
 import { UNKNOWN_EXERCISE_DEF_ID } from "../../model/database";
 import { withWarning } from "../../utils/util";
@@ -30,6 +30,10 @@ interface Props {
         def: ExerciseDef
     ) => Promise<void>;
     onDeleteExerciseDef: (exerciseDefId: string) => Promise<string>;
+    onMergeExerciseDefs: (
+        targetExerciseId: string,
+        sourceExerciseIds: string[]
+    ) => Promise<void>;
     onClose: () => void;
 }
 
@@ -53,6 +57,7 @@ const ExerciseListModal = (props: Props) => {
         null
     );
     const [isNewModalVisible, setIsNewModalVisible] = useState(false);
+    const [isMergeModalVisible, setIsMergeModalVisible] = useState(false);
 
     const suppressPressRef = useRef(false); // Skip tap after long-press opens action sheet
 
@@ -130,6 +135,7 @@ const ExerciseListModal = (props: Props) => {
             setSelectedExerciseIds([]);
             setEditingExerciseDef(null);
             setIsNewModalVisible(false);
+            setIsMergeModalVisible(false);
         }
     }, [props.isVisible]);
 
@@ -161,17 +167,7 @@ const ExerciseListModal = (props: Props) => {
         if (selectedExerciseIds.length < 2) {
             return;
         }
-        const [primaryId, ...restIds] = selectedExerciseIds;
-        const primaryName = exerciseDefs[primaryId]?.name ?? "Unknown";
-        const restNames = restIds
-            .map((id) => exerciseDefs[id]?.name ?? "Unknown")
-            .join(", ");
-
-        // TODO: implement merging
-        Alert.alert(
-            "Merge Exercises",
-            `merging exercise ${primaryName} with exercises ${restNames}`
-        );
+        setIsMergeModalVisible(true);
     };
 
     const canMerge = selectedExerciseIds.length >= 2;
@@ -366,6 +362,20 @@ const ExerciseListModal = (props: Props) => {
                     setIsNewModalVisible(false);
                 }}
                 onClose={() => setIsNewModalVisible(false)}
+            />
+            <MergeExerciseModal
+                isVisible={isMergeModalVisible}
+                selectedExerciseIds={selectedExerciseIds}
+                exerciseDefs={exerciseDefs}
+                onMerge={async (targetExerciseId, sourceExerciseIds) => {
+                    await props.onMergeExerciseDefs(
+                        targetExerciseId,
+                        sourceExerciseIds
+                    );
+                    setIsMergeModalVisible(false);
+                    setSelectedExerciseIds([targetExerciseId]);
+                }}
+                onClose={() => setIsMergeModalVisible(false)}
             />
         </ModalDialog>
     );
