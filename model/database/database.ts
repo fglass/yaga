@@ -114,6 +114,7 @@ const seedInitialData = async () => {
     if ((existing?.count ?? 0) > 0) {
         return;
     }
+    console.log("Seeding initial data...");
     await ensureDatabase();
 
     await runInTransaction(async (dbTx) => {
@@ -313,24 +314,59 @@ export const deleteExerciseDef = async (
     exerciseDefId: string
 ): Promise<string> => {
     await ensureDatabase();
+    const startTime = Date.now();
 
     return await runInTransaction(async (db) => {
         const unknownId = UNKNOWN_EXERCISE_DEF_ID;
 
+        // Never delete the sentinel
         if (exerciseDefId === unknownId) {
             return unknownId;
         }
 
+        // Reassign existing workout exercises to the sentinel
         await db.runAsync(
             "UPDATE exercises SET exercise_def_id = ? WHERE exercise_def_id = ?",
             unknownId,
             exerciseDefId
         );
+
+        // Remove the exercise from templates entirely
+        // NOTE: This could be optimised
+        const templates = await db.getAllAsync<{
+            id: string;
+            definition_json: string;
+        }>("SELECT id, definition_json FROM templates");
+        for (const template of templates) {
+            let parsed: Exercise[] = [];
+            try {
+                parsed = JSON.parse(template.definition_json);
+            } catch (error) {
+                console.warn("Failed to parse definition JSON", error);
+                continue;
+            }
+
+            const filtered = parsed.filter(
+                (exercise) => exercise.exerciseId !== exerciseDefId
+            );
+            if (filtered.length === parsed.length) {
+                continue;
+            }
+
+            await db.runAsync(
+                "UPDATE templates SET definition_json = ? WHERE id = ?",
+                JSON.stringify(filtered),
+                template.id
+            );
+        }
+
+        // Delete the exercise definition itself
         await db.runAsync(
             "DELETE FROM exercise_defs WHERE id = ?",
             exerciseDefId
         );
 
+        console.log(`Exercise def deleted in ${Date.now() - startTime}ms`);
         return unknownId;
     });
 };

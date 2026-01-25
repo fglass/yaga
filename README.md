@@ -47,6 +47,7 @@ Target: **Mar 1** 🎯
 -   [ ] Seed exercise list
 -   [ ] Cardio exercise?
 -   [ ] CSV export
+-   [ ] SQLite tests
 -   [ ] SQLite import to new flow
 -   [ ] Refine import flow
 -   [ ] Sanity check SQLite + migrations
@@ -71,6 +72,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟢 CI/CD
 -   [ ] 🟢 Release?
 -   [ ] 🟡 Export CSV
+-   [ ] 🟡 Database tests
 
 ### Home View
 
