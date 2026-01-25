@@ -27,6 +27,7 @@ import { formatTime } from "../../utils/util";
 import { useWorkoutViewModel } from "./workout.viewModel";
 import { styles } from "./workout.styles";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { UNKNOWN_EXERCISE_DEF_ID } from "../../model/database";
 
 type ActiveProps = {
     mode: "active";
@@ -118,6 +119,7 @@ const WorkoutView = (props: Props) => {
                 onAddExercise={vm.onAddExercise}
                 onCreateExerciseDef={vm.onCreateExerciseDef}
                 onUpdateExerciseDef={vm.onUpdateExerciseDef}
+                onDeleteExerciseDef={vm.onDeleteExerciseDef}
                 onClose={() => vm.setActiveModal(ModalType.None)}
             />
             <ExerciseHistoryModal
@@ -131,6 +133,8 @@ const WorkoutView = (props: Props) => {
     const renderExercise = (exercise: Exercise, exerciseIdx: number) => {
         const notesExpanded = vm.isNotesExpanded(exercise);
         const hasNotes = exercise.notes.length > 0;
+        const isUnknownExercise =
+            exercise.exerciseId === UNKNOWN_EXERCISE_DEF_ID;
 
         const prevExercise = vm.workout.exercises[exerciseIdx - 1];
         const isPrevLocked = prevExercise?.sets.some(
@@ -143,13 +147,20 @@ const WorkoutView = (props: Props) => {
                 <View style={styles.cardHeader}>
                     <TouchableOpacity
                         activeOpacity={0.3}
-                        style={styles.cardHeaderTitle}
+                        style={[
+                            styles.cardHeaderTitle,
+                            isUnknownExercise && styles.cardHeaderTitleDisabled,
+                        ]}
                         onPress={() =>
                             vm.onShowExerciseHistory(exercise.exerciseId)
                         }
+                        disabled={isUnknownExercise}
                     >
                         <Text
-                            style={[styles.cardTitle]}
+                            style={[
+                                styles.cardTitle,
+                                isUnknownExercise && styles.cardTitleDisabled,
+                            ]}
                             numberOfLines={2}
                             ellipsizeMode="tail"
                         >

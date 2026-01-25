@@ -4,6 +4,7 @@ import {
     completeWorkout,
     createExerciseDef,
     updateExerciseDef,
+    deleteExerciseDef,
     createWorkoutTemplate,
     deleteCompletedWorkout,
     fetchActiveWorkout,
@@ -128,6 +129,15 @@ export const useDatabaseWriter = () => {
         },
     });
 
+    const deleteExerciseDefMutation = useMutation({
+        mutationFn: deleteExerciseDef,
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [QueryKey.ExerciseDefs],
+            });
+        },
+    });
+
     const createWorkoutTemplateMutation = useMutation({
         mutationFn: createWorkoutTemplate,
         onSuccess: () => {
@@ -155,6 +165,8 @@ export const useDatabaseWriter = () => {
             await createExerciseDefMutation.mutateAsync(def),
         updateExerciseDef: async (id: string, def: ExerciseDef) =>
             await updateExerciseDefMutation.mutateAsync({ id, def }),
+        deleteExerciseDef: async (exerciseDefId: string) =>
+            await deleteExerciseDefMutation.mutateAsync(exerciseDefId),
         createWorkoutTemplate: async (template: WorkoutTemplate) =>
             await createWorkoutTemplateMutation.mutateAsync(template),
         deleteCompletedWorkout: async (workoutId: string) =>
