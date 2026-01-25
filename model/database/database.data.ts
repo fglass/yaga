@@ -2,6 +2,7 @@ import { generateGuid } from "../../utils/guid";
 import { ExerciseDef, WorkoutTemplate } from "../types";
 
 enum Exercise {
+    // Sentinel used when an exercise def is marked as deleted
     UnknownExercise = "00000000-0000-0000-0000-000000000000",
     BenchPress = "d290f1ee-6c54-4b01-90e6-d701748f0851",
     BentOverRow = "11db0a81-0c16-465c-8a09-d953fee83ff5",
@@ -59,7 +60,6 @@ enum Exercise {
 export const UNKNOWN_EXERCISE_DEF_ID = Exercise.UnknownExercise;
 
 export const EXERCISE_DEFS: Record<Exercise, ExerciseDef> = {
-    // Tombstone used when an exercise def is marked as deleted
     [Exercise.UnknownExercise]: {
         name: "Unknown Exercise",
         category: "Other",

@@ -25,6 +25,8 @@ Write all app code in TypeScript with ES modules. Follow 4-space indentation, si
 
 Avoid deprecated APIs; prefer the current recommended methods in library docs.
 
+Do not add periods to the end of single-line comments.
+
 ## Build, Test, and Development Commands
 
 -   `npm start`: Launches Metro via `expo start` for rapid local iteration.
