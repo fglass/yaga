@@ -10,6 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ModalDialog from "../../components/ModalDialog";
 import type { ExerciseDef } from "../../model/types";
 import { withWarning } from "../../utils/util";
+import * as Haptics from "expo-haptics";
 
 interface Props {
     isVisible: boolean;
@@ -82,7 +83,12 @@ const MergeExerciseModal = (props: Props) => {
                                     styles.option,
                                     isSelected && styles.optionSelected,
                                 ]}
-                                onPress={() => setTargetId(option.id)}
+                                onPress={() => {
+                                    setTargetId(option.id);
+                                    if (!isSelected) {
+                                        Haptics.selectionAsync();
+                                    }
+                                }}
                             >
                                 <Text style={styles.optionText}>
                                     {option.name}

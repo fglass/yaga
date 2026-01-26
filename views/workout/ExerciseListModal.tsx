@@ -296,6 +296,7 @@ const ExerciseListModal = (props: Props) => {
                                     return;
                                 }
                                 toggleSelection(item[0]);
+                                Haptics.selectionAsync();
                             }}
                             onLongPress={() => onOpenActions(item[0])}
                         >
