@@ -23,7 +23,6 @@ Target: **Mar 1** 🎯
 -   [x] Lock MVP scope
 -   [ ] Exercise def management (delete/merge/rename)
     -   Fix expo-asset thing
-    -   Clean up database tests
 -   [ ] History view bug fixes (progressive overload + deletion)
 -   [ ] Native UI refresh
 
@@ -137,11 +136,9 @@ Target: **Mar 1** 🎯
     -   [Example](https://dribbble.com/shots/25596307-Workout-Tracker-Gym-App)
     -   [Palette](https://dribbble.com/shots/21782757-Wi-Fi-Scan-Diagnostics-app)
 -   [iOS design](https://developer.apple.com/design/resources/)
-    -   https://docs.expo.dev/router/advanced/native-tabs/
-    -   https://docs.expo.dev/versions/latest/sdk/glass-effect/
 -   Skills:
-    https://github.com/expo/skills/tree/main/plugins/expo-app-design
-    https://vercel.com/blog/introducing-react-best-practices
+    -   https://github.com/expo/skills/tree/main/plugins/expo-app-design
+    -   https://vercel.com/blog/introducing-react-best-practices
 
 ---
 
@@ -158,3 +155,9 @@ Check history not overwritten
 ---
 
 https://github.com/cameroncooke/XcodeBuildMCP
+
+---
+
+https://developer.apple.com/documentation/TechnologyOverviews/adopting-liquid-glass
+https://docs.expo.dev/router/advanced/native-tabs/
+https://docs.expo.dev/versions/latest/sdk/glass-effect/
