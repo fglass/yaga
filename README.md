@@ -22,7 +22,6 @@ Target: **Mar 1** 🎯
 
 -   [x] Lock MVP scope
 -   [ ] Exercise def management (delete/merge/rename)
-    -   Fix expo-asset thing
 -   [ ] History view bug fixes (progressive overload + deletion)
 -   [ ] Native UI refresh
 
