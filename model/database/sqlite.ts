@@ -8,6 +8,9 @@ let initPromise: Promise<void> | null = null;
 
 export const getDatabase = async () => {
     if (databasePromise == null) {
+        if (!dbName) {
+            console.error("EXPO_PUBLIC_DB_NAME is unset");
+        }
         databasePromise = SQLite.openDatabaseAsync(dbName);
     }
     return databasePromise;
