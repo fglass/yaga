@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { fetchRecentSetsForExercises } from "../../model/database";
+import { fetchExerciseSetsFromCompletedWorkouts } from "../../model/database";
 import type { Set } from "../../model/types";
 
 export const DEFAULT_REST_DURATION_S = 90;
@@ -91,16 +91,24 @@ export const useTimers = ({
     };
 };
 
-type RecentSetsEntry = { finishedAt: number; sets: Set[] };
+type ExerciseSetsEntry = { workoutId: string; finishedAt: number; sets: Set[] };
 
-export const useRecentSetsForExercises = (
-    exerciseIds: string[],
-    nWorkouts: number,
-    isEnabled = true
-) => {
+type ExerciseSetsFromCompletedWorkoutsParams = {
+    exerciseIds: string[];
+    nWorkouts: number;
+    isEnabled?: boolean;
+    beforeTimestamp?: number;
+};
+
+export const useExerciseSetsFromCompletedWorkouts = ({
+    exerciseIds,
+    nWorkouts,
+    isEnabled = true,
+    beforeTimestamp,
+}: ExerciseSetsFromCompletedWorkoutsParams) => {
     const [isLoading, setIsLoading] = useState(false);
     const [historySets, setHistorySets] = useState<
-        Record<string, RecentSetsEntry[]>
+        Record<string, ExerciseSetsEntry[]>
     >({});
 
     const exerciseIdsKey = useMemo(() => {
@@ -122,7 +130,7 @@ export const useRecentSetsForExercises = (
         setIsLoading(true);
         const ids = exerciseIdsKey.split("|");
 
-        fetchRecentSetsForExercises(ids, nWorkouts)
+        fetchExerciseSetsFromCompletedWorkouts(ids, nWorkouts, beforeTimestamp)
             .then((history) => {
                 if (!isActive) {
                     return;
@@ -145,7 +153,7 @@ export const useRecentSetsForExercises = (
         return () => {
             isActive = false;
         };
-    }, [exerciseIdsKey, isEnabled, nWorkouts]);
+    }, [beforeTimestamp, exerciseIdsKey, isEnabled, nWorkouts]);
 
     return { isLoading, historySets };
 };

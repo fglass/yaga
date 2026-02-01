@@ -7,6 +7,7 @@ import {
     fetchExerciseDefIds,
     fetchTemplateDefinition,
     seedDatabase,
+    setFactory,
     workoutTemplateFactory,
 } from "../database.test.helpers";
 
@@ -130,6 +131,82 @@ describe("database exercise defs", () => {
             const template = await fetchTemplateDefinition(db, "template-3");
             const exerciseIds = template.map((exercise) => exercise.exerciseId);
             expect(exerciseIds).toEqual([defB.id]);
+        });
+    });
+});
+
+describe("database exercise sets", () => {
+    it("fetches exercise sets before a specific timestamp", async () => {
+        await createTestDb(async (database, sqlite) => {
+            const defA = { id: "def-a", def: exerciseDefFactory("Exercise A") };
+            const db = await sqlite.getDatabase();
+            await seedDatabase(db, {
+                exerciseDefs: [defA],
+                completedWorkouts: [
+                    completedWorkoutFactory({
+                        id: "workout-1",
+                        endTimestamp: 10,
+                        exercises: [
+                            exerciseFactory({
+                                id: "exercise-1",
+                                exerciseId: defA.id,
+                                sets: [
+                                    setFactory({
+                                        id: "set-1",
+                                        weight: "100",
+                                        reps: "5",
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                    completedWorkoutFactory({
+                        id: "workout-2",
+                        endTimestamp: 20,
+                        exercises: [
+                            exerciseFactory({
+                                id: "exercise-2",
+                                exerciseId: defA.id,
+                                sets: [
+                                    setFactory({
+                                        id: "set-2",
+                                        weight: "110",
+                                        reps: "5",
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                    completedWorkoutFactory({
+                        id: "workout-3",
+                        endTimestamp: 30,
+                        exercises: [
+                            exerciseFactory({
+                                id: "exercise-3",
+                                exerciseId: defA.id,
+                                sets: [
+                                    setFactory({
+                                        id: "set-3",
+                                        weight: "120",
+                                        reps: "5",
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                ],
+            });
+
+            const result =
+                await database.fetchExerciseSetsFromCompletedWorkouts(
+                    [defA.id],
+                    1,
+                    25
+                );
+
+            expect(result[defA.id]).toHaveLength(1);
+            expect(result[defA.id][0].finishedAt).toBe(20);
+            expect(result[defA.id][0].sets[0].weight).toBe("110");
         });
     });
 });

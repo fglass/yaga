@@ -12,6 +12,27 @@ export const compareSetEpley1RM = (
         return 0;
     }
 
+    const currentWeightValue = Number.parseFloat(currentSet.weight);
+    const previousWeightValue = Number.parseFloat(previousSet.weight);
+    const currentRepsValue = Number.parseFloat(currentSet.reps);
+    const previousRepsValue = Number.parseFloat(previousSet.reps);
+
+    if (
+        Number.isFinite(currentWeightValue) &&
+        Number.isFinite(previousWeightValue) &&
+        currentWeightValue === 0 &&
+        previousWeightValue === 0 &&
+        Number.isFinite(currentRepsValue) &&
+        Number.isFinite(previousRepsValue)
+    ) {
+        const repsDelta = currentRepsValue - previousRepsValue;
+        if (Math.abs(repsDelta) <= E1RM_TOLERANCE) {
+            return 0;
+        }
+
+        return repsDelta > 0 ? 1 : -1;
+    }
+
     const currentE1RM = calculateEpley1RM(currentSet.weight, currentSet.reps);
     const previousE1RM = calculateEpley1RM(
         previousSet.weight,
@@ -41,7 +62,7 @@ export const calculateEpley1RM = (
         return null;
     }
 
-    if (weightValue <= 0 || repsValue <= 0) {
+    if (weightValue < 0 || repsValue <= 0) {
         return null;
     }
 

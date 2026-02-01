@@ -28,7 +28,10 @@ import { ensureNotificationPermission } from "../../utils/notifications";
 import { generateGuid } from "../../utils/guid";
 import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
 import * as Haptics from "expo-haptics";
-import { useRecentSetsForExercises, useTimers } from "./workout.hooks";
+import {
+    useExerciseSetsFromCompletedWorkouts,
+    useTimers,
+} from "./workout.hooks";
 import { logAppleHealthWorkout } from "../../model/health";
 import * as Notifications from "expo-notifications";
 import { compareSetEpley1RM, SetProgression } from "./workout.calculations";
@@ -179,23 +182,26 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     );
 
     const isHistoryMode = props.mode === "history";
-    const { historySets: recentSetsByExerciseId } = useRecentSetsForExercises(
+    const historyEndTimestamp =
+        props.mode === "history"
+            ? props.initialWorkout.endTimestamp
+            : undefined;
+    const { historySets } = useExerciseSetsFromCompletedWorkouts({
         exerciseIds,
-        1,
-        !isHistoryMode
-    );
+        nWorkouts: 1,
+        isEnabled: true,
+        beforeTimestamp: isHistoryMode ? historyEndTimestamp : undefined,
+    });
     const previousSetsByExerciseId = useMemo(() => {
         const next: Record<string, Set[]> = {};
-        for (const [exerciseId, history] of Object.entries(
-            recentSetsByExerciseId
-        )) {
+        for (const [exerciseId, history] of Object.entries(historySets)) {
             const sets = history?.[0]?.sets;
             if (sets && sets.length > 0) {
                 next[exerciseId] = sets;
             }
         }
         return next;
-    }, [recentSetsByExerciseId]);
+    }, [historySets]);
 
     const cancelScheduledRestNotification = useCallback(async () => {
         if (restNotificationIdRef.current == null) {
@@ -679,6 +685,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const onShowExerciseHistory = useCallback((exerciseId: string) => {
         setActiveModal(ModalType.ExerciseHistory);
         setHistoryExerciseId(exerciseId);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }, []);
 
     const onCloseExerciseHistory = useCallback(() => {
