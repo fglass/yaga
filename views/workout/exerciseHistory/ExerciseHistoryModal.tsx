@@ -1,0 +1,264 @@
+import React from "react";
+import {
+    ActivityIndicator,
+    FlatList,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
+import ModalDialog from "../../../components/ModalDialog";
+import { compareSetEpley1RM } from "../workout.calculations";
+import { useExerciseHistoryViewModel } from "./exerciseHistory.viewModel";
+
+interface Props {
+    isVisible: boolean;
+    exerciseId: string | null;
+    highlightWorkoutId?: string | null;
+    onClose: () => void;
+}
+
+const ExerciseHistoryModal = (props: Props) => {
+    const {
+        isLoading,
+        isLoadingMore,
+        displayHistorySets,
+        comparisonHistorySets,
+        hasMore,
+        loadMore,
+    } = useExerciseHistoryViewModel({
+        exerciseId: props.exerciseId,
+        isVisible: props.isVisible,
+    });
+
+    const formatDate = (timestamp: number) =>
+        new Date(timestamp).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+        });
+
+    const handleEndReached = () => {
+        if (!hasMore) {
+            return;
+        }
+        loadMore();
+    };
+
+    const renderHeader = () => (
+        <View style={styles.tableHeader}>
+            <Text style={styles.headerSetCell}>Set</Text>
+            <Text style={styles.headerWeightCell}>Weight</Text>
+            <Text style={styles.headerRepsCell}>Reps</Text>
+        </View>
+    );
+
+    return (
+        <ModalDialog
+            title="History"
+            isVisible={props.isVisible}
+            onClose={props.onClose}
+            maxHeight="45%"
+        >
+            {isLoading && displayHistorySets.length === 0 ? (
+                <ActivityIndicator style={styles.loading} color="white" />
+            ) : displayHistorySets.length === 0 ? (
+                <Text style={styles.emptyText}>Nothing yet!</Text>
+            ) : (
+                <FlatList
+                    style={styles.scroll}
+                    contentContainerStyle={styles.scrollContent}
+                    data={displayHistorySets}
+                    keyExtractor={(entry, index) =>
+                        `history-${entry.finishedAt}-${index}`
+                    }
+                    ListHeaderComponent={renderHeader}
+                    ListFooterComponent={
+                        isLoadingMore ? (
+                            <ActivityIndicator
+                                style={styles.footerLoading}
+                                color="white"
+                            />
+                        ) : null
+                    }
+                    onEndReached={handleEndReached}
+                    onEndReachedThreshold={0.3}
+                    showsVerticalScrollIndicator={false}
+                    renderItem={({ item, index }) => {
+                        const previousEntry =
+                            comparisonHistorySets[index + 1];
+                        const isCurrentWorkout =
+                            props.highlightWorkoutId != null &&
+                            item.workoutId === props.highlightWorkoutId;
+                        return (
+                            <View
+                                key={`history-${index}`}
+                                style={styles.session}
+                            >
+                                <View style={styles.sessionHeader}>
+                                    <Text
+                                        style={[
+                                            styles.sessionTitle,
+                                            isCurrentWorkout &&
+                                                styles.sessionTitleCurrent,
+                                        ]}
+                                    >
+                                        {formatDate(item.finishedAt)}
+                                    </Text>
+                                </View>
+                                {item.sets.map((set, setIdx) => {
+                                    const previousSet =
+                                        previousEntry?.sets[setIdx];
+                                    const progress = compareSetEpley1RM(
+                                        set,
+                                        previousSet
+                                    );
+                                    let progressStyle = null;
+                                    if (progress === 1) {
+                                        progressStyle = styles.progressImproved;
+                                    } else if (progress === -1) {
+                                        progressStyle = styles.progressDeclined;
+                                    }
+                                    return (
+                                        <View key={set.id} style={styles.row}>
+                                            <Text
+                                                style={[
+                                                    styles.setIndex,
+                                                    progressStyle,
+                                                ]}
+                                            >
+                                                {setIdx + 1}
+                                            </Text>
+                                            <Text style={styles.weightCell}>
+                                                {set.weight}
+                                            </Text>
+                                            <Text style={styles.repsCell}>
+                                                {set.reps}
+                                            </Text>
+                                        </View>
+                                    );
+                                })}
+                            </View>
+                        );
+                    }}
+                />
+            )}
+        </ModalDialog>
+    );
+};
+
+const styles = StyleSheet.create({
+    loading: {
+        paddingVertical: 12,
+    },
+    footerLoading: {
+        paddingVertical: 12,
+    },
+    emptyText: {
+        color: "rgba(255, 255, 255, 0.7)",
+        textAlign: "center",
+        paddingVertical: 10,
+    },
+    scroll: {
+        maxHeight: "100%",
+        minHeight: 0,
+    },
+    scrollContent: {
+        paddingBottom: 8,
+    },
+    session: {
+        paddingVertical: 6,
+        borderBottomWidth: 1,
+        borderBottomColor: "rgba(255, 255, 255, 0.06)",
+        marginBottom: 6,
+    },
+    sessionHeader: {
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        marginBottom: 4,
+    },
+    tableHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 0,
+        paddingBottom: 6,
+        marginBottom: 6,
+        borderBottomWidth: 1,
+        borderBottomColor: "rgba(255, 255, 255, 0.08)",
+    },
+    headerCell: {
+        flex: 1,
+        textAlign: "right",
+        color: "rgba(255, 255, 255, 0.6)",
+        fontSize: 11,
+        fontWeight: "600",
+    },
+    headerSetCell: {
+        flex: 1,
+        textAlign: "center",
+        color: "rgba(255, 255, 255, 0.6)",
+        fontSize: 11,
+        fontWeight: "600",
+    },
+    headerWeightCell: {
+        flex: 1,
+        textAlign: "center",
+        color: "rgba(255, 255, 255, 0.6)",
+        fontSize: 11,
+        fontWeight: "600",
+    },
+    headerRepsCell: {
+        flex: 1,
+        textAlign: "center",
+        color: "rgba(255, 255, 255, 0.6)",
+        fontSize: 11,
+        fontWeight: "600",
+    },
+    sessionTitle: {
+        color: "white",
+        fontWeight: "600",
+        fontSize: 12,
+        letterSpacing: 0.2,
+    },
+    sessionTitleCurrent: {
+        color: "#4DA3FF",
+    },
+    row: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingVertical: 4,
+        paddingHorizontal: 0,
+        backgroundColor: "rgba(255, 255, 255, 0.05)",
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: "rgba(255, 255, 255, 0.06)",
+        marginBottom: 4,
+    },
+    setIndex: {
+        flex: 1,
+        textAlign: "center",
+        color: "rgba(255, 255, 255, 0.6)",
+        fontSize: 11,
+        fontWeight: "600",
+    },
+    weightCell: {
+        flex: 1,
+        textAlign: "center",
+        color: "white",
+        fontSize: 12,
+    },
+    repsCell: {
+        flex: 1,
+        textAlign: "center",
+        color: "white",
+        fontSize: 12,
+    },
+    progressImproved: {
+        color: "#65CA79",
+    },
+    progressDeclined: {
+        color: "#EC6569",
+    },
+});
+
+export default ExerciseHistoryModal;

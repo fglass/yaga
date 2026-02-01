@@ -644,33 +644,31 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
     return completed;
 };
 
-export const fetchRecentSetsForExercises = async (
+export const fetchExerciseSetsFromCompletedWorkouts = async (
     exerciseIds: string[],
-    nWorkouts: number
-): Promise<Record<string, { finishedAt: number; sets: Set[] }[]>> => {
+    nWorkouts: number,
+    beforeTimestamp?: number
+): Promise<
+    Record<string, { workoutId: string; finishedAt: number; sets: Set[] }[]>
+> => {
     const startTime = Date.now();
     await ensureDatabase();
 
     if (exerciseIds.length === 0 || nWorkouts <= 0) {
-        console.log(`Recent sets fetched in ${Date.now() - startTime}ms`);
+        console.warn(`No exercise sets fetched in ${Date.now() - startTime}ms`);
         return {};
     }
 
     const db = await getDatabase();
 
-    const placeholders = exerciseIds.map(() => "?").join(", ");
-    const rows = await db.getAllAsync<{
-        exercise_id: string;
-        exercise_def_id: string;
-        workout_finished_at: number | null;
-        set_id: string | null;
-        position: number | null;
-        weight: string | null;
-        reps: string | null;
-        set_finished_at: number | null;
-    }>(
+    const exercisePlaceholders = exerciseIds.map(() => "?").join(", ");
+    const hasBeforeTimestamp =
+        beforeTimestamp != null && Number.isFinite(beforeTimestamp);
+
+    const rows = await db.getAllAsync<ExerciseSetsRow>(
         `SELECT exercises.id as exercise_id,
                 exercises.exercise_def_id as exercise_def_id,
+                workouts.id as workout_id,
                 workouts.finished_at as workout_finished_at,
                 sets.id as set_id,
                 sets.position as position,
@@ -681,20 +679,55 @@ export const fetchRecentSetsForExercises = async (
          JOIN workouts ON workouts.id = exercises.workout_id
          LEFT JOIN sets ON sets.exercise_id = exercises.id
          WHERE workouts.status = 'completed'
-         AND exercises.exercise_def_id IN (${placeholders})
+         AND exercises.exercise_def_id IN (${exercisePlaceholders})
+         ${hasBeforeTimestamp ? "AND workouts.finished_at < ?" : ""}
          ORDER BY workouts.finished_at DESC, exercises.id, sets.position`,
-        ...exerciseIds
+        ...exerciseIds,
+        ...(hasBeforeTimestamp ? [beforeTimestamp] : [])
     );
 
     if (rows.length === 0) {
-        console.log(`Recent sets fetched in ${Date.now() - startTime}ms`);
+        console.log(
+            `Exercise sets fetched from ${nWorkouts} workouts in ${
+                Date.now() - startTime
+            }ms`
+        );
         return {};
     }
 
-    const result: Record<string, { finishedAt: number; sets: Set[] }[]> = {};
+    const setsByExercise = buildExerciseSetsFromRows(rows, nWorkouts);
+
+    console.log(
+        `Exercise sets fetched from ${nWorkouts} workouts in ${
+            Date.now() - startTime
+        }ms`
+    );
+    return setsByExercise;
+};
+
+type ExerciseSetsRow = {
+    exercise_id: string;
+    exercise_def_id: string;
+    workout_id: string;
+    workout_finished_at: number | null;
+    set_id: string | null;
+    position: number | null;
+    weight: string | null;
+    reps: string | null;
+    set_finished_at: number | null;
+};
+
+const buildExerciseSetsFromRows = (
+    rows: ExerciseSetsRow[],
+    nWorkouts: number
+) => {
+    const result: Record<
+        string,
+        { workoutId: string; finishedAt: number; sets: Set[] }[]
+    > = {};
     const entriesByExercise = new Map<
         string,
-        { finishedAt: number; sets: Set[] }
+        { workoutId: string; finishedAt: number; sets: Set[] }
     >();
 
     for (const row of rows) {
@@ -710,6 +743,7 @@ export const fetchRecentSetsForExercises = async (
                 continue;
             }
             entry = {
+                workoutId: row.workout_id,
                 finishedAt: row.workout_finished_at ?? 0,
                 sets: [],
             };
@@ -727,11 +761,8 @@ export const fetchRecentSetsForExercises = async (
         }
     }
 
-    console.log(`Recent sets fetched in ${Date.now() - startTime}ms`);
     return result;
 };
-
-/* Helpers */
 
 const parseNotesJson = (raw: string): Note[] => {
     try {

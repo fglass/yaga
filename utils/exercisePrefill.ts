@@ -1,12 +1,12 @@
 import { Exercise, Set } from "../model/types";
 import { generateGuid } from "./guid";
-import { fetchRecentSetsForExercises } from "../model/database";
+import { fetchExerciseSetsFromCompletedWorkouts } from "../model/database";
 
 export const prefillExerciseFromHistory = async (
     exerciseId: string,
     exercise: Exercise
 ): Promise<Exercise> => {
-    const history = await fetchRecentSetsForExercises([exerciseId], 1);
+    const history = await fetchExerciseSetsFromCompletedWorkouts([exerciseId], 1);
     const latestSets = history[exerciseId]?.[0]?.sets;
     return applyPrefill(exercise, latestSets);
 };
