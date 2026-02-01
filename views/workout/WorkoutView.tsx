@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import ExerciseListModal from "./ExerciseListModal";
-import ExerciseHistoryModal from "./ExerciseHistoryModal";
+import ExerciseHistoryModal from "./exerciseHistory/ExerciseHistoryModal";
 import AdjustableNumberInput from "./AdjustableNumberInput";
 import Button from "../../components/Button";
 import CountdownTimer from "../../components/CountdownTimer";
@@ -126,6 +126,9 @@ const WorkoutView = (props: Props) => {
             <ExerciseHistoryModal
                 isVisible={vm.isModalActive(ModalType.ExerciseHistory)}
                 exerciseId={vm.historyExerciseId}
+                highlightWorkoutId={
+                    vm.isHistoryMode ? vm.workout.id : null
+                }
                 onClose={vm.onCloseExerciseHistory}
             />
         </>
@@ -319,6 +322,7 @@ const WorkoutView = (props: Props) => {
                                         styles.narrow,
                                         styles.tdReadOnly,
                                         styles.tdFinished,
+                                        progressStyle,
                                     ]}
                                     editable={false}
                                 >
@@ -332,6 +336,7 @@ const WorkoutView = (props: Props) => {
                                     styles.narrow,
                                     styles.tdReadOnly,
                                     isFinished && styles.tdFinished,
+                                    progressStyle,
                                 ]}
                                 editable={false}
                             >
@@ -351,7 +356,6 @@ const WorkoutView = (props: Props) => {
                             onBlur={handleSetInputBlur}
                             inputMode="decimal"
                             isFinished={isFinished}
-                            inputStyle={progressStyle}
                         />
                         <AdjustableNumberInput
                             value={set.reps}
@@ -366,7 +370,6 @@ const WorkoutView = (props: Props) => {
                             onBlur={handleSetInputBlur}
                             inputMode="decimal"
                             isFinished={isFinished}
-                            inputStyle={progressStyle}
                         />
                         <TextInput
                             style={[

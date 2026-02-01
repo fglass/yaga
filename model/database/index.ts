@@ -12,7 +12,7 @@ export {
     saveActiveWorkout,
     fetchExerciseDefs,
     fetchCompletedWorkoutKeys,
-    fetchRecentSetsForExercises,
+    fetchExerciseSetsFromCompletedWorkouts,
 } from "./database";
 
 export { UNKNOWN_EXERCISE_DEF_ID } from "./database.data";
