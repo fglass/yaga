@@ -18,6 +18,8 @@ module.exports = ({ config }) => {
             supportsTablet: true,
             bundleIdentifier: 'com.expench.yaga',
             infoPlist: {
+                CFBundleDisplayName: 'Yaga',
+                CFBundleName: 'Yaga',
                 ITSAppUsesNonExemptEncryption: false,
                 LSApplicationQueriesSchemes: ['strava'],
             },
