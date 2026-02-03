@@ -1,5 +1,11 @@
 import React, { useRef, useState } from "react";
-import { StyleProp, TextInput, TextInputProps, TextStyle, View } from "react-native";
+import {
+    StyleProp,
+    TextInput,
+    TextInputProps,
+    TextStyle,
+    View,
+} from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { styles } from "./workout.styles";
 
@@ -100,6 +106,7 @@ const AdjustableNumberInput = ({
         });
 
     const gesture = Gesture.Race(panGesture, tapGesture);
+    const displayValue = formatNumber(value);
 
     return (
         <GestureDetector gesture={gesture}>
@@ -116,7 +123,7 @@ const AdjustableNumberInput = ({
                         isFinished && styles.tdFinished,
                         inputStyle,
                     ]}
-                    value={value}
+                    value={displayValue}
                     onChangeText={onChangeText}
                     inputMode={inputMode}
                     showSoftInputOnFocus={allowSoftInput}
@@ -145,6 +152,24 @@ const AdjustableNumberInput = ({
             </View>
         </GestureDetector>
     );
+};
+
+const formatNumber = (value: string): string => {
+    const trimmed = value.trim();
+    if (trimmed === "") {
+        return "";
+    }
+
+    const parsed = Number(trimmed);
+    if (!Number.isFinite(parsed)) {
+        return value;
+    }
+
+    if (Number.isInteger(parsed)) {
+        return `${parsed}`;
+    }
+
+    return `${parsed}`;
 };
 
 export default AdjustableNumberInput;
