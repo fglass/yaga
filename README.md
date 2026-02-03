@@ -164,5 +164,3 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 
 Strava finish time (slow upload) -> timeout
 Strava run link
-Decimal rep format
-Yaga trigger/shortcut -> Clawd. Try workout end trigger
