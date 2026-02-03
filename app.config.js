@@ -48,6 +48,7 @@ module.exports = ({ config }) => {
             'expo-font',
             'expo-notifications',
             'expo-sqlite',
+            './plugins/withRecentWorkoutIntent',
         ],
         ...config,
     };
@@ -75,6 +76,11 @@ module.exports = ({ config }) => {
         appVariant,
         stravaRedirectScheme,
     };
+    const infoPlist = {
+        ...(baseConfig.ios?.infoPlist ?? {}),
+        CFBundleDisplayName: name,
+        CFBundleName: name,
+    };
 
     return {
         ...baseConfig,
@@ -85,6 +91,7 @@ module.exports = ({ config }) => {
         ios: {
             ...baseConfig.ios,
             bundleIdentifier,
+            infoPlist,
         },
     };
 };
