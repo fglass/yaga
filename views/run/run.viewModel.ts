@@ -250,7 +250,7 @@ export const useRunViewModel = (props: Props): ViewModel => {
     }, [hasStarted, onCancel]);
 
     return {
-        runName: run.name || "Run",
+        runName: run.name,
         speedInput,
         durationSeconds: elapsedSeconds,
         canFinish,

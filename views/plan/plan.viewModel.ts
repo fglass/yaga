@@ -44,7 +44,7 @@ export const usePlanViewModel = () => {
     const startBlankWorkout = async () => {
         await saveActiveWorkout({
             id: generateGuid(),
-            name: "🏋️ Workout",
+            name: "Workout",
             exercises: [],
             notes: "",
             type: "strength",
@@ -56,7 +56,7 @@ export const usePlanViewModel = () => {
     const startRun = async () => {
         await saveActiveWorkout({
             id: generateGuid(),
-            name: "💨 Run",
+            name: "Treadmill",
             exercises: [],
             notes: "",
             type: "run",

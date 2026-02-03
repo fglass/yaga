@@ -21,8 +21,8 @@ Target: **Mar 1** 🎯
 ### Milestone 1: Define scope + stabilize core (Jan 26 → Feb 1)
 
 -   [x] Lock MVP scope
--   [ ] Exercise def management (delete/merge/rename)
--   [ ] History view bug fixes (progressive overload + deletion)
+-   [x] Exercise def management (delete/merge/rename)
+-   [x] History view bug fixes
 -   [ ] Native UI refresh
 
 ### Milestone 2: Workout loop polish (Feb 2 → Feb 8)
@@ -100,12 +100,11 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 RIR
 -   [ ] 🟢 Cardio exercise?
 -   [ ] 🟡 Shake to undo
--   [ ] 🔴 Bug: no delta with 0kg? E.g. pull up
--   [ ] 🔴 Bug: history view progressive overload
 -   [ ] 🟡 Touch workout title to see history
 -   [ ] 🟡 Sticky exercise note
 -   [ ] 🟡 Global-only exercise notes?
 -   [ ] 🔴 Bug: bottom timer clipping
+-   [ ] 🟡 Add exercise search
 
 ### Run View
 
@@ -160,3 +159,10 @@ https://github.com/cameroncooke/XcodeBuildMCP
 https://developer.apple.com/documentation/TechnologyOverviews/adopting-liquid-glass
 https://docs.expo.dev/router/advanced/native-tabs/
 https://docs.expo.dev/versions/latest/sdk/glass-effect/
+
+---
+
+Strava finish time (slow upload) -> timeout
+Strava run link
+Decimal rep format
+Yaga trigger/shortcut -> Clawd. Try workout end trigger
