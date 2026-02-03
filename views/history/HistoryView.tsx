@@ -49,23 +49,55 @@ const HistoryView = (props: Props) => {
         const isRun = workout.type === "run";
 
         const isSelectable = isLocalWorkoutSelectable(workout);
+
+        const hasLeadingEmoji = /^\p{Extended_Pictographic}/u.test(
+            workout.name.trimStart()
+        );
+        const workoutTitle = (
+            <>
+                {workout.name}
+                {isRun ? ` ${workout.distance?.toFixed(2)}K ` : ""}
+            </>
+        );
+
         const workoutContent = (
             <View style={[styles.workoutCard, styles.workoutCardRow]}>
                 <View style={styles.workoutTextBlock}>
-                    <Text style={styles.workoutTitle}>
-                        {workout.name}
-                        {isRun ? ` ${workout.distance?.toFixed(2)}K ` : ""}
-                    </Text>
+                    {isRun ? (
+                        <View style={styles.runHeader}>
+                            {!hasLeadingEmoji && (
+                                <Ionicons
+                                    name="walk"
+                                    color="#7AD3FF"
+                                    size={16}
+                                    style={styles.runIcon}
+                                />
+                            )}
+                            <Text style={styles.workoutTitle}>
+                                {workoutTitle}
+                            </Text>
+                        </View>
+                    ) : (
+                        <View style={styles.strengthHeader}>
+                            {!hasLeadingEmoji && (
+                                <Ionicons
+                                    name="barbell-outline"
+                                    color="#7AD3FF"
+                                    size={16}
+                                    style={styles.strengthIcon}
+                                />
+                            )}
+                            <Text style={styles.workoutTitle}>
+                                {workoutTitle}
+                            </Text>
+                        </View>
+                    )}
                     <Text style={styles.workoutMeta}>
                         {workoutDate} · {formatDuration(durationSeconds)}
                     </Text>
                 </View>
                 {isSelectable ? (
-                    <Ionicons
-                        name="chevron-forward"
-                        color="white"
-                        size={20}
-                    />
+                    <Ionicons name="chevron-forward" color="white" size={20} />
                 ) : null}
             </View>
         );
@@ -180,8 +212,7 @@ const styles = StyleSheet.create({
         color: "rgba(255, 255, 255, 0.7)",
         marginBottom: 6,
     },
-    listContent: {
-    },
+    listContent: {},
     listFooterSpacing: {
         height: 8,
     },
@@ -215,6 +246,20 @@ const styles = StyleSheet.create({
     workoutTextBlock: {
         flex: 1,
         marginRight: 12,
+    },
+    runHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    runIcon: {
+        marginRight: 6,
+    },
+    strengthHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    strengthIcon: {
+        marginRight: 6,
     },
     healthHeader: {
         flexDirection: "row",

@@ -26,10 +26,6 @@ const RunView = (props: Props) => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.topBar}>
-                <Text style={styles.title}>{vm.runName}</Text>
-            </View>
-
             <View style={styles.statsContainer}>
                 <View style={styles.inlineStats}>
                     <View style={styles.inlineStat}>
@@ -124,12 +120,6 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: 20,
         backgroundColor: "#2A3135",
-    },
-    topBar: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 16,
     },
     title: {
         fontSize: 24,
