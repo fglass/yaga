@@ -8,7 +8,7 @@ expo update
 npm start
 npm test
 
-npx expo prebuild -p ios
+npx expo prebuild --clean --platform ios
 npx expo run:ios
 
 eas update
