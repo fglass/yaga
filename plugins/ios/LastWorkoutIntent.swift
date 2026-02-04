@@ -64,7 +64,7 @@ struct GetLastWorkoutIntent: AppIntent {
 }
 
 @available(iOS 16.0, *)
-struct LastWorkoutShortcuts: AppShortcutsProvider {
+struct AppShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         return [
             AppShortcut(
