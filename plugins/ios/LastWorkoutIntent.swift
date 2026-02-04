@@ -3,9 +3,9 @@ import Foundation
 import SQLite3
 
 @available(iOS 16.0, *)
-struct RecentWorkoutEntity: AppEntity {
+struct LastWorkoutEntity: AppEntity {
     static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Workout")
-    static var defaultQuery = RecentWorkoutQuery()
+    static var defaultQuery = LastWorkoutQuery()
 
     @Property(title: "ID") var id: String
     @Property(title: "Name") var name: String
@@ -36,44 +36,44 @@ struct RecentWorkoutEntity: AppEntity {
 }
 
 @available(iOS 16.0, *)
-struct RecentWorkoutQuery: EntityQuery {
-    func entities(for identifiers: [RecentWorkoutEntity.ID]) async throws -> [RecentWorkoutEntity] {
+struct LastWorkoutQuery: EntityQuery {
+    func entities(for identifiers: [LastWorkoutEntity.ID]) async throws -> [LastWorkoutEntity] {
         return []
     }
 
-    func suggestedEntities() async throws -> [RecentWorkoutEntity] {
+    func suggestedEntities() async throws -> [LastWorkoutEntity] {
         return []
     }
 }
 
 @available(iOS 16.0, *)
-struct GetRecentWorkoutIntent: AppIntent {
-    static var title: LocalizedStringResource = "Get Recent Workout"
+struct GetLastWorkoutIntent: AppIntent {
+    static var title: LocalizedStringResource = "Get Last Workout"
     static var description = IntentDescription(
-        "Returns all workouts finished within the last hour."
+        "Returns the last completed workout."
     )
 
     static var parameterSummary: some ParameterSummary {
-        Summary("Get recent workout")
+        Summary("Get last workout")
     }
 
-    func perform() async throws -> some IntentResult & ReturnsValue<[RecentWorkoutEntity]> {
-        let workout = try RecentWorkoutStore.fetchRecentWorkout()
+    func perform() async throws -> some IntentResult & ReturnsValue<[LastWorkoutEntity]> {
+        let workout = try LastWorkoutStore.fetchLastWorkout()
         return .result(value: workout)
     }
 }
 
 @available(iOS 16.0, *)
-struct RecentWorkoutShortcuts: AppShortcutsProvider {
+struct LastWorkoutShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         return [
             AppShortcut(
-                intent: GetRecentWorkoutIntent(),
+                intent: GetLastWorkoutIntent(),
                 phrases: [
-                    "Get recent workout in \(.applicationName)",
-                    "Recent workout in \(.applicationName)",
+                    "Get last workout in \(.applicationName)",
+                    "Last workout in \(.applicationName)",
                 ],
-                shortTitle: "Recent Workout",
+                shortTitle: "Last Workout",
                 systemImageName: "figure.strengthtraining.traditional"
             ),
         ]
@@ -81,11 +81,11 @@ struct RecentWorkoutShortcuts: AppShortcutsProvider {
 }
 
 @available(iOS 16.0, *)
-private enum RecentWorkoutStore {
+private enum LastWorkoutStore {
     @available(iOS 16.0, *)
-    static func fetchRecentWorkout() throws -> [RecentWorkoutEntity] {
+    static func fetchLastWorkout() throws -> [LastWorkoutEntity] {
         guard let databasePath = databasePath() else {
-            throw RecentWorkoutError.missingDatabaseName
+            throw LastWorkoutError.missingDatabaseName
         }
 
         var db: OpaquePointer?
@@ -93,35 +93,32 @@ private enum RecentWorkoutStore {
             if db != nil {
                 sqlite3_close(db)
             }
-            throw RecentWorkoutError.unableToOpenDatabase
+            throw LastWorkoutError.unableToOpenDatabase
         }
 
         defer {
             sqlite3_close(db)
         }
 
-        let nowMs = Int64(Date().timeIntervalSince1970 * 1000)
-        let thresholdMs = nowMs - (60 * 60 * 1000)
         let query = """
         SELECT id, name, type, started_at, finished_at, distance
         FROM workouts
-        WHERE status = 'completed' AND finished_at >= ?
+        WHERE status = 'completed'
         ORDER BY finished_at DESC
+        LIMIT 1
         """
 
         var statement: OpaquePointer?
         if sqlite3_prepare_v2(db, query, -1, &statement, nil) != SQLITE_OK {
             sqlite3_finalize(statement)
-            throw RecentWorkoutError.queryPreparationFailed
+            throw LastWorkoutError.queryPreparationFailed
         }
 
         defer {
             sqlite3_finalize(statement)
         }
 
-        sqlite3_bind_int64(statement, 1, thresholdMs)
-
-        var results: [RecentWorkoutEntity] = []
+        var results: [LastWorkoutEntity] = []
         while sqlite3_step(statement) == SQLITE_ROW {
             let id = readText(statement, index: 0)
             let name = readText(statement, index: 1)
@@ -131,7 +128,7 @@ private enum RecentWorkoutStore {
             let distance = readDouble(statement, index: 5)
 
             results.append(
-                RecentWorkoutEntity(
+                LastWorkoutEntity(
                     id: id,
                     name: name,
                     type: type,
@@ -194,7 +191,7 @@ private enum RecentWorkoutStore {
 }
 
 @available(iOS 16.0, *)
-private enum RecentWorkoutError: LocalizedError {
+private enum LastWorkoutError: LocalizedError {
     case missingDatabaseName
     case unableToOpenDatabase
     case queryPreparationFailed
@@ -206,7 +203,7 @@ private enum RecentWorkoutError: LocalizedError {
         case .unableToOpenDatabase:
             return "Unable to open the workouts database."
         case .queryPreparationFailed:
-            return "Failed to prepare the recent workouts query."
+            return "Failed to prepare the last workout query."
         }
     }
 }
