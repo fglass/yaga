@@ -9,11 +9,11 @@ const { withBuildSourceFile } = require('@expo/config-plugins/build/ios/XcodePro
 const SWIFT_SOURCE_PATH = path.join(
     __dirname,
     'ios',
-    'RecentWorkoutIntent.swift'
+    'LastWorkoutIntent.swift'
 );
-const SWIFT_DEST_PATH = 'RecentWorkoutIntent.swift';
+const SWIFT_DEST_PATH = 'LastWorkoutIntent.swift';
 
-const withRecentWorkoutIntent = (config) => {
+const withLastWorkoutIntent = (config) => {
     const swiftContents = fs.readFileSync(SWIFT_SOURCE_PATH, 'utf8');
 
     config = withBuildSourceFile(config, {
@@ -40,7 +40,7 @@ const withRecentWorkoutIntent = (config) => {
 };
 
 module.exports = createRunOncePlugin(
-    withRecentWorkoutIntent,
-    'withRecentWorkoutIntent',
+    withLastWorkoutIntent,
+    'withLastWorkoutIntent',
     '1.0.0'
 );
