@@ -1,74 +1,80 @@
 module.exports = ({ config }) => {
-    const baseConfig = {
-        name: 'Yaga',
-        slug: 'yaga',
-        version: '1.0.0',
-        orientation: 'portrait',
-        platforms: ['ios'],
-        icon: './assets/icon.png',
-        userInterfaceStyle: 'dark',
+    const appVariant = process.env.EXPO_PUBLIC_APP_VARIANT;
+    const appName = appVariant === "development" ? "Yaga Go" : "Yaga";
+
+    const baseDefaults = {
+        name: appName,
+        slug: "yaga",
+        version: "1.0.0",
+        orientation: "portrait",
+        platforms: ["ios"],
+        icon: "./assets/icon.png",
+        userInterfaceStyle: "dark",
         splash: {
-            image: './assets/splash.png',
-            resizeMode: 'contain',
-            backgroundColor: '#2A3135',
+            image: "./assets/splash.png",
+            resizeMode: "contain",
+            backgroundColor: "#2A3135",
         },
-        assetBundlePatterns: ['**/*'],
-        scheme: 'yaga',
+        assetBundlePatterns: ["**/*"],
+        scheme: "yaga",
         ios: {
             supportsTablet: true,
-            bundleIdentifier: 'com.expench.yaga',
+            bundleIdentifier: "com.expench.yaga",
             infoPlist: {
-                CFBundleDisplayName: 'Yaga',
-                CFBundleName: 'Yaga',
+                CFBundleDisplayName: "Yaga",
+                CFBundleName: "Yaga",
                 ITSAppUsesNonExemptEncryption: false,
-                LSApplicationQueriesSchemes: ['strava'],
+                LSApplicationQueriesSchemes: ["strava"],
             },
         },
         extra: {
             eas: {
-                projectId: '572100b8-fd56-4bbd-8d90-8e3b754b4d98',
+                projectId: "572100b8-fd56-4bbd-8d90-8e3b754b4d98",
             },
-            stravaClientId: '192280',
-            stravaClientSecret: 'REMOVED_STRAVA_CLIENT_SECRET',
-            stravaRedirectScheme: 'yaga',
+            stravaClientId: "192280",
+            stravaClientSecret: "REMOVED_STRAVA_CLIENT_SECRET",
+            stravaRedirectScheme: "yaga",
         },
-        owner: 'expench',
-        runtimeVersion: '1.0.0',
+        owner: "expench",
+        runtimeVersion: "1.0.0",
         updates: {
-            url: 'https://u.expo.dev/572100b8-fd56-4bbd-8d90-8e3b754b4d98',
+            url: "https://u.expo.dev/572100b8-fd56-4bbd-8d90-8e3b754b4d98",
         },
         plugins: [
             [
-                '@kingstinct/react-native-healthkit',
+                "@kingstinct/react-native-healthkit",
                 {
-                    NSHealthShareUsageDescription: 'Yaga needs read access.',
-                    NSHealthUpdateUsageDescription: 'Yaga needs write access.',
+                    NSHealthShareUsageDescription: "Yaga needs read access.",
+                    NSHealthUpdateUsageDescription: "Yaga needs write access.",
                 },
             ],
-            'expo-font',
-            'expo-notifications',
-            'expo-sqlite',
-            './plugins/withLastWorkoutIntent',
+            "expo-font",
+            "expo-notifications",
+            "expo-sqlite",
+            "./plugins/withLastWorkoutIntent",
         ],
-        ...config,
+    };
+
+    const { name: _ignoredName, ...configWithoutName } = config ?? {};
+    const baseConfig = {
+        ...baseDefaults,
+        ...configWithoutName,
     };
     const baseBundleId =
-        baseConfig?.ios?.bundleIdentifier ?? 'com.expench.yaga';
+        baseConfig?.ios?.bundleIdentifier ?? "com.expench.yaga";
 
-    const appVariant = process.env.EXPO_PUBLIC_APP_VARIANT;
     const isDevBuild = appVariant === "development";
 
     const bundleIdentifier = appVariant
         ? `${baseBundleId}.${appVariant}`
         : baseBundleId;
 
-    const name = isDevBuild ? 'Yaga Go' : baseConfig.name;
-    const icon = isDevBuild ? './assets/icon-inverse.png' : baseConfig.icon;
+    const icon = isDevBuild ? "./assets/icon-inverse.png" : baseConfig.icon;
 
-    const scheme = isDevBuild ? 'yaga-go' : baseConfig.scheme;
+    const scheme = isDevBuild ? "yaga-go" : baseConfig.scheme;
 
     const stravaRedirectScheme = isDevBuild
-        ? 'yaga-go'
+        ? "yaga-go"
         : baseConfig.extra?.stravaRedirectScheme;
 
     const extra = {
@@ -78,13 +84,13 @@ module.exports = ({ config }) => {
     };
     const infoPlist = {
         ...(baseConfig.ios?.infoPlist ?? {}),
-        CFBundleDisplayName: name,
-        CFBundleName: name,
+        CFBundleDisplayName: appName,
+        CFBundleName: appName,
     };
 
     return {
         ...baseConfig,
-        name,
+        name: appName,
         icon,
         extra,
         scheme,
