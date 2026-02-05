@@ -55,7 +55,9 @@ module.exports = ({ config }) => {
         ],
     };
 
-    const { name: _ignoredName, ...configWithoutName } = config ?? {};
+    const configWithoutName = { ...(config ?? {}) };
+    delete configWithoutName.name;
+    void name;
     const baseConfig = {
         ...baseDefaults,
         ...configWithoutName,

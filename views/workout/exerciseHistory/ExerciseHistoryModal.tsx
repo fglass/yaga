@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import ModalDialog from "../../../components/ModalDialog";
 import { compareSetEpley1RM } from "../workout.calculations";
+import { formatNumber } from "../../../utils/util";
 import { useExerciseHistoryViewModel } from "./exerciseHistory.viewModel";
 
 interface Props {
@@ -118,21 +119,36 @@ const ExerciseHistoryModal = (props: Props) => {
                                     } else if (progress === -1) {
                                         progressStyle = styles.progressDeclined;
                                     }
+                                    const arrowLabel =
+                                        progress === 1
+                                            ? "↑"
+                                            : progress === -1
+                                              ? "↓"
+                                              : "=";
                                     return (
                                         <View key={set.id} style={styles.row}>
-                                            <Text
-                                                style={[
-                                                    styles.setIndex,
-                                                    progressStyle,
-                                                ]}
-                                            >
-                                                {setIdx + 1}
-                                            </Text>
+                                            <View style={styles.setIndex}>
+                                                <Text
+                                                    style={styles.setIndexNumber}
+                                                >
+                                                    {setIdx + 1}
+                                                </Text>
+                                                <Text
+                                                    style={[
+                                                        styles.setIndexArrow,
+                                                        progress === 0
+                                                            ? styles.progressNeutral
+                                                            : progressStyle,
+                                                    ]}
+                                                >
+                                                    {arrowLabel}
+                                                </Text>
+                                            </View>
                                             <Text style={styles.weightCell}>
-                                                {set.weight}
+                                                {formatNumber(set.weight)}
                                             </Text>
                                             <Text style={styles.repsCell}>
-                                                {set.reps}
+                                                {formatNumber(set.reps)}
                                             </Text>
                                         </View>
                                     );
@@ -236,8 +252,19 @@ const styles = StyleSheet.create({
     },
     setIndex: {
         flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
+    },
+    setIndexNumber: {
         textAlign: "center",
         color: "rgba(255, 255, 255, 0.6)",
+        fontSize: 11,
+        fontWeight: "600",
+    },
+    setIndexArrow: {
+        position: "absolute",
+        left: 8,
         fontSize: 11,
         fontWeight: "600",
     },
@@ -258,6 +285,9 @@ const styles = StyleSheet.create({
     },
     progressDeclined: {
         color: "#EC6569",
+    },
+    progressNeutral: {
+        color: "rgba(255, 255, 255, 0.45)",
     },
 });
 
