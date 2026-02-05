@@ -8,6 +8,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import ExerciseListModal from "./ExerciseListModal";
 import ExerciseHistoryModal from "./exerciseHistory/ExerciseHistoryModal";
@@ -47,6 +48,7 @@ type Props = ActiveProps | HistoryProps;
 
 const WorkoutView = (props: Props) => {
     const vm = useWorkoutViewModel(props);
+    const insets = useSafeAreaInsets();
     const scrollRef = useRef<ScrollView>(null);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const [isLastExerciseInputFocused, setIsLastExerciseInputFocused] =
@@ -87,8 +89,9 @@ const WorkoutView = (props: Props) => {
             return 16 + keyboardHeight;
         }
 
-        return isRestTimerVisible ? 64 : 16;
-    }, [isLastExerciseInputFocused, keyboardHeight, isRestTimerVisible]);
+        const bottom = Math.max(16, insets.bottom);
+        return isRestTimerVisible ? 48 + bottom : bottom;
+    }, [isLastExerciseInputFocused, keyboardHeight, isRestTimerVisible, insets.bottom]);
 
     const renderHeader = () => {
         return (
@@ -444,7 +447,7 @@ const WorkoutView = (props: Props) => {
         }
 
         return (
-            <View style={styles.restTimerContainer} pointerEvents="box-none">
+            <View style={[styles.restTimerContainer, { bottom: Math.max(16, insets.bottom) }]} pointerEvents="box-none">
                 <View style={styles.restTimerRow}>
                     <TouchableOpacity
                         style={styles.restAdjustButton}
