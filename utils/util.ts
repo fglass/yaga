@@ -84,6 +84,24 @@ export const dedupeWorkoutsByStart = <T extends { startDate: Date }>(
     }, []);
 };
 
+export const formatNumber = (value: string): string => {
+    const trimmed = value.trim();
+    if (trimmed === "") {
+        return "";
+    }
+
+    const parsed = Number(trimmed);
+    if (!Number.isFinite(parsed)) {
+        return value;
+    }
+
+    if (Number.isInteger(parsed)) {
+        return `${parsed}`;
+    }
+
+    return `${parsed}`;
+};
+
 const isExpoDevLauncherAvailable =
     NativeModules != null &&
     (NativeModules as Record<string, unknown>).EXDevLauncher !== undefined;
@@ -95,4 +113,3 @@ export const isUsingExpoDevClient = (): boolean => {
             Constants.executionEnvironment === ExecutionEnvironment.Bare)
     );
 };
-
