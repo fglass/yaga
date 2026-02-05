@@ -1,3 +1,7 @@
+const { execSync } = require("child_process");
+
+const gitCommit = execSync("git rev-parse --short HEAD").toString().trim();
+
 module.exports = ({ config }) => {
     const appVariant = process.env.EXPO_PUBLIC_APP_VARIANT;
     const appName = appVariant === "development" ? "Yaga Go" : "Yaga";
@@ -57,7 +61,6 @@ module.exports = ({ config }) => {
 
     const configWithoutName = { ...(config ?? {}) };
     delete configWithoutName.name;
-    void name;
     const baseConfig = {
         ...baseDefaults,
         ...configWithoutName,
@@ -83,6 +86,7 @@ module.exports = ({ config }) => {
         ...(baseConfig.extra ?? {}),
         appVariant,
         stravaRedirectScheme,
+        gitCommit,
     };
     const infoPlist = {
         ...(baseConfig.ios?.infoPlist ?? {}),

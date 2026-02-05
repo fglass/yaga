@@ -1,7 +1,18 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ActionSheetIOS } from "react-native";
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    ActionSheetIOS,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { exportDatabase, importDatabase, resetDatabase } from "../../model/database";
+import Constants from "expo-constants";
+import {
+    exportDatabase,
+    importDatabase,
+    resetDatabase,
+} from "../../model/database";
 import ImportView from "../import/ImportView";
 import { useHomeViewModel } from "./home.viewModel";
 
@@ -9,11 +20,12 @@ const HomeView = () => {
     const vm = useHomeViewModel();
 
     const isDevBuild = process.env.EXPO_PUBLIC_APP_VARIANT === "development";
+    const gitCommit = Constants.expoConfig?.extra?.gitCommit ?? "unknown";
 
     const onAdminSettings = () =>
         ActionSheetIOS.showActionSheetWithOptions(
             {
-                title: "Settings",
+                title: `Version: ${gitCommit}`,
                 options: [
                     "Cancel",
                     vm.isHealthLoggingEnabled
