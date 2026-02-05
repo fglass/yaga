@@ -73,7 +73,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟢 Goals: if X in Y then ✅
 -   [ ] 🟢 CI/CD
 -   [ ] 🟢 Release?
--   [ ] 🟡 Export CSV
+-   [ ] 🔴 Export CSV
 -   [ ] 🟡 Database tests
 
 ### Home View
@@ -105,7 +105,6 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Touch workout title to see history
 -   [ ] 🟡 Sticky exercise note
 -   [ ] 🟡 Global-only exercise notes?
--   [ ] 🔴 Bug: bottom timer clipping
 -   [ ] 🟡 Add exercise search
 
 ### Run View
