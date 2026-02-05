@@ -60,7 +60,7 @@ export const useTimers = ({
                     return;
                 }
                 setTotalRestDurationS((prevTotal) =>
-                    Math.max(prevTotal + deltaS, 0)
+                    Math.max(prevTotal + deltaS, 30)
                 );
                 setRemainingRestTimeS((prevRemaining) => {
                     const base = Math.max(prevRemaining, 0);
