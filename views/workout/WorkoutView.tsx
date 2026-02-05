@@ -303,6 +303,8 @@ const WorkoutView = (props: Props) => {
         } else if (progress === -1) {
             progressStyle = styles.tdDeclined;
         }
+        const setLabel =
+            progress === 1 ? "↑" : progress === -1 ? "↓" : `${setIdx + 1}`;
         return (
             <View style={styles.setSwipeContainer} key={set.id}>
                 <Deletable onDelete={() => vm.onRemoveSet(exerciseIdx, setIdx)}>
@@ -326,7 +328,7 @@ const WorkoutView = (props: Props) => {
                                     ]}
                                     editable={false}
                                 >
-                                    {setIdx + 1}
+                                    {setLabel}
                                 </TextInput>
                             </GestureDetector>
                         ) : (
@@ -340,7 +342,7 @@ const WorkoutView = (props: Props) => {
                                 ]}
                                 editable={false}
                             >
-                                {setIdx + 1}
+                                {setLabel}
                             </TextInput>
                         )}
                         <AdjustableNumberInput
