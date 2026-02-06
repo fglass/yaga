@@ -11,6 +11,7 @@ export {
     completeWorkout,
     saveActiveWorkout,
     fetchExerciseDefs,
+    fetchCompletedWorkoutIds,
     fetchCompletedWorkoutKeys,
     fetchExerciseSetsFromCompletedWorkouts,
 } from "./database";

@@ -428,6 +428,20 @@ export const fetchCompletedWorkoutKeys = async (): Promise<string[]> => {
     return keys;
 };
 
+export const fetchCompletedWorkoutIds = async (): Promise<string[]> => {
+    const startTime = Date.now();
+    await ensureDatabase();
+
+    const db = await getDatabase();
+    const rows = await db.getAllAsync<{ id: string }>(
+        "SELECT id FROM workouts WHERE status = 'completed'"
+    );
+    const ids = rows.map((row) => row.id);
+
+    console.log(`Completed workout IDs fetched in ${Date.now() - startTime}ms`);
+    return ids;
+};
+
 export const fetchWorkoutTemplates = async (): Promise<WorkoutTemplate[]> => {
     const startTime = Date.now();
     await ensureDatabase();

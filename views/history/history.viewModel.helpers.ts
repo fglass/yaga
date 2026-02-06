@@ -32,5 +32,12 @@ export const isLocalWorkoutSelectable = (
         return true;
     }
 
+    if (isAppleHealthImportedWorkout(workout)) {
+        return false;
+    }
+
     return options?.isStravaLoggingEnabled ?? true;
 };
+
+const isAppleHealthImportedWorkout = (workout: CompletedWorkout): boolean =>
+    workout.metadata?.importedBy === "apple-health";

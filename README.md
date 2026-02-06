@@ -29,20 +29,20 @@ Target: **Mar 1** 🎯
 
 ### Milestone 2: Workout loop polish (Feb 2 → Feb 8)
 
--   [ ] Bugs (see 🔴)
+-   [x] Bugs (see 🔴)
 -   [ ] Set types (W, D, T, B)
 -   [ ] Rest timer noise
 -   [ ] Rework exercise notes
--   [ ] Jump to historical workout (via title or exercise history)
--   [ ] Active workout minimise
--   [ ] Shake to undo?
+-   [ ] Template execise setting
 -   [ ] Advanced progressive overload calcs / RIR?
 
 ### Milestone 3: Home + Plan + History clarity (Feb 9 → Feb 15)
 
--   [ ] Template execise setting
 -   [ ] Tap for run count
--   [ ] History view bug fixes (progressive overload + deletion)
+-   [x] History view bug fixes
+-   [ ] Active workout minimise
+-   [ ] Jump to historical workout (via title or exercise history)
+-   [ ] Shake to undo?
 
 ### Milestone 4: Data management (Feb 16 → Feb 22)
 
@@ -73,8 +73,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟢 Goals: if X in Y then ✅
 -   [ ] 🟡 CI/CD
 -   [ ] 🟢 Release?
--   [ ] 🔴 Export CSV
--   [ ] 🟡 Database tests
+-   [ ] 🟡 Export CSV
 
 ### Home View
 
@@ -115,7 +114,7 @@ Target: **Mar 1** 🎯
 
 ### Plan View
 
--   [ ] 🟡 Template exercise setting
+-   [ ] 🔴 Template exercise setting
 -   [ ] 🟡 Template 'last done'
 
 ### History View
@@ -127,6 +126,14 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Add SQLite import to new flow
 -   [ ] 🟢 Merge/overwrite option
 -   [ ] 🟢 Exercise category local classifier
+-   [ ] 🟢 Map exercise keyboard
+-   [ ] 🟢 Import exercise text clipping
+-   [ ] 🟢 Tweak infer keywords
+-   [ ] 🟢 Strong int conversion
+-   [ ] 🟢 Strong notes?
+-   [ ] 🟢 Strong warmup sets
+-   [ ] 🟢 No history if mapped? Check
+-   [ ] 🟢 Check history not overwritten
 
 ## Incubator
 
@@ -141,18 +148,6 @@ Target: **Mar 1** 🎯
 
 ---
 
-Import:
-Map exercise keyboard
-Import exercise text clipping
-Tweak infer keywords
-Strong int conversion
-Strong notes?
-Strong warmup sets
-No history if mapped? Check
-Check history not overwritten
-
----
-
 https://github.com/cameroncooke/XcodeBuildMCP
 
 ---
@@ -160,8 +155,3 @@ https://github.com/cameroncooke/XcodeBuildMCP
 https://developer.apple.com/documentation/TechnologyOverviews/adopting-liquid-glass
 https://docs.expo.dev/router/advanced/native-tabs/
 https://docs.expo.dev/versions/latest/sdk/glass-effect/
-
----
-
-Write Apple Health to database (only runs?)
-Template creation!

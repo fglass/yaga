@@ -1,4 +1,5 @@
 import { Platform } from "react-native";
+import Constants from "expo-constants";
 import {
     isHealthDataAvailableAsync,
     queryWorkoutSamples,
@@ -12,7 +13,11 @@ import type {
     QuantityTypeIdentifier,
     QueryStatisticsResponse,
 } from "@kingstinct/react-native-healthkit";
-import { AppleHealthWorkout, WorkoutType } from "../types";
+import {
+    completeWorkout,
+    fetchCompletedWorkoutIds,
+} from "../database";
+import { AppleHealthWorkout, CompletedWorkout, WorkoutType } from "../types";
 
 export interface HealthWorkoutPayload {
     startDate: Date;
@@ -26,9 +31,18 @@ export interface FetchAppleHealthWorkoutsOptions {
     limit?: number;
 }
 
+interface SyncAppleHealthRunsDeps {
+    completeWorkout: (workout: CompletedWorkout) => Promise<void>;
+    fetchCompletedWorkoutIds: () => Promise<string[]>;
+}
+
 let initPromise: Promise<boolean> | null = null;
 let isHealthLoggingEnabled = true;
+
 type WorkoutProxyItem = Awaited<ReturnType<typeof queryWorkoutSamples>>[number];
+
+const APPLE_HEALTH_WORKOUT_ID_PREFIX = "apple-health:";
+const APP_BUNDLE_IDENTIFIER_PREFIX = "com.expench.yaga";
 
 export const ensureHealthKit = async (): Promise<boolean> => {
     if (Platform.OS !== "ios") {
@@ -121,6 +135,10 @@ export const fetchAppleHealthWorkouts = async (
         const workouts: AppleHealthWorkout[] = [];
         for (const proxy of workoutProxies) {
             const sample = proxy.toJSON();
+            if (isWorkoutLoggedByYaga(sample)) {
+                continue;
+            }
+
             const distance = await getRunDistance(
                 proxy,
                 sample.workoutActivityType
@@ -140,6 +158,40 @@ export const fetchAppleHealthWorkouts = async (
         console.warn("Failed to query Apple Health workouts", error);
         return [];
     }
+};
+
+export const syncAppleHealthRunsToDatabase = async (
+    workouts: AppleHealthWorkout[],
+    deps: SyncAppleHealthRunsDeps = {
+        completeWorkout,
+        fetchCompletedWorkoutIds,
+    }
+): Promise<number> => {
+    const runWorkouts = workouts.filter(
+        (workout) => workout.workoutType === "run"
+    );
+
+    if (runWorkouts.length === 0) {
+        return 0;
+    }
+
+    const existingIds = new Set(await deps.fetchCompletedWorkoutIds());
+    let insertedCount = 0;
+
+    for (const workout of runWorkouts) {
+        const completedWorkout = asCompletedRunWorkout(workout);
+        if (existingIds.has(completedWorkout.id)) {
+            continue;
+        }
+
+        await deps.completeWorkout(completedWorkout);
+        existingIds.add(completedWorkout.id);
+        insertedCount += 1;
+    }
+
+    console.log(`Apple Health inserted ${insertedCount} runs`);
+
+    return insertedCount;
 };
 
 const getRunDistance = async (
@@ -249,4 +301,56 @@ const mapWorkoutType = (
     }
 
     return null;
+};
+
+const asCompletedRunWorkout = (
+    workout: AppleHealthWorkout
+): CompletedWorkout => ({
+    id: `${APPLE_HEALTH_WORKOUT_ID_PREFIX}${workout.id}`,
+    name: workout.name || "Run",
+    notes: "",
+    type: "run",
+    exercises: [],
+    metadata: {
+        importedBy: "apple-health",
+    },
+    startTimestamp: workout.startDate.getTime(),
+    endTimestamp: workout.endDate.getTime(),
+    distance: workout.distance,
+});
+
+const isWorkoutLoggedByYaga = (sample: WorkoutSample): boolean => {
+    const sourceBundleId = getSourceBundleIdentifier(sample);
+    if (!sourceBundleId) {
+        return false;
+    }
+
+    const appBundleId = Constants.expoConfig?.ios?.bundleIdentifier;
+    if (typeof appBundleId === "string" && appBundleId.length > 0) {
+        return sourceBundleId === appBundleId;
+    }
+
+    return sourceBundleId.startsWith(APP_BUNDLE_IDENTIFIER_PREFIX);
+};
+
+const getSourceBundleIdentifier = (sample: WorkoutSample): string | null => {
+    const source = sample.sourceRevision?.source;
+    if (!source) {
+        return null;
+    }
+
+    if (typeof source.bundleIdentifier === "string") {
+        return source.bundleIdentifier;
+    }
+
+    const toJson =
+        typeof source.toJSON === "function" ? source.toJSON.bind(source) : null;
+    if (!toJson) {
+        return null;
+    }
+
+    const serialized = toJson();
+    return typeof serialized.bundleIdentifier === "string"
+        ? serialized.bundleIdentifier
+        : null;
 };
