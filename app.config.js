@@ -1,6 +1,24 @@
 const { execSync } = require("child_process");
 
-const gitCommit = execSync("git rev-parse --short HEAD").toString().trim();
+const getGitCommit = () => {
+    const envCommit = process.env.EAS_BUILD_GIT_COMMIT_HASH;
+
+    if (envCommit) {
+        return envCommit.slice(0, 7);
+    }
+
+    try {
+        return execSync("git rev-parse --short HEAD", {
+            stdio: ["ignore", "pipe", "ignore"],
+        })
+            .toString()
+            .trim();
+    } catch {
+        return "unknown";
+    }
+};
+
+const gitCommit = getGitCommit();
 
 module.exports = ({ config }) => {
     const appVariant = process.env.EXPO_PUBLIC_APP_VARIANT;
