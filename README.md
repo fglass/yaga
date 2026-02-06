@@ -30,7 +30,7 @@ Target: **Mar 1** 🎯
 ### Milestone 2: Workout loop polish (Feb 2 → Feb 8)
 
 -   [ ] Bugs (see 🔴)
--   [ ] Set types
+-   [ ] Set types (W, D, T, B)
 -   [ ] Rest timer noise
 -   [ ] Rework exercise notes
 -   [ ] Jump to historical workout (via title or exercise history)
@@ -71,7 +71,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Native UI refresh
 -   [ ] 🟢 Native port?
 -   [ ] 🟢 Goals: if X in Y then ✅
--   [ ] 🟢 CI/CD
+-   [ ] 🟡 CI/CD
 -   [ ] 🟢 Release?
 -   [ ] 🔴 Export CSV
 -   [ ] 🟡 Database tests
@@ -165,3 +165,8 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 
 Strava finish time (slow upload) -> timeout
 Strava run link
+Write Apple Health to database (only runs?)
+Template creation!
+
+Freeze set time (workout time delta), work for superset
+Syncing apple health
