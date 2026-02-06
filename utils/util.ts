@@ -102,6 +102,26 @@ export const formatNumber = (value: string): string => {
     return `${parsed}`;
 };
 
+export const fetchWithTimeout = async (
+    input: Parameters<typeof fetch>[0],
+    init: RequestInit,
+    timeoutMs: number
+): Promise<Response> => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+        controller.abort();
+    }, timeoutMs);
+
+    try {
+        return await fetch(input, {
+            ...init,
+            signal: controller.signal,
+        });
+    } finally {
+        clearTimeout(timeoutId);
+    }
+};
+
 const isExpoDevLauncherAvailable =
     NativeModules != null &&
     (NativeModules as Record<string, unknown>).EXDevLauncher !== undefined;
