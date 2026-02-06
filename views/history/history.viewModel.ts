@@ -106,6 +106,10 @@ export const useHistoryViewModel = (props: Props): ViewModel => {
                 return;
             }
 
+            if (!isSelectable(workout)) {
+                return;
+            }
+
             if (workout.type === "run" && getStravaLoggingEnabled()) {
                 Alert.alert("Upload to Strava", "Upload now?", [
                     {
@@ -146,10 +150,6 @@ export const useHistoryViewModel = (props: Props): ViewModel => {
                         },
                     },
                 ]);
-                return;
-            }
-
-            if (!isSelectable(workout)) {
                 return;
             }
             props.onSelectLocalWorkout(workout);

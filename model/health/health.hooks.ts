@@ -1,6 +1,13 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ensureHealthKit, fetchAppleHealthWorkouts } from "./health";
+import { useQueryClient } from "@tanstack/react-query";
+import { QueryKey } from "../database";
+import {
+    ensureHealthKit,
+    fetchAppleHealthWorkouts,
+    getHealthLoggingEnabled,
+    syncAppleHealthRunsToDatabase,
+} from "./health";
 import { AppleHealthWorkout } from "../types";
 
 export interface HealthWorkoutResult {
@@ -10,6 +17,8 @@ export interface HealthWorkoutResult {
 }
 
 export const useAppleHealthWorkouts = (): HealthWorkoutResult => {
+    const queryClient = useQueryClient();
+
     const startOfPreviousYear = React.useMemo(() => {
         const now = new Date();
         return new Date(now.getFullYear() - 1, 0, 1);
@@ -20,17 +29,32 @@ export const useAppleHealthWorkouts = (): HealthWorkoutResult => {
         queryFn: async () => {
             const canUseHealthKit = await ensureHealthKit();
             if (!canUseHealthKit) {
-                return { workouts: [], isAvailable: false };
+                return {
+                    workouts: [],
+                    isAvailable: false,
+                    insertedRunCount: 0,
+                };
             }
 
             const workouts = await fetchAppleHealthWorkouts({
                 since: startOfPreviousYear,
             });
+            const insertedRunCount = getHealthLoggingEnabled()
+                ? await syncAppleHealthRunsToDatabase(workouts)
+                : 0;
 
-            return { workouts, isAvailable: true };
+            return { workouts, isAvailable: true, insertedRunCount };
         },
         staleTime: 5 * 60 * 1000,
     });
+
+    React.useEffect(() => {
+        if ((data?.insertedRunCount ?? 0) > 0) {
+            queryClient.invalidateQueries({
+                queryKey: [QueryKey.CompletedWorkouts],
+            });
+        }
+    }, [data?.insertedRunCount, queryClient]);
 
     return {
         workouts: data?.workouts ?? [],

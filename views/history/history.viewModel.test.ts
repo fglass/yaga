@@ -63,6 +63,19 @@ describe("history.viewModel.helpers", () => {
         ).toBe(false);
     });
 
+    it("treats Apple Health imported runs as not selectable", () => {
+        const workout = workoutFactory({
+            type: "run",
+            metadata: { importedBy: "apple-health" },
+        });
+
+        expect(
+            isLocalWorkoutSelectable(workout, {
+                isStravaLoggingEnabled: true,
+            })
+        ).toBe(false);
+    });
+
     it("gets strava activity ID from workout metadata", () => {
         const workout = workoutFactory({
             metadata: { stravaActivityId: "123456789" },
