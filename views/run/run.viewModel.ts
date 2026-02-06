@@ -5,7 +5,7 @@ import { saveActiveWorkout, useDatabaseWriter } from "../../model/database";
 import { withWarning } from "../../utils/util";
 import { generateGuid } from "../../utils/guid";
 import { logAppleHealthWorkout } from "../../model/health";
-import { logStravaWorkout } from "../../model/strava";
+import { getStravaLoggingEnabled, logStravaWorkout } from "../../model/strava";
 import { computeRunDistance } from "./run.calculations";
 
 interface Props {
@@ -206,7 +206,10 @@ export const useRunViewModel = (props: Props): ViewModel => {
                     distance: finalDistanceKm,
                 };
 
-                const stravaActivityId = await logStravaWorkout(completedRun);
+                const isStravaLoggingEnabled = getStravaLoggingEnabled();
+                const stravaActivityId = isStravaLoggingEnabled
+                    ? await logStravaWorkout(completedRun)
+                    : null;
 
                 if (stravaActivityId != null) {
                     completedRun.metadata = {
@@ -218,7 +221,7 @@ export const useRunViewModel = (props: Props): ViewModel => {
                 await completeWorkout(completedRun);
                 await onFinish();
 
-                if (stravaActivityId == null) {
+                if (!isStravaLoggingEnabled) {
                     await logAppleHealthWorkout({
                         startDate: new Date(startTimestamp),
                         endDate: endDate,

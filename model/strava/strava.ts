@@ -7,7 +7,7 @@ import {
     StravaConfig,
     StravaToken,
 } from "./strava.types";
-import { getWorkoutDurationSeconds } from "../../utils/util";
+import { fetchWithTimeout, getWorkoutDurationSeconds } from "../../utils/util";
 import { generateGuid } from "../../utils/guid";
 import {
     clearStravaToken,
@@ -20,6 +20,7 @@ const STRAVA_APP_AUTH_URL = "strava://oauth/mobile/authorize";
 const STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token";
 const STRAVA_ACTIVITY_URL = "https://www.strava.com/api/v3/activities";
 const STRAVA_ACTIVITY_PAGE_URL = "https://www.strava.com/activities";
+const STRAVA_UPLOAD_TIMEOUT_MS = 10_000;
 
 let isStravaLoggingEnabled = true;
 
@@ -63,14 +64,18 @@ export const logStravaWorkout = async (
     };
 
     try {
-        const response = await fetch(STRAVA_ACTIVITY_URL, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
+        const response = await fetchWithTimeout(
+            STRAVA_ACTIVITY_URL,
+            {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
             },
-            body: JSON.stringify(payload),
-        });
+            STRAVA_UPLOAD_TIMEOUT_MS
+        );
 
         if (!response.ok) {
             const error = await safeJson(response);
@@ -81,6 +86,12 @@ export const logStravaWorkout = async (
         const data = (await safeJson(response)) as { id?: number | string };
         return parseStravaActivityId(data.id);
     } catch (error) {
+        if (isAbortError(error)) {
+            console.warn(
+                `Strava activity upload timed out after ${STRAVA_UPLOAD_TIMEOUT_MS}ms`
+            );
+            return null;
+        }
         console.warn("Strava activity upload failed", error);
         return null;
     }
@@ -363,4 +374,12 @@ const safeJson = async (response: Response): Promise<unknown> => {
     } catch {
         return await response.text();
     }
+};
+
+const isAbortError = (error: unknown): boolean => {
+    if (!(error instanceof Error)) {
+        return false;
+    }
+
+    return error.name === "AbortError";
 };
