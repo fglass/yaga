@@ -156,37 +156,21 @@ const HistoryView = (props: Props) => {
                     <Text style={styles.subtitle}>Every workout counted</Text>
                 </View>
             </View>
-            {combinedHistory.length === 0 && isAppleHealthLoading ? (
-                <View style={styles.emptyCard}>
-                    <Ionicons name="time-outline" color="white" size={32} />
-                    <Text style={styles.emptyTitle}>
-                        Syncing Apple Health...
-                    </Text>
-                </View>
-            ) : combinedHistory.length === 0 ? (
-                <View style={styles.emptyCard}>
-                    <Ionicons name="barbell-outline" color="white" size={32} />
-                    <Text style={styles.emptyTitle}>No workouts yet</Text>
-                </View>
-            ) : (
-                <FlatList
-                    data={combinedHistory}
-                    keyExtractor={(item) =>
-                        item.type === "local"
-                            ? `local-${item.workout.id}`
-                            : `health-${item.workout.id}`
-                    }
-                    renderItem={({ item }) => renderHistoryItem(item)}
-                    ListFooterComponent={() => (
-                        <View style={styles.listFooterSpacing} />
-                    )}
-                    ItemSeparatorComponent={() => (
-                        <View style={styles.separator} />
-                    )}
-                    contentContainerStyle={styles.listContent}
-                    showsVerticalScrollIndicator={false}
-                />
-            )}
+            <FlatList
+                data={combinedHistory}
+                keyExtractor={(item) =>
+                    item.type === "local"
+                        ? `local-${item.workout.id}`
+                        : `health-${item.workout.id}`
+                }
+                renderItem={({ item }) => renderHistoryItem(item)}
+                ListFooterComponent={() => (
+                    <View style={styles.listFooterSpacing} />
+                )}
+                ItemSeparatorComponent={() => <View style={styles.separator} />}
+                contentContainerStyle={styles.listContent}
+                showsVerticalScrollIndicator={false}
+            />
         </View>
     );
 };

@@ -169,4 +169,3 @@ Write Apple Health to database (only runs?)
 Template creation!
 
 Freeze set time (workout time delta), work for superset
-Syncing apple health
