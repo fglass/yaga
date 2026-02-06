@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { CompletedWorkout, AppleHealthWorkout } from "../../model/types";
 import {
     formatDuration,
@@ -15,6 +15,7 @@ import {
 } from "../../utils/util";
 import Deletable from "../../components/Deletable";
 import { HistoryItem, useHistoryViewModel } from "./history.viewModel";
+import { getStravaActivityId } from "./history.viewModel.helpers";
 
 interface Props {
     onSelectWorkout: (workout: CompletedWorkout) => void;
@@ -45,8 +46,8 @@ const HistoryView = (props: Props) => {
             workout.startTimestamp,
             workout.endTimestamp
         );
-        const isRun = workout.type === "run";
 
+        const isRun = workout.type === "run";
         const isSelectable = isLocalWorkoutSelectable(workout);
 
         const hasLeadingEmoji = /^\p{Extended_Pictographic}/u.test(
@@ -95,7 +96,14 @@ const HistoryView = (props: Props) => {
                         {workoutDate} · {formatDuration(durationSeconds)}
                     </Text>
                 </View>
-                {isSelectable ? (
+                {isSelectable && isRun ? (
+                    <FontAwesome5
+                        name="strava"
+                        color="#FF5A1F"
+                        size={17}
+                        style={styles.stravaIcon}
+                    />
+                ) : isSelectable ? (
                     <Ionicons name="chevron-forward" color="white" size={20} />
                 ) : null}
             </View>
@@ -234,6 +242,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     runIcon: {
+        marginRight: 6,
+    },
+    stravaIcon: {
         marginRight: 6,
     },
     strengthHeader: {
