@@ -14,7 +14,13 @@ export const EXERCISE_CATEGORIES = [
 
 export type ExerciseCategory = (typeof EXERCISE_CATEGORIES)[number];
 
-export type WorkoutMetadata = Record<string, string | number | boolean | null>;
+export type WorkoutMetadataValue = string | number | boolean | null;
+
+export interface WorkoutMetadata {
+    importedBy?: string;
+    stravaActivityId?: string;
+    [key: string]: WorkoutMetadataValue | undefined;
+}
 
 export interface ExerciseDef {
     name: string;

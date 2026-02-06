@@ -1,12 +1,19 @@
 import React from "react";
+import * as Haptics from "expo-haptics";
+import { Alert } from "react-native";
 import { useCompletedWorkouts, useDatabaseWriter } from "../../model/database";
 import { useAppleHealthWorkouts } from "../../model/health/health.hooks";
 import { AppleHealthWorkout, CompletedWorkout } from "../../model/types";
+import { openStravaActivity } from "../../model/strava";
 import {
     dedupeWorkoutsByStart,
     parseWorkoutTimestamp,
     withWarning,
 } from "../../utils/util";
+import {
+    getStravaActivityId,
+    isLocalWorkoutSelectable,
+} from "./history.viewModel.helpers";
 
 export type HistoryItem =
     | { type: "local"; workout: CompletedWorkout; startDate: Date }
@@ -71,19 +78,33 @@ export const useHistoryViewModel = (props: Props): ViewModel => {
         [deleteCompletedWorkout]
     );
 
-    const isLocalWorkoutSelectable = React.useCallback(
-        (workout: CompletedWorkout) => workout.type === "strength",
-        [props.onSelectLocalWorkout]
+    const isSelectable = React.useCallback(
+        (workout: CompletedWorkout) => isLocalWorkoutSelectable(workout),
+        []
     );
 
     const onSelectLocalWorkout = React.useCallback(
         (workout: CompletedWorkout) => {
-            if (!isLocalWorkoutSelectable(workout)) {
+            const stravaActivityId = getStravaActivityId(workout);
+            if (workout.type === "run" && stravaActivityId != null) {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                void openStravaActivity(stravaActivityId).then((didOpen) => {
+                    if (!didOpen) {
+                        Alert.alert(
+                            "Unable to open Strava",
+                            "Could not open this activity."
+                        );
+                    }
+                });
+                return;
+            }
+
+            if (!isSelectable(workout)) {
                 return;
             }
             props.onSelectLocalWorkout(workout);
         },
-        [isLocalWorkoutSelectable, props.onSelectLocalWorkout]
+        [isSelectable, props.onSelectLocalWorkout]
     );
 
     const formatWorkoutDate = React.useCallback(
@@ -112,7 +133,7 @@ export const useHistoryViewModel = (props: Props): ViewModel => {
         isAppleHealthLoading,
         onDeleteLocalWorkout,
         onSelectLocalWorkout,
-        isLocalWorkoutSelectable,
+        isLocalWorkoutSelectable: isSelectable,
         formatWorkoutDate,
     };
 };
