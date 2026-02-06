@@ -1,4 +1,4 @@
-import { Set } from "../../model/types";
+import { Set, Workout } from "../../model/types";
 
 export type SetProgression = -1 | 0 | 1;
 
@@ -67,4 +67,37 @@ export const calculateEpley1RM = (
     }
 
     return weightValue * (1 + repsValue / 30);
+};
+
+export const findPreviousFinishedSetTime = (
+    workout: Workout,
+    exerciseIdx: number,
+    setIdx: number
+): number | null => {
+    const currentFinishTime =
+        workout.exercises[exerciseIdx]?.sets[setIdx]?.finishTime;
+    if (currentFinishTime === undefined) {
+        return null;
+    }
+
+    const sortedFinishTimes = workout.exercises
+        .flatMap((exercise) =>
+            exercise.sets
+                .map((set) => set.finishTime)
+                .filter((finishTime): finishTime is number => finishTime !== undefined)
+        )
+        .sort((a, b) => a - b);
+
+    for (
+        let currentIdx = sortedFinishTimes.length - 1;
+        currentIdx >= 0;
+        currentIdx -= 1
+    ) {
+        const finishTime = sortedFinishTimes[currentIdx];
+        if (finishTime < currentFinishTime) {
+            return finishTime;
+        }
+    }
+
+    return null;
 };

@@ -1,10 +1,37 @@
-import { compareSetEpley1RM, calculateEpley1RM } from "../workout.calculations";
+import type { Workout } from "../../../model/types";
+import {
+    compareSetEpley1RM,
+    calculateEpley1RM,
+    findPreviousFinishedSetTime,
+} from "../workout.calculations";
 
 const setFactory = (weight: string, reps: string) => ({
     id: "set-1",
     weight,
     reps,
     finishTime: undefined,
+});
+
+const workoutFactory = (
+    exerciseFinishTimes: Array<Array<number | undefined>>
+): Workout => ({
+    id: "workout-1",
+    name: "Workout",
+    notes: "",
+    type: "strength",
+    metadata: {},
+    startTimestamp: 0,
+    exercises: exerciseFinishTimes.map((setFinishTimes, exerciseIdx) => ({
+        id: `exercise-${exerciseIdx}`,
+        exerciseId: `exercise-def-${exerciseIdx}`,
+        notes: [],
+        sets: setFinishTimes.map((finishTime, setIdx) => ({
+            id: `set-${exerciseIdx}-${setIdx}`,
+            weight: "",
+            reps: "",
+            finishTime,
+        })),
+    })),
 });
 
 describe("calculateEpley1RM", () => {
@@ -60,5 +87,28 @@ describe("compareSetEpley1RM", () => {
 
         expect(compareSetEpley1RM(currentLess, previous)).toBe(-1);
         expect(compareSetEpley1RM(currentMore, previous)).toBe(1);
+    });
+});
+
+describe("findPreviousFinishedSetTime", () => {
+    it("uses finish-time order instead of workout order", () => {
+        const workout = workoutFactory([[4], [2, 5]]);
+
+        expect(findPreviousFinishedSetTime(workout, 1, 1)).toBe(4);
+    });
+
+    it("skips unfinished sets and finds the nearest earlier finished set by time", () => {
+        const workout = workoutFactory([
+            [1, undefined, 3],
+            [undefined, undefined, 6],
+        ]);
+
+        expect(findPreviousFinishedSetTime(workout, 1, 2)).toBe(3);
+    });
+
+    it("returns null when no earlier set has been finished before", () => {
+        const workout = workoutFactory([[3], [2]]);
+
+        expect(findPreviousFinishedSetTime(workout, 1, 0)).toBeNull();
     });
 });

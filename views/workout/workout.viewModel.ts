@@ -34,7 +34,11 @@ import {
 } from "./workout.hooks";
 import { logAppleHealthWorkout } from "../../model/health";
 import * as Notifications from "expo-notifications";
-import { compareSetEpley1RM, SetProgression } from "./workout.calculations";
+import {
+    compareSetEpley1RM,
+    findPreviousFinishedSetTime,
+    SetProgression,
+} from "./workout.calculations";
 
 type ActiveProps = {
     mode?: "active";
@@ -629,21 +633,9 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             return null;
         }
 
-        let prevFinishTime = null;
-
-        if (setIdx > 0) {
-            prevFinishTime = exercise.sets[setIdx - 1].finishTime;
-        } else if (exerciseIdx > 0) {
-            const prevExercise = workout.exercises[exerciseIdx - 1];
-            prevFinishTime =
-                prevExercise.sets[prevExercise.sets.length - 1].finishTime;
-        } else {
-            prevFinishTime = workoutStartTime;
-        }
-
-        if (prevFinishTime == null) {
-            return null;
-        }
+        const prevFinishTime =
+            findPreviousFinishedSetTime(workout, exerciseIdx, setIdx) ??
+            workoutStartTime;
 
         const totalSeconds = Math.ceil(
             (set.finishTime - prevFinishTime) / 1000

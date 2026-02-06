@@ -167,5 +167,3 @@ Strava finish time (slow upload) -> timeout
 Strava run link
 Write Apple Health to database (only runs?)
 Template creation!
-
-Freeze set time (workout time delta), work for superset
