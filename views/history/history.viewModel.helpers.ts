@@ -9,12 +9,28 @@ export const getStravaActivityId = (
     }
 
     const normalized = raw.trim();
-    if (!/^[1-9]\d*$/.test(normalized)) {
+    if (!/^\d+$/.test(normalized)) {
         return null;
     }
 
     return normalized;
 };
 
-export const isLocalWorkoutSelectable = (workout: CompletedWorkout): boolean =>
-    workout.type === "strength" || getStravaActivityId(workout) != null;
+export const isLocalWorkoutSelectable = (
+    workout: CompletedWorkout,
+    options?: { isStravaLoggingEnabled?: boolean }
+): boolean => {
+    if (workout.type === "strength") {
+        return true;
+    }
+
+    if (workout.type !== "run") {
+        return false;
+    }
+
+    if (getStravaActivityId(workout) != null) {
+        return true;
+    }
+
+    return options?.isStravaLoggingEnabled ?? true;
+};

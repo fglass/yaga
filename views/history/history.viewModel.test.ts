@@ -37,13 +37,30 @@ describe("history.viewModel.helpers", () => {
         expect(isLocalWorkoutSelectable(workout)).toBe(true);
     });
 
-    it("treats run workouts without strava ID as not selectable", () => {
+    it("treats run workouts without strava ID as selectable", () => {
         const workout = workoutFactory({
             type: "run",
             metadata: {},
         });
 
-        expect(isLocalWorkoutSelectable(workout)).toBe(false);
+        expect(
+            isLocalWorkoutSelectable(workout, {
+                isStravaLoggingEnabled: true,
+            })
+        ).toBe(true);
+    });
+
+    it("treats run workouts without strava ID as not selectable when strava logging is disabled", () => {
+        const workout = workoutFactory({
+            type: "run",
+            metadata: {},
+        });
+
+        expect(
+            isLocalWorkoutSelectable(workout, {
+                isStravaLoggingEnabled: false,
+            })
+        ).toBe(false);
     });
 
     it("gets strava activity ID from workout metadata", () => {

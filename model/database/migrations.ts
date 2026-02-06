@@ -56,4 +56,24 @@ export const MIGRATIONS: string[] = [
     SET metadata_json = '{}'
     WHERE metadata_json IS NULL OR metadata_json = '';
     `,
+    `
+    UPDATE workouts
+    SET metadata_json = CASE
+        WHEN json_valid(metadata_json) = 1
+             AND json_type(metadata_json) = 'object'
+            THEN json_set(
+                metadata_json,
+                '$.stravaActivityId',
+                '0000000000000000000'
+            )
+        ELSE json_object('stravaActivityId', '0000000000000000000')
+    END
+    WHERE status = 'completed'
+      AND type = 'run'
+      AND (
+        json_valid(metadata_json) = 0
+        OR json_type(metadata_json) != 'object'
+        OR json_extract(metadata_json, '$.stravaActivityId') IS NULL
+      );
+    `,
 ];
