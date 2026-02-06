@@ -15,6 +15,7 @@ import {
 } from "../../utils/util";
 import Deletable from "../../components/Deletable";
 import { HistoryItem, useHistoryViewModel } from "./history.viewModel";
+import { getStravaActivityId } from "./history.viewModel.helpers";
 
 interface Props {
     onSelectWorkout: (workout: CompletedWorkout) => void;
@@ -48,6 +49,7 @@ const HistoryView = (props: Props) => {
 
         const isRun = workout.type === "run";
         const isSelectable = isLocalWorkoutSelectable(workout);
+        const hasStravaLink = getStravaActivityId(workout) != null;
 
         const hasLeadingEmoji = /^\p{Extended_Pictographic}/u.test(
             workout.name.trimStart()
@@ -95,10 +97,17 @@ const HistoryView = (props: Props) => {
                         {workoutDate} · {formatDuration(durationSeconds)}
                     </Text>
                 </View>
-                {isSelectable && isRun ? (
+                {isRun && hasStravaLink ? (
                     <FontAwesome5
                         name="strava"
                         color="#FF5A1F"
+                        size={17}
+                        style={styles.stravaIcon}
+                    />
+                ) : isRun && isSelectable ? (
+                    <FontAwesome5
+                        name="strava"
+                        color="rgba(255, 255, 255, 0.45)"
                         size={17}
                         style={styles.stravaIcon}
                     />

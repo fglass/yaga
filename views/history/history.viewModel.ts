@@ -4,7 +4,11 @@ import { Alert } from "react-native";
 import { useCompletedWorkouts, useDatabaseWriter } from "../../model/database";
 import { useAppleHealthWorkouts } from "../../model/health/health.hooks";
 import { AppleHealthWorkout, CompletedWorkout } from "../../model/types";
-import { openStravaActivity } from "../../model/strava";
+import {
+    getStravaLoggingEnabled,
+    logStravaWorkout,
+    openStravaActivity,
+} from "../../model/strava";
 import {
     dedupeWorkoutsByStart,
     parseWorkoutTimestamp,
@@ -36,7 +40,7 @@ export const useHistoryViewModel = (props: Props): ViewModel => {
     const completedWorkouts = useCompletedWorkouts();
     const { workouts: appleHealthWorkouts, isLoading: isAppleHealthLoading } =
         useAppleHealthWorkouts();
-    const { deleteCompletedWorkout } = useDatabaseWriter();
+    const { deleteCompletedWorkout, completeWorkout } = useDatabaseWriter();
 
     const combinedHistory = React.useMemo<HistoryItem[]>(() => {
         const items = [
@@ -79,7 +83,10 @@ export const useHistoryViewModel = (props: Props): ViewModel => {
     );
 
     const isSelectable = React.useCallback(
-        (workout: CompletedWorkout) => isLocalWorkoutSelectable(workout),
+        (workout: CompletedWorkout) =>
+            isLocalWorkoutSelectable(workout, {
+                isStravaLoggingEnabled: getStravaLoggingEnabled(),
+            }),
         []
     );
 
@@ -99,12 +106,55 @@ export const useHistoryViewModel = (props: Props): ViewModel => {
                 return;
             }
 
+            if (workout.type === "run" && getStravaLoggingEnabled()) {
+                Alert.alert("Upload to Strava", "Upload now?", [
+                    {
+                        text: "Cancel",
+                        style: "cancel",
+                    },
+                    {
+                        text: "Upload",
+                        onPress: () => {
+                            void (async () => {
+                                if (!getStravaLoggingEnabled()) {
+                                    Alert.alert("Strava logging disabled");
+                                    return;
+                                }
+
+                                const nextStravaActivityId =
+                                    await logStravaWorkout(workout);
+                                if (!nextStravaActivityId) {
+                                    void Haptics.notificationAsync(
+                                        Haptics.NotificationFeedbackType.Error
+                                    );
+                                    Alert.alert("Upload Failed");
+                                    return;
+                                }
+
+                                await completeWorkout({
+                                    ...workout,
+                                    metadata: {
+                                        ...workout.metadata,
+                                        stravaActivityId: nextStravaActivityId,
+                                    },
+                                });
+
+                                void Haptics.notificationAsync(
+                                    Haptics.NotificationFeedbackType.Success
+                                );
+                            })();
+                        },
+                    },
+                ]);
+                return;
+            }
+
             if (!isSelectable(workout)) {
                 return;
             }
             props.onSelectLocalWorkout(workout);
         },
-        [isSelectable, props.onSelectLocalWorkout]
+        [completeWorkout, isSelectable, props.onSelectLocalWorkout]
     );
 
     const formatWorkoutDate = React.useCallback(
