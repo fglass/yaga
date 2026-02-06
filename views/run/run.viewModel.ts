@@ -203,12 +203,19 @@ export const useRunViewModel = (props: Props): ViewModel => {
                     distance: finalDistanceKm,
                 };
 
-                const isStravaExported = await logStravaWorkout(completedRun);
+                const stravaActivityId = await logStravaWorkout(completedRun);
+
+                if (stravaActivityId != null) {
+                    completedRun.metadata = {
+                        ...completedRun.metadata,
+                        stravaActivityId,
+                    };
+                }
 
                 await completeWorkout(completedRun);
                 await onFinish();
 
-                if (!isStravaExported) {
+                if (stravaActivityId == null) {
                     await logAppleHealthWorkout({
                         startDate: new Date(startTimestamp),
                         endDate: endDate,

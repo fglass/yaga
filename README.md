@@ -163,7 +163,6 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 
 ---
 
-Strava finish time (slow upload) -> timeout
-Strava run link
 Write Apple Health to database (only runs?)
+Strava finish time (slow upload) -> timeout
 Template creation!

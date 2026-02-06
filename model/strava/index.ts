@@ -3,4 +3,6 @@ export {
     getStravaLoggingEnabled,
     setStravaLoggingEnabled,
     getAccessToken,
+    getStravaActivityUrl,
+    openStravaActivity,
 } from "./strava";

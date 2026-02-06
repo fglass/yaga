@@ -23,7 +23,6 @@ interface Props {
 const HistoryView = (props: Props) => {
     const {
         combinedHistory,
-        isAppleHealthLoading,
         onDeleteLocalWorkout,
         onSelectLocalWorkout,
         isLocalWorkoutSelectable,
@@ -110,7 +109,6 @@ const HistoryView = (props: Props) => {
                             activeOpacity={0.7}
                             accessibilityRole="button"
                             accessibilityLabel={`${workout.name} workout`}
-                            accessibilityHint="View workout details"
                             onPress={() => onSelectLocalWorkout(workout)}
                         >
                             {workoutContent}

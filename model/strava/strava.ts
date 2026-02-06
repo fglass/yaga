@@ -19,6 +19,7 @@ const STRAVA_AUTH_SCOPE = ["activity:write", "read"];
 const STRAVA_APP_AUTH_URL = "strava://oauth/mobile/authorize";
 const STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token";
 const STRAVA_ACTIVITY_URL = "https://www.strava.com/api/v3/activities";
+const STRAVA_ACTIVITY_PAGE_URL = "https://www.strava.com/activities";
 
 let isStravaLoggingEnabled = true;
 
@@ -30,20 +31,20 @@ export const setStravaLoggingEnabled = (enabled: boolean) => {
 
 export const logStravaWorkout = async (
     workout: CompletedWorkout
-): Promise<boolean> => {
+): Promise<string | null> => {
     if (!isStravaLoggingEnabled) {
         console.log("Strava logging is disabled");
-        return false;
+        return null;
     }
 
     if (workout.type !== "run" || workout.distance == null) {
         console.error("Invalid workout for Strava upload", workout);
-        return false;
+        return null;
     }
 
     const accessToken = await getAccessToken();
     if (!accessToken) {
-        return false;
+        return null;
     }
 
     const durationSeconds = getWorkoutDurationSeconds(
@@ -74,12 +75,28 @@ export const logStravaWorkout = async (
         if (!response.ok) {
             const error = await safeJson(response);
             console.warn("Strava activity upload failed", error);
-            return false;
+            return null;
         }
 
-        return true;
+        const data = (await safeJson(response)) as { id?: number | string };
+        return parseStravaActivityId(data.id);
     } catch (error) {
         console.warn("Strava activity upload failed", error);
+        return null;
+    }
+};
+
+export const getStravaActivityUrl = (activityId: string): string =>
+    `${STRAVA_ACTIVITY_PAGE_URL}/${encodeURIComponent(activityId)}`;
+
+export const openStravaActivity = async (
+    activityId: string
+): Promise<boolean> => {
+    try {
+        await Linking.openURL(getStravaActivityUrl(activityId));
+        return true;
+    } catch (error) {
+        console.warn("Failed to open Strava activity", error);
         return false;
     }
 };
@@ -257,6 +274,21 @@ const isTokenValid = (token: StravaToken | null): boolean => {
     }
 
     return token.expiresAt * 1000 - Date.now() > 60_000;
+};
+
+const parseStravaActivityId = (value: unknown): string | null => {
+    if (typeof value === "number" && Number.isFinite(value) && value > 0) {
+        return String(Math.trunc(value));
+    }
+
+    if (typeof value === "string") {
+        const normalized = value.trim();
+        if (/^[1-9]\d*$/.test(normalized)) {
+            return normalized;
+        }
+    }
+
+    return null;
 };
 
 const getStravaConfig = (): StravaConfig => {
