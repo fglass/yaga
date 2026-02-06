@@ -194,12 +194,15 @@ export const useRunViewModel = (props: Props): ViewModel => {
                 );
                 distanceKmRef.current = finalDistanceKm;
 
-                const endDate = new Date();
+                const endTimestamp =
+                    startTimestamp + finalElapsedSeconds * 1000;
+                const endDate = new Date(endTimestamp);
+
                 const completedRun: CompletedWorkout = {
                     ...run,
                     id: generateGuid(),
                     startTimestamp,
-                    endTimestamp: endDate.getTime(),
+                    endTimestamp,
                     distance: finalDistanceKm,
                 };
 

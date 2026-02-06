@@ -15,7 +15,6 @@ import {
 } from "../../utils/util";
 import Deletable from "../../components/Deletable";
 import { HistoryItem, useHistoryViewModel } from "./history.viewModel";
-import { getStravaActivityId } from "./history.viewModel.helpers";
 
 interface Props {
     onSelectWorkout: (workout: CompletedWorkout) => void;
