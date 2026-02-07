@@ -135,6 +135,35 @@ describe("database exercise defs", () => {
     });
 });
 
+describe("database templates", () => {
+    it("deleteWorkoutTemplate removes the target template only", async () => {
+        await createTestDb(async (database, sqlite) => {
+            const db = await sqlite.getDatabase();
+            await seedDatabase(db, {
+                templates: [
+                    workoutTemplateFactory({
+                        id: "template-1",
+                        exerciseIds: [],
+                    }),
+                    workoutTemplateFactory({
+                        id: "template-2",
+                        exerciseIds: [],
+                    }),
+                ],
+            });
+
+            await database.deleteWorkoutTemplate("template-1");
+
+            const remainingTemplates = await database.fetchWorkoutTemplates();
+            const remainingTemplateIds = remainingTemplates.map(
+                (template) => template.id
+            );
+            expect(remainingTemplateIds).toContain("template-2");
+            expect(remainingTemplateIds).not.toContain("template-1");
+        });
+    });
+});
+
 describe("database exercise sets", () => {
     it("fetches exercise sets before a specific timestamp", async () => {
         await createTestDb(async (database, sqlite) => {

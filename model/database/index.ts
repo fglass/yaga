@@ -8,6 +8,7 @@ export {
     updateExerciseDef,
     deleteExerciseDef,
     mergeExerciseDefs,
+    deleteWorkoutTemplate,
     completeWorkout,
     saveActiveWorkout,
     fetchExerciseDefs,

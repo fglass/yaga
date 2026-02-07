@@ -159,6 +159,13 @@ export const createWorkoutTemplate = async (template: WorkoutTemplate) => {
     );
 };
 
+export const deleteWorkoutTemplate = async (templateId: string) => {
+    await ensureDatabase();
+
+    const db = await getDatabase();
+    await db.runAsync("DELETE FROM templates WHERE id = ?", templateId);
+};
+
 export const saveActiveWorkout = async (workout: Workout | null) => {
     await ensureDatabase();
 

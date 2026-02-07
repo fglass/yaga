@@ -123,6 +123,7 @@ const HistoryView = (props: Props) => {
                     {isSelectable ? (
                         <TouchableOpacity
                             activeOpacity={0.7}
+                            delayPressIn={120}
                             accessibilityRole="button"
                             accessibilityLabel={`${workout.name} workout`}
                             onPress={() => onSelectLocalWorkout(workout)}
