@@ -1,15 +1,15 @@
-import { useState } from "react";
 import { useWorkoutTemplates, useDatabaseWriter } from "../../model/database";
-import { WorkoutTemplate } from "../../model/types";
+import { Workout, WorkoutTemplate } from "../../model/types";
 import { generateGuid } from "../../utils/guid";
 import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
 
-export const usePlanViewModel = () => {
-    const { templates, isLoading: isTemplatesLoading } = useWorkoutTemplates();
-    const { saveActiveWorkout, createWorkoutTemplate } = useDatabaseWriter();
+type Params = {
+    onCreateTemplate: (workout: Workout) => void;
+};
 
-    const [isCreateModalVisible, setCreateModalVisible] = useState(false);
-    const [newWorkoutName, setNewWorkoutName] = useState("");
+export const usePlanViewModel = ({ onCreateTemplate }: Params) => {
+    const { templates, isLoading: isTemplatesLoading } = useWorkoutTemplates();
+    const { saveActiveWorkout } = useDatabaseWriter();
 
     const selectTemplate = async (workout: WorkoutTemplate) => {
         const baseExercises = workout.exercises.map((exercise) => ({
@@ -32,13 +32,6 @@ export const usePlanViewModel = () => {
             exercises,
             metadata: {},
         });
-    };
-
-    const openCreateModal = () => setCreateModalVisible(true);
-
-    const closeCreateModal = () => {
-        setCreateModalVisible(false);
-        setNewWorkoutName("");
     };
 
     const startBlankWorkout = async () => {
@@ -66,16 +59,16 @@ export const usePlanViewModel = () => {
         });
     };
 
-    const createTemplate = async () => {
-        const workoutName = newWorkoutName.trim() || "🏋️ Workout";
-        await createWorkoutTemplate({
+    const createTemplate = () => {
+        onCreateTemplate({
             id: generateGuid(),
-            name: workoutName,
+            name: "Workout",
             exercises: [],
             notes: "",
             type: "strength",
+            metadata: {},
+            startTimestamp: 0,
         });
-        closeCreateModal();
     };
 
     return {
@@ -84,11 +77,6 @@ export const usePlanViewModel = () => {
         selectTemplate,
         startBlankWorkout,
         createTemplate,
-        newWorkoutName,
-        updateNewWorkoutName: setNewWorkoutName,
-        isCreateModalVisible,
-        openCreateModal,
-        closeCreateModal,
         startRun,
     };
 };

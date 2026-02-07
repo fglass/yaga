@@ -9,6 +9,7 @@ type Action = {
 };
 
 export enum ActionType {
+    ChangeWorkoutName = "change-workout-name",
     ChangeWorkoutNotes = "change-workout-notes",
     ChangeExerciseNote = "change-exercise-note",
     ChangeWeight = "change-weight",
@@ -28,6 +29,9 @@ export enum ActionType {
 
 export const workoutProducer = produce((draft: Workout, action: Action) => {
     switch (action.type) {
+        case ActionType.ChangeWorkoutName:
+            draft.name = action.name;
+            break;
         case ActionType.ChangeWorkoutNotes:
             draft.notes = action.notes;
             break;

@@ -27,6 +27,17 @@ export const styles = StyleSheet.create({
         width: "100%",
         paddingRight: 0,
     },
+    createTitleRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+    },
+    createTitleInput: {
+        fontSize: 24,
+        fontWeight: "700",
+        color: "white",
+        flexShrink: 1,
+    },
     title: {
         fontSize: 24,
         fontWeight: "700",

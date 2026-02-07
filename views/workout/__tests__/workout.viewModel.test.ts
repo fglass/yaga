@@ -54,7 +54,7 @@ const createTestViewModel = (overrides?: Overrides) => {
     return { state, vm };
 };
 
-describe("workout view model core", () => {
+describe("workout view model", () => {
     it("adds exercise to the workout", async () => {
         const idQueue = ["exercise-1", "set-1"];
         const { state, vm } = createTestViewModel({

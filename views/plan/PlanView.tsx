@@ -5,21 +5,17 @@ import {
     TouchableOpacity,
     FlatList,
     View,
-    TextInput,
-    KeyboardAvoidingView,
-    Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { WorkoutTemplate } from "../../model/types";
-import ModalDialog from "../../components/ModalDialog";
+import { Workout, WorkoutTemplate } from "../../model/types";
 import { usePlanViewModel } from "./plan.viewModel";
 
-const PlanView = () => {
-    const vm = usePlanViewModel();
+type Props = {
+    onCreateTemplate: (workout: Workout) => void;
+};
 
-    const onCreateWorkoutTemplate = () => {
-        void vm.createTemplate();
-    };
+const PlanView = ({ onCreateTemplate }: Props) => {
+    const vm = usePlanViewModel({ onCreateTemplate });
 
     const onStartNewWorkout = () => {
         void vm.startBlankWorkout();
@@ -92,7 +88,6 @@ const PlanView = () => {
 
     const hasTemplates = vm.templates.length > 0;
     const isTemplatesEmpty = !vm.isTemplatesLoading && !hasTemplates;
-    const canCreateTemplate = vm.newWorkoutName.trim().length > 0;
 
     return (
         <View style={styles.container}>
@@ -104,7 +99,7 @@ const PlanView = () => {
                 <View style={styles.headerActions}>
                     <TouchableOpacity
                         style={[styles.adminButton, styles.newWorkoutButton]}
-                        onPress={vm.openCreateModal}
+                        onPress={vm.createTemplate}
                     >
                         <Ionicons name="add-sharp" color="white" size={20} />
                     </TouchableOpacity>
@@ -129,50 +124,6 @@ const PlanView = () => {
                         styles.emptyListContent,
                 ]}
             />
-            {vm.isCreateModalVisible && (
-                <ModalDialog
-                    title="New Template"
-                    isVisible={vm.isCreateModalVisible}
-                    onClose={vm.closeCreateModal}
-                    maxHeight="40%"
-                >
-                    <KeyboardAvoidingView
-                        behavior={Platform.OS === "ios" ? "padding" : "height"}
-                        keyboardVerticalOffset={Platform.OS === "ios" ? 24 : 0}
-                        style={styles.modalKeyboard}
-                    >
-                        <View style={styles.modalForm}>
-                            <TextInput
-                                style={styles.modalInput}
-                                value={vm.newWorkoutName}
-                                onChangeText={vm.updateNewWorkoutName}
-                                placeholder="Name"
-                                placeholderTextColor="rgba(255, 255, 255, 0.4)"
-                                autoFocus
-                                returnKeyType="done"
-                                onSubmitEditing={() => {
-                                    if (canCreateTemplate) {
-                                        onCreateWorkoutTemplate();
-                                    }
-                                }}
-                            />
-                            <TouchableOpacity
-                                style={[
-                                    styles.modalCreateButton,
-                                    !canCreateTemplate &&
-                                        styles.modalCreateButtonDisabled,
-                                ]}
-                                onPress={onCreateWorkoutTemplate}
-                                disabled={!canCreateTemplate}
-                            >
-                                <Text style={styles.modalCreateButtonText}>
-                                    Create
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </KeyboardAvoidingView>
-                </ModalDialog>
-            )}
         </View>
     );
 };
@@ -284,36 +235,6 @@ const styles = StyleSheet.create({
         color: "rgba(255, 255, 255, 0.7)",
         textAlign: "center",
         lineHeight: 20,
-    },
-    modalKeyboard: {
-        width: "100%",
-    },
-    modalForm: {
-        width: "100%",
-    },
-    modalInput: {
-        borderWidth: 1,
-        borderColor: "rgba(255, 255, 255, 0.15)",
-        borderRadius: 10,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        color: "white",
-        backgroundColor: "#2A3135",
-        marginBottom: 8,
-    },
-    modalCreateButton: {
-        backgroundColor: "#58A5F9",
-        borderRadius: 10,
-        paddingVertical: 10,
-        alignItems: "center",
-    },
-    modalCreateButtonDisabled: {
-        opacity: 0.5,
-    },
-    modalCreateButtonText: {
-        color: "white",
-        fontWeight: "600",
-        fontSize: 16,
     },
 });
 

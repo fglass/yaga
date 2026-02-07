@@ -30,11 +30,12 @@ Target: **Mar 1** 🎯
 ### Milestone 2: Workout loop polish (Feb 2 → Feb 8)
 
 -   [x] Bugs (see 🔴)
+-   [ ] Template execise setting
 -   [ ] Set types (W, D, T, B)
 -   [ ] Rest timer noise
 -   [ ] Rework exercise notes
--   [ ] Template execise setting
--   [ ] Advanced progressive overload calcs / RIR?
+-   [ ] RPE / RIR
+-   [ ] Advanced progressive overload calcs?
 
 ### Milestone 3: Home + Plan + History clarity (Feb 9 → Feb 15)
 
@@ -105,6 +106,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Sticky exercise note
 -   [ ] 🟡 Global-only exercise notes?
 -   [ ] 🟡 Add exercise search
+-   [ ] 🟡 Workout view model test coverage
 
 ### Run View
 
@@ -114,7 +116,6 @@ Target: **Mar 1** 🎯
 
 ### Plan View
 
--   [ ] 🔴 Template exercise setting
 -   [ ] 🟡 Template 'last done'
 
 ### History View
@@ -155,3 +156,11 @@ https://github.com/cameroncooke/XcodeBuildMCP
 https://developer.apple.com/documentation/TechnologyOverviews/adopting-liquid-glass
 https://docs.expo.dev/router/advanced/native-tabs/
 https://docs.expo.dev/versions/latest/sdk/glass-effect/
+
+---
+
+Templates #todo
+
+-   Deletion
+-   Grouping
+-   Gap below templates
