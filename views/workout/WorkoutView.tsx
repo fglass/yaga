@@ -124,7 +124,7 @@ const WorkoutView = (props: Props) => {
                                 style={styles.createTitleInput}
                                 value={vm.workout.name}
                                 onChangeText={vm.onChangeWorkoutName}
-                                placeholder="Workout"
+                                placeholder="Template"
                                 placeholderTextColor="rgba(255, 255, 255, 0.4)"
                                 autoCorrect={false}
                                 spellCheck={false}
