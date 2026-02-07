@@ -58,30 +58,32 @@ const PlanView = ({ onCreateTemplate }: Props) => {
     );
 
     const renderTemplate = ({ item }: { item: WorkoutTemplate }) => (
-        <Deletable
-            onDelete={() => vm.onDeleteTemplate(item.id)}
-            rightActionRadius={16}
-        >
-            <TouchableOpacity
-                style={styles.workoutCard}
-                onPress={() => void vm.selectTemplate(item)}
-                activeOpacity={0.7}
-                delayPressIn={120}
+        <View style={styles.swipeContainer}>
+            <Deletable
+                onDelete={() => vm.onDeleteTemplate(item.id)}
+                rightActionRadius={16}
             >
-                <View>
-                    <Text style={styles.workoutName}>{item.name}</Text>
-                    {item.exercises.length > 0 && (
-                        <Text style={styles.workoutMeta}>
-                            {item.exercises.length}{" "}
-                            {item.exercises.length === 1
-                                ? "exercise"
-                                : "exercises"}
-                        </Text>
-                    )}
-                </View>
-                <Ionicons name="chevron-forward" color="white" size={20} />
-            </TouchableOpacity>
-        </Deletable>
+                <TouchableOpacity
+                    style={styles.workoutCard}
+                    onPress={() => void vm.selectTemplate(item)}
+                    activeOpacity={0.7}
+                    delayPressIn={120}
+                >
+                    <View>
+                        <Text style={styles.workoutName}>{item.name}</Text>
+                        {item.exercises.length > 0 && (
+                            <Text style={styles.workoutMeta}>
+                                {item.exercises.length}{" "}
+                                {item.exercises.length === 1
+                                    ? "exercise"
+                                    : "exercises"}
+                            </Text>
+                        )}
+                    </View>
+                    <Ionicons name="chevron-forward" color="white" size={20} />
+                </TouchableOpacity>
+            </Deletable>
+        </View>
     );
 
     const renderEmptyState = () => (
@@ -108,10 +110,10 @@ const PlanView = ({ onCreateTemplate }: Props) => {
                 </View>
                 <View style={styles.headerActions}>
                     <TouchableOpacity
-                        style={[styles.adminButton, styles.newWorkoutButton]}
+                        style={[styles.adminButton, styles.newTemplateButton]}
                         onPress={vm.createTemplate}
                     >
-                        <Ionicons name="add-sharp" color="white" size={20} />
+                        <Ionicons name="add" color="white" size={24} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -142,7 +144,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingHorizontal: 20,
-        paddingBottom: 24,
     },
     header: {
         flexDirection: "row",
@@ -172,13 +173,10 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
     },
-    newWorkoutButton: {
+    newTemplateButton: {
         backgroundColor: "#58A5F9",
-        marginRight: 12,
     },
-    listContent: {
-        paddingBottom: 24,
-    },
+    listContent: {},
     emptyListContent: {
         flexGrow: 1,
         justifyContent: "center",
@@ -218,6 +216,10 @@ const styles = StyleSheet.create({
     },
     separator: {
         height: 8,
+    },
+    swipeContainer: {
+        borderRadius: 16,
+        overflow: "hidden",
     },
     footerCards: {},
     footerSpacing: {

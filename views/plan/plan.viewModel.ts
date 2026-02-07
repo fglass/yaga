@@ -64,7 +64,7 @@ export const usePlanViewModel = ({ onCreateTemplate }: Params) => {
     const createTemplate = () => {
         onCreateTemplate({
             id: generateGuid(),
-            name: "Workout",
+            name: "Template",
             exercises: [],
             notes: "",
             type: "strength",
