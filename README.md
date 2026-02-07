@@ -161,6 +161,5 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 
 Templates #todo
 
--   Deletion
 -   Grouping
 -   Gap below templates

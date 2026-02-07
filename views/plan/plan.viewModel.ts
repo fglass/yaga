@@ -1,7 +1,9 @@
 import { useWorkoutTemplates, useDatabaseWriter } from "../../model/database";
+import * as Haptics from "expo-haptics";
 import { Workout, WorkoutTemplate } from "../../model/types";
 import { generateGuid } from "../../utils/guid";
 import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
+import { withWarning } from "../../utils/util";
 
 type Params = {
     onCreateTemplate: (workout: Workout) => void;
@@ -9,7 +11,7 @@ type Params = {
 
 export const usePlanViewModel = ({ onCreateTemplate }: Params) => {
     const { templates, isLoading: isTemplatesLoading } = useWorkoutTemplates();
-    const { saveActiveWorkout } = useDatabaseWriter();
+    const { saveActiveWorkout, deleteWorkoutTemplate } = useDatabaseWriter();
 
     const selectTemplate = async (workout: WorkoutTemplate) => {
         const baseExercises = workout.exercises.map((exercise) => ({
@@ -71,12 +73,25 @@ export const usePlanViewModel = ({ onCreateTemplate }: Params) => {
         });
     };
 
+    const onDeleteTemplate = (templateId: string) => {
+        withWarning(
+            () => {
+                void deleteWorkoutTemplate(templateId);
+                void Haptics.notificationAsync(
+                    Haptics.NotificationFeedbackType.Success
+                );
+            },
+            { title: "Delete Template", message: "Are you sure?" }
+        );
+    };
+
     return {
         templates,
         isTemplatesLoading,
         selectTemplate,
         startBlankWorkout,
         createTemplate,
+        onDeleteTemplate,
         startRun,
     };
 };

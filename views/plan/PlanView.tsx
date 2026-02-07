@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Workout, WorkoutTemplate } from "../../model/types";
+import Deletable from "../../components/Deletable";
 import { usePlanViewModel } from "./plan.viewModel";
 
 type Props = {
@@ -57,21 +58,30 @@ const PlanView = ({ onCreateTemplate }: Props) => {
     );
 
     const renderTemplate = ({ item }: { item: WorkoutTemplate }) => (
-        <TouchableOpacity
-            style={styles.workoutCard}
-            onPress={() => void vm.selectTemplate(item)}
+        <Deletable
+            onDelete={() => vm.onDeleteTemplate(item.id)}
+            rightActionRadius={16}
         >
-            <View>
-                <Text style={styles.workoutName}>{item.name}</Text>
-                {item.exercises.length > 0 && (
-                    <Text style={styles.workoutMeta}>
-                        {item.exercises.length}{" "}
-                        {item.exercises.length === 1 ? "exercise" : "exercises"}
-                    </Text>
-                )}
-            </View>
-            <Ionicons name="chevron-forward" color="white" size={20} />
-        </TouchableOpacity>
+            <TouchableOpacity
+                style={styles.workoutCard}
+                onPress={() => void vm.selectTemplate(item)}
+                activeOpacity={0.7}
+                delayPressIn={120}
+            >
+                <View>
+                    <Text style={styles.workoutName}>{item.name}</Text>
+                    {item.exercises.length > 0 && (
+                        <Text style={styles.workoutMeta}>
+                            {item.exercises.length}{" "}
+                            {item.exercises.length === 1
+                                ? "exercise"
+                                : "exercises"}
+                        </Text>
+                    )}
+                </View>
+                <Ionicons name="chevron-forward" color="white" size={20} />
+            </TouchableOpacity>
+        </Deletable>
     );
 
     const renderEmptyState = () => (
