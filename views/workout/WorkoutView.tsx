@@ -37,14 +37,21 @@ type ActiveProps = {
     onCancel: () => Promise<void>;
 };
 
+type CreateProps = {
+    mode: "create";
+    initialWorkout: Workout;
+    onFinish: () => void;
+    onCancel: () => void;
+};
+
 type HistoryProps = {
     mode: "history";
     initialWorkout: CompletedWorkout;
-    onFinish: () => Promise<void>;
-    onCancel: () => Promise<void>;
+    onFinish: () => void;
+    onCancel: () => void;
 };
 
-type Props = ActiveProps | HistoryProps;
+type Props = ActiveProps | CreateProps | HistoryProps;
 
 const WorkoutView = (props: Props) => {
     const vm = useWorkoutViewModel(props);
@@ -82,7 +89,9 @@ const WorkoutView = (props: Props) => {
         }, 0);
     };
 
-    const isRestTimerVisible = !vm.isHistoryMode && vm.remainingRestTimeS >= 0;
+    const isRestTimerVisible =
+        !vm.isHistoryMode && !vm.isCreateMode && vm.remainingRestTimeS >= 0;
+    const showSetCompletionColumns = !vm.isCreateMode;
 
     const contentBottomPadding = useMemo(() => {
         if (isLastExerciseInputFocused) {
@@ -91,18 +100,50 @@ const WorkoutView = (props: Props) => {
 
         const bottom = Math.max(16, insets.bottom);
         return isRestTimerVisible ? 48 + bottom : bottom;
-    }, [isLastExerciseInputFocused, keyboardHeight, isRestTimerVisible, insets.bottom]);
+    }, [
+        isLastExerciseInputFocused,
+        keyboardHeight,
+        isRestTimerVisible,
+        insets.bottom,
+    ]);
 
     const renderHeader = () => {
+        let subtitle: string | null = null;
+        if (!vm.isCreateMode) {
+            subtitle = vm.isHistoryMode
+                ? vm.startDateLabel
+                : formatTime(vm.workoutDurationS);
+        }
+
         return (
             <View style={[styles.card, styles.headerCard]}>
                 <View style={styles.headerText}>
-                    <Text style={styles.title}>{vm.workout.name}</Text>
-                    <Text style={[styles.subtitle, styles.headerSubtitle]}>
-                        {vm.isHistoryMode
-                            ? vm.startDateLabel
-                            : formatTime(vm.workoutDurationS)}
-                    </Text>
+                    {vm.isCreateMode ? (
+                        <View style={styles.createTitleRow}>
+                            <TextInput
+                                style={styles.createTitleInput}
+                                value={vm.workout.name}
+                                onChangeText={vm.onChangeWorkoutName}
+                                placeholder="Workout"
+                                placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                                autoCorrect={false}
+                                spellCheck={false}
+                                selectTextOnFocus
+                            />
+                            <Ionicons
+                                name="pencil"
+                                color="rgba(255, 255, 255, 0.6)"
+                                size={18}
+                            />
+                        </View>
+                    ) : (
+                        <Text style={styles.title}>{vm.workout.name}</Text>
+                    )}
+                    {subtitle !== null && (
+                        <Text style={[styles.subtitle, styles.headerSubtitle]}>
+                            {subtitle}
+                        </Text>
+                    )}
                     <TextInput
                         style={styles.notesInput}
                         value={vm.workout.notes}
@@ -129,9 +170,7 @@ const WorkoutView = (props: Props) => {
             <ExerciseHistoryModal
                 isVisible={vm.isModalActive(ModalType.ExerciseHistory)}
                 exerciseId={vm.historyExerciseId}
-                highlightWorkoutId={
-                    vm.isHistoryMode ? vm.workout.id : null
-                }
+                highlightWorkoutId={vm.isHistoryMode ? vm.workout.id : null}
                 onClose={vm.onCloseExerciseHistory}
             />
         </>
@@ -272,8 +311,12 @@ const WorkoutView = (props: Props) => {
                         <Text style={[styles.th, styles.narrow]}>Set</Text>
                         <Text style={styles.th}>Weight</Text>
                         <Text style={styles.th}>Reps</Text>
-                        <Text style={styles.th}>Time</Text>
-                        <Text style={[styles.th, styles.narrow]} />
+                        {showSetCompletionColumns && (
+                            <Text style={styles.th}>Time</Text>
+                        )}
+                        {showSetCompletionColumns && (
+                            <Text style={[styles.th, styles.narrow]} />
+                        )}
                     </View>
                     <View style={styles.trs}>
                         {exercise.sets.map((set: Set, setIdx: number) =>
@@ -300,14 +343,21 @@ const WorkoutView = (props: Props) => {
         const isFinished = set.finishTime !== undefined;
         const duration = vm.calculateSetDuration(setIdx, exerciseIdx);
         const progress = vm.getSetProgress(exerciseIdx, setIdx);
+
         let progressStyle = undefined;
         if (progress === 1) {
             progressStyle = styles.tdImproved;
         } else if (progress === -1) {
             progressStyle = styles.tdDeclined;
         }
-        const setLabel =
-            progress === 1 ? "↑" : progress === -1 ? "↓" : `${setIdx + 1}`;
+
+        let setLabel = `${setIdx + 1}`;
+        if (progress === 1) {
+            setLabel = "↑";
+        } else if (progress === -1) {
+            setLabel = "↓";
+        }
+
         return (
             <View style={styles.setSwipeContainer} key={set.id}>
                 <Deletable onDelete={() => vm.onRemoveSet(exerciseIdx, setIdx)}>
@@ -376,33 +426,39 @@ const WorkoutView = (props: Props) => {
                             inputMode="decimal"
                             isFinished={isFinished}
                         />
-                        <TextInput
-                            style={[
-                                styles.td,
-                                styles.tdReadOnly,
-                                isFinished && styles.tdFinished,
-                            ]}
-                            value={duration ?? ""}
-                            editable={false}
-                        />
-                        <TouchableOpacity
-                            style={styles.tdBtn}
-                            onPress={() => {
-                                vm.onFinishSet(
-                                    exerciseIdx,
-                                    setIdx,
-                                    !isFinished
-                                );
-                            }}
-                        >
-                            <Ionicons
-                                name={
-                                    isFinished ? "checkbox" : "square-outline"
-                                }
-                                color={isFinished ? "#65CA79" : "white"}
-                                size={24}
+                        {showSetCompletionColumns && (
+                            <TextInput
+                                style={[
+                                    styles.td,
+                                    styles.tdReadOnly,
+                                    isFinished && styles.tdFinished,
+                                ]}
+                                value={duration ?? ""}
+                                editable={false}
                             />
-                        </TouchableOpacity>
+                        )}
+                        {showSetCompletionColumns && (
+                            <TouchableOpacity
+                                style={styles.tdBtn}
+                                onPress={() => {
+                                    vm.onFinishSet(
+                                        exerciseIdx,
+                                        setIdx,
+                                        !isFinished
+                                    );
+                                }}
+                            >
+                                <Ionicons
+                                    name={
+                                        isFinished
+                                            ? "checkbox"
+                                            : "square-outline"
+                                    }
+                                    color={isFinished ? "#65CA79" : "white"}
+                                    size={24}
+                                />
+                            </TouchableOpacity>
+                        )}
                     </View>
                 </Deletable>
             </View>
@@ -426,9 +482,12 @@ const WorkoutView = (props: Props) => {
                     style={[styles.footerButton, styles.footerButtonSpacing]}
                 />
                 <Button
-                    label={vm.isHistoryMode ? "Save" : "Finish"}
+                    label={
+                        vm.isHistoryMode || vm.isCreateMode ? "Save" : "Finish"
+                    }
                     colour="success"
                     onPress={vm.onFinishWorkout}
+                    disabled={!vm.canSaveWorkout}
                     style={[styles.footerButton, styles.footerButtonSpacing]}
                 />
                 <Button
@@ -447,7 +506,13 @@ const WorkoutView = (props: Props) => {
         }
 
         return (
-            <View style={[styles.restTimerContainer, { bottom: Math.max(16, insets.bottom) }]} pointerEvents="box-none">
+            <View
+                style={[
+                    styles.restTimerContainer,
+                    { bottom: Math.max(16, insets.bottom) },
+                ]}
+                pointerEvents="box-none"
+            >
                 <View style={styles.restTimerRow}>
                     <TouchableOpacity
                         style={styles.restAdjustButton}

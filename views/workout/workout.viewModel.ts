@@ -14,6 +14,7 @@ import {
     ExerciseDef,
     ModalType,
     Workout,
+    WorkoutTemplate,
 } from "../../model/types";
 import type { Set } from "../../model/types";
 import { workoutProducer, ActionType } from "./workout.reducer";
@@ -50,11 +51,18 @@ type ActiveProps = {
 type HistoryProps = {
     mode: "history";
     initialWorkout: CompletedWorkout;
-    onFinish: () => Promise<void>;
-    onCancel: () => Promise<void>;
+    onFinish: () => void;
+    onCancel: () => void;
 };
 
-type Props = ActiveProps | HistoryProps;
+type CreateProps = {
+    mode: "create";
+    initialWorkout: Workout;
+    onFinish: () => void;
+    onCancel: () => void;
+};
+
+type Props = ActiveProps | HistoryProps | CreateProps;
 
 interface ViewModel {
     isLoading: boolean;
@@ -67,6 +75,9 @@ interface ViewModel {
     historyExerciseId: string | null;
     activeModal: ModalType;
     isHistoryMode: boolean;
+    isCreateMode: boolean;
+    canSaveWorkout: boolean;
+    onChangeWorkoutName: (name: string) => void;
     setActiveModal: (modalType: ModalType) => void;
     isModalActive: (modalType: ModalType) => boolean;
     onChangeWorkoutNotes: (notes: string) => void;
@@ -130,20 +141,23 @@ interface ViewModel {
 const CALORIES_PER_HOUR = 300;
 
 export const useWorkoutViewModel = (props: Props): ViewModel => {
-    const [workout, dispatch] = useReducer(workoutProducer, {
-        ...props.initialWorkout,
-    });
+    const isCreateMode = props.mode === "create";
+    const isHistoryMode = props.mode === "history";
+    const isActiveMode = !isHistoryMode && !isCreateMode;
+
+    const initialWorkout = { ...(props.initialWorkout as Workout) };
+    const [workout, dispatch] = useReducer(workoutProducer, initialWorkout);
     const workoutRef = useRef(workout); // Keep latest workout for core updates (SyncWorkout).
 
     const exerciseDefs = useExerciseDefs();
     const {
         completeWorkout,
         createExerciseDef,
+        createWorkoutTemplate,
         updateExerciseDef,
         deleteExerciseDef,
         mergeExerciseDefs,
     } = useDatabaseWriter();
-    useDatabaseWriter();
     const [activeModal, setActiveModal] = useState(ModalType.None);
     const [historyExerciseId, setHistoryExerciseId] = useState<string | null>(
         null
@@ -154,6 +168,14 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
     const restNotificationIdRef = useRef<string | null>(null);
     const restScheduleTokenRef = useRef(0);
+
+    const noopPrefill = useCallback(
+        async (_exerciseId: string, exercise: Exercise) => exercise,
+        []
+    );
+    const prefillExercise = isCreateMode
+        ? noopPrefill
+        : prefillExerciseFromHistory;
 
     const workoutCore = useMemo(
         () =>
@@ -171,13 +193,18 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                 },
                 deps: {
                     generateGuid,
-                    prefillExerciseFromHistory,
+                    prefillExerciseFromHistory: prefillExercise,
                     updateExerciseDef,
                     deleteExerciseDef,
                     mergeExerciseDefs,
                 },
             }),
-        [deleteExerciseDef, mergeExerciseDefs, updateExerciseDef]
+        [
+            deleteExerciseDef,
+            mergeExerciseDefs,
+            prefillExercise,
+            updateExerciseDef,
+        ]
     );
 
     const exerciseIds = useMemo(
@@ -185,7 +212,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         [workout.exercises]
     );
 
-    const isHistoryMode = props.mode === "history";
     const historyEndTimestamp =
         props.mode === "history"
             ? props.initialWorkout.endTimestamp
@@ -268,10 +294,10 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         resetRestTimer,
         cancelRestTimer,
     } = useTimers({
-        onRestStart: isHistoryMode ? noop : scheduleRestFinishNotification,
-        onRestCancel: isHistoryMode ? noop : cancelRestFinishNotification,
+        onRestStart: isActiveMode ? scheduleRestFinishNotification : noop,
+        onRestCancel: isActiveMode ? cancelRestFinishNotification : noop,
         initialStartTimeMs: workout.startTimestamp,
-        isEnabled: !isHistoryMode,
+        isEnabled: isActiveMode,
     });
 
     useEffect(() => {
@@ -293,11 +319,11 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     }, []);
 
     useEffect(() => {
-        if (isHistoryMode) {
+        if (!isActiveMode) {
             return;
         }
         saveActiveWorkout(workout); // Fire-and-forget
-    }, [isHistoryMode, workout]);
+    }, [isActiveMode, workout]);
 
     const isLoading = Object.keys(exerciseDefs).length === 0;
 
@@ -315,6 +341,21 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     };
 
     const onFinishWorkout = async () => {
+        if (isCreateMode) {
+            const template: WorkoutTemplate = {
+                id: workout.id,
+                name: workout.name,
+                exercises: workout.exercises,
+                notes: workout.notes,
+                type: workout.type,
+            };
+            await createWorkoutTemplate(template);
+
+            props.onFinish();
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            return;
+        }
+
         if (isHistoryMode) {
             const completedWorkout = {
                 ...workout,
@@ -324,7 +365,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             await completeWorkout(completedWorkout as CompletedWorkout);
 
             cancelRestTimer();
-            await props.onFinish();
+            props.onFinish();
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             return;
         }
@@ -360,10 +401,11 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     };
 
     const onCancelWorkout = async () => {
-        if (isHistoryMode) {
-            await props.onCancel();
+        if (isCreateMode || isHistoryMode) {
+            props.onCancel();
             return;
         }
+
         const hasFinishedSet = workout.exercises.some((exercise) =>
             exercise.sets.some((set) => set.finishTime !== undefined)
         );
@@ -382,6 +424,12 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     };
 
     /* Workout change handlers */
+
+    const onChangeWorkoutName = useCallback(
+        (name: string) =>
+            dispatch({ type: ActionType.ChangeWorkoutName, name }),
+        []
+    );
 
     const onChangeWorkoutNotes = useCallback(
         (notes: string) =>
@@ -483,12 +531,12 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                 setIdx,
                 isFinished,
             });
-            if (isFinished && !isHistoryMode) {
+            if (isFinished && isActiveMode) {
                 resetRestTimer();
             }
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         },
-        [isHistoryMode, resetRestTimer]
+        [isActiveMode, resetRestTimer]
     );
 
     const onRemoveSet = useCallback(
@@ -616,13 +664,13 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
     const onAdjustRestTimer = useCallback(
         (deltaS: number) => {
-            if (isHistoryMode) {
+            if (!isActiveMode) {
                 return;
             }
             adjustRestTimer(deltaS);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         },
-        [adjustRestTimer, isHistoryMode]
+        [adjustRestTimer, isActiveMode]
     );
 
     const calculateSetDuration = (setIdx: number, exerciseIdx: number) => {
@@ -697,6 +745,10 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         });
     }, [workout.startTimestamp]);
 
+    const canSaveWorkout =
+        !isCreateMode ||
+        (workout.name.trim().length > 0 && workout.exercises.length > 0);
+
     return {
         isLoading,
         workout,
@@ -708,6 +760,9 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         historyExerciseId,
         activeModal,
         isHistoryMode,
+        isCreateMode,
+        canSaveWorkout,
+        onChangeWorkoutName,
         setActiveModal,
         isModalActive,
         onChangeWorkoutNotes,

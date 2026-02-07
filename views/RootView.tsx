@@ -16,7 +16,7 @@ import {
     useActiveWorkout,
     useDatabaseWriter,
 } from "../model/database";
-import { CompletedWorkout } from "../model/types";
+import { CompletedWorkout, Workout } from "../model/types";
 
 // Run during module initialisation, before view renders
 if (typeof window !== "undefined") {
@@ -24,9 +24,11 @@ if (typeof window !== "undefined") {
 }
 
 const RootView = () => {
+    // NOTE: This bridge state could be replaced with router-driven screen params/navigation
     const activeWorkout = useActiveWorkout();
     const [historyWorkout, setHistoryWorkout] =
         useState<CompletedWorkout | null>(null);
+    const [createTemplate, setCreateTemplate] = useState<Workout | null>(null);
 
     const { saveActiveWorkout } = useDatabaseWriter();
     const [activeTab, setActiveTab] = useState<NavigationTab>("home");
@@ -40,20 +42,27 @@ const RootView = () => {
         await saveActiveWorkout(null);
     };
 
-    const onFinishHistoryWorkout = async () => {
+    const onFinishHistoryWorkout = () => {
         setHistoryWorkout(null);
         setActiveTab("history");
     };
 
-    const onCancelHistoryWorkout = async () => {
+    const onCancelHistoryWorkout = () => {
         setHistoryWorkout(null);
         setActiveTab("history");
     };
+
+    const onFinishCreateTemplate = () => {
+        setCreateTemplate(null);
+        setActiveTab("plan");
+    };
+
+    const onCancelCreateTemplate = onFinishCreateTemplate;
 
     const renderTab = () => {
         switch (activeTab) {
             case "plan":
-                return <PlanView />;
+                return <PlanView onCreateTemplate={setCreateTemplate} />;
             case "history":
                 return <HistoryView onSelectWorkout={setHistoryWorkout} />;
             case "home":
@@ -62,43 +71,68 @@ const RootView = () => {
         }
     };
 
+    const renderContent = () => {
+        if (activeWorkout) {
+            if (activeWorkout.type === "run") {
+                return (
+                    <RunView
+                        initialRun={activeWorkout}
+                        onFinish={onFinishWorkout}
+                        onCancel={onCancelWorkout}
+                    />
+                );
+            }
+
+            return (
+                <WorkoutView
+                    mode="active"
+                    initialWorkout={activeWorkout}
+                    onFinish={onFinishWorkout}
+                    onCancel={onCancelWorkout}
+                />
+            );
+        }
+
+        if (historyWorkout) {
+            return (
+                <WorkoutView
+                    mode="history"
+                    initialWorkout={historyWorkout}
+                    onFinish={onFinishHistoryWorkout}
+                    onCancel={onCancelHistoryWorkout}
+                />
+            );
+        }
+
+        if (createTemplate) {
+            return (
+                <WorkoutView
+                    mode="create"
+                    initialWorkout={createTemplate}
+                    onFinish={onFinishCreateTemplate}
+                    onCancel={onCancelCreateTemplate}
+                />
+            );
+        }
+
+        return (
+            <View style={styles.nonWorkoutContainer}>
+                <View style={styles.contentArea}>{renderTab()}</View>
+                <NavigationFooter
+                    activeTab={activeTab}
+                    onSelectTab={setActiveTab}
+                />
+            </View>
+        );
+    };
+
     return (
         <GestureHandlerRootView style={styles.container}>
             <SafeAreaView
                 style={styles.safeArea}
                 edges={["top", "left", "right"]}
             >
-                {activeWorkout ? (
-                    activeWorkout.type === "run" ? (
-                        <RunView
-                            initialRun={activeWorkout}
-                            onFinish={onFinishWorkout}
-                            onCancel={onCancelWorkout}
-                        />
-                    ) : (
-                        <WorkoutView
-                            mode="active"
-                            initialWorkout={activeWorkout}
-                            onFinish={onFinishWorkout}
-                            onCancel={onCancelWorkout}
-                        />
-                    )
-                ) : historyWorkout ? (
-                    <WorkoutView
-                        mode="history"
-                        initialWorkout={historyWorkout}
-                        onFinish={onFinishHistoryWorkout}
-                        onCancel={onCancelHistoryWorkout}
-                    />
-                ) : (
-                    <View style={styles.nonWorkoutContainer}>
-                        <View style={styles.contentArea}>{renderTab()}</View>
-                        <NavigationFooter
-                            activeTab={activeTab}
-                            onSelectTab={setActiveTab}
-                        />
-                    </View>
-                )}
+                {renderContent()}
             </SafeAreaView>
             {/* eslint-disable-next-line react/style-prop-object */}
             <StatusBar style="auto" />
