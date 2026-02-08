@@ -1,5 +1,6 @@
 import { useWorkoutTemplates, useDatabaseWriter } from "../../model/database";
 import * as Haptics from "expo-haptics";
+import { ActionSheetIOS } from "react-native";
 import { Workout, WorkoutTemplate } from "../../model/types";
 import { generateGuid } from "../../utils/guid";
 import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
@@ -73,6 +74,33 @@ export const usePlanViewModel = ({ onCreateTemplate }: Params) => {
         });
     };
 
+    const editTemplate = (template: WorkoutTemplate) => {
+        onCreateTemplate({
+            id: template.id,
+            name: template.name,
+            exercises: template.exercises,
+            notes: template.notes,
+            type: template.type,
+            metadata: {},
+            startTimestamp: 0,
+        });
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    };
+
+    const onTemplateActions = (template: WorkoutTemplate) => {
+        ActionSheetIOS.showActionSheetWithOptions(
+            {
+                options: ["Cancel", "Edit Template"],
+                cancelButtonIndex: 0,
+            },
+            (selectedIndex) => {
+                if (selectedIndex === 1) {
+                    editTemplate(template);
+                }
+            }
+        );
+    };
+
     const onDeleteTemplate = (templateId: string) => {
         withWarning(
             () => {
@@ -91,6 +119,7 @@ export const usePlanViewModel = ({ onCreateTemplate }: Params) => {
         selectTemplate,
         startBlankWorkout,
         createTemplate,
+        onTemplateActions,
         onDeleteTemplate,
         startRun,
     };

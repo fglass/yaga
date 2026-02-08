@@ -116,7 +116,8 @@ Target: **Mar 1** 🎯
 
 ### Plan View
 
--   [ ] 🟡 Template 'last done'
+-   [ ] 🟡 Template groups
+-   [ ] 🟢 Template 'last done'
 
 ### History View
 
@@ -156,10 +157,3 @@ https://github.com/cameroncooke/XcodeBuildMCP
 https://developer.apple.com/documentation/TechnologyOverviews/adopting-liquid-glass
 https://docs.expo.dev/router/advanced/native-tabs/
 https://docs.expo.dev/versions/latest/sdk/glass-effect/
-
----
-
-Templates #todo
-
--   Grouping
--   Gap below templates
