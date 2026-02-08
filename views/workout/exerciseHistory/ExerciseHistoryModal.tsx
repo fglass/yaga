@@ -164,7 +164,9 @@ const ExerciseHistoryModal = (props: Props) => {
                                                             : progressStyle,
                                                     ]}
                                                 >
-                                                    {arrowLabel}
+                                                    {previousEntry != null
+                                                        ? arrowLabel
+                                                        : ""}
                                                 </Text>
                                             </View>
                                             <Text style={styles.weightCell}>

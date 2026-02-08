@@ -137,6 +137,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟢 Strong warmup sets
 -   [ ] 🟢 No history if mapped? Check
 -   [ ] 🟢 Check history not overwritten
+-   [ ] 🟢 Infer set types
 
 ## Incubator
 
