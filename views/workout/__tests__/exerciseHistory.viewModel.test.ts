@@ -4,6 +4,7 @@ const setFactory = (weight: string, reps: string) => ({
     id: `set-${weight}-${reps}`,
     weight,
     reps,
+    type: "default" as const,
     finishTime: undefined,
 });
 

@@ -10,6 +10,7 @@ import {
     ExerciseDef,
     Note,
     Set,
+    SetType,
     Workout,
     WorkoutMetadata,
     WorkoutTemplate,
@@ -229,13 +230,14 @@ const insertExercises = async (
             const set = exercise.sets[setIdx];
             await db.runAsync(
                 `INSERT OR REPLACE INTO sets
-                 (id, exercise_id, position, weight, reps, finished_at)
-                 VALUES (?, ?, ?, ?, ?, ?)`,
+                 (id, exercise_id, position, weight, reps, type, finished_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
                 set.id,
                 exercise.id,
                 setIdx,
                 set.weight,
                 set.reps,
+                set.type,
                 set.finishTime ?? null
             );
         }
@@ -533,9 +535,10 @@ const fetchExercisesForWorkout = async (
                 position: number;
                 weight: string;
                 reps: string;
+                type: SetType;
                 finished_at: number | null;
             }>(
-                "SELECT id, position, weight, reps, finished_at FROM sets WHERE exercise_id = ? ORDER BY position",
+                "SELECT id, position, weight, reps, type, finished_at FROM sets WHERE exercise_id = ? ORDER BY position",
                 exerciseRow.id
             );
 
@@ -545,6 +548,7 @@ const fetchExercisesForWorkout = async (
                         id: setRow.id,
                         weight: setRow.weight,
                         reps: setRow.reps,
+                        type: setRow.type,
                         finishTime: setRow.finished_at ?? undefined,
                     } as Set)
             );
@@ -585,6 +589,7 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
         set_position: number | null;
         set_weight: string | null;
         set_reps: string | null;
+        set_type: SetType;
         set_finished_at: number | null;
     }>(
         `SELECT workouts.id as workout_id,
@@ -603,6 +608,7 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
                 sets.position as set_position,
                 sets.weight as set_weight,
                 sets.reps as set_reps,
+                sets.type as set_type,
                 sets.finished_at as set_finished_at
          FROM workouts
          LEFT JOIN exercises ON exercises.workout_id = workouts.id
@@ -655,6 +661,7 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
             id: row.set_id,
             weight: row.set_weight ?? "",
             reps: row.set_reps ?? "",
+            type: row.set_type,
             finishTime: row.set_finished_at ?? undefined,
         } as Set);
     }
@@ -695,6 +702,7 @@ export const fetchExerciseSetsFromCompletedWorkouts = async (
                 sets.position as position,
                 sets.weight as weight,
                 sets.reps as reps,
+                sets.type as type,
                 sets.finished_at as set_finished_at
          FROM exercises
          JOIN workouts ON workouts.id = exercises.workout_id
@@ -735,6 +743,7 @@ type ExerciseSetsRow = {
     position: number | null;
     weight: string | null;
     reps: string | null;
+    type: SetType;
     set_finished_at: number | null;
 };
 
@@ -752,6 +761,10 @@ const buildExerciseSetsFromRows = (
     >();
 
     for (const row of rows) {
+        if (!row.set_id) {
+            continue;
+        }
+
         const exerciseDefId = row.exercise_def_id;
         const exerciseId = row.exercise_id;
         let entry = entriesByExercise.get(exerciseId);
@@ -772,14 +785,13 @@ const buildExerciseSetsFromRows = (
             entriesByExercise.set(exerciseId, entry);
         }
 
-        if (row.set_id) {
-            entry.sets.push({
-                id: row.set_id,
-                weight: row.weight ?? "",
-                reps: row.reps ?? "",
-                finishTime: row.set_finished_at ?? undefined,
-            });
-        }
+        entry.sets.push({
+            id: row.set_id,
+            weight: row.weight ?? "",
+            reps: row.reps ?? "",
+            type: row.type,
+            finishTime: row.set_finished_at ?? undefined,
+        });
     }
 
     return result;
@@ -811,11 +823,53 @@ const parseMetadataJson = (raw: string): WorkoutMetadata => {
 const parseDefinitionJson = (raw: string): Exercise[] => {
     try {
         const parsed = JSON.parse(raw);
-        return parsed;
+        if (!Array.isArray(parsed)) {
+            return [];
+        }
+        return parsed.map(normalizeExerciseFromDefinition);
     } catch (error) {
         console.warn("Failed to parse definition JSON", error);
         return [];
     }
+};
+
+const normalizeExerciseFromDefinition = (exercise: unknown): Exercise => {
+    const parsed = (exercise ?? {}) as {
+        id?: string;
+        exerciseId?: string;
+        notes?: Note[];
+        sets?: unknown[];
+    };
+    return {
+        id: parsed.id ?? generateGuid(),
+        exerciseId: parsed.exerciseId ?? UNKNOWN_EXERCISE_DEF_ID,
+        notes: Array.isArray(parsed.notes) ? parsed.notes : [],
+        sets: Array.isArray(parsed.sets)
+            ? parsed.sets.map(normalizeSetFromDefinition)
+            : [],
+    };
+};
+
+const normalizeSetFromDefinition = (set: unknown): Set => {
+    const parsed = (set ?? {}) as {
+        id?: string;
+        weight?: string;
+        reps?: string;
+        type?: SetType;
+        setType?: SetType;
+        finishTime?: number;
+    };
+    const parsedType = parsed.type ?? parsed.setType;
+    return {
+        id: parsed.id ?? generateGuid(),
+        weight: parsed.weight ?? "",
+        reps: parsed.reps ?? "",
+        type:
+            parsedType === "warmup" || parsedType === "default"
+                ? parsedType
+                : "default",
+        finishTime: parsed.finishTime,
+    };
 };
 
 const updateTemplateDefinitions = async (

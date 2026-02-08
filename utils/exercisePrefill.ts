@@ -6,7 +6,10 @@ export const prefillExerciseFromHistory = async (
     exerciseId: string,
     exercise: Exercise
 ): Promise<Exercise> => {
-    const history = await fetchExerciseSetsFromCompletedWorkouts([exerciseId], 1);
+    const history = await fetchExerciseSetsFromCompletedWorkouts(
+        [exerciseId],
+        1
+    );
     const latestSets = history[exerciseId]?.[0]?.sets;
     return applyPrefill(exercise, latestSets);
 };
@@ -38,5 +41,6 @@ const createSetFromHistory = (historySet: Set): Set => ({
     id: generateGuid(),
     weight: historySet.weight,
     reps: historySet.reps,
+    type: historySet.type,
     finishTime: undefined,
 });

@@ -4,6 +4,32 @@ export type SetProgression = -1 | 0 | 1;
 
 const E1RM_TOLERANCE = 0.01;
 
+export const getSetProgress = (
+    previousSets: Set[] | undefined,
+    currentSets: Set[],
+    setIdx: number
+): SetProgression => {
+    const currentSet = currentSets[setIdx];
+    if (!currentSet || currentSet.type === "warmup") {
+        return 0;
+    }
+
+    const currentDefaultSetIdx =
+        currentSets
+            .slice(0, setIdx + 1)
+            .filter((set) => set.type !== "warmup").length - 1;
+
+    if (currentDefaultSetIdx < 0) {
+        return 0;
+    }
+
+    const previousSet = previousSets?.filter((set) => set.type !== "warmup")?.[
+        currentDefaultSetIdx
+    ];
+
+    return compareSetEpley1RM(currentSet, previousSet);
+};
+
 export const compareSetEpley1RM = (
     currentSet: Set,
     previousSet?: Set
@@ -84,7 +110,10 @@ export const findPreviousFinishedSetTime = (
         .flatMap((exercise) =>
             exercise.sets
                 .map((set) => set.finishTime)
-                .filter((finishTime): finishTime is number => finishTime !== undefined)
+                .filter(
+                    (finishTime): finishTime is number =>
+                        finishTime !== undefined
+                )
         )
         .sort((a, b) => a - b);
 

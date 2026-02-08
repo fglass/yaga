@@ -76,4 +76,8 @@ export const MIGRATIONS: string[] = [
         OR json_extract(metadata_json, '$.stravaActivityId') IS NULL
       );
     `,
+    `
+    ALTER TABLE sets
+    ADD COLUMN type TEXT NOT NULL DEFAULT 'default';
+    `,
 ];
