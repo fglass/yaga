@@ -107,7 +107,6 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Global-only exercise notes?
 -   [ ] 🟡 Add exercise search
 -   [ ] 🟡 Workout view model test coverage
--   [ ] 🔴 Bug: exercise prefill e.g. Pec Fly
 
 ### Run View
 

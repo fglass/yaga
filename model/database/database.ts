@@ -693,6 +693,7 @@ export const fetchExerciseSetsFromCompletedWorkouts = async (
     const hasBeforeTimestamp =
         beforeTimestamp != null && Number.isFinite(beforeTimestamp);
 
+    // Filters out unfinished sets or where weight/reps are empty (gap not preserved)
     const rows = await db.getAllAsync<ExerciseSetsRow>(
         `SELECT exercises.id as exercise_id,
                 exercises.exercise_def_id as exercise_def_id,
@@ -707,6 +708,11 @@ export const fetchExerciseSetsFromCompletedWorkouts = async (
          FROM exercises
          JOIN workouts ON workouts.id = exercises.workout_id
          LEFT JOIN sets ON sets.exercise_id = exercises.id
+            AND (
+                TRIM(COALESCE(sets.weight, '')) <> ''
+                AND TRIM(COALESCE(sets.reps, '')) <> ''
+                AND sets.finished_at IS NOT NULL
+            )
          WHERE workouts.status = 'completed'
          AND exercises.exercise_def_id IN (${exercisePlaceholders})
          ${hasBeforeTimestamp ? "AND workouts.finished_at < ?" : ""}

@@ -100,6 +100,9 @@ type ExerciseSetsFromCompletedWorkoutsParams = {
     beforeTimestamp?: number;
 };
 
+// Shared by:
+//  - workout.viewModel for last-session set comparison
+//  - exerciseHistory.viewModel for paged history rows
 export const useExerciseSetsFromCompletedWorkouts = ({
     exerciseIds,
     nWorkouts,
