@@ -73,6 +73,23 @@ describe("buildExerciseHistoryState", () => {
         expect(result.hasMore).toBe(false);
     });
 
+    it("does not provide comparison entries for the last visible workout", () => {
+        const entries = Array.from({ length: 3 }, (_, index) =>
+            exerciseSetsEntryFactory(
+                `workout-${index + 1}`,
+                index + 1,
+                "10",
+                "5"
+            )
+        );
+
+        const result = buildExerciseHistoryState(entries, 3);
+
+        expect(result.displayHistorySets).toHaveLength(3);
+        expect(result.comparisonHistorySets).toHaveLength(3);
+        expect(result.comparisonHistorySets[3]).toBeUndefined();
+    });
+
     it("keeps hasMore true when filtered entries reduce the cleaned list", () => {
         const entries = [
             exerciseSetsEntryFactory("workout-1", 1, "", ""),
