@@ -66,6 +66,7 @@ const PlanView = ({ onCreateTemplate }: Props) => {
                 <TouchableOpacity
                     style={styles.workoutCard}
                     onPress={() => void vm.selectTemplate(item)}
+                    onLongPress={() => vm.onTemplateActions(item)}
                     activeOpacity={0.7}
                     delayPressIn={120}
                 >
