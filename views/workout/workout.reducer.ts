@@ -1,5 +1,5 @@
 import produce from "immer";
-import { Note, Set, Workout } from "../../model/types";
+import { Note, Set, SetType, Workout } from "../../model/types";
 import { generateGuid } from "../../utils/guid";
 
 type Action = {
@@ -14,6 +14,7 @@ export enum ActionType {
     ChangeExerciseNote = "change-exercise-note",
     ChangeWeight = "change-weight",
     ChangeReps = "change-reps",
+    ChangeSetType = "change-set-type",
     DecrementReps = "decrement-reps",
     FinishSet = "finish-set",
     RemoveSet = "remove-set",
@@ -46,6 +47,10 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
         case ActionType.ChangeReps:
             draft.exercises[action.exerciseIdx].sets[action.setIdx].reps =
                 action.reps;
+            break;
+        case ActionType.ChangeSetType:
+            draft.exercises[action.exerciseIdx].sets[action.setIdx].type =
+                action.setType as SetType;
             break;
         case ActionType.DecrementReps: {
             const currentReps = Number(
@@ -136,6 +141,7 @@ const createNewSet = (): Set => ({
     id: generateGuid(),
     weight: "",
     reps: "",
+    type: "default",
     finishTime: undefined,
 });
 

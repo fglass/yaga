@@ -238,4 +238,97 @@ describe("database exercise sets", () => {
             expect(result[defA.id][0].sets[0].weight).toBe("110");
         });
     });
+
+    it("persists and fetches set types", async () => {
+        await createTestDb(async (database, sqlite) => {
+            const defA = { id: "def-a", def: exerciseDefFactory("Exercise A") };
+            const db = await sqlite.getDatabase();
+            await seedDatabase(db, {
+                exerciseDefs: [defA],
+                completedWorkouts: [
+                    completedWorkoutFactory({
+                        id: "workout-1",
+                        endTimestamp: 10,
+                        exercises: [
+                            exerciseFactory({
+                                id: "exercise-1",
+                                exerciseId: defA.id,
+                                sets: [
+                                    setFactory({
+                                        id: "set-default",
+                                        weight: "100",
+                                        reps: "5",
+                                        type: "default",
+                                    }),
+                                    setFactory({
+                                        id: "set-warmup",
+                                        weight: "60",
+                                        reps: "8",
+                                        type: "warmup",
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                ],
+            });
+
+            const result = await database.fetchExerciseSetsFromCompletedWorkouts(
+                [defA.id],
+                1
+            );
+
+            expect(result[defA.id][0].sets[0].type).toBe("default");
+            expect(result[defA.id][0].sets[1].type).toBe("warmup");
+        });
+    });
+
+    it("skips latest workouts with empty sets when limiting history", async () => {
+        await createTestDb(async (database, sqlite) => {
+            const defA = { id: "def-a", def: exerciseDefFactory("Exercise A") };
+            const db = await sqlite.getDatabase();
+            await seedDatabase(db, {
+                exerciseDefs: [defA],
+                completedWorkouts: [
+                    completedWorkoutFactory({
+                        id: "workout-older",
+                        endTimestamp: 10,
+                        exercises: [
+                            exerciseFactory({
+                                id: "exercise-older",
+                                exerciseId: defA.id,
+                                sets: [
+                                    setFactory({
+                                        id: "set-older",
+                                        weight: "90",
+                                        reps: "8",
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                    completedWorkoutFactory({
+                        id: "workout-latest-empty",
+                        endTimestamp: 20,
+                        exercises: [
+                            exerciseFactory({
+                                id: "exercise-latest-empty",
+                                exerciseId: defA.id,
+                                sets: [],
+                            }),
+                        ],
+                    }),
+                ],
+            });
+
+            const result = await database.fetchExerciseSetsFromCompletedWorkouts(
+                [defA.id],
+                1
+            );
+
+            expect(result[defA.id]).toHaveLength(1);
+            expect(result[defA.id][0].workoutId).toBe("workout-older");
+            expect(result[defA.id][0].sets[0].weight).toBe("90");
+        });
+    });
 });

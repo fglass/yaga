@@ -67,6 +67,7 @@ describe("workout view model", () => {
         expect(workout.exercises).toHaveLength(1);
         expect(workout.exercises[0].exerciseId).toBe("exercise-def-1");
         expect(workout.exercises[0].sets[0].id).toBe("set-1");
+        expect(workout.exercises[0].sets[0].type).toBe("default");
     });
 
     it("updates exercise definitions", async () => {

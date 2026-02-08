@@ -13,6 +13,7 @@ import {
     ExerciseCategory,
     ExerciseDef,
     ModalType,
+    SET_TYPES,
     Workout,
     WorkoutTemplate,
 } from "../../model/types";
@@ -36,8 +37,8 @@ import {
 import { logAppleHealthWorkout } from "../../model/health";
 import * as Notifications from "expo-notifications";
 import {
-    compareSetEpley1RM,
     findPreviousFinishedSetTime,
+    getSetProgress as getSetProgressForSets,
     SetProgression,
 } from "./workout.calculations";
 
@@ -92,6 +93,7 @@ interface ViewModel {
         weight: string
     ) => void;
     onChangeRep: (exerciseIdx: number, setIdx: number, reps: string) => void;
+    onCycleSetType: (exerciseIdx: number, setIdx: number) => void;
     onAdjustWeight: (
         exerciseIdx: number,
         setIdx: number,
@@ -470,6 +472,29 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         []
     );
 
+    const onCycleSetType = useCallback(
+        (exerciseIdx: number, setIdx: number) => {
+            const set = workout.exercises[exerciseIdx]?.sets[setIdx];
+            if (!set) {
+                return;
+            }
+
+            const currentTypeIdx = SET_TYPES.indexOf(set.type);
+            const nextType =
+                SET_TYPES[(currentTypeIdx + 1) % SET_TYPES.length] ??
+                SET_TYPES[0];
+
+            dispatch({
+                type: ActionType.ChangeSetType,
+                exerciseIdx,
+                setIdx,
+                setType: nextType,
+            });
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        },
+        [workout.exercises]
+    );
+
     const onAdjustWeight = useCallback(
         (exerciseIdx: number, setIdx: number, delta: number) => {
             const set = workout.exercises[exerciseIdx]?.sets[setIdx];
@@ -706,18 +731,11 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                 return 0;
             }
 
-            const previousSets = previousSetsByExerciseId[exercise.exerciseId];
-            const previousSet = previousSets?.[setIdx];
-            if (!previousSet) {
-                return 0;
-            }
-
-            const currentSet = exercise.sets[setIdx];
-            if (!currentSet) {
-                return 0;
-            }
-
-            return compareSetEpley1RM(currentSet, previousSet);
+            return getSetProgressForSets(
+                previousSetsByExerciseId[exercise.exerciseId],
+                exercise.sets,
+                setIdx
+            );
         },
         [previousSetsByExerciseId, workout.exercises]
     );
@@ -769,6 +787,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onChangeExerciseNotes,
         onChangeWeight,
         onChangeRep,
+        onCycleSetType,
         onAdjustWeight,
         onAdjustReps,
         onFinishSet,

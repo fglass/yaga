@@ -46,5 +46,6 @@ CREATE TABLE IF NOT EXISTS sets (
     position INTEGER NOT NULL,
     weight TEXT NOT NULL DEFAULT '',
     reps TEXT NOT NULL DEFAULT '',
+    type TEXT NOT NULL DEFAULT 'default',
     finished_at INTEGER
 );

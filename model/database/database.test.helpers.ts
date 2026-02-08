@@ -10,6 +10,7 @@ import type {
     WorkoutMetadata,
     WorkoutTemplate,
     WorkoutType,
+    SetType,
 } from "../types";
 
 import * as database from "./database";
@@ -69,11 +70,13 @@ export const setFactory = (params: {
     id: string;
     weight?: string;
     reps?: string;
+    type?: SetType;
     finishTime?: number;
 }): WorkoutSet => ({
     id: params.id,
     weight: params.weight ?? "",
     reps: params.reps ?? "",
+    type: params.type ?? "default",
     finishTime: params.finishTime,
 });
 
@@ -236,12 +239,13 @@ const insertExercises = async (
         for (let setIdx = 0; setIdx < exercise.sets.length; setIdx += 1) {
             const set = exercise.sets[setIdx];
             await db.runAsync(
-                "INSERT OR REPLACE INTO sets (id, exercise_id, position, weight, reps, finished_at) VALUES (?, ?, ?, ?, ?, ?)",
+                "INSERT OR REPLACE INTO sets (id, exercise_id, position, weight, reps, type, finished_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 set.id,
                 exercise.id,
                 setIdx,
                 set.weight,
                 set.reps,
+                set.type,
                 set.finishTime ?? null
             );
         }

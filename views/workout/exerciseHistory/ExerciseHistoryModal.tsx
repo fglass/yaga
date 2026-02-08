@@ -7,9 +7,10 @@ import {
     View,
 } from "react-native";
 import ModalDialog from "../../../components/ModalDialog";
-import { compareSetEpley1RM } from "../workout.calculations";
+import { getSetProgress } from "../workout.calculations";
 import { formatNumber } from "../../../utils/util";
 import { useExerciseHistoryViewModel } from "./exerciseHistory.viewModel";
+import type { Set } from "../../../model/types";
 
 interface Props {
     isVisible: boolean;
@@ -53,6 +54,22 @@ const ExerciseHistoryModal = (props: Props) => {
         </View>
     );
 
+    const getSetLabel = (setIdx: number, setType: Set["type"], sets: Set[]) => {
+        if (setType !== "warmup") {
+            const setNumber =
+                sets.slice(0, setIdx + 1).filter((set) => set.type !== "warmup")
+                    .length || 1;
+            return `${setNumber}`;
+        }
+
+        return setType
+            .split(/[^a-zA-Z0-9]+/)
+            .filter(Boolean)
+            .map((part) => part[0]?.toUpperCase() ?? "")
+            .join("")
+            .slice(0, 2);
+    };
+
     return (
         <ModalDialog
             title="History"
@@ -85,8 +102,7 @@ const ExerciseHistoryModal = (props: Props) => {
                     onEndReachedThreshold={0.3}
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item, index }) => {
-                        const previousEntry =
-                            comparisonHistorySets[index + 1];
+                        const previousEntry = comparisonHistorySets[index + 1];
                         const isCurrentWorkout =
                             props.highlightWorkoutId != null &&
                             item.workoutId === props.highlightWorkoutId;
@@ -107,11 +123,10 @@ const ExerciseHistoryModal = (props: Props) => {
                                     </Text>
                                 </View>
                                 {item.sets.map((set, setIdx) => {
-                                    const previousSet =
-                                        previousEntry?.sets[setIdx];
-                                    const progress = compareSetEpley1RM(
-                                        set,
-                                        previousSet
+                                    const progress = getSetProgress(
+                                        previousEntry?.sets,
+                                        item.sets,
+                                        setIdx
                                     );
                                     let progressStyle = null;
                                     if (progress === 1) {
@@ -123,15 +138,23 @@ const ExerciseHistoryModal = (props: Props) => {
                                         progress === 1
                                             ? "↑"
                                             : progress === -1
-                                              ? "↓"
-                                              : "=";
+                                            ? "↓"
+                                            : "=";
                                     return (
                                         <View key={set.id} style={styles.row}>
                                             <View style={styles.setIndex}>
                                                 <Text
-                                                    style={styles.setIndexNumber}
+                                                    style={[
+                                                        styles.setIndexNumber,
+                                                        set.type === "warmup" &&
+                                                            styles.setIndexNumberWarmup,
+                                                    ]}
                                                 >
-                                                    {setIdx + 1}
+                                                    {getSetLabel(
+                                                        setIdx,
+                                                        set.type,
+                                                        item.sets
+                                                    )}
                                                 </Text>
                                                 <Text
                                                     style={[
@@ -261,6 +284,9 @@ const styles = StyleSheet.create({
         color: "rgba(255, 255, 255, 0.6)",
         fontSize: 11,
         fontWeight: "600",
+    },
+    setIndexNumberWarmup: {
+        color: "#D9B36A",
     },
     setIndexArrow: {
         position: "absolute",

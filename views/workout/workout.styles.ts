@@ -192,6 +192,14 @@ export const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
     },
+    setLabelText: {
+        color: "rgba(255, 255, 255, 0.65)",
+        textAlign: "center",
+        fontWeight: "700",
+    },
+    setLabelTextWarmup: {
+        color: "#D9B36A",
+    },
     narrow: {
         flex: 0.35,
     },

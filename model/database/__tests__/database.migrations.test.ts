@@ -43,6 +43,17 @@ describe("database migrations", () => {
                 null,
                 "{}"
             );
+            await db.runAsync("DROP TABLE IF EXISTS sets");
+            await db.runAsync(
+                `CREATE TABLE sets (
+                    id TEXT PRIMARY KEY,
+                    exercise_id TEXT NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+                    position INTEGER NOT NULL,
+                    weight TEXT NOT NULL DEFAULT '',
+                    reps TEXT NOT NULL DEFAULT '',
+                    finished_at INTEGER
+                )`
+            );
 
             await db.runAsync("DELETE FROM schema_version");
             await db.runAsync(
@@ -78,6 +89,75 @@ describe("database migrations", () => {
             expect(byId["run-no-id"]).toBe("0000000000000000000");
             expect(byId["run-existing-id"]).toBe("12345");
             expect(byId["strength-no-id"]).toBeNull();
+        });
+    });
+
+    it("backfills legacy sets with default type", async () => {
+        await createTestDb(async (_database, sqlite) => {
+            const db = await sqlite.getDatabase();
+
+            await db.runAsync("DROP TABLE IF EXISTS sets");
+            await db.runAsync(
+                `CREATE TABLE sets (
+                    id TEXT PRIMARY KEY,
+                    exercise_id TEXT NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+                    position INTEGER NOT NULL,
+                    weight TEXT NOT NULL DEFAULT '',
+                    reps TEXT NOT NULL DEFAULT '',
+                    finished_at INTEGER
+                )`
+            );
+            await db.runAsync(
+                "INSERT OR REPLACE INTO exercise_defs (id, name, category) VALUES (?, ?, ?)",
+                "legacy-def",
+                "Legacy Exercise",
+                "Other"
+            );
+            await db.runAsync(
+                "INSERT OR REPLACE INTO workouts (id, name, notes, type, status, started_at, finished_at, distance, metadata_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "legacy-workout",
+                "Legacy Workout",
+                "",
+                "strength",
+                "completed",
+                1,
+                2,
+                null,
+                "{}"
+            );
+            await db.runAsync(
+                "INSERT OR REPLACE INTO exercises (id, exercise_def_id, workout_id, position, notes_json) VALUES (?, ?, ?, ?, ?)",
+                "legacy-exercise",
+                "legacy-def",
+                "legacy-workout",
+                0,
+                "[]"
+            );
+            await db.runAsync(
+                "INSERT INTO sets (id, exercise_id, position, weight, reps, finished_at) VALUES (?, ?, ?, ?, ?, ?)",
+                "legacy-set",
+                "legacy-exercise",
+                0,
+                "100",
+                "5",
+                1
+            );
+
+            await db.runAsync("DELETE FROM schema_version");
+            await db.runAsync(
+                "INSERT INTO schema_version (version) VALUES (?)",
+                3
+            );
+
+            await sqlite.resetDatabaseConnection();
+            await sqlite.ensureDatabase();
+
+            const migratedDb = await sqlite.getDatabase();
+            const row = await migratedDb.getFirstAsync<{
+                type: string;
+            }>("SELECT type FROM sets WHERE id = ?", "legacy-set");
+
+            expect(row?.type).toBe("default");
         });
     });
 });

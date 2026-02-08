@@ -70,6 +70,7 @@ export const importWorkouts = async (
                 id: generateGuid(),
                 weight: set.weight ?? "",
                 reps: set.reps ?? "",
+                type: "default",
                 finishTime: workout.finishedAt,
             }));
 

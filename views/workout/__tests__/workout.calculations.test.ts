@@ -1,14 +1,16 @@
-import type { Workout } from "../../../model/types";
+import type { Set, Workout } from "../../../model/types";
 import {
     compareSetEpley1RM,
     calculateEpley1RM,
     findPreviousFinishedSetTime,
+    getSetProgress,
 } from "../workout.calculations";
 
-const setFactory = (weight: string, reps: string) => ({
+const setFactory = (weight: string, reps: string, type: Set["type"] = "default"): Set => ({
     id: "set-1",
     weight,
     reps,
+    type,
     finishTime: undefined,
 });
 
@@ -29,6 +31,7 @@ const workoutFactory = (
             id: `set-${exerciseIdx}-${setIdx}`,
             weight: "",
             reps: "",
+            type: "default" as const,
             finishTime,
         })),
     })),
@@ -110,5 +113,40 @@ describe("findPreviousFinishedSetTime", () => {
         const workout = workoutFactory([[3], [2]]);
 
         expect(findPreviousFinishedSetTime(workout, 1, 0)).toBeNull();
+    });
+});
+
+describe("getSetProgress", () => {
+    it("ignores warmup sets", () => {
+        const currentSets = [
+            setFactory("20", "10", "warmup"),
+            setFactory("100", "5"),
+        ];
+        const previousSets = [setFactory("95", "5")];
+
+        expect(
+            getSetProgress(previousSets, currentSets, 0)
+        ).toBe(0);
+    });
+
+    it("matches default sets by default-set index, not raw set index", () => {
+        const currentSets = [
+            setFactory("20", "10", "warmup"),
+            setFactory("100", "5"),
+            setFactory("90", "6"),
+        ];
+
+        const previousSets = [
+            setFactory("15", "12", "warmup"),
+            setFactory("95", "5"),
+            setFactory("90", "5"),
+        ];
+
+        expect(
+            getSetProgress(previousSets, currentSets, 1)
+        ).toBe(1);
+        expect(
+            getSetProgress(previousSets, currentSets, 2)
+        ).toBe(1);
     });
 });

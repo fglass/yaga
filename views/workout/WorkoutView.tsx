@@ -351,53 +351,69 @@ const WorkoutView = (props: Props) => {
             progressStyle = styles.tdDeclined;
         }
 
-        let setLabel = `${setIdx + 1}`;
+        const setNumber =
+            vm.workout.exercises[exerciseIdx]?.sets
+                .slice(0, setIdx + 1)
+                .filter((entry) => entry.type !== "warmup").length || 1;
+
+        let setLabel = `${setNumber}`;
         if (progress === 1) {
             setLabel = "↑";
         } else if (progress === -1) {
             setLabel = "↓";
         }
 
+        const setDisplayLabel =
+            set.type !== "warmup"
+                ? setLabel
+                : set.type
+                      .split(/[^a-zA-Z0-9]+/)
+                      .filter(Boolean)
+                      .map((part) => part[0]?.toUpperCase() ?? "")
+                      .join("")
+                      .slice(0, 2);
+
+        const setLabelGesture = isFinished
+            ? Gesture.Exclusive(
+                  Gesture.Tap()
+                      .numberOfTaps(2)
+                      .runOnJS(true)
+                      .onStart(() => vm.copyToCurrentSet(exerciseIdx, setIdx)),
+                  Gesture.Tap()
+                      .numberOfTaps(1)
+                      .runOnJS(true)
+                      .onStart(() => vm.onCycleSetType(exerciseIdx, setIdx))
+              )
+            : Gesture.Tap()
+                  .numberOfTaps(1)
+                  .runOnJS(true)
+                  .onStart(() => vm.onCycleSetType(exerciseIdx, setIdx));
+
         return (
             <View style={styles.setSwipeContainer} key={set.id}>
                 <Deletable onDelete={() => vm.onRemoveSet(exerciseIdx, setIdx)}>
                     <View style={[styles.tr, isFinished && styles.finished]}>
-                        {isFinished ? (
-                            <GestureDetector
-                                gesture={Gesture.Tap()
-                                    .numberOfTaps(2)
-                                    .runOnJS(true)
-                                    .onStart(() =>
-                                        vm.copyToCurrentSet(exerciseIdx, setIdx)
-                                    )}
-                            >
-                                <TextInput
-                                    style={[
-                                        styles.td,
-                                        styles.narrow,
-                                        styles.tdReadOnly,
-                                        styles.tdFinished,
-                                        progressStyle,
-                                    ]}
-                                    editable={false}
-                                >
-                                    {setLabel}
-                                </TextInput>
-                            </GestureDetector>
-                        ) : (
-                            <TextInput
+                        <GestureDetector gesture={setLabelGesture}>
+                            <View
                                 style={[
                                     styles.td,
                                     styles.narrow,
                                     styles.tdReadOnly,
                                     isFinished && styles.tdFinished,
-                                    progressStyle,
                                 ]}
-                                editable={false}
                             >
-                                {setLabel}
-                            </TextInput>
-                        )}
+                                <Text
+                                    style={[
+                                        styles.setLabelText,
+                                        set.type === "warmup" &&
+                                            styles.setLabelTextWarmup,
+                                        progressStyle,
+                                    ]}
+                                >
+                                    {setDisplayLabel}
+                                </Text>
+                            </View>
+                        </GestureDetector>
                         <AdjustableNumberInput
                             value={set.weight}
                             step={0.5}
