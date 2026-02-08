@@ -184,6 +184,7 @@ describe("database exercise sets", () => {
                                         id: "set-1",
                                         weight: "100",
                                         reps: "5",
+                                        finishTime: 1,
                                     }),
                                 ],
                             }),
@@ -201,6 +202,7 @@ describe("database exercise sets", () => {
                                         id: "set-2",
                                         weight: "110",
                                         reps: "5",
+                                        finishTime: 2,
                                     }),
                                 ],
                             }),
@@ -218,6 +220,7 @@ describe("database exercise sets", () => {
                                         id: "set-3",
                                         weight: "120",
                                         reps: "5",
+                                        finishTime: 3,
                                     }),
                                 ],
                             }),
@@ -259,12 +262,14 @@ describe("database exercise sets", () => {
                                         weight: "100",
                                         reps: "5",
                                         type: "default",
+                                        finishTime: 1,
                                     }),
                                     setFactory({
                                         id: "set-warmup",
                                         weight: "60",
                                         reps: "8",
                                         type: "warmup",
+                                        finishTime: 2,
                                     }),
                                 ],
                             }),
@@ -302,6 +307,7 @@ describe("database exercise sets", () => {
                                         id: "set-older",
                                         weight: "90",
                                         reps: "8",
+                                        finishTime: 1,
                                     }),
                                 ],
                             }),
@@ -329,6 +335,99 @@ describe("database exercise sets", () => {
             expect(result[defA.id]).toHaveLength(1);
             expect(result[defA.id][0].workoutId).toBe("workout-older");
             expect(result[defA.id][0].sets[0].weight).toBe("90");
+        });
+    });
+
+    it("skips sets with missing fields or missing finish time", async () => {
+        await createTestDb(async (database, sqlite) => {
+            const defA = { id: "def-a", def: exerciseDefFactory("Exercise A") };
+            const db = await sqlite.getDatabase();
+            await seedDatabase(db, {
+                exerciseDefs: [defA],
+                completedWorkouts: [
+                    completedWorkoutFactory({
+                        id: "workout-older",
+                        endTimestamp: 10,
+                        exercises: [
+                            exerciseFactory({
+                                id: "exercise-older",
+                                exerciseId: defA.id,
+                                sets: [
+                                    setFactory({
+                                        id: "set-older",
+                                        weight: "95",
+                                        reps: "6",
+                                        finishTime: 1,
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                    completedWorkoutFactory({
+                        id: "workout-latest-empty-weight",
+                        endTimestamp: 20,
+                        exercises: [
+                            exerciseFactory({
+                                id: "exercise-latest-empty-weight",
+                                exerciseId: defA.id,
+                                sets: [
+                                    setFactory({
+                                        id: "set-empty-weight",
+                                        weight: "",
+                                        reps: "8",
+                                        finishTime: 2,
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                    completedWorkoutFactory({
+                        id: "workout-latest-empty-reps",
+                        endTimestamp: 30,
+                        exercises: [
+                            exerciseFactory({
+                                id: "exercise-latest-empty-reps",
+                                exerciseId: defA.id,
+                                sets: [
+                                    setFactory({
+                                        id: "set-empty-reps",
+                                        weight: "95",
+                                        reps: "",
+                                        finishTime: 3,
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                    completedWorkoutFactory({
+                        id: "workout-latest-unfinished",
+                        endTimestamp: 40,
+                        exercises: [
+                            exerciseFactory({
+                                id: "exercise-latest-unfinished",
+                                exerciseId: defA.id,
+                                sets: [
+                                    setFactory({
+                                        id: "set-unfinished",
+                                        weight: "95",
+                                        reps: "8",
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                ],
+            });
+
+            const result = await database.fetchExerciseSetsFromCompletedWorkouts(
+                [defA.id],
+                1
+            );
+
+            expect(result[defA.id]).toHaveLength(1);
+            expect(result[defA.id][0].workoutId).toBe("workout-older");
+            expect(result[defA.id][0].sets[0].weight).toBe("95");
+            expect(result[defA.id][0].sets[0].reps).toBe("6");
         });
     });
 });

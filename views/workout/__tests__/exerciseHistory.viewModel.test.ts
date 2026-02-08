@@ -20,25 +20,17 @@ const exerciseSetsEntryFactory = (
 });
 
 describe("buildExerciseHistoryState", () => {
-    it("filters out empty sets and sessions", () => {
+    it("returns all entries when under the limit", () => {
         const entries = [
-            {
-                workoutId: "workout-1",
-                finishedAt: 1,
-                sets: [setFactory("", ""), setFactory("0", "5")],
-            },
-            {
-                workoutId: "workout-2",
-                finishedAt: 2,
-                sets: [setFactory("", "")],
-            },
+            exerciseSetsEntryFactory("workout-1", 1, "0", "5"),
+            exerciseSetsEntryFactory("workout-2", 2, "10", "8"),
         ];
 
         const result = buildExerciseHistoryState(entries, 5);
 
-        expect(result.displayHistorySets).toHaveLength(1);
-        expect(result.displayHistorySets[0].sets).toHaveLength(1);
+        expect(result.displayHistorySets).toHaveLength(2);
         expect(result.displayHistorySets[0].sets[0].weight).toBe("0");
+        expect(result.displayHistorySets[1].sets[0].weight).toBe("10");
     });
 
     it("exposes comparison sets and hasMore when over the limit", () => {
@@ -90,19 +82,19 @@ describe("buildExerciseHistoryState", () => {
         expect(result.comparisonHistorySets[3]).toBeUndefined();
     });
 
-    it("keeps hasMore true when filtered entries reduce the cleaned list", () => {
+    it("keeps hasMore true when entries exceed the limit", () => {
         const entries = [
-            exerciseSetsEntryFactory("workout-1", 1, "", ""),
-            exerciseSetsEntryFactory("workout-2", 2, "", ""),
-            exerciseSetsEntryFactory("workout-3", 3, "", ""),
-            exerciseSetsEntryFactory("workout-4", 4, "", ""),
-            exerciseSetsEntryFactory("workout-5", 5, "", ""),
+            exerciseSetsEntryFactory("workout-1", 1, "10", "5"),
+            exerciseSetsEntryFactory("workout-2", 2, "10", "5"),
+            exerciseSetsEntryFactory("workout-3", 3, "10", "5"),
+            exerciseSetsEntryFactory("workout-4", 4, "10", "5"),
+            exerciseSetsEntryFactory("workout-5", 5, "10", "5"),
             exerciseSetsEntryFactory("workout-6", 6, "10", "5"),
         ];
 
         const result = buildExerciseHistoryState(entries, 5);
 
-        expect(result.displayHistorySets).toHaveLength(1);
+        expect(result.displayHistorySets).toHaveLength(5);
         expect(result.hasMore).toBe(true);
     });
 });
