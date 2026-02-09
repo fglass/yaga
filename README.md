@@ -31,7 +31,7 @@ Target: **Mar 1** 🎯
 
 -   [x] Bugs (see 🔴)
 -   [x] Template execise setting
--   [ ] Set types (W, D, T, B)
+-   [ ] Set types (W, D, T, B, SS)
 -   [ ] Rest timer noise
 -   [ ] Rework exercise notes
 -   [ ] RPE / RIR
@@ -73,8 +73,6 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Native UI refresh
 -   [ ] 🟢 Native port?
 -   [ ] 🟢 Goals: if X in Y then ✅
--   [ ] 🟡 CI/CD
--   [ ] 🟢 Release?
 -   [ ] 🟡 Export CSV
 -   [ ] 🟡 Settings view
 -   [ ] 🟡 App log file

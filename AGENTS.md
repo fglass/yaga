@@ -32,6 +32,7 @@ Do not add periods to the end of single-line comments.
 -   `npm start`: Launches Metro via `expo start` for rapid local iteration.
 -   `npm run lint`: Runs ESLint across the TypeScript codebase.
 -   `npm test`: Runs the Jest unit test suite.
+-   `npx expo-doctor`: Runs the Expo doctor.
 
 ## Verification
 
