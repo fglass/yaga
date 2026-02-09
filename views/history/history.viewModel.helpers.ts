@@ -1,5 +1,7 @@
 import { CompletedWorkout } from "../../model/types";
 
+const FAKE_STRAVA_ACTIVITY_ID = "0000000000000000000";
+
 export const getStravaActivityId = (
     workout: CompletedWorkout
 ): string | null => {
@@ -9,7 +11,8 @@ export const getStravaActivityId = (
     }
 
     const normalized = raw.trim();
-    if (!/^\d+$/.test(normalized)) {
+
+    if (normalized === FAKE_STRAVA_ACTIVITY_ID) {
         return null;
     }
 
@@ -28,6 +31,10 @@ export const isLocalWorkoutSelectable = (
         return false;
     }
 
+    if (hasFakeStravaActivityId(workout)) {
+        return false;
+    }
+
     if (getStravaActivityId(workout) != null) {
         return true;
     }
@@ -36,8 +43,13 @@ export const isLocalWorkoutSelectable = (
         return false;
     }
 
+    // Allow Strava retry
     return options?.isStravaLoggingEnabled ?? true;
 };
+
+const hasFakeStravaActivityId = (workout: CompletedWorkout): boolean =>
+    typeof workout.metadata?.stravaActivityId === "string" &&
+    workout.metadata.stravaActivityId.trim() === FAKE_STRAVA_ACTIVITY_ID;
 
 const isAppleHealthImportedWorkout = (workout: CompletedWorkout): boolean =>
     workout.metadata?.importedBy === "apple-health";

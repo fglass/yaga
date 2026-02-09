@@ -158,3 +158,13 @@ https://github.com/cameroncooke/XcodeBuildMCP
 https://developer.apple.com/documentation/TechnologyOverviews/adopting-liquid-glass
 https://docs.expo.dev/router/advanced/native-tabs/
 https://docs.expo.dev/versions/latest/sdk/glass-effect/
+
+---
+
+Apple health icon to imported workouts
+CI with Expo link
+
+Template remove delay, add haptic
+Lat pulldown missing
+Log file
+Settings view
