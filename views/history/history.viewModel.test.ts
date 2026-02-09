@@ -37,6 +37,19 @@ describe("history.viewModel.helpers", () => {
         expect(isLocalWorkoutSelectable(workout)).toBe(true);
     });
 
+    it("treats run workouts with fake strava ID as not selectable", () => {
+        const workout = workoutFactory({
+            type: "run",
+            metadata: { stravaActivityId: "0000000000000000000" },
+        });
+
+        expect(
+            isLocalWorkoutSelectable(workout, {
+                isStravaLoggingEnabled: true,
+            })
+        ).toBe(false);
+    });
+
     it("treats run workouts without strava ID as selectable", () => {
         const workout = workoutFactory({
             type: "run",
@@ -87,6 +100,14 @@ describe("history.viewModel.helpers", () => {
     it("gets null when strava activity ID is absent", () => {
         const workout = workoutFactory({
             metadata: { importedBy: "app@2026-01-01T00:00:00.000Z" },
+        });
+
+        expect(getStravaActivityId(workout)).toBeNull();
+    });
+
+    it("gets null when strava activity ID is fake backfill ID", () => {
+        const workout = workoutFactory({
+            metadata: { stravaActivityId: "0000000000000000000" },
         });
 
         expect(getStravaActivityId(workout)).toBeNull();
