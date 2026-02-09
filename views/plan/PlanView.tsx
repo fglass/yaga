@@ -176,7 +176,9 @@ const styles = StyleSheet.create({
     newTemplateButton: {
         backgroundColor: "#58A5F9",
     },
-    listContent: {},
+    listContent: {
+        paddingBottom: 10,
+    },
     emptyListContent: {
         flexGrow: 1,
         justifyContent: "center",
