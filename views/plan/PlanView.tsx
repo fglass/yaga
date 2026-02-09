@@ -68,7 +68,6 @@ const PlanView = ({ onCreateTemplate }: Props) => {
                     onPress={() => void vm.selectTemplate(item)}
                     onLongPress={() => vm.onTemplateActions(item)}
                     activeOpacity={0.7}
-                    delayPressIn={120}
                 >
                     <View>
                         <Text style={styles.workoutName}>{item.name}</Text>

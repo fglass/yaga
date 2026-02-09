@@ -35,6 +35,7 @@ export const usePlanViewModel = ({ onCreateTemplate }: Params) => {
             exercises,
             metadata: {},
         });
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     };
 
     const startBlankWorkout = async () => {

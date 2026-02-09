@@ -30,7 +30,7 @@ Target: **Mar 1** 🎯
 ### Milestone 2: Workout loop polish (Feb 2 → Feb 8)
 
 -   [x] Bugs (see 🔴)
--   [ ] Template execise setting
+-   [x] Template execise setting
 -   [ ] Set types (W, D, T, B)
 -   [ ] Rest timer noise
 -   [ ] Rework exercise notes
@@ -59,6 +59,7 @@ Target: **Mar 1** 🎯
 ### Milestone 5: Ship (Feb 23 → Mar 1)
 
 -   [ ] Bug bash
+-   [ ] Settings view
 -   [ ] CI/CD + EAS config sanity
 -   [ ] Full test pass + lint clean
 -   [ ] Release build + App Store prep
@@ -75,6 +76,8 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 CI/CD
 -   [ ] 🟢 Release?
 -   [ ] 🟡 Export CSV
+-   [ ] 🟡 Settings view
+-   [ ] 🟡 App log file
 
 ### Home View
 
@@ -137,6 +140,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟢 No history if mapped? Check
 -   [ ] 🟢 Check history not overwritten
 -   [ ] 🟢 Infer set types
+-   [ ] 🔴 Bug: Lat pulldown missing?
 
 ## Incubator
 
@@ -158,12 +162,3 @@ https://github.com/cameroncooke/XcodeBuildMCP
 https://developer.apple.com/documentation/TechnologyOverviews/adopting-liquid-glass
 https://docs.expo.dev/router/advanced/native-tabs/
 https://docs.expo.dev/versions/latest/sdk/glass-effect/
-
----
-
-CI with Expo link
-
-Template remove delay, add haptic
-Lat pulldown missing
-Log file
-Settings view
