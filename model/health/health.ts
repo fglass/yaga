@@ -41,7 +41,8 @@ let isHealthLoggingEnabled = true;
 
 type WorkoutProxyItem = Awaited<ReturnType<typeof queryWorkoutSamples>>[number];
 
-const APPLE_HEALTH_WORKOUT_ID_PREFIX = "apple-health:";
+const APPLE_HEALTH_IMPORTED_BY = "apple-health";
+const APPLE_HEALTH_WORKOUT_ID_PREFIX = `${APPLE_HEALTH_IMPORTED_BY}:`;
 const APP_BUNDLE_IDENTIFIER_PREFIX = "com.expench.yaga";
 
 export const ensureHealthKit = async (): Promise<boolean> => {
@@ -194,6 +195,10 @@ export const syncAppleHealthRunsToDatabase = async (
     return insertedCount;
 };
 
+export const isAppleHealthImportedWorkout = (
+    workout: CompletedWorkout
+): boolean => workout.metadata?.importedBy === APPLE_HEALTH_IMPORTED_BY;
+
 const getRunDistance = async (
     proxy: WorkoutProxyItem,
     activityType: WorkoutActivityType
@@ -312,7 +317,7 @@ const asCompletedRunWorkout = (
     type: "run",
     exercises: [],
     metadata: {
-        importedBy: "apple-health",
+        importedBy: APPLE_HEALTH_IMPORTED_BY,
     },
     startTimestamp: workout.startDate.getTime(),
     endTimestamp: workout.endDate.getTime(),

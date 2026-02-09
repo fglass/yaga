@@ -161,7 +161,6 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 
 ---
 
-Apple health icon to imported workouts
 CI with Expo link
 
 Template remove delay, add haptic
