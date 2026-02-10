@@ -76,6 +76,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Export CSV
 -   [ ] 🟡 Settings view
 -   [ ] 🟡 App log file
+-   [ ] 🟡 Button haptics
 
 ### Home View
 

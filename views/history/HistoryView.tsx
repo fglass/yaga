@@ -71,8 +71,16 @@ const HistoryView = (props: Props) => {
                         <View style={styles.runHeader}>
                             {!hasLeadingEmoji && (
                                 <Ionicons
-                                    name="walk"
-                                    color="#7AD3FF"
+                                    name={
+                                        isAppleHealthImportedRun
+                                            ? "heart"
+                                            : "walk"
+                                    }
+                                    color={
+                                        isAppleHealthImportedRun
+                                            ? "#FF6B81"
+                                            : "#7AD3FF"
+                                    }
                                     size={16}
                                     style={styles.runIcon}
                                 />
@@ -100,14 +108,7 @@ const HistoryView = (props: Props) => {
                         {workoutDate} · {formatDuration(durationSeconds)}
                     </Text>
                 </View>
-                {isAppleHealthImportedRun ? (
-                    <Ionicons
-                        name="heart"
-                        color="#FF6B81"
-                        size={17}
-                        style={styles.stravaIcon}
-                    />
-                ) : isRun && hasStravaLink ? (
+                {isRun && hasStravaLink ? (
                     <FontAwesome5
                         name="strava"
                         color="#FF5A1F"
