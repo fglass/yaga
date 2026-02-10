@@ -90,11 +90,8 @@ jobs:
                   node <<'NODE'
                   const fs = require('fs')
                   const output = fs.readFileSync('eas-build.json', 'utf8').trim()
-                  const maybeJson = output.split('\n').filter(Boolean).find((line) => line.startsWith('{') || line.startsWith('['))
-                  if (!maybeJson) {
-                    throw new Error('Could not parse JSON output from EAS build')
-                  }
-                  const parsed = JSON.parse(maybeJson)
+
+                  const parsed = JSON.parse(output)
                   const build = Array.isArray(parsed) ? parsed[0] : parsed
                   const detailsUrl =
                     build.buildDetailsPageUrl ||
