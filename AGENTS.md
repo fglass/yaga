@@ -27,6 +27,8 @@ Avoid deprecated APIs; prefer the current recommended methods in library docs.
 
 Do not add periods to the end of single-line comments.
 
+Always set an explicit timeout for outbound requests.
+
 ## Build, Test, and Development Commands
 
 -   `npm start`: Launches Metro via `expo start` for rapid local iteration.

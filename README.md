@@ -77,6 +77,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Settings view
 -   [ ] 🟡 App log file
 -   [ ] 🟡 Button haptics
+-   [ ] 🟡 Toasts
 
 ### Home View
 

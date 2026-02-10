@@ -20,7 +20,8 @@ const STRAVA_APP_AUTH_URL = "strava://oauth/mobile/authorize";
 const STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token";
 const STRAVA_ACTIVITY_URL = "https://www.strava.com/api/v3/activities";
 const STRAVA_ACTIVITY_PAGE_URL = "https://www.strava.com/activities";
-const STRAVA_UPLOAD_TIMEOUT_MS = 10_000;
+const STRAVA_REQUEST_TIMEOUT_MS = 10_000;
+const STRAVA_AUTH_REDIRECT_TIMEOUT_MS = 30_000;
 
 let isStravaLoggingEnabled = true;
 
@@ -74,7 +75,7 @@ export const logStravaWorkout = async (
                 },
                 body: JSON.stringify(payload),
             },
-            STRAVA_UPLOAD_TIMEOUT_MS
+            STRAVA_REQUEST_TIMEOUT_MS
         );
 
         if (!response.ok) {
@@ -88,7 +89,7 @@ export const logStravaWorkout = async (
     } catch (error) {
         if (isAbortError(error)) {
             console.warn(
-                `Strava activity upload timed out after ${STRAVA_UPLOAD_TIMEOUT_MS}ms`
+                `Strava activity upload timed out after ${STRAVA_REQUEST_TIMEOUT_MS}ms`
             );
             return null;
         }
@@ -239,13 +240,17 @@ const requestStravaToken = async (
     payload: Record<string, string>
 ): Promise<StravaToken | null> => {
     try {
-        const response = await fetch(STRAVA_TOKEN_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
+        const response = await fetchWithTimeout(
+            STRAVA_TOKEN_URL,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
             },
-            body: JSON.stringify(payload),
-        });
+            STRAVA_REQUEST_TIMEOUT_MS
+        );
 
         if (!response.ok) {
             const error = await safeJson(response);
@@ -270,6 +275,12 @@ const requestStravaToken = async (
             expiresAt: data.expires_at,
         };
     } catch (error) {
+        if (isAbortError(error)) {
+            console.warn(
+                `Strava token exchange timed out after ${STRAVA_REQUEST_TIMEOUT_MS}ms`
+            );
+            return null;
+        }
         console.warn("Strava token exchange failed", error);
         return null;
     }
@@ -293,10 +304,7 @@ const parseStravaActivityId = (value: unknown): string | null => {
     }
 
     if (typeof value === "string") {
-        const normalized = value.trim();
-        if (/^[1-9]\d*$/.test(normalized)) {
-            return normalized;
-        }
+        return value.trim();
     }
 
     return null;
@@ -327,7 +335,7 @@ const waitForRedirect = async (
                 subscription?.remove();
                 resolve(null);
             }
-        }, 60_000);
+        }, STRAVA_AUTH_REDIRECT_TIMEOUT_MS);
 
         const handler = ({ url }: { url: string }) => {
             if (!url || !url.startsWith(`${redirectScheme}://`)) {
