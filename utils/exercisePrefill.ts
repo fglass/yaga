@@ -27,10 +27,6 @@ const applyPrefill = (exercise: Exercise, historySets?: Set[]): Exercise => {
         return createSetFromHistory(historySet);
     });
 
-    for (let idx = exercise.sets.length; idx < historySets.length; idx += 1) {
-        nextSets.push(createSetFromHistory(historySets[idx]));
-    }
-
     return {
         ...exercise,
         sets: nextSets,
