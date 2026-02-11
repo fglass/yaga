@@ -598,6 +598,19 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
     const copyToCurrentSet = useCallback(
         (exerciseIdx: number, setIdx: number) => {
+            const sourceSet = workout.exercises[exerciseIdx]?.sets[setIdx];
+            if (sourceSet?.finishTime === undefined) {
+                return;
+            }
+
+            const hasCurrentSet =
+                workout.exercises[exerciseIdx]?.sets.some(
+                    (set) => set.finishTime === undefined
+                ) ?? false;
+            if (!hasCurrentSet) {
+                return;
+            }
+
             dispatch({
                 type: ActionType.CopyToCurrentSet,
                 exerciseIdx,
@@ -605,7 +618,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             });
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         },
-        []
+        [workout.exercises]
     );
 
     const onRemoveExerciseNote = useCallback(
