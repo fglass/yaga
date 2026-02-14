@@ -141,7 +141,7 @@ const HomeView = () => {
             <View style={styles.header}>
                 <View>
                     <View style={styles.headerTitleRow}>
-                        <Text style={styles.title}>YAGA</Text>
+                        <Text style={styles.title}>Yaga</Text>
                         {isDevBuild ? (
                             <Text style={styles.devBadge}>DEV</Text>
                         ) : null}
