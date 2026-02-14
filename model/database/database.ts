@@ -150,8 +150,13 @@ export const createWorkoutTemplate = async (template: WorkoutTemplate) => {
 
     const db = await getDatabase();
     await db.runAsync(
-        `INSERT OR REPLACE INTO templates (id, name, notes, type, definition_json)
-         VALUES (?, ?, ?, ?, ?)`,
+        `INSERT INTO templates (id, name, notes, type, definition_json)
+         VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET
+           name = excluded.name,
+           notes = excluded.notes,
+           type = excluded.type,
+           definition_json = excluded.definition_json`,
         template.id,
         template.name,
         template.notes,
