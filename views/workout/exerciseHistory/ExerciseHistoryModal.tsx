@@ -55,9 +55,9 @@ const ExerciseHistoryModal = (props: Props) => {
     );
 
     const getSetLabel = (setIdx: number, setType: Set["type"], sets: Set[]) => {
-        if (setType !== "warmup") {
+        if (setType === "default") {
             const setNumber =
-                sets.slice(0, setIdx + 1).filter((set) => set.type !== "warmup")
+                sets.slice(0, setIdx + 1).filter((set) => set.type === "default")
                     .length || 1;
             return `${setNumber}`;
         }
@@ -148,6 +148,8 @@ const ExerciseHistoryModal = (props: Props) => {
                                                         styles.setIndexNumber,
                                                         set.type === "warmup" &&
                                                             styles.setIndexNumberWarmup,
+                                                        set.type === "drop" &&
+                                                            styles.setIndexNumberDrop,
                                                     ]}
                                                 >
                                                     {getSetLabel(
@@ -289,6 +291,9 @@ const styles = StyleSheet.create({
     },
     setIndexNumberWarmup: {
         color: "#D9B36A",
+    },
+    setIndexNumberDrop: {
+        color: "#B07CD8",
     },
     setIndexArrow: {
         position: "absolute",

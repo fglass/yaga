@@ -10,20 +10,20 @@ export const getSetProgress = (
     setIdx: number
 ): SetProgression => {
     const currentSet = currentSets[setIdx];
-    if (!currentSet || currentSet.type === "warmup") {
+    if (!currentSet || currentSet.type !== "default") {
         return 0;
     }
 
     const currentDefaultSetIdx =
         currentSets
             .slice(0, setIdx + 1)
-            .filter((set) => set.type !== "warmup").length - 1;
+            .filter((set) => set.type === "default").length - 1;
 
     if (currentDefaultSetIdx < 0) {
         return 0;
     }
 
-    const previousSet = previousSets?.filter((set) => set.type !== "warmup")?.[
+    const previousSet = previousSets?.filter((set) => set.type === "default")?.[
         currentDefaultSetIdx
     ];
 

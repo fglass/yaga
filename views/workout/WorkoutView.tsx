@@ -366,7 +366,7 @@ const WorkoutView = (props: Props) => {
         const setNumber =
             vm.workout.exercises[exerciseIdx]?.sets
                 .slice(0, setIdx + 1)
-                .filter((entry) => entry.type !== "warmup").length || 1;
+                .filter((entry) => entry.type === "default").length || 1;
 
         let setLabel = `${setNumber}`;
         if (progress === 1) {
@@ -376,7 +376,7 @@ const WorkoutView = (props: Props) => {
         }
 
         const setDisplayLabel =
-            set.type !== "warmup"
+            set.type === "default"
                 ? setLabel
                 : set.type
                       .split(/[^a-zA-Z0-9]+/)
@@ -419,6 +419,8 @@ const WorkoutView = (props: Props) => {
                                         styles.setLabelText,
                                         set.type === "warmup" &&
                                             styles.setLabelTextWarmup,
+                                        set.type === "drop" &&
+                                            styles.setLabelTextDrop,
                                         progressStyle,
                                     ]}
                                 >

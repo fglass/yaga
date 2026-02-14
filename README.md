@@ -31,7 +31,7 @@ Target: **Mar 1** 🎯
 
 -   [x] Bugs (see 🔴)
 -   [x] Template execise setting
--   [ ] Set types (W, D, T, B, SS)
+-   [x] Set types
 -   [ ] Rest timer noise
 -   [ ] Rework exercise notes
 -   [ ] RPE / RIR
@@ -93,7 +93,6 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Exercise completion timer
 -   [ ] 🟢 Drag to reorder exercises
 -   [ ] 🟡 Active workout minimise
--   [ ] 🔴 Warmup/superset/ignore sets
 -   [ ] 🟡 Bug: Workout timer resets on app reopen
 -   [ ] 🟢 Exercise history graph
 -   [ ] 🟡 Jump to historical workout
@@ -110,6 +109,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Global-only exercise notes?
 -   [ ] 🟡 Add exercise search
 -   [ ] 🟡 Workout view model test coverage
+-   [ ] 🟢 Supersets
 
 ### Run View
 
