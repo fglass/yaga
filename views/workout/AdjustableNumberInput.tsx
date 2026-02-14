@@ -1,13 +1,18 @@
-import React, { useRef, useState } from "react";
-import {
-    StyleProp,
-    TextInput,
-    TextInputProps,
-    TextStyle,
-    View,
-} from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { StyleProp, TextInput, TextInputProps, TextStyle } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+    interpolateColor,
+    useSharedValue,
+    useAnimatedStyle,
+    withSequence,
+    withTiming,
+    withRepeat,
+} from "react-native-reanimated";
+
 import { styles } from "./workout.styles";
+
+const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 const DRAG_DISTANCE_PER_STEP_PX = 12;
 const DRAG_START_THRESHOLD_PX = 8;
@@ -22,6 +27,7 @@ interface AdjustableNumberInputProps {
     onBlur?: () => void;
     isFinished?: boolean;
     inputStyle?: StyleProp<TextStyle>;
+    shakeKey?: number;
 }
 
 const AdjustableNumberInput = ({
@@ -34,6 +40,7 @@ const AdjustableNumberInput = ({
     onBlur,
     isFinished,
     inputStyle,
+    shakeKey,
 }: AdjustableNumberInputProps) => {
     const inputRef = useRef<TextInput>(null);
     const [allowSoftInput, setAllowSoftInput] = useState(false);
@@ -42,6 +49,36 @@ const AdjustableNumberInput = ({
     const isAdjustingRef = useRef(false);
     const [isFocused, setIsFocused] = useState(false);
     const lastStepRef = useRef(0);
+
+    const shake = useSharedValue(0);
+    const errorFill = useSharedValue(0);
+
+    useEffect(() => {
+        if (shakeKey && shakeKey > 0) {
+            shake.value = withSequence(
+                withTiming(1, { duration: 0 }),
+                withRepeat(withTiming(-1, { duration: 50 }), 4, true),
+                withTiming(0, { duration: 50 })
+            );
+            errorFill.value = withSequence(
+                withTiming(1, { duration: 0 }),
+                withTiming(0, { duration: 500 })
+            );
+        }
+    }, [shakeKey, shake, errorFill]);
+
+    const shakeStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: shake.value * 6 }],
+    }));
+
+    const defaultBg = isFinished ? "#487558" : "#202428";
+    const errorInputStyle = useAnimatedStyle(() => ({
+        backgroundColor: interpolateColor(
+            errorFill.value,
+            [0, 1],
+            [defaultBg, "#EC6569"]
+        ),
+    }));
 
     const setAllowSoftInputValue = (value: boolean) => {
         allowSoftInputRef.current = value;
@@ -110,8 +147,8 @@ const AdjustableNumberInput = ({
 
     return (
         <GestureDetector gesture={gesture}>
-            <View style={styles.adjustableInput}>
-                <TextInput
+            <Animated.View style={[styles.adjustableInput, shakeStyle]}>
+                <AnimatedTextInput
                     ref={inputRef}
                     style={[
                         styles.td,
@@ -122,6 +159,7 @@ const AdjustableNumberInput = ({
                                 : styles.tdFocused),
                         isFinished && styles.tdFinished,
                         inputStyle,
+                        errorInputStyle,
                     ]}
                     value={displayValue}
                     onChangeText={onChangeText}
@@ -149,7 +187,7 @@ const AdjustableNumberInput = ({
                         onBlur?.();
                     }}
                 />
-            </View>
+            </Animated.View>
         </GestureDetector>
     );
 };
