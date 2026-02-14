@@ -60,6 +60,18 @@ const WorkoutView = (props: Props) => {
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const [isLastExerciseInputFocused, setIsLastExerciseInputFocused] =
         useState(false);
+    const [shakeErrors, setShakeErrors] = useState<Record<string, number>>({});
+
+    const shakeEmpty = (exerciseIdx: number, setIdx: number, fields: string[]) => {
+        setShakeErrors((prev) => {
+            const next = { ...prev };
+            for (const field of fields) {
+                const key = `${exerciseIdx}-${setIdx}-${field}`;
+                next[key] = (prev[key] ?? 0) + 1;
+            }
+            return next;
+        });
+    };
 
     // Handle keyboard displaying on last exercise input
     useEffect(() => {
@@ -427,6 +439,7 @@ const WorkoutView = (props: Props) => {
                             onBlur={handleSetInputBlur}
                             inputMode="decimal"
                             isFinished={isFinished}
+                            shakeKey={shakeErrors[`${exerciseIdx}-${setIdx}-weight`]}
                         />
                         <AdjustableNumberInput
                             value={set.reps}
@@ -441,6 +454,7 @@ const WorkoutView = (props: Props) => {
                             onBlur={handleSetInputBlur}
                             inputMode="decimal"
                             isFinished={isFinished}
+                            shakeKey={shakeErrors[`${exerciseIdx}-${setIdx}-reps`]}
                         />
                         {showSetCompletionColumns && (
                             <TextInput
@@ -457,11 +471,17 @@ const WorkoutView = (props: Props) => {
                             <TouchableOpacity
                                 style={styles.tdBtn}
                                 onPress={() => {
-                                    vm.onFinishSet(
-                                        exerciseIdx,
-                                        setIdx,
-                                        !isFinished
-                                    );
+                                    if (!isFinished) {
+                                        const empty = [
+                                            set.weight.trim() === "" && "weight",
+                                            set.reps.trim() === "" && "reps",
+                                        ].filter(Boolean) as string[];
+                                        if (empty.length > 0) {
+                                            shakeEmpty(exerciseIdx, setIdx, empty);
+                                            return;
+                                        }
+                                    }
+                                    vm.onFinishSet(exerciseIdx, setIdx, !isFinished);
                                 }}
                             >
                                 <Ionicons

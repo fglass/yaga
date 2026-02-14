@@ -166,4 +166,3 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 ---
 
 Sort by template creation date? Or name?
-Disable finish set
