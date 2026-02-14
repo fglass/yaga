@@ -1,4 +1,4 @@
-# YAGA
+# Yaga
 
 Yet Another Gym App
 
@@ -162,3 +162,8 @@ https://github.com/cameroncooke/XcodeBuildMCP
 https://developer.apple.com/documentation/TechnologyOverviews/adopting-liquid-glass
 https://docs.expo.dev/router/advanced/native-tabs/
 https://docs.expo.dev/versions/latest/sdk/glass-effect/
+
+---
+
+Sort by template creation date? Or name?
+Disable finish set
