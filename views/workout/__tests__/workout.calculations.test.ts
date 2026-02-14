@@ -6,7 +6,11 @@ import {
     getSetProgress,
 } from "../workout.calculations";
 
-const setFactory = (weight: string, reps: string, type: Set["type"] = "default"): Set => ({
+const setFactory = (
+    weight: string,
+    reps: string,
+    type: Set["type"] = "default"
+): Set => ({
     id: "set-1",
     weight,
     reps,
@@ -118,35 +122,44 @@ describe("findPreviousFinishedSetTime", () => {
 
 describe("getSetProgress", () => {
     it("ignores warmup sets", () => {
+        const previousSets = [setFactory("95", "5")];
         const currentSets = [
             setFactory("20", "10", "warmup"),
             setFactory("100", "5"),
         ];
-        const previousSets = [setFactory("95", "5")];
 
-        expect(
-            getSetProgress(previousSets, currentSets, 0)
-        ).toBe(0);
+        expect(getSetProgress(previousSets, currentSets, 0)).toBe(0);
+    });
+
+    it("ignores drop sets", () => {
+        const previousSets = [
+            setFactory("95", "5"),
+            setFactory("90", "5"),
+            setFactory("90", "7"),
+        ];
+        const currentSets = [
+            setFactory("100", "5"),
+            setFactory("80", "8", "drop"),
+            setFactory("90", "6"),
+        ];
+
+        expect(getSetProgress(previousSets, currentSets, 1)).toBe(0);
+        expect(getSetProgress(previousSets, currentSets, 2)).toBe(1);
     });
 
     it("matches default sets by default-set index, not raw set index", () => {
+        const previousSets = [
+            setFactory("15", "12", "warmup"),
+            setFactory("95", "5"),
+            setFactory("90", "5"),
+        ];
         const currentSets = [
             setFactory("20", "10", "warmup"),
             setFactory("100", "5"),
             setFactory("90", "6"),
         ];
 
-        const previousSets = [
-            setFactory("15", "12", "warmup"),
-            setFactory("95", "5"),
-            setFactory("90", "5"),
-        ];
-
-        expect(
-            getSetProgress(previousSets, currentSets, 1)
-        ).toBe(1);
-        expect(
-            getSetProgress(previousSets, currentSets, 2)
-        ).toBe(1);
+        expect(getSetProgress(previousSets, currentSets, 1)).toBe(1);
+        expect(getSetProgress(previousSets, currentSets, 2)).toBe(1);
     });
 });

@@ -69,7 +69,7 @@ export interface Exercise {
     sets: Set[];
 }
 
-export const SET_TYPES = ["default", "warmup"] as const;
+export const SET_TYPES = ["default", "warmup", "drop"] as const;
 
 export type SetType = (typeof SET_TYPES)[number];
 

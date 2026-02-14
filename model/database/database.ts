@@ -876,7 +876,7 @@ const normalizeSetFromDefinition = (set: unknown): Set => {
         weight: parsed.weight ?? "",
         reps: parsed.reps ?? "",
         type:
-            parsedType === "warmup" || parsedType === "default"
+            parsedType === "warmup" || parsedType === "default" || parsedType === "drop"
                 ? parsedType
                 : "default",
         finishTime: parsed.finishTime,

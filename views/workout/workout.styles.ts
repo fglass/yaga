@@ -200,6 +200,9 @@ export const styles = StyleSheet.create({
     setLabelTextWarmup: {
         color: "#D9B36A",
     },
+    setLabelTextDrop: {
+        color: "#B07CD8",
+    },
     narrow: {
         flex: 0.35,
     },
