@@ -95,6 +95,8 @@ const HomeView = () => {
         },
     ];
 
+    const runUnit = vm.runCardMode === "distance" ? "km" : undefined;
+
     const runningCards = [
         {
             id: "run-week",
@@ -102,10 +104,11 @@ const HomeView = () => {
             iconColor: "#7AD3FF",
             label: "Week",
             thisLabel: "This",
-            thisValue: vm.runDistanceThisWeek,
+            thisValue: vm.runThisWeek,
             lastLabel: "Last",
-            lastValue: vm.runDistanceLastWeek,
-            isDistance: true,
+            lastValue: vm.runLastWeek,
+            unit: runUnit,
+            onPress: vm.toggleRunCardMode,
         },
         {
             id: "run-month",
@@ -113,10 +116,11 @@ const HomeView = () => {
             iconColor: "#9BE28A",
             label: "Month",
             thisLabel: "This",
-            thisValue: vm.runDistanceThisMonth,
+            thisValue: vm.runThisMonth,
             lastLabel: "Last",
-            lastValue: vm.runDistanceLastMonth,
-            isDistance: true,
+            lastValue: vm.runLastMonth,
+            unit: runUnit,
+            onPress: vm.toggleRunCardMode,
         },
         {
             id: "run-year",
@@ -124,10 +128,11 @@ const HomeView = () => {
             iconColor: "#FFC266",
             label: "Year",
             thisLabel: "This",
-            thisValue: vm.runDistanceThisYear,
+            thisValue: vm.runThisYear,
             lastLabel: "Last",
-            lastValue: vm.runDistanceLastYear,
-            isDistance: true,
+            lastValue: vm.runLastYear,
+            unit: runUnit,
+            onPress: vm.toggleRunCardMode,
         },
     ];
 
@@ -162,55 +167,71 @@ const HomeView = () => {
                 </View>
             </View>
             <View style={styles.statsGrid}>
-                {interleavedCards.map((card) => (
-                    <View key={card.id} style={styles.statCard}>
-                        <View style={styles.statHeader}>
-                            <Ionicons
-                                name={card.iconName}
-                                color={card.iconColor}
-                                size={20}
-                                style={styles.statIcon}
-                            />
-                            <Text style={styles.statLabel}>{card.label}</Text>
-                            {"isDistance" in card && card.isDistance ? (
-                                <Text style={styles.statLabelUnit}>km</Text>
-                            ) : null}
-                        </View>
-                        <View style={styles.statComparisonRow}>
-                            <View style={styles.statComparison}>
-                                <Text style={styles.statComparisonLabel}>
-                                    {card.thisLabel}
+                {interleavedCards.map((card) => {
+                    const onPress =
+                        "onPress" in card ? card.onPress : undefined;
+                    const unit = "unit" in card ? card.unit : undefined;
+                    const Container = onPress ? TouchableOpacity : View;
+                    return (
+                        <Container
+                            key={card.id}
+                            style={styles.statCard}
+                            {...(onPress && { activeOpacity: 0.7, onPress })}
+                        >
+                            <View style={styles.statHeader}>
+                                <Ionicons
+                                    name={card.iconName}
+                                    color={card.iconColor}
+                                    size={20}
+                                    style={styles.statIcon}
+                                />
+                                <Text style={styles.statLabel}>
+                                    {card.label}
                                 </Text>
-                                <Text
+                                {unit ? (
+                                    <Text style={styles.statLabelUnit}>
+                                        {unit}
+                                    </Text>
+                                ) : null}
+                            </View>
+                            <View style={styles.statComparisonRow}>
+                                <View style={styles.statComparison}>
+                                    <Text style={styles.statComparisonLabel}>
+                                        {card.thisLabel}
+                                    </Text>
+                                    <Text
+                                        style={[
+                                            styles.statValue,
+                                            vm.isLoading &&
+                                                styles.statValueLoading,
+                                        ]}
+                                    >
+                                        {card.thisValue}
+                                    </Text>
+                                </View>
+                                <View
                                     style={[
-                                        styles.statValue,
-                                        vm.isLoading && styles.statValueLoading,
+                                        styles.statComparison,
+                                        styles.statComparisonSpacer,
                                     ]}
                                 >
-                                    {card.thisValue}
-                                </Text>
+                                    <Text style={styles.statComparisonLabel}>
+                                        {card.lastLabel}
+                                    </Text>
+                                    <Text
+                                        style={[
+                                            styles.statValue,
+                                            vm.isLoading &&
+                                                styles.statValueLoading,
+                                        ]}
+                                    >
+                                        {card.lastValue}
+                                    </Text>
+                                </View>
                             </View>
-                            <View
-                                style={[
-                                    styles.statComparison,
-                                    styles.statComparisonSpacer,
-                                ]}
-                            >
-                                <Text style={styles.statComparisonLabel}>
-                                    {card.lastLabel}
-                                </Text>
-                                <Text
-                                    style={[
-                                        styles.statValue,
-                                        vm.isLoading && styles.statValueLoading,
-                                    ]}
-                                >
-                                    {card.lastValue}
-                                </Text>
-                            </View>
-                        </View>
-                    </View>
-                ))}
+                        </Container>
+                    );
+                })}
             </View>
             {vm.isImportVisible && (
                 <ImportView

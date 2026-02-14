@@ -32,14 +32,14 @@ Target: **Mar 1** 🎯
 -   [x] Bugs (see 🔴)
 -   [x] Template execise setting
 -   [x] Set types
--   [ ] Rest timer noise
+-   [ ] ~~Rest timer noise~~
 -   [ ] Rework exercise notes
 -   [ ] RPE / RIR
 -   [ ] Advanced progressive overload calcs?
 
 ### Milestone 3: Home + Plan + History clarity (Feb 9 → Feb 15)
 
--   [ ] Tap for run count
+-   [x] Tap for run count
 -   [x] History view bug fixes
 -   [ ] Active workout minimise
 -   [ ] Jump to historical workout (via title or exercise history)
@@ -89,7 +89,7 @@ Target: **Mar 1** 🎯
 
 ### Workout View
 
--   [ ] 🟡 Rest timer noise
+-   [ ] 🟢 Rest timer noise
 -   [ ] 🟡 Exercise completion timer
 -   [ ] 🟢 Drag to reorder exercises
 -   [ ] 🟡 Active workout minimise

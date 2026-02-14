@@ -1,4 +1,5 @@
 import React from "react";
+import * as Haptics from "expo-haptics";
 import * as DocumentPicker from "expo-document-picker";
 import { useCompletedWorkouts } from "../../model/database";
 import { useAppleHealthWorkouts } from "../../model/health/health.hooks";
@@ -20,6 +21,7 @@ export const useHomeViewModel = () => {
     const [isStravaLoggingEnabled, setStravaLoggingEnabledState] = React.useState(
         getStravaLoggingEnabled()
     );
+    const [runCardMode, setRunCardMode] = React.useState<"distance" | "count">("distance");
     const [isImportVisible, setImportVisible] = React.useState(false);
     const [importFileUri, setImportFileUri] = React.useState<string | null>(null);
     const [importFileName, setImportFileName] = React.useState<string | null>(null);
@@ -87,6 +89,16 @@ export const useHomeViewModel = () => {
         [runningWorkouts]
     );
 
+    const runningCountStats = React.useMemo(
+        () => computePeriodStats(runningWorkouts, () => 1),
+        [runningWorkouts]
+    );
+
+    const toggleRunCardMode = () => {
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setRunCardMode((prev) => (prev === "distance" ? "count" : "distance"));
+    };
+
     const toggleHealthLogging = () => {
         const next = !isHealthLoggingEnabled;
         setHealthLoggingEnabledState(next);
@@ -139,16 +151,26 @@ export const useHomeViewModel = () => {
         workoutsLastMonth: stats.month.previous,
         workoutsThisYear: stats.year.current,
         workoutsLastYear: stats.year.previous,
-        runDistanceThisWeek: formatDistance(runningDistanceStats.week.current),
-        runDistanceLastWeek: formatDistance(runningDistanceStats.week.previous),
-        runDistanceThisMonth: formatDistance(
-            runningDistanceStats.month.current
-        ),
-        runDistanceLastMonth: formatDistance(
-            runningDistanceStats.month.previous
-        ),
-        runDistanceThisYear: formatDistance(runningDistanceStats.year.current),
-        runDistanceLastYear: formatDistance(runningDistanceStats.year.previous),
+        runThisWeek: runCardMode === "distance"
+            ? formatDistance(runningDistanceStats.week.current)
+            : runningCountStats.week.current,
+        runLastWeek: runCardMode === "distance"
+            ? formatDistance(runningDistanceStats.week.previous)
+            : runningCountStats.week.previous,
+        runThisMonth: runCardMode === "distance"
+            ? formatDistance(runningDistanceStats.month.current)
+            : runningCountStats.month.current,
+        runLastMonth: runCardMode === "distance"
+            ? formatDistance(runningDistanceStats.month.previous)
+            : runningCountStats.month.previous,
+        runThisYear: runCardMode === "distance"
+            ? formatDistance(runningDistanceStats.year.current)
+            : runningCountStats.year.current,
+        runLastYear: runCardMode === "distance"
+            ? formatDistance(runningDistanceStats.year.previous)
+            : runningCountStats.year.previous,
+        runCardMode,
+        toggleRunCardMode,
         isLoading: isAppleHealthLoading,
         isHealthLoggingEnabled,
         isStravaLoggingEnabled,
