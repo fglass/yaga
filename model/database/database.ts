@@ -74,7 +74,7 @@ export const importDatabase = () => {
             ? db.databasePath
             : `file://${db.databasePath}`;
 
-        void resetDatabaseConnection();
+        await resetDatabaseConnection();
         const sourceFile = new ExpoFile(file.uri);
         const destFile = new ExpoFile(destUri);
 
@@ -149,21 +149,22 @@ export const createWorkoutTemplate = async (template: WorkoutTemplate) => {
     const startTime = Date.now();
     await ensureDatabase();
 
-    const db = await getDatabase();
-    await db.runAsync(
-        `INSERT INTO templates (id, name, notes, type, definition_json)
-         VALUES (?, ?, ?, ?, ?)
-         ON CONFLICT(id) DO UPDATE SET
-           name = excluded.name,
-           notes = excluded.notes,
-           type = excluded.type,
-           definition_json = excluded.definition_json`,
-        template.id,
-        template.name,
-        template.notes,
-        template.type,
-        JSON.stringify(template.exercises)
-    );
+    await runInTransaction(async (db) => {
+        await db.runAsync(
+            `INSERT INTO templates (id, name, notes, type, definition_json)
+             VALUES (?, ?, ?, ?, ?)
+             ON CONFLICT(id) DO UPDATE SET
+               name = excluded.name,
+               notes = excluded.notes,
+               type = excluded.type,
+               definition_json = excluded.definition_json`,
+            template.id,
+            template.name,
+            template.notes,
+            template.type,
+            JSON.stringify(template.exercises)
+        );
+    });
     console.log(
         `[database] Workout template saved in ${Date.now() - startTime}ms`
     );
@@ -173,8 +174,9 @@ export const deleteWorkoutTemplate = async (templateId: string) => {
     const startTime = Date.now();
     await ensureDatabase();
 
-    const db = await getDatabase();
-    await db.runAsync("DELETE FROM templates WHERE id = ?", templateId);
+    await runInTransaction(async (db) => {
+        await db.runAsync("DELETE FROM templates WHERE id = ?", templateId);
+    });
     console.log(
         `[database] Workout template deleted in ${Date.now() - startTime}ms`
     );
@@ -319,16 +321,17 @@ export const createExerciseDef = async (def: ExerciseDef): Promise<string> => {
     const startTime = Date.now();
     await ensureDatabase();
 
-    const db = await getDatabase();
     const exerciseId = generateGuid();
 
-    await db.runAsync(
-        `INSERT OR REPLACE INTO exercise_defs (id, name, category)
-         VALUES (?, ?, ?)`,
-        exerciseId,
-        def.name,
-        def.category
-    );
+    await runInTransaction(async (db) => {
+        await db.runAsync(
+            `INSERT OR REPLACE INTO exercise_defs (id, name, category)
+             VALUES (?, ?, ?)`,
+            exerciseId,
+            def.name,
+            def.category
+        );
+    });
     console.log(
         `[database] Exercise def created in ${Date.now() - startTime}ms`
     );
@@ -342,13 +345,14 @@ export const updateExerciseDef = async (params: {
     const startTime = Date.now();
     await ensureDatabase();
 
-    const db = await getDatabase();
-    await db.runAsync(
-        "UPDATE exercise_defs SET name = ?, category = ? WHERE id = ?",
-        params.def.name,
-        params.def.category,
-        params.id
-    );
+    await runInTransaction(async (db) => {
+        await db.runAsync(
+            "UPDATE exercise_defs SET name = ?, category = ? WHERE id = ?",
+            params.def.name,
+            params.def.category,
+            params.id
+        );
+    });
     console.log(
         `[database] Exercise def updated in ${Date.now() - startTime}ms`
     );

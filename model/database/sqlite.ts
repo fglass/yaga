@@ -84,6 +84,11 @@ export const ensureDatabase = async () => {
     return initPromise;
 };
 
+/**
+ * Executes a write transaction behind a promise-based mutex on the shared connection.
+ * Calls are queued FIFO, and each call runs BEGIN + fn + COMMIT or ROLLBACK before
+ * releasing the next queued call.
+ */
 export const runInTransaction = async <T>(
     fn: (db: SQLite.SQLiteDatabase) => Promise<T>
 ) => {
