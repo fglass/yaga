@@ -1,70 +1,41 @@
-import React from "react";
-import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import React from 'react';
+import * as NativeTabsModule from 'expo-router/unstable-native-tabs';
+
+const NativeTabs = NativeTabsModule.NativeTabs;
+const NativeTabTrigger = NativeTabsModule.NativeTabTrigger;
 
 const TabLayout = () => {
     return (
-        <Tabs
-            screenOptions={{
-                headerShown: false,
-                lazy: false,
-                sceneStyle: {
-                    backgroundColor: "#2A3135",
-                },
-                tabBarStyle: {
-                    backgroundColor: "#2A3135",
-                    borderTopColor: "rgba(255, 255, 255, 0.08)",
-                    borderTopWidth: 1,
-                    paddingTop: 8,
-                },
-                tabBarActiveTintColor: "#58A5F9",
-                tabBarInactiveTintColor: "rgba(255, 255, 255, 0.65)",
-                tabBarLabelStyle: {
-                    marginTop: 6,
-                    fontSize: 12,
-                },
-            }}
+        <NativeTabs
+            backgroundColor='#2A3135'
+            tintColor='#58A5F9'
+            iconColor='rgba(255, 255, 255, 0.65)'
         >
-            <Tabs.Screen
-                name="index"
+            <NativeTabTrigger
+                name='index'
                 options={{
-                    title: "Home",
-                    tabBarIcon: ({ focused, color, size }) => (
-                        <Ionicons
-                            name={focused ? "home" : "home-outline"}
-                            size={size}
-                            color={color}
-                        />
-                    ),
+                    title: '',
+                    icon: { sf: 'house' },
+                    selectedIcon: { sf: 'house.fill' },
                 }}
             />
-            <Tabs.Screen
-                name="plan"
+            <NativeTabTrigger
+                name='plan'
                 options={{
-                    title: "Plan",
-                    tabBarIcon: ({ focused, color, size }) => (
-                        <Ionicons
-                            name={focused ? "list" : "list-outline"}
-                            size={size}
-                            color={color}
-                        />
-                    ),
+                    title: '',
+                    icon: { sf: 'list.bullet' },
+                    selectedIcon: { sf: 'list.bullet' },
                 }}
             />
-            <Tabs.Screen
-                name="history"
+            <NativeTabTrigger
+                name='history'
                 options={{
-                    title: "History",
-                    tabBarIcon: ({ focused, color, size }) => (
-                        <Ionicons
-                            name={focused ? "time" : "time-outline"}
-                            size={size}
-                            color={color}
-                        />
-                    ),
+                    title: '',
+                    icon: { sf: 'clock' },
+                    selectedIcon: { sf: 'clock.fill' },
                 }}
             />
-        </Tabs>
+        </NativeTabs>
     );
 };
 

@@ -112,7 +112,7 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
                 </View>
                 <View style={styles.headerActions}>
                     <TouchableOpacity
-                        style={[styles.adminButton, styles.newTemplateButton]}
+                        style={styles.adminButton}
                         onPress={vm.createTemplate}
                     >
                         <Ionicons name="add" color="white" size={24} />
@@ -178,9 +178,6 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(255, 255, 255, 0.08)",
         alignItems: "center",
         justifyContent: "center",
-    },
-    newTemplateButton: {
-        backgroundColor: "#58A5F9",
     },
     listContent: {
         paddingBottom: 10,
