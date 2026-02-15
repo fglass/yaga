@@ -110,7 +110,6 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Add exercise search
 -   [ ] 🟡 Workout view model test coverage
 -   [ ] 🟢 Supersets
--   [ ] 🔴 Lag on save
 
 ### Run View
 

@@ -40,7 +40,7 @@ const WorkoutScreen = () => {
         }
 
         const onFinish = async () => {
-            navigateToTab("/(tabs)/history");
+            router.replace("/(tabs)/history");
             void saveActiveWorkout(null);
         };
 
