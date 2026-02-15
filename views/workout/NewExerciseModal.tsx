@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
     KeyboardAvoidingView,
-    Platform,
     StyleSheet,
     TextInput,
     Text,
@@ -45,9 +44,9 @@ const NewExerciseModal = (props: Props) => {
             maxHeight="50%"
         >
             <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                behavior="padding"
                 style={styles.keyboard}
-                keyboardVerticalOffset={Platform.OS === "ios" ? 24 : 0}
+                keyboardVerticalOffset={24}
             >
                 <View style={styles.form}>
                     <TextInput

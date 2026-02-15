@@ -39,6 +39,7 @@ Always set an explicit timeout for outbound requests.
 ## Verification
 
 -   Use the `ios-simulator-skill` to verify UI changes on the iOS simulator.
+    -   For simulator launch/automation, use the iOS `bundleIdentifier` (`com.expench.yaga.development`).
 -   Always run `npm run lint` after making any change.
 
 ### Testing

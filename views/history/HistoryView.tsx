@@ -190,6 +190,10 @@ const HistoryView = (props: Props) => {
                         : `health-${item.workout.id}`
                 }
                 renderItem={({ item }) => renderHistoryItem(item)}
+                // Disable iOS auto-insets because this screen handles top/bottom spacing explicitly
+                contentInsetAdjustmentBehavior="never"
+                automaticallyAdjustContentInsets={false}
+                automaticallyAdjustsScrollIndicatorInsets={false}
                 ListFooterComponent={() => (
                     <View style={styles.listFooterSpacing} />
                 )}

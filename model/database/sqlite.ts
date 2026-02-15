@@ -5,11 +5,12 @@ let dbName = process.env.EXPO_PUBLIC_DB_NAME;
 
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
 let initPromise: Promise<void> | null = null;
+let transactionQueue: Promise<void> = Promise.resolve();
 
 export const getDatabase = async () => {
     if (databasePromise == null) {
         if (!dbName) {
-            console.error("EXPO_PUBLIC_DB_NAME is unset");
+            console.error("[database] EXPO_PUBLIC_DB_NAME is unset");
         }
         databasePromise = SQLite.openDatabaseAsync(dbName);
     }
@@ -27,6 +28,7 @@ export const resetDatabaseConnection = async () => {
     }
     databasePromise = null;
     initPromise = null;
+    transactionQueue = Promise.resolve();
 };
 
 export const setDatabaseNameForTests = async (name: string) => {
@@ -85,15 +87,30 @@ export const ensureDatabase = async () => {
 export const runInTransaction = async <T>(
     fn: (db: SQLite.SQLiteDatabase) => Promise<T>
 ) => {
-    await ensureDatabase();
-    const db = await getDatabase();
-    await db.execAsync("BEGIN");
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+        release = resolve;
+    });
+    const previousTransaction = transactionQueue;
+    transactionQueue = previousTransaction
+        .catch(() => undefined)
+        .then(() => gate);
+
+    await previousTransaction.catch(() => undefined);
+
     try {
-        const result = await fn(db);
-        await db.execAsync("COMMIT");
-        return result;
-    } catch (error) {
-        await db.execAsync("ROLLBACK");
-        throw error;
+        await ensureDatabase();
+        const db = await getDatabase();
+        await db.execAsync("BEGIN");
+        try {
+            const result = await fn(db);
+            await db.execAsync("COMMIT");
+            return result;
+        } catch (error) {
+            await db.execAsync("ROLLBACK");
+            throw error;
+        }
+    } finally {
+        release();
     }
 };

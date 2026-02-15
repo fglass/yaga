@@ -42,7 +42,7 @@ Target: **Mar 1** 🎯
 -   [x] Tap for run count
 -   [x] History view bug fixes
 -   [ ] Active workout minimise
--   [ ] Jump to historical workout (via title or exercise history)
+-   [ ] Jump to historical workout (via workout title or exercise history)
 -   [ ] Shake to undo?
 
 ### Milestone 4: Data management (Feb 16 → Feb 22)
@@ -110,6 +110,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Add exercise search
 -   [ ] 🟡 Workout view model test coverage
 -   [ ] 🟢 Supersets
+-   [ ] 🔴 Lag on save
 
 ### Run View
 
@@ -162,3 +163,11 @@ https://github.com/cameroncooke/XcodeBuildMCP
 https://developer.apple.com/documentation/TechnologyOverviews/adopting-liquid-glass
 https://docs.expo.dev/router/advanced/native-tabs/
 https://docs.expo.dev/versions/latest/sdk/glass-effect/
+
+---
+
+✨ AI
+
+-   Require API key
+-   Category inferring
+-   Template creation

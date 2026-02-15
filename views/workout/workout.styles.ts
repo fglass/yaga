@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: "#2A3135",
         paddingHorizontal: 16,
     },
     content: {
@@ -120,7 +121,6 @@ export const styles = StyleSheet.create({
         borderRadius: 6,
         fontSize: 13,
         lineHeight: 16,
-        textAlignVertical: "center",
     },
     thead: {
         flexDirection: "row",
@@ -246,6 +246,7 @@ export const styles = StyleSheet.create({
     },
     loading: {
         flex: 1,
+        backgroundColor: "#2A3135",
     },
     restTimerContainer: {
         position: "absolute",
