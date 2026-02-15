@@ -103,7 +103,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Advanced progressive overload calcs
 -   [ ] 🟡 RIR
 -   [ ] 🟢 Cardio exercise?
--   [ ] 🟡 Shake to undo
+-   [ ] 🟢 Shake to undo
 -   [ ] 🟡 Touch workout title to see history
 -   [ ] 🟡 Sticky exercise note
 -   [ ] 🟡 Global-only exercise notes?
