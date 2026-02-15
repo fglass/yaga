@@ -9,7 +9,7 @@ npm start
 npm test
 
 npx expo prebuild --clean --platform ios
-npx expo run:ios
+npx expo run:ios (dev client rebuild)
 
 eas update
 eas build --platform ios --profile development
@@ -161,7 +161,6 @@ https://github.com/cameroncooke/XcodeBuildMCP
 ---
 
 https://developer.apple.com/documentation/TechnologyOverviews/adopting-liquid-glass
-https://docs.expo.dev/router/advanced/native-tabs/
 https://docs.expo.dev/versions/latest/sdk/glass-effect/
 
 ---
