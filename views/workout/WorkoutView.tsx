@@ -8,7 +8,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import ExerciseListModal from "./ExerciseListModal";
 import ExerciseHistoryModal from "./exerciseHistory/ExerciseHistoryModal";
@@ -577,13 +577,25 @@ const WorkoutView = (props: Props) => {
     };
 
     return vm.isLoading ? (
-        <ActivityIndicator style={styles.loading} color="white" size="large" />
+        <SafeAreaView
+            style={styles.container}
+            edges={["top", "right", "left"]}
+        >
+            <ActivityIndicator style={styles.loading} color="white" size="large" />
+        </SafeAreaView>
     ) : (
-        <View style={styles.container}>
+        <SafeAreaView
+            style={styles.container}
+            edges={["top", "right", "left"]}
+        >
             {renderModals()}
             <ScrollView
                 ref={scrollRef}
                 style={styles.content}
+                // Disable iOS auto-insets because this screen handles top/bottom spacing explicitly
+                contentInsetAdjustmentBehavior="never"
+                automaticallyAdjustContentInsets={false}
+                automaticallyAdjustsScrollIndicatorInsets={false}
                 contentContainerStyle={[
                     styles.contentContainer,
                     { paddingBottom: contentBottomPadding },
@@ -602,7 +614,7 @@ const WorkoutView = (props: Props) => {
                 {renderFooter()}
             </ScrollView>
             {renderRestTimer()}
-        </View>
+        </SafeAreaView>
     );
 };
 

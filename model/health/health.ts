@@ -13,10 +13,7 @@ import type {
     QuantityTypeIdentifier,
     QueryStatisticsResponse,
 } from "@kingstinct/react-native-healthkit";
-import {
-    completeWorkout,
-    fetchCompletedWorkoutIds,
-} from "../database";
+import { completeWorkout, fetchCompletedWorkoutIds } from "../database";
 import { AppleHealthWorkout, CompletedWorkout, WorkoutType } from "../types";
 
 export interface HealthWorkoutPayload {

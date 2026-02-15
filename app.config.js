@@ -73,6 +73,7 @@ module.exports = ({ config }) => {
             "expo-font",
             "expo-notifications",
             "expo-sqlite",
+            "expo-router",
             "./plugins/withLastWorkoutIntent",
         ],
     };

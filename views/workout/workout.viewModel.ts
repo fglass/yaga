@@ -67,7 +67,7 @@ type Props = ActiveProps | HistoryProps | CreateProps;
 
 interface ViewModel {
     isLoading: boolean;
-    workout: Workout; // TODO: flatten?
+    workout: Workout;
     startDateLabel: string;
     workoutDurationS: number;
     remainingRestTimeS: number;

@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { StyleProp, TextInput, TextInputProps, TextStyle } from "react-native";
+import {
+    StyleProp,
+    TextInput,
+    TextInputProps,
+    TextStyle,
+} from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
     interpolateColor,
@@ -43,7 +48,6 @@ const AdjustableNumberInput = ({
     shakeKey,
 }: AdjustableNumberInputProps) => {
     const inputRef = useRef<TextInput>(null);
-    const [allowSoftInput, setAllowSoftInput] = useState(false);
     const allowSoftInputRef = useRef(false);
     const [isAdjusting, setIsAdjusting] = useState(false);
     const isAdjustingRef = useRef(false);
@@ -82,7 +86,6 @@ const AdjustableNumberInput = ({
 
     const setAllowSoftInputValue = (value: boolean) => {
         allowSoftInputRef.current = value;
-        setAllowSoftInput(value);
     };
 
     const resetAdjustment = () => {
@@ -164,7 +167,6 @@ const AdjustableNumberInput = ({
                     value={displayValue}
                     onChangeText={onChangeText}
                     inputMode={inputMode}
-                    showSoftInputOnFocus={allowSoftInput}
                     onPressIn={() => {
                         if (!isAdjusting) {
                             setAllowSoftInputValue(true);

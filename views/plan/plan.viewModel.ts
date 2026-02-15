@@ -8,13 +8,20 @@ import { withWarning } from "../../utils/util";
 
 type Params = {
     onCreateTemplate: (workout: Workout) => void;
+    onStartWorkout: (workout: Workout) => void;
+    onStartRun: () => void;
 };
 
-export const usePlanViewModel = ({ onCreateTemplate }: Params) => {
+export const usePlanViewModel = ({
+    onCreateTemplate,
+    onStartWorkout,
+    onStartRun,
+}: Params) => {
     const { templates, isLoading: isTemplatesLoading } = useWorkoutTemplates();
     const { saveActiveWorkout, deleteWorkoutTemplate } = useDatabaseWriter();
 
     const selectTemplate = async (workout: WorkoutTemplate) => {
+        const startTimestamp = Date.now();
         const baseExercises = workout.exercises.map((exercise) => ({
             ...exercise,
             id: generateGuid(),
@@ -28,18 +35,24 @@ export const usePlanViewModel = ({ onCreateTemplate }: Params) => {
                 prefillExerciseFromHistory(exercise.exerciseId, exercise)
             )
         );
-        await saveActiveWorkout({
+
+        const nextWorkout: Workout = {
             ...workout,
             id: generateGuid(),
-            startTimestamp: Date.now(),
+            startTimestamp,
             exercises,
             metadata: {},
-        });
+        };
+
+        await saveActiveWorkout(nextWorkout);
+
         void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+        onStartWorkout(nextWorkout);
     };
 
     const startBlankWorkout = async () => {
-        await saveActiveWorkout({
+        const workout: Workout = {
             id: generateGuid(),
             name: "Workout",
             exercises: [],
@@ -47,7 +60,9 @@ export const usePlanViewModel = ({ onCreateTemplate }: Params) => {
             type: "strength",
             metadata: {},
             startTimestamp: Date.now(),
-        });
+        };
+        await saveActiveWorkout(workout);
+        onStartWorkout(workout);
     };
 
     const startRun = async () => {
@@ -61,6 +76,7 @@ export const usePlanViewModel = ({ onCreateTemplate }: Params) => {
             startTimestamp: Date.now(),
             distance: 0,
         });
+        onStartRun();
     };
 
     const createTemplate = () => {

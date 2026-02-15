@@ -42,7 +42,7 @@ export const initDatabase = async () => {
     const startTime = Date.now();
     await ensureDatabase();
     await seedInitialData();
-    console.log(`Database initialised in ${Date.now() - startTime}ms`);
+    console.log(`[database] Initialised in ${Date.now() - startTime}ms`);
 };
 
 export const exportDatabase = async () => {
@@ -84,7 +84,7 @@ export const importDatabase = () => {
 
         await ensureDatabase();
 
-        console.log(`Database imported from ${file.name}`);
+        console.log(`[database] Database imported from ${file.name}`);
         alert("Database import successful");
     });
 };
@@ -101,7 +101,7 @@ export const resetDatabase = () => {
 
         await seedInitialData();
 
-        console.warn("Database reset");
+        console.warn("[database] Database reset");
         alert("Database reset successful");
     });
 };
@@ -116,7 +116,7 @@ const seedInitialData = async () => {
     if ((existing?.count ?? 0) > 0) {
         return;
     }
-    console.log("Seeding initial data...");
+    console.log("[database] Seeding initial data...");
     await ensureDatabase();
 
     await runInTransaction(async (dbTx) => {
@@ -146,6 +146,7 @@ const seedInitialData = async () => {
 };
 
 export const createWorkoutTemplate = async (template: WorkoutTemplate) => {
+    const startTime = Date.now();
     await ensureDatabase();
 
     const db = await getDatabase();
@@ -163,22 +164,33 @@ export const createWorkoutTemplate = async (template: WorkoutTemplate) => {
         template.type,
         JSON.stringify(template.exercises)
     );
+    console.log(
+        `[database] Workout template saved in ${Date.now() - startTime}ms`
+    );
 };
 
 export const deleteWorkoutTemplate = async (templateId: string) => {
+    const startTime = Date.now();
     await ensureDatabase();
 
     const db = await getDatabase();
     await db.runAsync("DELETE FROM templates WHERE id = ?", templateId);
+    console.log(
+        `[database] Workout template deleted in ${Date.now() - startTime}ms`
+    );
 };
 
 export const saveActiveWorkout = async (workout: Workout | null) => {
+    const startTime = Date.now();
     await ensureDatabase();
 
     if (workout == null) {
         await runInTransaction(async (db) => {
             await db.runAsync("DELETE FROM workouts WHERE status = 'active'");
         });
+        console.log(
+            `[database] Active workout saved in ${Date.now() - startTime}ms`
+        );
         return;
     }
 
@@ -207,6 +219,9 @@ export const saveActiveWorkout = async (workout: Workout | null) => {
         );
         await insertExercises(db, workout.id, workout.exercises);
     });
+    console.log(
+        `[database] Active workout saved in ${Date.now() - startTime}ms`
+    );
 };
 
 const insertExercises = async (
@@ -250,6 +265,7 @@ const insertExercises = async (
 };
 
 export const completeWorkout = async (workout: CompletedWorkout) => {
+    const startTime = Date.now();
     await ensureDatabase();
 
     await runInTransaction(async (db) => {
@@ -273,9 +289,11 @@ export const completeWorkout = async (workout: CompletedWorkout) => {
         );
         await insertExercises(db, workout.id, workout.exercises);
     });
+    console.log(`[database] Workout completed in ${Date.now() - startTime}ms`);
 };
 
 export const deleteCompletedWorkout = async (workoutId: string) => {
+    const startTime = Date.now();
     await ensureDatabase();
 
     await runInTransaction(async (db) => {
@@ -292,9 +310,13 @@ export const deleteCompletedWorkout = async (workoutId: string) => {
             workoutId
         );
     });
+    console.log(
+        `[database] Completed workout deleted in ${Date.now() - startTime}ms`
+    );
 };
 
 export const createExerciseDef = async (def: ExerciseDef): Promise<string> => {
+    const startTime = Date.now();
     await ensureDatabase();
 
     const db = await getDatabase();
@@ -307,6 +329,9 @@ export const createExerciseDef = async (def: ExerciseDef): Promise<string> => {
         def.name,
         def.category
     );
+    console.log(
+        `[database] Exercise def created in ${Date.now() - startTime}ms`
+    );
     return exerciseId;
 };
 
@@ -314,6 +339,7 @@ export const updateExerciseDef = async (params: {
     id: string;
     def: ExerciseDef;
 }): Promise<void> => {
+    const startTime = Date.now();
     await ensureDatabase();
 
     const db = await getDatabase();
@@ -323,15 +349,18 @@ export const updateExerciseDef = async (params: {
         params.def.category,
         params.id
     );
+    console.log(
+        `[database] Exercise def updated in ${Date.now() - startTime}ms`
+    );
 };
 
 export const deleteExerciseDef = async (
     exerciseDefId: string
 ): Promise<string> => {
-    await ensureDatabase();
     const startTime = Date.now();
+    await ensureDatabase();
 
-    return await runInTransaction(async (db) => {
+    const result = await runInTransaction(async (db) => {
         const unknownId = UNKNOWN_EXERCISE_DEF_ID;
 
         // Never delete the sentinel
@@ -356,16 +385,19 @@ export const deleteExerciseDef = async (
             "DELETE FROM exercise_defs WHERE id = ?",
             exerciseDefId
         );
-
-        console.log(`Exercise def deleted in ${Date.now() - startTime}ms`);
         return unknownId;
     });
+    console.log(
+        `[database] Exercise def deleted in ${Date.now() - startTime}ms`
+    );
+    return result;
 };
 
 export const mergeExerciseDefs = async (
     targetExerciseDefId: string,
     sourceExerciseDefIds: string[]
 ): Promise<void> => {
+    const startTime = Date.now();
     await ensureDatabase();
 
     const sources = sourceExerciseDefIds.filter(
@@ -399,6 +431,9 @@ export const mergeExerciseDefs = async (
             ...sources
         );
     });
+    console.log(
+        `[database] Exercise defs merged in ${Date.now() - startTime}ms`
+    );
 };
 
 /* Read operations */
@@ -420,7 +455,9 @@ export const fetchExerciseDefs = async (): Promise<
         return acc;
     }, {});
 
-    console.log(`Exercise defs fetched in ${Date.now() - startTime}ms`);
+    console.log(
+        `[database] Exercise defs fetched in ${Date.now() - startTime}ms`
+    );
     return defs;
 };
 
@@ -452,7 +489,11 @@ export const fetchCompletedWorkoutIds = async (): Promise<string[]> => {
     );
     const ids = rows.map((row) => row.id);
 
-    console.log(`Completed workout IDs fetched in ${Date.now() - startTime}ms`);
+    console.log(
+        `[database] Completed workout IDs fetched in ${
+            Date.now() - startTime
+        }ms`
+    );
     return ids;
 };
 
@@ -478,7 +519,9 @@ export const fetchWorkoutTemplates = async (): Promise<WorkoutTemplate[]> => {
         exercises: parseDefinitionJson(row.definition_json),
     }));
 
-    console.log(`Workout templates fetched in ${Date.now() - startTime}ms`);
+    console.log(
+        `[database] Workout templates fetched in ${Date.now() - startTime}ms`
+    );
     return templates;
 };
 
@@ -500,13 +543,17 @@ export const fetchActiveWorkout = async (): Promise<Workout | null> => {
     );
 
     if (!row) {
-        console.log(`Active workout fetched in ${Date.now() - startTime}ms`);
+        console.log(
+            `[database] Active workout fetched in ${Date.now() - startTime}ms`
+        );
         return null;
     }
 
     const exercises = await fetchExercisesForWorkout(db, row.id);
 
-    console.log(`Active workout fetched in ${Date.now() - startTime}ms`);
+    console.log(
+        `[database] Active workout fetched in ${Date.now() - startTime}ms`
+    );
     return {
         id: row.id,
         name: row.name,
@@ -673,7 +720,9 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
 
     const completed = Array.from(workoutMap.values());
 
-    console.log(`Completed workouts fetched in ${Date.now() - startTime}ms`);
+    console.log(
+        `[database] Completed workouts fetched in ${Date.now() - startTime}ms`
+    );
     return completed;
 };
 
@@ -688,7 +737,9 @@ export const fetchExerciseSetsFromCompletedWorkouts = async (
     await ensureDatabase();
 
     if (exerciseIds.length === 0 || nWorkouts <= 0) {
-        console.warn(`No exercise sets fetched in ${Date.now() - startTime}ms`);
+        console.warn(
+            `[database] No exercise sets fetched in ${Date.now() - startTime}ms`
+        );
         return {};
     }
 
@@ -728,7 +779,7 @@ export const fetchExerciseSetsFromCompletedWorkouts = async (
 
     if (rows.length === 0) {
         console.log(
-            `Exercise sets fetched from ${nWorkouts} workouts in ${
+            `[database] Exercise sets fetched from ${nWorkouts} workouts in ${
                 Date.now() - startTime
             }ms`
         );
@@ -738,7 +789,7 @@ export const fetchExerciseSetsFromCompletedWorkouts = async (
     const setsByExercise = buildExerciseSetsFromRows(rows, nWorkouts);
 
     console.log(
-        `Exercise sets fetched from ${nWorkouts} workouts in ${
+        `[database] Exercise sets fetched from ${nWorkouts} workouts in ${
             Date.now() - startTime
         }ms`
     );
@@ -813,7 +864,7 @@ const parseNotesJson = (raw: string): Note[] => {
         const parsed = JSON.parse(raw);
         return parsed;
     } catch (error) {
-        console.warn("Failed to parse notes JSON", error);
+        console.warn("[database] Failed to parse notes JSON", error);
         return [];
     }
 };
@@ -826,7 +877,7 @@ const parseMetadataJson = (raw: string): WorkoutMetadata => {
         }
         return {};
     } catch (error) {
-        console.warn("Failed to parse metadata JSON", error);
+        console.warn("[database] Failed to parse metadata JSON", error);
         return {};
     }
 };
@@ -839,7 +890,7 @@ const parseDefinitionJson = (raw: string): Exercise[] => {
         }
         return parsed.map(normalizeExerciseFromDefinition);
     } catch (error) {
-        console.warn("Failed to parse definition JSON", error);
+        console.warn("[database] Failed to parse definition JSON", error);
         return [];
     }
 };
@@ -876,7 +927,9 @@ const normalizeSetFromDefinition = (set: unknown): Set => {
         weight: parsed.weight ?? "",
         reps: parsed.reps ?? "",
         type:
-            parsedType === "warmup" || parsedType === "default" || parsedType === "drop"
+            parsedType === "warmup" ||
+            parsedType === "default" ||
+            parsedType === "drop"
                 ? parsedType
                 : "default",
         finishTime: parsed.finishTime,

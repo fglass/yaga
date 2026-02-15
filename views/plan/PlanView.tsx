@@ -13,10 +13,12 @@ import { usePlanViewModel } from "./plan.viewModel";
 
 type Props = {
     onCreateTemplate: (workout: Workout) => void;
+    onStartWorkout: (workout: Workout) => void;
+    onStartRun: () => void;
 };
 
-const PlanView = ({ onCreateTemplate }: Props) => {
-    const vm = usePlanViewModel({ onCreateTemplate });
+const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
+    const vm = usePlanViewModel({ onCreateTemplate, onStartWorkout, onStartRun });
 
     const onStartNewWorkout = () => {
         void vm.startBlankWorkout();
@@ -121,6 +123,10 @@ const PlanView = ({ onCreateTemplate }: Props) => {
                 data={vm.templates}
                 keyExtractor={(item) => item.id}
                 renderItem={renderTemplate}
+                // Disable iOS auto-insets because this screen handles top/bottom spacing explicitly
+                contentInsetAdjustmentBehavior="never"
+                automaticallyAdjustContentInsets={false}
+                automaticallyAdjustsScrollIndicatorInsets={false}
                 ListEmptyComponent={
                     vm.isTemplatesLoading ? null : renderEmptyState
                 }

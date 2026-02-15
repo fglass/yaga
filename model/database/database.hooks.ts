@@ -22,7 +22,10 @@ import {
     WorkoutTemplate,
 } from "../types";
 
-export const useActiveWorkout = (): Workout | null => {
+export const useActiveWorkout = (): {
+    activeWorkout: Workout | null;
+    isLoading: boolean;
+} => {
     const { isLoading, error, data } = useSelect(
         QueryKey.ActiveWorkout,
         fetchActiveWorkout
@@ -32,7 +35,10 @@ export const useActiveWorkout = (): Workout | null => {
         console.error(error);
     }
 
-    return isLoading ? null : data ?? null;
+    return {
+        activeWorkout: isLoading ? null : data ?? null,
+        isLoading,
+    };
 };
 
 export const useWorkoutTemplates = (): {
@@ -97,7 +103,8 @@ export const useDatabaseWriter = () => {
 
     const saveActiveWorkoutMutation = useMutation({
         mutationFn: saveActiveWorkout,
-        onSuccess: () => {
+        onSuccess: (_, workout) => {
+            queryClient.setQueryData([QueryKey.ActiveWorkout], workout);
             queryClient.invalidateQueries({
                 queryKey: [QueryKey.ActiveWorkout],
             });
