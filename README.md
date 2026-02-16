@@ -91,6 +91,7 @@ Target: **Mar 1** 🎯
 
 -   [ ] 🟢 Rest timer noise
 -   [ ] 🟡 Exercise completion timer
+-   [ ] 🟡 Set timer
 -   [ ] 🟢 Drag to reorder exercises
 -   [ ] 🟡 Active workout minimise
 -   [ ] 🟡 Bug: Workout timer resets on app reopen
