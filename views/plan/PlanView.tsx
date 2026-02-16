@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
     FlatList,
     View,
+    LayoutChangeEvent,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,6 +14,9 @@ import Deletable from "../../components/Deletable";
 import { usePlanViewModel } from "./plan.viewModel";
 
 const TAB_BAR_OVERLAY_HEIGHT = 56;
+const HEADER_BOTTOM_GAP = 18;
+const FALLBACK_HEADER_HEIGHT = 66;
+const SCRIM_FADE_HEIGHT = 24;
 
 type Props = {
     onCreateTemplate: (workout: Workout) => void;
@@ -27,6 +31,8 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
         onStartRun,
     });
     const insets = useSafeAreaInsets();
+    const [headerHeight, setHeaderHeight] =
+        React.useState(FALLBACK_HEADER_HEIGHT);
 
     const onStartNewWorkout = () => {
         void vm.startBlankWorkout();
@@ -111,23 +117,17 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
     const hasTemplates = vm.templates.length > 0;
     const isTemplatesEmpty = !vm.isTemplatesLoading && !hasTemplates;
     const listBottomPadding = TAB_BAR_OVERLAY_HEIGHT + insets.bottom + 10;
+    const listTopPadding = insets.top + headerHeight + HEADER_BOTTOM_GAP;
+
+    const onHeaderLayout = (event: LayoutChangeEvent) => {
+        const nextHeight = Math.ceil(event.nativeEvent.layout.height);
+        if (nextHeight > 0 && nextHeight !== headerHeight) {
+            setHeaderHeight(nextHeight);
+        }
+    };
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <View>
-                    <Text style={styles.title}>Plan</Text>
-                    <Text style={styles.subtitle}>Every workout counts</Text>
-                </View>
-                <View style={styles.headerActions}>
-                    <TouchableOpacity
-                        style={styles.adminButton}
-                        onPress={vm.createTemplate}
-                    >
-                        <Ionicons name="add" color="white" size={24} />
-                    </TouchableOpacity>
-                </View>
-            </View>
             <FlatList
                 data={vm.templates}
                 keyExtractor={(item) => item.id}
@@ -147,11 +147,59 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={[
                     styles.listContent,
-                    { paddingBottom: listBottomPadding },
+                    {
+                        paddingTop: listTopPadding,
+                        paddingBottom: listBottomPadding,
+                    },
                     (isTemplatesEmpty || vm.isTemplatesLoading) &&
                         styles.emptyListContent,
                 ]}
             />
+            <View
+                pointerEvents="none"
+                style={[
+                    styles.underHeaderScrim,
+                    {
+                        height: Math.max(
+                            listTopPadding - SCRIM_FADE_HEIGHT,
+                            0
+                        ),
+                    },
+                ]}
+            />
+            <View
+                pointerEvents="none"
+                style={[
+                    styles.underHeaderFadeMid,
+                    {
+                        top: Math.max(listTopPadding - SCRIM_FADE_HEIGHT, 0),
+                    },
+                ]}
+            />
+            <View
+                pointerEvents="none"
+                style={[
+                    styles.underHeaderFadeLow,
+                    { top: Math.max(listTopPadding - 8, 0) },
+                ]}
+            />
+            <View
+                style={[styles.header, { top: insets.top }]}
+                onLayout={onHeaderLayout}
+            >
+                <View>
+                    <Text style={styles.title}>Plan</Text>
+                    <Text style={styles.subtitle}>Every workout counts</Text>
+                </View>
+                <View style={styles.headerActions}>
+                    <TouchableOpacity
+                        style={styles.adminButton}
+                        onPress={vm.createTemplate}
+                    >
+                        <Ionicons name="add" color="white" size={24} />
+                    </TouchableOpacity>
+                </View>
+            </View>
         </View>
     );
 };
@@ -159,13 +207,40 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 20,
+    },
+    underHeaderScrim: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: "rgba(42, 49, 53, 0.36)",
+        zIndex: 1,
+    },
+    underHeaderFadeMid: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        height: SCRIM_FADE_HEIGHT,
+        backgroundColor: "rgba(42, 49, 53, 0.18)",
+        zIndex: 1,
+    },
+    underHeaderFadeLow: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        height: 14,
+        backgroundColor: "rgba(42, 49, 53, 0.08)",
+        zIndex: 1,
     },
     header: {
+        position: "absolute",
+        top: 0,
+        left: 20,
+        right: 20,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        marginBottom: 18,
+        zIndex: 2,
     },
     headerActions: {
         flexDirection: "row",
@@ -190,6 +265,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     listContent: {
+        paddingHorizontal: 20,
         paddingBottom: 0,
     },
     emptyListContent: {

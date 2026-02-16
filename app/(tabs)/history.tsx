@@ -1,7 +1,6 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CompletedWorkout } from "../../model/types";
 import { useWorkoutNav } from "../../model/WorkoutNavContext";
 import HistoryView from "../../views/history/HistoryView";
@@ -9,7 +8,6 @@ import HistoryView from "../../views/history/HistoryView";
 const HistoryScreen = () => {
     const router = useRouter();
     const { setWorkout } = useWorkoutNav();
-    const insets = useSafeAreaInsets();
 
     const onSelectWorkout = (workout: CompletedWorkout) => {
         setWorkout(workout);
@@ -17,7 +15,7 @@ const HistoryScreen = () => {
     };
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={styles.container}>
             <HistoryView onSelectWorkout={onSelectWorkout} />
         </View>
     );

@@ -1,7 +1,6 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Workout } from "../../model/types";
 import { useWorkoutNav } from "../../model/WorkoutNavContext";
 import PlanView from "../../views/plan/PlanView";
@@ -9,7 +8,6 @@ import PlanView from "../../views/plan/PlanView";
 const PlanScreen = () => {
     const router = useRouter();
     const { setWorkout } = useWorkoutNav();
-    const insets = useSafeAreaInsets();
 
     const onCreateTemplate = (workout: Workout) => {
         setWorkout(workout);
@@ -26,7 +24,7 @@ const PlanScreen = () => {
     };
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={styles.container}>
             <PlanView
                 onCreateTemplate={onCreateTemplate}
                 onStartWorkout={onStartWorkout}
