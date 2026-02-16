@@ -7,9 +7,12 @@ import {
     View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Workout, WorkoutTemplate } from "../../model/types";
 import Deletable from "../../components/Deletable";
 import { usePlanViewModel } from "./plan.viewModel";
+
+const TAB_BAR_OVERLAY_HEIGHT = 56;
 
 type Props = {
     onCreateTemplate: (workout: Workout) => void;
@@ -18,7 +21,12 @@ type Props = {
 };
 
 const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
-    const vm = usePlanViewModel({ onCreateTemplate, onStartWorkout, onStartRun });
+    const vm = usePlanViewModel({
+        onCreateTemplate,
+        onStartWorkout,
+        onStartRun,
+    });
+    const insets = useSafeAreaInsets();
 
     const onStartNewWorkout = () => {
         void vm.startBlankWorkout();
@@ -102,6 +110,7 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
 
     const hasTemplates = vm.templates.length > 0;
     const isTemplatesEmpty = !vm.isTemplatesLoading && !hasTemplates;
+    const listBottomPadding = TAB_BAR_OVERLAY_HEIGHT + insets.bottom + 10;
 
     return (
         <View style={styles.container}>
@@ -138,6 +147,7 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={[
                     styles.listContent,
+                    { paddingBottom: listBottomPadding },
                     (isTemplatesEmpty || vm.isTemplatesLoading) &&
                         styles.emptyListContent,
                 ]}
@@ -180,7 +190,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     listContent: {
-        paddingBottom: 10,
+        paddingBottom: 0,
     },
     emptyListContent: {
         flexGrow: 1,

@@ -7,6 +7,7 @@ import {
     View,
 } from "react-native";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CompletedWorkout, AppleHealthWorkout } from "../../model/types";
 import {
     formatDuration,
@@ -22,6 +23,8 @@ interface Props {
     onSelectWorkout: (workout: CompletedWorkout) => void;
 }
 
+const TAB_BAR_OVERLAY_HEIGHT = 56;
+
 const HistoryView = (props: Props) => {
     const {
         combinedHistory,
@@ -32,6 +35,9 @@ const HistoryView = (props: Props) => {
     } = useHistoryViewModel({
         onSelectLocalWorkout: props.onSelectWorkout,
     });
+
+    const insets = useSafeAreaInsets();
+    const listBottomPadding = TAB_BAR_OVERLAY_HEIGHT + insets.bottom + 10;
 
     const renderHistoryItem = (item: HistoryItem) => {
         if (item.type === "local") {
@@ -198,7 +204,10 @@ const HistoryView = (props: Props) => {
                     <View style={styles.listFooterSpacing} />
                 )}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
-                contentContainerStyle={styles.listContent}
+                contentContainerStyle={[
+                    styles.listContent,
+                    { paddingBottom: listBottomPadding },
+                ]}
                 showsVerticalScrollIndicator={false}
             />
         </View>
@@ -226,7 +235,9 @@ const styles = StyleSheet.create({
         color: "rgba(255, 255, 255, 0.7)",
         marginBottom: 6,
     },
-    listContent: {},
+    listContent: {
+        paddingBottom: 0,
+    },
     listFooterSpacing: {
         height: 8,
     },
