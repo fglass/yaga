@@ -5,6 +5,7 @@ import {
     FlatList,
     TouchableOpacity,
     View,
+    LayoutChangeEvent,
 } from "react-native";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -24,6 +25,9 @@ interface Props {
 }
 
 const TAB_BAR_OVERLAY_HEIGHT = 56;
+const HEADER_BOTTOM_GAP = 18;
+const FALLBACK_HEADER_HEIGHT = 66;
+const SCRIM_FADE_HEIGHT = 24;
 
 const HistoryView = (props: Props) => {
     const {
@@ -37,7 +41,17 @@ const HistoryView = (props: Props) => {
     });
 
     const insets = useSafeAreaInsets();
+    const [headerHeight, setHeaderHeight] =
+        React.useState(FALLBACK_HEADER_HEIGHT);
     const listBottomPadding = TAB_BAR_OVERLAY_HEIGHT + insets.bottom + 10;
+    const listTopPadding = insets.top + headerHeight + HEADER_BOTTOM_GAP;
+
+    const onHeaderLayout = (event: LayoutChangeEvent) => {
+        const nextHeight = Math.ceil(event.nativeEvent.layout.height);
+        if (nextHeight > 0 && nextHeight !== headerHeight) {
+            setHeaderHeight(nextHeight);
+        }
+    };
 
     const renderHistoryItem = (item: HistoryItem) => {
         if (item.type === "local") {
@@ -182,12 +196,6 @@ const HistoryView = (props: Props) => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <View>
-                    <Text style={styles.title}>History</Text>
-                    <Text style={styles.subtitle}>Every workout counted</Text>
-                </View>
-            </View>
             <FlatList
                 data={combinedHistory}
                 keyExtractor={(item) =>
@@ -206,10 +214,50 @@ const HistoryView = (props: Props) => {
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
                 contentContainerStyle={[
                     styles.listContent,
-                    { paddingBottom: listBottomPadding },
+                    {
+                        paddingTop: listTopPadding,
+                        paddingBottom: listBottomPadding,
+                    },
                 ]}
                 showsVerticalScrollIndicator={false}
             />
+            <View
+                pointerEvents="none"
+                style={[
+                    styles.underHeaderScrim,
+                    {
+                        height: Math.max(
+                            listTopPadding - SCRIM_FADE_HEIGHT,
+                            0
+                        ),
+                    },
+                ]}
+            />
+            <View
+                pointerEvents="none"
+                style={[
+                    styles.underHeaderFadeMid,
+                    {
+                        top: Math.max(listTopPadding - SCRIM_FADE_HEIGHT, 0),
+                    },
+                ]}
+            />
+            <View
+                pointerEvents="none"
+                style={[
+                    styles.underHeaderFadeLow,
+                    { top: Math.max(listTopPadding - 8, 0) },
+                ]}
+            />
+            <View
+                style={[styles.header, { top: insets.top }]}
+                onLayout={onHeaderLayout}
+            >
+                <View>
+                    <Text style={styles.title}>History</Text>
+                    <Text style={styles.subtitle}>Every workout counted</Text>
+                </View>
+            </View>
         </View>
     );
 };
@@ -217,13 +265,39 @@ const HistoryView = (props: Props) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 20,
+    },
+    underHeaderScrim: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: "rgba(42, 49, 53, 0.36)",
+        zIndex: 1,
+    },
+    underHeaderFadeMid: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        height: SCRIM_FADE_HEIGHT,
+        backgroundColor: "rgba(42, 49, 53, 0.18)",
+        zIndex: 1,
+    },
+    underHeaderFadeLow: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        height: 14,
+        backgroundColor: "rgba(42, 49, 53, 0.08)",
+        zIndex: 1,
     },
     header: {
+        position: "absolute",
+        left: 20,
+        right: 20,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        marginBottom: 18,
+        zIndex: 2,
     },
     title: {
         fontSize: 28,
@@ -236,6 +310,7 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     },
     listContent: {
+        paddingHorizontal: 20,
         paddingBottom: 0,
     },
     listFooterSpacing: {
