@@ -113,6 +113,7 @@ interface ViewModel {
     isNotesExpanded: (exercise: Exercise) => boolean;
     onNoteButtonPress: (exercise: Exercise, exerciseIdx: number) => void;
     onAddExercise: (exerciseId: string) => Promise<void>;
+    onOpenExerciseList: () => void;
     onRemoveExercise: (exerciseIdx: number) => void;
     onMoveExercise: (exerciseIdx: number, delta: number) => void;
     onCreateExerciseDef: (
@@ -372,6 +373,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             return;
         }
 
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         withWarning(
             async () => {
                 const finishDate = new Date();
@@ -411,6 +413,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         const hasFinishedSet = workout.exercises.some((exercise) =>
             exercise.sets.some((set) => set.finishTime !== undefined)
         );
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         withWarning(
             async () => {
                 cancelRestTimer();
@@ -763,6 +766,11 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         setActiveModal(ModalType.None);
     }, []);
 
+    const onOpenExerciseList = useCallback(() => {
+        setActiveModal(ModalType.ExerciseList);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }, []);
+
     const startDateLabel = useMemo(() => {
         const date = new Date(workout.startTimestamp);
         if (Number.isNaN(date.getTime())) {
@@ -815,6 +823,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
             await workoutCore.onAddExercise(exerciseId);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         },
+        onOpenExerciseList,
         onRemoveExercise,
         onMoveExercise,
         onCreateExerciseDef,

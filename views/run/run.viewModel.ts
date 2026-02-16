@@ -183,6 +183,7 @@ export const useRunViewModel = (props: Props): ViewModel => {
             return;
         }
 
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         withWarning(
             async () => {
                 pauseTimer();
@@ -249,6 +250,7 @@ export const useRunViewModel = (props: Props): ViewModel => {
     ]);
 
     const onCancelRun = useCallback(async () => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         withWarning(
             async () => {
                 await onCancel();
