@@ -35,7 +35,7 @@ Target: **Mar 1** 🎯
 -   [ ] ~~Rest timer noise~~
 -   [ ] Rework exercise notes
 -   [ ] RPE / RIR
--   [ ] Advanced progressive overload calcs?
+-   [ ] ~~Advanced progressive overload calcs~~
 
 ### Milestone 3: Home + Plan + History clarity (Feb 9 → Feb 15)
 
