@@ -118,6 +118,7 @@ const WorkoutView = (props: Props) => {
         isRestTimerVisible,
         insets.bottom,
     ]);
+    const contentTopPadding = insets.top;
 
     const renderHeader = () => {
         let subtitle: string | null = null;
@@ -516,7 +517,7 @@ const WorkoutView = (props: Props) => {
                 <Button
                     label="Add"
                     colour="info"
-                    onPress={() => vm.setActiveModal(ModalType.ExerciseList)}
+                    onPress={vm.onOpenExerciseList}
                     style={[styles.footerButton, styles.footerButtonSpacing]}
                 />
                 <Button
@@ -579,14 +580,14 @@ const WorkoutView = (props: Props) => {
     return vm.isLoading ? (
         <SafeAreaView
             style={styles.container}
-            edges={["top", "right", "left"]}
+            edges={["right", "left"]}
         >
             <ActivityIndicator style={styles.loading} color="white" size="large" />
         </SafeAreaView>
     ) : (
         <SafeAreaView
             style={styles.container}
-            edges={["top", "right", "left"]}
+            edges={["right", "left"]}
         >
             {renderModals()}
             <ScrollView
@@ -598,7 +599,10 @@ const WorkoutView = (props: Props) => {
                 automaticallyAdjustsScrollIndicatorInsets={false}
                 contentContainerStyle={[
                     styles.contentContainer,
-                    { paddingBottom: contentBottomPadding },
+                    {
+                        paddingTop: contentTopPadding,
+                        paddingBottom: contentBottomPadding,
+                    },
                 ]}
                 showsVerticalScrollIndicator={false}
                 onContentSizeChange={() => {
