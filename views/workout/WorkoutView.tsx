@@ -37,8 +37,8 @@ type ActiveProps = {
     onCancel: () => Promise<void>;
 };
 
-type CreateProps = {
-    mode: "create";
+type TemplateProps = {
+    mode: "template";
     initialWorkout: Workout;
     onFinish: () => void;
     onCancel: () => void;
@@ -51,7 +51,7 @@ type HistoryProps = {
     onCancel: () => void;
 };
 
-type Props = ActiveProps | CreateProps | HistoryProps;
+type Props = ActiveProps | TemplateProps | HistoryProps;
 
 const WorkoutView = (props: Props) => {
     const vm = useWorkoutViewModel(props);
@@ -102,8 +102,8 @@ const WorkoutView = (props: Props) => {
     };
 
     const isRestTimerVisible =
-        !vm.isHistoryMode && !vm.isCreateMode && vm.remainingRestTimeS >= 0;
-    const showSetCompletionColumns = !vm.isCreateMode;
+        !vm.isHistoryMode && !vm.isTemplateMode && vm.remainingRestTimeS >= 0;
+    const showSetCompletionColumns = !vm.isTemplateMode;
 
     const contentBottomPadding = useMemo(() => {
         if (isLastExerciseInputFocused) {
@@ -122,7 +122,7 @@ const WorkoutView = (props: Props) => {
 
     const renderHeader = () => {
         let subtitle: string | null = null;
-        if (!vm.isCreateMode) {
+        if (!vm.isTemplateMode) {
             subtitle = vm.isHistoryMode
                 ? vm.startDateLabel
                 : formatTime(vm.workoutDurationS);
@@ -131,10 +131,10 @@ const WorkoutView = (props: Props) => {
         return (
             <View style={[styles.card, styles.headerCard]}>
                 <View style={styles.headerText}>
-                    {vm.isCreateMode ? (
-                        <View style={styles.createTitleRow}>
+                    {vm.isTemplateMode ? (
+                        <View style={styles.templateTitleRow}>
                             <TextInput
-                                style={styles.createTitleInput}
+                                style={styles.templateTitleInput}
                                 value={vm.workout.name}
                                 onChangeText={vm.onChangeWorkoutName}
                                 placeholder="Template"
@@ -522,7 +522,9 @@ const WorkoutView = (props: Props) => {
                 />
                 <Button
                     label={
-                        vm.isHistoryMode || vm.isCreateMode ? "Save" : "Finish"
+                        vm.isHistoryMode || vm.isTemplateMode
+                            ? "Save"
+                            : "Finish"
                     }
                     colour="success"
                     onPress={vm.onFinishWorkout}
