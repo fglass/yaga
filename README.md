@@ -43,7 +43,7 @@ Target: **Mar 1** 🎯
 -   [x] History view bug fixes
 -   [ ] Active workout minimise
 -   [ ] Jump to historical workout (via workout title or exercise history)
--   [ ] Shake to undo?
+-   [ ] ~~Shake to undo~~
 
 ### Milestone 4: Data management (Feb 16 → Feb 22)
 
