@@ -1,4 +1,8 @@
-import { useWorkoutTemplates, useDatabaseWriter } from "../../model/database";
+import {
+    useWorkoutTemplates,
+    useDatabaseWriter,
+    useActiveWorkout,
+} from "../../model/database";
 import * as Haptics from "expo-haptics";
 import { ActionSheetIOS } from "react-native";
 import { Workout, WorkoutTemplate } from "../../model/types";
@@ -18,9 +22,10 @@ export const usePlanViewModel = ({
     onStartRun,
 }: Params) => {
     const { templates, isLoading: isTemplatesLoading } = useWorkoutTemplates();
+    const { activeWorkout, isMinimized } = useActiveWorkout();
     const { saveActiveWorkout, deleteWorkoutTemplate } = useDatabaseWriter();
 
-    const selectTemplate = async (workout: WorkoutTemplate) => {
+    const startTemplateWorkout = async (workout: WorkoutTemplate) => {
         const startTimestamp = Date.now();
         const baseExercises = workout.exercises.map((exercise) => ({
             ...exercise,
@@ -49,6 +54,25 @@ export const usePlanViewModel = ({
         void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
         onStartWorkout(nextWorkout);
+    };
+
+    const selectTemplate = async (workout: WorkoutTemplate) => {
+        const shouldWarn = isMinimized && activeWorkout != null;
+
+        if (!shouldWarn) {
+            await startTemplateWorkout(workout);
+            return;
+        }
+
+        withWarning(
+            () => {
+                void startTemplateWorkout(workout);
+            },
+            {
+                title: "⚠️ Overwrite Workout",
+                message: "You have a workout in progress",
+            }
+        );
     };
 
     const startBlankWorkout = async () => {
