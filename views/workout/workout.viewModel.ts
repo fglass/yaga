@@ -21,7 +21,6 @@ import type { Set } from "../../model/types";
 import { workoutProducer, ActionType } from "./workout.reducer";
 import { createWorkoutViewModelCore } from "./workout.viewModel.core";
 import {
-    saveActiveWorkout,
     useDatabaseWriter,
     useExerciseDefs,
 } from "../../model/database";
@@ -41,6 +40,7 @@ import {
     getSetProgress as getSetProgressForSets,
     SetProgression,
 } from "./workout.calculations";
+import { createLatestTaskQueue } from "./workout.saveQueue";
 
 type ActiveProps = {
     mode?: "active";
@@ -116,6 +116,7 @@ interface ViewModel {
     onOpenExerciseList: () => void;
     onRemoveExercise: (exerciseIdx: number) => void;
     onMoveExercise: (exerciseIdx: number, delta: number) => void;
+    persistActiveWorkout: () => Promise<void>;
     onCreateExerciseDef: (
         name: string,
         category: ExerciseCategory
@@ -154,6 +155,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
     const exerciseDefs = useExerciseDefs();
     const {
+        saveActiveWorkout,
         completeWorkout,
         createExerciseDef,
         createWorkoutTemplate,
@@ -168,6 +170,16 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const [expandedNotes, setExpandedNotes] = useState<
         Record<string, boolean | undefined>
     >({});
+    
+    const saveActiveWorkoutRef = useRef(saveActiveWorkout);
+    saveActiveWorkoutRef.current = saveActiveWorkout;
+    const activeWorkoutSaveQueue = useMemo(
+        () =>
+            createLatestTaskQueue<Workout>((nextWorkout) =>
+                saveActiveWorkoutRef.current(nextWorkout)
+            ),
+        []
+    );
 
     const restNotificationIdRef = useRef<string | null>(null);
     const restScheduleTokenRef = useRef(0);
@@ -325,8 +337,16 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         if (!isActiveMode) {
             return;
         }
-        saveActiveWorkout(workout); // Fire-and-forget
-    }, [isActiveMode, workout]);
+        void activeWorkoutSaveQueue.enqueue(workout);
+    }, [activeWorkoutSaveQueue, isActiveMode, workout]);
+
+    const persistActiveWorkout = useCallback(async () => {
+        if (!isActiveMode) {
+            return;
+        }
+        await activeWorkoutSaveQueue.enqueue(workoutRef.current);
+        await activeWorkoutSaveQueue.flush();
+    }, [activeWorkoutSaveQueue, isActiveMode]);
 
     const isLoading = Object.keys(exerciseDefs).length === 0;
 
@@ -826,6 +846,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onOpenExerciseList,
         onRemoveExercise,
         onMoveExercise,
+        persistActiveWorkout,
         onCreateExerciseDef,
         onUpdateExerciseDef: workoutCore.updateExerciseDef,
         onDeleteExerciseDef: workoutCore.deleteExerciseDef,

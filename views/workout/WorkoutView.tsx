@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import {
     ActivityIndicator,
     Keyboard,
@@ -8,7 +14,10 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+    SafeAreaView,
+    useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import ExerciseListModal from "./ExerciseListModal";
 import ExerciseHistoryModal from "./exerciseHistory/ExerciseHistoryModal";
@@ -35,6 +44,7 @@ type ActiveProps = {
     initialWorkout: Workout;
     onFinish: () => Promise<void>;
     onCancel: () => Promise<void>;
+    onMinimize: () => Promise<void>;
 };
 
 type TemplateProps = {
@@ -53,8 +63,13 @@ type HistoryProps = {
 
 type Props = ActiveProps | TemplateProps | HistoryProps;
 
+const MINIMIZE_DISTANCE_PX = 36;
+const MINIMIZE_VELOCITY_PX = 240;
+
 const WorkoutView = (props: Props) => {
     const vm = useWorkoutViewModel(props);
+    const isActiveMode = props.mode === "active";
+
     const insets = useSafeAreaInsets();
     const scrollRef = useRef<ScrollView>(null);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -62,7 +77,15 @@ const WorkoutView = (props: Props) => {
         useState(false);
     const [shakeErrors, setShakeErrors] = useState<Record<string, number>>({});
 
-    const shakeEmpty = (exerciseIdx: number, setIdx: number, fields: string[]) => {
+    const isMinimizeInFlight = useRef(false);
+    const minimizeHandler = isActiveMode ? props.onMinimize : null;
+    const persistActiveWorkout = vm.persistActiveWorkout;
+
+    const shakeEmpty = (
+        exerciseIdx: number,
+        setIdx: number,
+        fields: string[]
+    ) => {
         setShakeErrors((prev) => {
             const next = { ...prev };
             for (const field of fields) {
@@ -120,6 +143,38 @@ const WorkoutView = (props: Props) => {
     ]);
     const contentTopPadding = insets.top;
 
+    const onMinimizeFromSwipe = useCallback(async () => {
+        if (!minimizeHandler || isMinimizeInFlight.current) {
+            return;
+        }
+        isMinimizeInFlight.current = true;
+        try {
+            await persistActiveWorkout().catch((error) => {
+                console.error(error);
+            });
+            await minimizeHandler();
+        } finally {
+            isMinimizeInFlight.current = false;
+        }
+    }, [minimizeHandler, persistActiveWorkout]);
+
+    const scrollNativeGesture = useMemo(() => Gesture.Native(), []);
+
+    const minimizeGesture = useMemo(() => {
+        return Gesture.Pan()
+            .activeOffsetY(12)
+            .simultaneousWithExternalGesture(scrollNativeGesture)
+            .runOnJS(true)
+            .onEnd((event) => {
+                if (
+                    event.translationY >= MINIMIZE_DISTANCE_PX &&
+                    event.velocityY >= MINIMIZE_VELOCITY_PX
+                ) {
+                    void onMinimizeFromSwipe();
+                }
+            });
+    }, [onMinimizeFromSwipe, scrollNativeGesture]);
+
     const renderHeader = () => {
         let subtitle: string | null = null;
         if (!vm.isTemplateMode) {
@@ -130,6 +185,13 @@ const WorkoutView = (props: Props) => {
 
         return (
             <View style={[styles.card, styles.headerCard]}>
+                {isActiveMode ? (
+                    <GestureDetector gesture={minimizeGesture}>
+                        <View style={styles.minimizeAffordance}>
+                            <View style={styles.minimizeHandle} />
+                        </View>
+                    </GestureDetector>
+                ) : null}
                 <View style={styles.headerText}>
                     {vm.isTemplateMode ? (
                         <View style={styles.templateTitleRow}>
@@ -442,7 +504,9 @@ const WorkoutView = (props: Props) => {
                             onBlur={handleSetInputBlur}
                             inputMode="decimal"
                             isFinished={isFinished}
-                            shakeKey={shakeErrors[`${exerciseIdx}-${setIdx}-weight`]}
+                            shakeKey={
+                                shakeErrors[`${exerciseIdx}-${setIdx}-weight`]
+                            }
                         />
                         <AdjustableNumberInput
                             value={set.reps}
@@ -457,7 +521,9 @@ const WorkoutView = (props: Props) => {
                             onBlur={handleSetInputBlur}
                             inputMode="decimal"
                             isFinished={isFinished}
-                            shakeKey={shakeErrors[`${exerciseIdx}-${setIdx}-reps`]}
+                            shakeKey={
+                                shakeErrors[`${exerciseIdx}-${setIdx}-reps`]
+                            }
                         />
                         {showSetCompletionColumns && (
                             <TextInput
@@ -476,15 +542,24 @@ const WorkoutView = (props: Props) => {
                                 onPress={() => {
                                     if (!isFinished) {
                                         const empty = [
-                                            set.weight.trim() === "" && "weight",
+                                            set.weight.trim() === "" &&
+                                                "weight",
                                             set.reps.trim() === "" && "reps",
                                         ].filter(Boolean) as string[];
                                         if (empty.length > 0) {
-                                            shakeEmpty(exerciseIdx, setIdx, empty);
+                                            shakeEmpty(
+                                                exerciseIdx,
+                                                setIdx,
+                                                empty
+                                            );
                                             return;
                                         }
                                     }
-                                    vm.onFinishSet(exerciseIdx, setIdx, !isFinished);
+                                    vm.onFinishSet(
+                                        exerciseIdx,
+                                        setIdx,
+                                        !isFinished
+                                    );
                                 }}
                             >
                                 <Ionicons
@@ -580,45 +655,45 @@ const WorkoutView = (props: Props) => {
     };
 
     return vm.isLoading ? (
-        <SafeAreaView
-            style={styles.container}
-            edges={["right", "left"]}
-        >
-            <ActivityIndicator style={styles.loading} color="white" size="large" />
+        <SafeAreaView style={styles.container} edges={["right", "left"]}>
+            <ActivityIndicator
+                style={styles.loading}
+                color="white"
+                size="large"
+            />
         </SafeAreaView>
     ) : (
-        <SafeAreaView
-            style={styles.container}
-            edges={["right", "left"]}
-        >
+        <SafeAreaView style={styles.container} edges={["right", "left"]}>
             {renderModals()}
-            <ScrollView
-                ref={scrollRef}
-                style={styles.content}
-                // Disable iOS auto-insets because this screen handles top/bottom spacing explicitly
-                contentInsetAdjustmentBehavior="never"
-                automaticallyAdjustContentInsets={false}
-                automaticallyAdjustsScrollIndicatorInsets={false}
-                contentContainerStyle={[
-                    styles.contentContainer,
-                    {
-                        paddingTop: contentTopPadding,
-                        paddingBottom: contentBottomPadding,
-                    },
-                ]}
-                showsVerticalScrollIndicator={false}
-                onContentSizeChange={() => {
-                    if (isLastExerciseInputFocused) {
-                        scrollToBottom();
-                    }
-                }}
-            >
-                {renderHeader()}
-                {vm.workout.exercises.length > 0
-                    ? vm.workout.exercises.map(renderExercise)
-                    : renderEmptyContainer()}
-                {renderFooter()}
-            </ScrollView>
+            <GestureDetector gesture={scrollNativeGesture}>
+                <ScrollView
+                    ref={scrollRef}
+                    style={styles.content}
+                    // Disable iOS auto-insets because this screen handles top/bottom spacing explicitly
+                    contentInsetAdjustmentBehavior="never"
+                    automaticallyAdjustContentInsets={false}
+                    automaticallyAdjustsScrollIndicatorInsets={false}
+                    contentContainerStyle={[
+                        styles.contentContainer,
+                        {
+                            paddingTop: contentTopPadding,
+                            paddingBottom: contentBottomPadding,
+                        },
+                    ]}
+                    showsVerticalScrollIndicator={false}
+                    onContentSizeChange={() => {
+                        if (isLastExerciseInputFocused) {
+                            scrollToBottom();
+                        }
+                    }}
+                >
+                    {renderHeader()}
+                    {vm.workout.exercises.length > 0
+                        ? vm.workout.exercises.map(renderExercise)
+                        : renderEmptyContainer()}
+                    {renderFooter()}
+                </ScrollView>
+            </GestureDetector>
             {renderRestTimer()}
         </SafeAreaView>
     );

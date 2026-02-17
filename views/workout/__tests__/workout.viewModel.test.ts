@@ -4,6 +4,7 @@ import {
     createWorkoutViewModelCore,
     createWorkoutViewModelState,
 } from "../workout.viewModel.core";
+import { createLatestTaskQueue } from "../workout.saveQueue";
 
 type Overrides = Partial<{
     baseWorkout: Workout;
@@ -157,5 +158,42 @@ describe("workout view model", () => {
         const workout = state.getState().workout;
         expect(workout.exercises[0].exerciseId).toBe("exercise-def-2");
         expect(workout.exercises[1].exerciseId).toBe("exercise-def-2");
+    });
+});
+
+describe("workout latest save queue", () => {
+    it("coalesces intermediate saves while a save is in flight", async () => {
+        const started: string[] = [];
+        const finished: string[] = [];
+        const resolvers = new Map<string, () => void>();
+
+        const queue = createLatestTaskQueue<string>(
+            (label: string) =>
+                new Promise<void>((resolve) => {
+                    started.push(label);
+                    resolvers.set(label, () => {
+                        finished.push(label);
+                        resolve();
+                    });
+                })
+        );
+
+        void queue.enqueue("first");
+        await Promise.resolve();
+        await Promise.resolve();
+        expect(started).toEqual(["first"]);
+
+        void queue.enqueue("second");
+        void queue.enqueue("third");
+        expect(started).toEqual(["first"]);
+
+        resolvers.get("first")?.();
+        await Promise.resolve();
+        await Promise.resolve();
+        expect(started).toEqual(["first", "third"]);
+
+        resolvers.get("third")?.();
+        await queue.flush();
+        expect(finished).toEqual(["first", "third"]);
     });
 });
