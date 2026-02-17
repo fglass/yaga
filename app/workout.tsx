@@ -7,7 +7,7 @@ import { useActiveWorkout, useDatabaseWriter } from "../model/database";
 import { useWorkoutNav } from "../model/WorkoutNavContext";
 import { CompletedWorkout, Workout } from "../model/types";
 
-type WorkoutMode = "active" | "history" | "create";
+type WorkoutMode = "active" | "history" | "template";
 
 const WorkoutScreen = () => {
     const router = useRouter();
@@ -28,7 +28,7 @@ const WorkoutScreen = () => {
         router.replace(href);
     };
 
-    // Consume workout from state (for history/create mode only)
+    // Consume workout from state (for history/template mode only)
     const navWorkout = useMemo(() => consumeWorkout(), [consumeWorkout]);
 
     if (mode === "active") {
@@ -93,9 +93,9 @@ const WorkoutScreen = () => {
         );
     }
 
-    if (mode === "create") {
+    if (mode === "template") {
         if (!navWorkout) return <LoadingScreen />;
-        const createWorkout = navWorkout as Workout;
+        const templateWorkout = navWorkout as Workout;
 
         const onFinish = () => {
             if (router.canGoBack()) {
@@ -115,8 +115,8 @@ const WorkoutScreen = () => {
 
         return (
             <WorkoutView
-                mode="create"
-                initialWorkout={createWorkout}
+                mode="template"
+                initialWorkout={templateWorkout}
                 onFinish={onFinish}
                 onCancel={onCancel}
             />

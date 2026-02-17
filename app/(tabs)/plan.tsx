@@ -11,7 +11,7 @@ const PlanScreen = () => {
 
     const onCreateTemplate = (workout: Workout) => {
         setWorkout(workout);
-        router.push("/workout?mode=create");
+        router.push("/workout?mode=template");
     };
 
     const onStartWorkout = (workout: Workout) => {

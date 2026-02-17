@@ -28,12 +28,12 @@ export const styles = StyleSheet.create({
         width: "100%",
         paddingRight: 0,
     },
-    createTitleRow: {
+    templateTitleRow: {
         flexDirection: "row",
         alignItems: "center",
         gap: 8,
     },
-    createTitleInput: {
+    templateTitleInput: {
         fontSize: 24,
         fontWeight: "700",
         color: "white",

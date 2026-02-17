@@ -142,6 +142,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟢 Check history not overwritten
 -   [ ] 🟢 Infer set types
 -   [ ] 🔴 Bug: Lat pulldown missing?
+-   [ ] 🔴 Remove exercise inferring?
 
 ## Incubator
 

@@ -56,14 +56,14 @@ type HistoryProps = {
     onCancel: () => void;
 };
 
-type CreateProps = {
-    mode: "create";
+type TemplateProps = {
+    mode: "template";
     initialWorkout: Workout;
     onFinish: () => void;
     onCancel: () => void;
 };
 
-type Props = ActiveProps | HistoryProps | CreateProps;
+type Props = ActiveProps | HistoryProps | TemplateProps;
 
 interface ViewModel {
     isLoading: boolean;
@@ -76,7 +76,7 @@ interface ViewModel {
     historyExerciseId: string | null;
     activeModal: ModalType;
     isHistoryMode: boolean;
-    isCreateMode: boolean;
+    isTemplateMode: boolean;
     canSaveWorkout: boolean;
     onChangeWorkoutName: (name: string) => void;
     setActiveModal: (modalType: ModalType) => void;
@@ -144,9 +144,9 @@ interface ViewModel {
 const CALORIES_PER_HOUR = 300;
 
 export const useWorkoutViewModel = (props: Props): ViewModel => {
-    const isCreateMode = props.mode === "create";
+    const isTemplateMode = props.mode === "template";
     const isHistoryMode = props.mode === "history";
-    const isActiveMode = !isHistoryMode && !isCreateMode;
+    const isActiveMode = !isHistoryMode && !isTemplateMode;
 
     const initialWorkout = { ...(props.initialWorkout as Workout) };
     const [workout, dispatch] = useReducer(workoutProducer, initialWorkout);
@@ -176,7 +176,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         async (_exerciseId: string, exercise: Exercise) => exercise,
         []
     );
-    const prefillExercise = isCreateMode
+    const prefillExercise = isTemplateMode
         ? noopPrefill
         : prefillExerciseFromHistory;
 
@@ -344,7 +344,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     };
 
     const onFinishWorkout = async () => {
-        if (isCreateMode) {
+        if (isTemplateMode) {
             const template: WorkoutTemplate = {
                 id: workout.id,
                 name: workout.name,
@@ -405,7 +405,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     };
 
     const onCancelWorkout = async () => {
-        if (isCreateMode || isHistoryMode) {
+        if (isTemplateMode || isHistoryMode) {
             props.onCancel();
             return;
         }
@@ -785,7 +785,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     }, [workout.startTimestamp]);
 
     const canSaveWorkout =
-        !isCreateMode ||
+        !isTemplateMode ||
         (workout.name.trim().length > 0 && workout.exercises.length > 0);
 
     return {
@@ -799,7 +799,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         historyExerciseId,
         activeModal,
         isHistoryMode,
-        isCreateMode,
+        isTemplateMode,
         canSaveWorkout,
         onChangeWorkoutName,
         setActiveModal,
