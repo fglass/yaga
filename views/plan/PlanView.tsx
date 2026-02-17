@@ -9,11 +9,16 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useActiveWorkout } from "../../model/database";
 import { Workout, WorkoutTemplate } from "../../model/types";
 import Deletable from "../../components/Deletable";
 import { usePlanViewModel } from "./plan.viewModel";
 
 const TAB_BAR_OVERLAY_HEIGHT = 56;
+const MINI_BAR_MIN_BOTTOM_OFFSET = 72;
+const MINI_BAR_BOTTOM_OFFSET = 60;
+const MINI_BAR_HEIGHT = 42;
+const MINI_BAR_CLEARANCE_GAP = 8;
 const HEADER_BOTTOM_GAP = 18;
 const FALLBACK_HEADER_HEIGHT = 66;
 const SCRIM_FADE_HEIGHT = 24;
@@ -30,9 +35,11 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
         onStartWorkout,
         onStartRun,
     });
+    const { activeWorkout, isMinimized } = useActiveWorkout();
     const insets = useSafeAreaInsets();
-    const [headerHeight, setHeaderHeight] =
-        React.useState(FALLBACK_HEADER_HEIGHT);
+    const [headerHeight, setHeaderHeight] = React.useState(
+        FALLBACK_HEADER_HEIGHT
+    );
 
     const onStartNewWorkout = () => {
         void vm.startBlankWorkout();
@@ -116,7 +123,19 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
 
     const hasTemplates = vm.templates.length > 0;
     const isTemplatesEmpty = !vm.isTemplatesLoading && !hasTemplates;
-    const listBottomPadding = TAB_BAR_OVERLAY_HEIGHT + insets.bottom + 10;
+
+    const baseBottomPadding = TAB_BAR_OVERLAY_HEIGHT + insets.bottom + 10;
+    const isMiniBarVisible = isMinimized && activeWorkout != null;
+    const miniBarTopInset =
+        Math.max(
+            MINI_BAR_MIN_BOTTOM_OFFSET,
+            insets.bottom + MINI_BAR_BOTTOM_OFFSET
+        ) +
+        MINI_BAR_HEIGHT +
+        MINI_BAR_CLEARANCE_GAP;
+    const listBottomPadding = isMiniBarVisible
+        ? Math.max(baseBottomPadding, miniBarTopInset)
+        : baseBottomPadding;
     const listTopPadding = insets.top + headerHeight + HEADER_BOTTOM_GAP;
 
     const onHeaderLayout = (event: LayoutChangeEvent) => {
@@ -160,10 +179,7 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
                 style={[
                     styles.underHeaderScrim,
                     {
-                        height: Math.max(
-                            listTopPadding - SCRIM_FADE_HEIGHT,
-                            0
-                        ),
+                        height: Math.max(listTopPadding - SCRIM_FADE_HEIGHT, 0),
                     },
                 ]}
             />

@@ -20,8 +20,11 @@ const shouldShowActiveWorkoutMiniBar = (params: {
 };
 
 const ActiveWorkoutMiniBar = () => {
-    const { activeWorkout, isMinimized, restore: restoreActiveWorkout } =
-        useActiveWorkout();
+    const {
+        activeWorkout,
+        isMinimized,
+        restore: restoreActiveWorkout,
+    } = useActiveWorkout();
     const router = useRouter();
     const queryClient = useQueryClient();
     const pathname = usePathname();
@@ -45,7 +48,13 @@ const ActiveWorkoutMiniBar = () => {
     }
 
     const onResumeWorkout = async () => {
+        if (activeWorkout == null) {
+            console.error("Active workout is unexpectedly null");
+            return;
+        }
+
         restoreActiveWorkout();
+
         await queryClient.invalidateQueries({
             queryKey: [QueryKey.ActiveWorkout],
         });
@@ -53,7 +62,8 @@ const ActiveWorkoutMiniBar = () => {
             queryKey: [QueryKey.ActiveWorkout],
             type: "active",
         });
-        if (activeWorkout?.type === "run") {
+
+        if (activeWorkout.type === "run") {
             router.push("/run");
             return;
         }
