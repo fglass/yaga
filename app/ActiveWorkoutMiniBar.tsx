@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { usePathname, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { QueryKey, useActiveWorkout } from "../model/database";
@@ -53,7 +54,7 @@ const ActiveWorkoutMiniBar = () => {
             return;
         }
 
-        restoreActiveWorkout();
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
         await queryClient.invalidateQueries({
             queryKey: [QueryKey.ActiveWorkout],
