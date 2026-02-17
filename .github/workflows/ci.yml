@@ -94,19 +94,14 @@ jobs:
 
                   const parsed = JSON.parse(output)
                   const build = Array.isArray(parsed) ? parsed[0] : parsed
-                  const detailsUrl =
-                    build.buildDetailsPageUrl ||
-                    build.detailsPageUrl ||
-                    build.logs?.url ||
-                    ''
-                  const artifactUrl =
-                    build.artifacts?.buildUrl ||
-                    build.artifacts?.applicationArchiveUrl ||
-                    ''
                   const id = build.id || ''
+                  const accountName = process.env.EXPO_ACCOUNT_NAME || 'expench'
+                  const projectSlug = process.env.EXPO_PROJECT_SLUG || 'yaga'
+                  const detailsUrl = id
+                    ? `https://expo.dev/accounts/${accountName}/projects/${projectSlug}/builds/${id}`
+                    : ''
                   fs.appendFileSync(process.env.GITHUB_OUTPUT, `build_id=${id}\n`)
                   fs.appendFileSync(process.env.GITHUB_OUTPUT, `details_url=${detailsUrl}\n`)
-                  fs.appendFileSync(process.env.GITHUB_OUTPUT, `artifact_url=${artifactUrl}\n`)
                   NODE
 
             - name: Add build links to summary
@@ -116,11 +111,6 @@ jobs:
                     echo ""
                     echo "- Build ID: \`${{ steps.eas_build.outputs.build_id }}\`"
                     echo "- Build details: ${{ steps.eas_build.outputs.details_url }}"
-                    if [ -n "${{ steps.eas_build.outputs.artifact_url }}" ]; then
-                      echo "- Download link: ${{ steps.eas_build.outputs.artifact_url }}"
-                    else
-                      echo "- Download link: available after build completes in the Build details page"
-                    fi
                   } >> "$GITHUB_STEP_SUMMARY"
 
             - name: Comment on PR with build links
@@ -130,16 +120,12 @@ jobs:
                   script: |
                       const mention = `@${context.actor}`
                       const detailsUrl = `${{ steps.eas_build.outputs.details_url }}`
-                      const artifactUrl = `${{ steps.eas_build.outputs.artifact_url }}`
                       const lines = [
                         mention,
                         '',
-                        'iOS preview build started via `[preview]` keyword.',
+                        'iOS `preview` build:',
                         '',
-                        `- Build details: ${detailsUrl || 'Not available'}`,
-                        artifactUrl
-                          ? `- Download link: ${artifactUrl}`
-                          : '- Download link: available after build completes in the Build details page',
+                        `- Details: ${detailsUrl || 'Not available'}`,
                       ]
                       await github.rest.issues.createComment({
                         owner: context.repo.owner,
@@ -155,16 +141,12 @@ jobs:
                   script: |
                       const mention = `@${context.actor}`
                       const detailsUrl = `${{ steps.eas_build.outputs.details_url }}`
-                      const artifactUrl = `${{ steps.eas_build.outputs.artifact_url }}`
                       const lines = [
                         mention,
                         '',
-                        'iOS preview build started via `[preview]` keyword in commit message.',
+                        'iOS `preview` build:',
                         '',
-                        `- Build details: ${detailsUrl || 'Not available'}`,
-                        artifactUrl
-                          ? `- Download link: ${artifactUrl}`
-                          : '- Download link: available after build completes in the Build details page',
+                        `- Details: ${detailsUrl || 'Not available'}`,
                       ]
                       await github.rest.repos.createCommitComment({
                         owner: context.repo.owner,
