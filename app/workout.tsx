@@ -1,7 +1,8 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
 import WorkoutView from "../views/workout/WorkoutView";
 import { useActiveWorkout, useDatabaseWriter } from "../model/database";
 import { useWorkoutNav } from "../model/WorkoutNavContext";
@@ -14,9 +15,12 @@ const WorkoutScreen = () => {
 
     const { mode } = useLocalSearchParams<{ mode: WorkoutMode }>();
     const { consumeWorkout } = useWorkoutNav();
-
-    const { activeWorkout, isLoading: isActiveWorkoutLoading } =
-        useActiveWorkout();
+    const {
+        activeWorkout,
+        isLoading: isActiveWorkoutLoading,
+        minimize: minimizeActiveWorkout,
+        restore: restoreActiveWorkout,
+    } = useActiveWorkout();
     const { saveActiveWorkout } = useDatabaseWriter();
 
     const navigateToTab = (href: "/(tabs)/plan" | "/(tabs)/history") => {
@@ -31,26 +35,40 @@ const WorkoutScreen = () => {
     // Consume workout from state (for history/template mode only)
     const navWorkout = useMemo(() => consumeWorkout(), [consumeWorkout]);
 
-    if (mode === "active") {
-        if (isActiveWorkoutLoading) {
-            return <LoadingScreen />;
+    // Entering active mode should always clear minimized UI state
+    useEffect(() => {
+        if (mode === "active") {
+            restoreActiveWorkout();
         }
-        if (!activeWorkout) {
+    }, [mode, restoreActiveWorkout]);
+
+    if (mode === "active") {
+        if (isActiveWorkoutLoading || !activeWorkout) {
             return <LoadingScreen />;
         }
 
         const onFinish = async () => {
             router.replace("/(tabs)/history");
-            void saveActiveWorkout(null);
+            await saveActiveWorkout(null);
+        };
+
+        const navigateAfterActiveExit = () => {
+            if (router.canGoBack()) {
+                router.back();
+                return;
+            }
+            navigateToTab("/(tabs)/plan");
         };
 
         const onCancel = async () => {
-            if (router.canGoBack()) {
-                router.back();
-            } else {
-                navigateToTab("/(tabs)/plan");
-            }
-            void saveActiveWorkout(null);
+            navigateAfterActiveExit();
+            await saveActiveWorkout(null);
+        };
+
+        const onMinimize = async () => {
+            minimizeActiveWorkout();
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            navigateAfterActiveExit();
         };
 
         return (
@@ -59,6 +77,7 @@ const WorkoutScreen = () => {
                 initialWorkout={activeWorkout}
                 onFinish={onFinish}
                 onCancel={onCancel}
+                onMinimize={onMinimize}
             />
         );
     }

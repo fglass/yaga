@@ -8,11 +8,11 @@ import {
 } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-    WorkoutNavProvider,
-} from "../model/WorkoutNavContext";
-import { initDatabase, useActiveWorkout } from "../model/database";
+import { WorkoutNavProvider } from "../model/WorkoutNavContext";
 import { Workout } from "../model/types";
+import { initDatabase, useActiveWorkout } from "../model/database";
+import { ActiveWorkoutMinimizeProvider } from "../model/ActiveWorkoutMinimizeContext";
+import ActiveWorkoutMiniBar from "./ActiveWorkoutMiniBar";
 
 // Run during module initialisation, before view renders
 if (typeof window !== "undefined") {
@@ -22,8 +22,10 @@ if (typeof window !== "undefined") {
 const queryClient = new QueryClient();
 
 const RootLayoutInner = () => {
-    const { activeWorkout, isLoading: isActiveWorkoutLoading } = useActiveWorkout();
     const router = useRouter();
+
+    const { activeWorkout, isLoading: isActiveWorkoutLoading } =
+        useActiveWorkout();
     const hasCheckedColdStart = useRef(false);
 
     // One-time cold-start check: if there's an active workout, navigate to it
@@ -75,6 +77,7 @@ const RootLayoutInner = () => {
                     }}
                 />
             </Stack>
+            <ActiveWorkoutMiniBar />
             {/* eslint-disable-next-line react/style-prop-object */}
             <StatusBar style="auto" />
         </GestureHandlerRootView>
@@ -86,7 +89,9 @@ const RootLayout = () => {
         <SafeAreaProvider initialMetrics={initialWindowMetrics}>
             <QueryClientProvider client={queryClient}>
                 <WorkoutNavProvider>
-                    <RootLayoutInner />
+                    <ActiveWorkoutMinimizeProvider>
+                        <RootLayoutInner />
+                    </ActiveWorkoutMinimizeProvider>
                 </WorkoutNavProvider>
             </QueryClientProvider>
         </SafeAreaProvider>
@@ -101,7 +106,8 @@ const resolveColdStartRedirect = (params: {
     shouldFinalizeCheck: boolean;
     route: "/run" | "/workout?mode=active" | null;
 } => {
-    const { hasCheckedColdStart, isActiveWorkoutLoading, activeWorkout } = params;
+    const { hasCheckedColdStart, isActiveWorkoutLoading, activeWorkout } =
+        params;
 
     if (hasCheckedColdStart || isActiveWorkoutLoading) {
         return {

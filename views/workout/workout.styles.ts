@@ -28,6 +28,23 @@ export const styles = StyleSheet.create({
         width: "100%",
         paddingRight: 0,
     },
+    minimizeAffordance: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 80,
+        alignItems: "center",
+        justifyContent: "flex-start",
+        paddingTop: 10,
+        zIndex: 2,
+    },
+    minimizeHandle: {
+        width: 46,
+        height: 5,
+        borderRadius: 999,
+        backgroundColor: "rgba(255, 255, 255, 0.35)",
+    },
     templateTitleRow: {
         flexDirection: "row",
         alignItems: "center",

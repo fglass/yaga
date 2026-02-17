@@ -21,15 +21,20 @@ import {
     ExerciseDef,
     WorkoutTemplate,
 } from "../types";
+import { useActiveWorkoutMinimize } from "../ActiveWorkoutMinimizeContext";
 
 export const useActiveWorkout = (): {
     activeWorkout: Workout | null;
     isLoading: boolean;
+    isMinimized: boolean;
+    minimize: () => void;
+    restore: () => void;
 } => {
     const { isLoading, error, data } = useSelect(
         QueryKey.ActiveWorkout,
         fetchActiveWorkout
     );
+    const { isMinimized, minimize, restore } = useActiveWorkoutMinimize();
 
     if (error) {
         console.error(error);
@@ -38,6 +43,9 @@ export const useActiveWorkout = (): {
     return {
         activeWorkout: isLoading ? null : data ?? null,
         isLoading,
+        isMinimized,
+        minimize,
+        restore,
     };
 };
 
@@ -105,9 +113,6 @@ export const useDatabaseWriter = () => {
         mutationFn: saveActiveWorkout,
         onSuccess: (_, workout) => {
             queryClient.setQueryData([QueryKey.ActiveWorkout], workout);
-            queryClient.invalidateQueries({
-                queryKey: [QueryKey.ActiveWorkout],
-            });
         },
     });
 
