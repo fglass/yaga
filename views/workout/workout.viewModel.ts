@@ -20,10 +20,7 @@ import {
 import type { Set } from "../../model/types";
 import { workoutProducer, ActionType } from "./workout.reducer";
 import { createWorkoutViewModelCore } from "./workout.viewModel.core";
-import {
-    useDatabaseWriter,
-    useExerciseDefs,
-} from "../../model/database";
+import { useDatabaseWriter, useExerciseDefs } from "../../model/database";
 import { withWarning } from "../../utils/util";
 import { ensureNotificationPermission } from "../../utils/notifications";
 import { generateGuid } from "../../utils/guid";
@@ -170,14 +167,15 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const [expandedNotes, setExpandedNotes] = useState<
         Record<string, boolean | undefined>
     >({});
-    
+
     const saveActiveWorkoutRef = useRef(saveActiveWorkout);
     saveActiveWorkoutRef.current = saveActiveWorkout;
+
     const activeWorkoutSaveQueue = useMemo(
         () =>
-            createLatestTaskQueue<Workout>((nextWorkout) =>
-                saveActiveWorkoutRef.current(nextWorkout)
-            ),
+            createLatestTaskQueue<Workout>(async (nextWorkout) => {
+                await saveActiveWorkoutRef.current(nextWorkout);
+            }),
         []
     );
 
@@ -415,6 +413,8 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                 });
 
                 cancelRestTimer();
+                await activeWorkoutSaveQueue.flush();
+
                 await props.onFinish();
                 Haptics.notificationAsync(
                     Haptics.NotificationFeedbackType.Success
@@ -437,6 +437,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         withWarning(
             async () => {
                 cancelRestTimer();
+                await activeWorkoutSaveQueue.flush();
                 await props.onCancel();
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             },
