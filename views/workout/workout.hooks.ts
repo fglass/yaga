@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { fetchExerciseSetsFromCompletedWorkouts } from "../../model/database";
-import type { Set } from "../../model/types";
+import type { Set, Workout } from "../../model/types";
+import { createLatestTaskQueue } from "./workout.saveQueue";
 
 export const DEFAULT_REST_DURATION_S = 90;
 
@@ -159,4 +160,53 @@ export const useExerciseSetsFromCompletedWorkouts = ({
     }, [beforeTimestamp, exerciseIdsKey, isEnabled, nWorkouts]);
 
     return { isLoading, historySets };
+};
+
+interface ActiveWorkoutAutosaveParams {
+    workout: Workout;
+    saveActiveWorkout: (workout: Workout) => Promise<void>;
+    getLatestWorkout: () => Workout;
+    isEnabled: boolean;
+}
+
+export const useActiveWorkoutAutosave = ({
+    workout,
+    saveActiveWorkout,
+    getLatestWorkout,
+    isEnabled,
+}: ActiveWorkoutAutosaveParams) => {
+    const saveActiveWorkoutRef = useRef(saveActiveWorkout);
+    saveActiveWorkoutRef.current = saveActiveWorkout;
+
+    const activeWorkoutSaveQueue = useMemo(
+        () =>
+            createLatestTaskQueue<Workout>(async (nextWorkout) => {
+                await saveActiveWorkoutRef.current(nextWorkout);
+            }),
+        []
+    );
+
+    useEffect(() => {
+        if (!isEnabled) {
+            return;
+        }
+        void activeWorkoutSaveQueue.enqueue(workout);
+    }, [activeWorkoutSaveQueue, isEnabled, workout]);
+
+    const persistActiveWorkout = useCallback(async () => {
+        if (!isEnabled) {
+            return;
+        }
+        await activeWorkoutSaveQueue.enqueue(getLatestWorkout());
+        await activeWorkoutSaveQueue.flush();
+    }, [activeWorkoutSaveQueue, getLatestWorkout, isEnabled]);
+
+    const flushActiveWorkoutSaves = useCallback(async () => {
+        await activeWorkoutSaveQueue.flush();
+    }, [activeWorkoutSaveQueue]);
+
+    return {
+        persistActiveWorkout,
+        flushActiveWorkoutSaves,
+    };
 };

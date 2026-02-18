@@ -28,6 +28,7 @@ import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
 import * as Haptics from "expo-haptics";
 import {
     useExerciseSetsFromCompletedWorkouts,
+    useActiveWorkoutAutosave,
     useTimers,
 } from "./workout.hooks";
 import { logAppleHealthWorkout } from "../../model/health";
@@ -37,7 +38,6 @@ import {
     getSetProgress as getSetProgressForSets,
     SetProgression,
 } from "./workout.calculations";
-import { createLatestTaskQueue } from "./workout.saveQueue";
 
 type ActiveProps = {
     mode?: "active";
@@ -167,17 +167,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const [expandedNotes, setExpandedNotes] = useState<
         Record<string, boolean | undefined>
     >({});
-
-    const saveActiveWorkoutRef = useRef(saveActiveWorkout);
-    saveActiveWorkoutRef.current = saveActiveWorkout;
-
-    const activeWorkoutSaveQueue = useMemo(
-        () =>
-            createLatestTaskQueue<Workout>(async (nextWorkout) => {
-                await saveActiveWorkoutRef.current(nextWorkout);
-            }),
-        []
-    );
 
     const restNotificationIdRef = useRef<string | null>(null);
     const restScheduleTokenRef = useRef(0);
@@ -317,6 +306,14 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         workoutRef.current = workout;
     }, [workout]);
 
+    const { persistActiveWorkout, flushActiveWorkoutSaves } =
+        useActiveWorkoutAutosave({
+            workout,
+            saveActiveWorkout,
+            getLatestWorkout: useCallback(() => workoutRef.current, []),
+            isEnabled: isActiveMode,
+        });
+
     useEffect(() => {
         // Executed when app is in foreground
         const onNotification = (notification: Notifications.Notification) => {
@@ -330,21 +327,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
         return () => subscription.remove();
     }, []);
-
-    useEffect(() => {
-        if (!isActiveMode) {
-            return;
-        }
-        void activeWorkoutSaveQueue.enqueue(workout);
-    }, [activeWorkoutSaveQueue, isActiveMode, workout]);
-
-    const persistActiveWorkout = useCallback(async () => {
-        if (!isActiveMode) {
-            return;
-        }
-        await activeWorkoutSaveQueue.enqueue(workoutRef.current);
-        await activeWorkoutSaveQueue.flush();
-    }, [activeWorkoutSaveQueue, isActiveMode]);
 
     const isLoading = Object.keys(exerciseDefs).length === 0;
 
@@ -413,7 +395,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                 });
 
                 cancelRestTimer();
-                await activeWorkoutSaveQueue.flush();
+                await flushActiveWorkoutSaves();
 
                 await props.onFinish();
                 Haptics.notificationAsync(
@@ -437,7 +419,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         withWarning(
             async () => {
                 cancelRestTimer();
-                await activeWorkoutSaveQueue.flush();
+                await flushActiveWorkoutSaves();
                 await props.onCancel();
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             },
