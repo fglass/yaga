@@ -29,6 +29,7 @@ const RootLayoutInner = () => {
     const hasCheckedColdStart = useRef(false);
 
     // One-time cold-start check: if there's an active workout, navigate to it
+    // TODO: test
     useEffect(() => {
         const decision = resolveColdStartRedirect({
             hasCheckedColdStart: hasCheckedColdStart.current,

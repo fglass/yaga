@@ -41,7 +41,7 @@ Target: **Mar 1** 🎯
 
 -   [x] Tap for run count
 -   [x] History view bug fixes
--   [ ] Active workout minimise
+-   [x] Active workout minimise
 -   [ ] Jump to historical workout (via workout title or exercise history)
 -   [ ] ~~Shake to undo~~
 
