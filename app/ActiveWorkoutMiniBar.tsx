@@ -1,23 +1,59 @@
 import React, { useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { usePathname, useRouter } from "expo-router";
+import { useGlobalSearchParams, usePathname, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { QueryKey, useActiveWorkout } from "../model/database";
 
-const shouldShowActiveWorkoutMiniBar = (params: {
+const HISTORY_WORKOUT_BOTTOM_MIN_PX = 12;
+const HISTORY_WORKOUT_BOTTOM_EXTRA_PX = 4;
+const DEFAULT_BOTTOM_MIN_PX = 72;
+const DEFAULT_BOTTOM_EXTRA_PX = 60;
+
+export const shouldShowActiveWorkoutMiniBar = (params: {
     isMinimized: boolean;
     hasActiveWorkout: boolean;
     pathname: string;
+    workoutMode?: string;
 }) => {
-    const { isMinimized, hasActiveWorkout, pathname } = params;
+    const { isMinimized, hasActiveWorkout, pathname, workoutMode } = params;
     if (!isMinimized || !hasActiveWorkout) {
         return false;
     }
 
-    return pathname !== "/workout" && pathname !== "/run";
+    if (pathname === "/run") {
+        return false;
+    }
+
+    if (pathname === "/workout") {
+        return workoutMode === "history";
+    }
+
+    return true;
+};
+
+const getActiveWorkoutMiniBarBottomOffset = (params: {
+    pathname: string;
+    workoutMode?: string;
+    bottomInset: number;
+}) => {
+    const { pathname, workoutMode, bottomInset } = params;
+    const isHistoryWorkoutScreen =
+        pathname === "/workout" && workoutMode === "history";
+
+    if (isHistoryWorkoutScreen) {
+        return Math.max(
+            HISTORY_WORKOUT_BOTTOM_MIN_PX,
+            bottomInset + HISTORY_WORKOUT_BOTTOM_EXTRA_PX
+        );
+    }
+
+    return Math.max(
+        DEFAULT_BOTTOM_MIN_PX,
+        bottomInset + DEFAULT_BOTTOM_EXTRA_PX
+    );
 };
 
 const ActiveWorkoutMiniBar = () => {
@@ -29,6 +65,7 @@ const ActiveWorkoutMiniBar = () => {
     const router = useRouter();
     const queryClient = useQueryClient();
     const pathname = usePathname();
+    const { mode } = useGlobalSearchParams<{ mode?: string }>();
     const insets = useSafeAreaInsets();
 
     // If there is no active workout, clear any stale minimized flag
@@ -42,6 +79,7 @@ const ActiveWorkoutMiniBar = () => {
         isMinimized,
         hasActiveWorkout: activeWorkout != null,
         pathname,
+        workoutMode: mode,
     });
 
     if (!isVisible) {
@@ -65,10 +103,10 @@ const ActiveWorkoutMiniBar = () => {
         });
 
         if (activeWorkout.type === "run") {
-            router.push("/run");
+            router.replace("/run");
             return;
         }
-        router.push("/workout?mode=active");
+        router.replace("/workout?mode=active");
     };
 
     return (
@@ -76,7 +114,13 @@ const ActiveWorkoutMiniBar = () => {
             pointerEvents="box-none"
             style={[
                 styles.container,
-                { bottom: Math.max(72, insets.bottom + 60) },
+                {
+                    bottom: getActiveWorkoutMiniBarBottomOffset({
+                        pathname,
+                        workoutMode: mode,
+                        bottomInset: insets.bottom,
+                    }),
+                },
             ]}
         >
             <TouchableOpacity

@@ -37,7 +37,7 @@ import { formatTime } from "../../utils/util";
 import { useWorkoutViewModel } from "./workout.viewModel";
 import { styles } from "./workout.styles";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { UNKNOWN_EXERCISE_DEF_ID } from "../../model/database";
+import { UNKNOWN_EXERCISE_DEF_ID, useActiveWorkout } from "../../model/database";
 
 type ActiveProps = {
     mode: "active";
@@ -65,10 +65,14 @@ type Props = ActiveProps | TemplateProps | HistoryProps;
 
 const MINIMIZE_DISTANCE_PX = 36;
 const MINIMIZE_VELOCITY_PX = 240;
+const MINI_BAR_HEIGHT_PX = 42;
+const MINI_BAR_GAP_PX = 8;
+const HISTORY_MINI_BAR_CLEARANCE_PX = 12;
 
 const WorkoutView = (props: Props) => {
     const vm = useWorkoutViewModel(props);
     const isActiveMode = props.mode === "active";
+    const { activeWorkout, isMinimized } = useActiveWorkout();
 
     const insets = useSafeAreaInsets();
     const scrollRef = useRef<ScrollView>(null);
@@ -133,13 +137,25 @@ const WorkoutView = (props: Props) => {
             return 16 + keyboardHeight;
         }
 
-        const bottom = Math.max(16, insets.bottom);
+        const baseBottom = Math.max(16, insets.bottom);
+        const minibarPadding =
+            vm.isHistoryMode && isMinimized && activeWorkout != null
+                ? insets.bottom +
+                  MINI_BAR_GAP_PX +
+                  MINI_BAR_HEIGHT_PX +
+                  HISTORY_MINI_BAR_CLEARANCE_PX
+                : 0;
+        const bottom = Math.max(baseBottom, minibarPadding);
+
         return isRestTimerVisible ? 48 + bottom : bottom;
     }, [
+        activeWorkout,
         isLastExerciseInputFocused,
         keyboardHeight,
+        isMinimized,
         isRestTimerVisible,
         insets.bottom,
+        vm.isHistoryMode,
     ]);
     const contentTopPadding = insets.top;
 
@@ -246,6 +262,7 @@ const WorkoutView = (props: Props) => {
                 isVisible={vm.isModalActive(ModalType.ExerciseHistory)}
                 exerciseId={vm.historyExerciseId}
                 highlightWorkoutId={vm.isHistoryMode ? vm.workout.id : null}
+                onSelectWorkout={vm.onSelectExerciseHistoryWorkout}
                 onClose={vm.onCloseExerciseHistory}
             />
         </>

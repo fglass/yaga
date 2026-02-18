@@ -1,4 +1,5 @@
 import { Alert } from "react-native";
+import { useRouter } from "expo-router";
 import {
     useCallback,
     useEffect,
@@ -20,7 +21,13 @@ import {
 import type { Set } from "../../model/types";
 import { workoutProducer, ActionType } from "./workout.reducer";
 import { createWorkoutViewModelCore } from "./workout.viewModel.core";
-import { useDatabaseWriter, useExerciseDefs } from "../../model/database";
+import {
+    useActiveWorkout,
+    useCompletedWorkouts,
+    useDatabaseWriter,
+    useExerciseDefs,
+} from "../../model/database";
+import { useWorkoutNav } from "../../model/WorkoutNavContext";
 import { withWarning } from "../../utils/util";
 import { ensureNotificationPermission } from "../../utils/notifications";
 import { generateGuid } from "../../utils/guid";
@@ -137,14 +144,19 @@ interface ViewModel {
     getSetProgress: (exerciseIdx: number, setIdx: number) => SetProgression;
     onShowExerciseHistory: (exerciseId: string) => void;
     onCloseExerciseHistory: () => void;
+    onSelectExerciseHistoryWorkout: (workoutId: string) => Promise<void>;
 }
 
 const CALORIES_PER_HOUR = 300;
 
 export const useWorkoutViewModel = (props: Props): ViewModel => {
+    const router = useRouter();
+    const { setWorkout } = useWorkoutNav();
     const isTemplateMode = props.mode === "template";
     const isHistoryMode = props.mode === "history";
     const isActiveMode = !isHistoryMode && !isTemplateMode;
+    const completedWorkouts = useCompletedWorkouts();
+    const { minimize: minimizeActiveWorkout } = useActiveWorkout();
 
     const initialWorkout = { ...(props.initialWorkout as Workout) };
     const [workout, dispatch] = useReducer(workoutProducer, initialWorkout);
@@ -769,6 +781,48 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         setActiveModal(ModalType.None);
     }, []);
 
+    const onSelectExerciseHistoryWorkout = useCallback(
+        async (workoutId: string) => {
+            setActiveModal(ModalType.None);
+
+            const isSelectedWorkoutCurrent = workoutId === workout.id;
+            if (isSelectedWorkoutCurrent) {
+                return;
+            }
+
+            const targetWorkout = completedWorkouts.find(
+                (completedWorkout) => completedWorkout.id === workoutId
+            );
+            if (!targetWorkout) {
+                console.error(`Unable to locate workout: ${workoutId}`);
+                return;
+            }
+
+            if (isActiveMode) {
+                await persistActiveWorkout();
+            }
+
+            setWorkout(targetWorkout);
+
+            if (isActiveMode) {
+                minimizeActiveWorkout();
+            }
+
+            router.replace("/workout?mode=history");
+
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        },
+        [
+            completedWorkouts,
+            isActiveMode,
+            minimizeActiveWorkout,
+            persistActiveWorkout,
+            router,
+            setWorkout,
+            workout.id,
+        ]
+    );
+
     const onOpenExerciseList = useCallback(() => {
         setActiveModal(ModalType.ExerciseList);
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -850,5 +904,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         getSetProgress,
         onShowExerciseHistory,
         onCloseExerciseHistory,
+        onSelectExerciseHistoryWorkout,
     };
 };

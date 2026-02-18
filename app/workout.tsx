@@ -4,7 +4,10 @@ import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import WorkoutView from "../views/workout/WorkoutView";
-import { useActiveWorkout, useDatabaseWriter } from "../model/database";
+import {
+    useActiveWorkout,
+    useDatabaseWriter,
+} from "../model/database";
 import { useWorkoutNav } from "../model/WorkoutNavContext";
 import { CompletedWorkout, Workout } from "../model/types";
 
@@ -33,7 +36,12 @@ const WorkoutScreen = () => {
     };
 
     // Consume workout from state (for history/template mode only)
-    const navWorkout = useMemo(() => consumeWorkout(), [consumeWorkout]);
+    const navWorkout = useMemo(() => {
+        if (mode === "active") {
+            return null;
+        }
+        return consumeWorkout();
+    }, [consumeWorkout, mode]);
 
     // Entering active mode should always clear minimized UI state
     useEffect(() => {

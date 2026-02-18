@@ -78,6 +78,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 App log file
 -   [ ] 🟡 Button haptics
 -   [ ] 🟡 Toasts
+-   [ ] 🟢 Dynamic island
 
 ### Home View
 

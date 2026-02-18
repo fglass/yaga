@@ -4,6 +4,7 @@ import {
     FlatList,
     StyleSheet,
     Text,
+    TouchableOpacity,
     View,
 } from "react-native";
 import ModalDialog from "../../../components/ModalDialog";
@@ -16,6 +17,7 @@ interface Props {
     isVisible: boolean;
     exerciseId: string | null;
     highlightWorkoutId?: string | null;
+    onSelectWorkout: (workoutId: string) => void;
     onClose: () => void;
 }
 
@@ -106,21 +108,26 @@ const ExerciseHistoryModal = (props: Props) => {
                         const isCurrentWorkout =
                             props.highlightWorkoutId != null &&
                             item.workoutId === props.highlightWorkoutId;
+                        const onSelectWorkout = () =>
+                            props.onSelectWorkout(item.workoutId);
                         return (
-                            <View
-                                key={`history-${index}`}
-                                style={styles.session}
-                            >
+                            <View style={styles.session}>
                                 <View style={styles.sessionHeader}>
-                                    <Text
-                                        style={[
-                                            styles.sessionTitle,
-                                            isCurrentWorkout &&
-                                                styles.sessionTitleCurrent,
-                                        ]}
+                                    <TouchableOpacity
+                                        activeOpacity={0.7}
+                                        onPress={onSelectWorkout}
+                                        disabled={isCurrentWorkout}
                                     >
-                                        {formatDate(item.finishedAt)}
-                                    </Text>
+                                        <Text
+                                            style={[
+                                                styles.sessionTitle,
+                                                isCurrentWorkout &&
+                                                    styles.sessionTitleCurrent,
+                                            ]}
+                                        >
+                                            {formatDate(item.finishedAt)}
+                                        </Text>
+                                    </TouchableOpacity>
                                 </View>
                                 {item.sets.map((set, setIdx) => {
                                     const progress = getSetProgress(
