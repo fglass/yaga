@@ -12,6 +12,7 @@ import { WorkoutNavProvider } from "../model/WorkoutNavContext";
 import { Workout } from "../model/types";
 import { initDatabase, useActiveWorkout } from "../model/database";
 import { ActiveWorkoutMinimizeProvider } from "../model/ActiveWorkoutMinimizeContext";
+import { RestTimerProvider } from "../model/RestTimerContext";
 import ActiveWorkoutMiniBar from "./ActiveWorkoutMiniBar";
 
 // Run during module initialisation, before view renders
@@ -91,7 +92,9 @@ const RootLayout = () => {
             <QueryClientProvider client={queryClient}>
                 <WorkoutNavProvider>
                     <ActiveWorkoutMinimizeProvider>
-                        <RootLayoutInner />
+                        <RestTimerProvider>
+                            <RootLayoutInner />
+                        </RestTimerProvider>
                     </ActiveWorkoutMinimizeProvider>
                 </WorkoutNavProvider>
             </QueryClientProvider>
