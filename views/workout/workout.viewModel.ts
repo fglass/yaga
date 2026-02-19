@@ -33,10 +33,11 @@ import { ensureNotificationPermission } from "../../utils/notifications";
 import { generateGuid } from "../../utils/guid";
 import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
 import * as Haptics from "expo-haptics";
+import { useRestTimer } from "../../model/RestTimerContext";
 import {
     useExerciseSetsFromCompletedWorkouts,
     useActiveWorkoutAutosave,
-    useTimers,
+    useWorkoutDuration,
 } from "./workout.hooks";
 import { logAppleHealthWorkout } from "../../model/health";
 import * as Notifications from "expo-notifications";
@@ -302,15 +303,20 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const {
         workoutStartTime,
         workoutDurationS,
+    } = useWorkoutDuration({
+        initialStartTimeMs: workout.startTimestamp,
+        isEnabled: isActiveMode,
+    });
+    const {
         remainingRestTimeS,
         totalRestDurationS,
         adjustRestTimer,
         resetRestTimer,
         cancelRestTimer,
-    } = useTimers({
+    } = useRestTimer({
+        workoutId: workout.id,
         onRestStart: isActiveMode ? scheduleRestFinishNotification : noop,
         onRestCancel: isActiveMode ? cancelRestFinishNotification : noop,
-        initialStartTimeMs: workout.startTimestamp,
         isEnabled: isActiveMode,
     });
 
