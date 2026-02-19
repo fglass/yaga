@@ -21,7 +21,7 @@ import {
     ExerciseDef,
     WorkoutTemplate,
 } from "../types";
-import { useActiveWorkoutMinimize } from "../ActiveWorkoutMinimizeContext";
+import { useActiveWorkoutMinimize } from "../context/ActiveWorkoutMinimizeContext";
 
 export const useActiveWorkout = (): {
     activeWorkout: Workout | null;

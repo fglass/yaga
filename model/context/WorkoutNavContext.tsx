@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useRef } from "react";
-import { CompletedWorkout, Workout } from "./types";
+import { CompletedWorkout, Workout } from '../types';
 
 type WorkoutNavData = Workout | CompletedWorkout;
 

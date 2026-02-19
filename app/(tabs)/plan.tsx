@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Workout } from "../../model/types";
-import { useWorkoutNav } from "../../model/WorkoutNavContext";
+import { useWorkoutNav } from "../../model/context/WorkoutNavContext";
 import PlanView from "../../views/plan/PlanView";
 
 const PlanScreen = () => {

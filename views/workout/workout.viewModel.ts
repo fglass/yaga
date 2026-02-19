@@ -27,13 +27,13 @@ import {
     useDatabaseWriter,
     useExerciseDefs,
 } from "../../model/database";
-import { useWorkoutNav } from "../../model/WorkoutNavContext";
+import { useWorkoutNav } from "../../model/context/WorkoutNavContext";
 import { withWarning } from "../../utils/util";
 import { ensureNotificationPermission } from "../../utils/notifications";
 import { generateGuid } from "../../utils/guid";
 import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
 import * as Haptics from "expo-haptics";
-import { useRestTimer } from "../../model/RestTimerContext";
+import { useRestTimer } from "../../model/context/RestTimerContext";
 import {
     useExerciseSetsFromCompletedWorkouts,
     useActiveWorkoutAutosave,
