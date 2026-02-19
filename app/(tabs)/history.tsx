@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { CompletedWorkout } from "../../model/types";
-import { useWorkoutNav } from "../../model/WorkoutNavContext";
+import { useWorkoutNav } from "../../model/context/WorkoutNavContext";
 import HistoryView from "../../views/history/HistoryView";
 
 const HistoryScreen = () => {

@@ -8,7 +8,7 @@ import {
     useActiveWorkout,
     useDatabaseWriter,
 } from "../model/database";
-import { useWorkoutNav } from "../model/WorkoutNavContext";
+import { useWorkoutNav } from "../model/context/WorkoutNavContext";
 import { CompletedWorkout, Workout } from "../model/types";
 
 type WorkoutMode = "active" | "history" | "template";

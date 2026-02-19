@@ -8,11 +8,11 @@ import {
 } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WorkoutNavProvider } from "../model/WorkoutNavContext";
+import { WorkoutNavProvider } from "../model/context/WorkoutNavContext";
 import { Workout } from "../model/types";
 import { initDatabase, useActiveWorkout } from "../model/database";
-import { ActiveWorkoutMinimizeProvider } from "../model/ActiveWorkoutMinimizeContext";
-import { RestTimerProvider } from "../model/RestTimerContext";
+import { ActiveWorkoutMinimizeProvider } from "../model/context/ActiveWorkoutMinimizeContext";
+import { RestTimerProvider } from "../model/context/RestTimerContext";
 import ActiveWorkoutMiniBar from "./ActiveWorkoutMiniBar";
 
 // Run during module initialisation, before view renders
