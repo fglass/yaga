@@ -2,30 +2,41 @@ import { Exercise, Set } from "../model/types";
 import { generateGuid } from "./guid";
 import { fetchExerciseSetsFromCompletedWorkouts } from "../model/database";
 
+type PrefillExerciseOptions = {
+    matchHistorySetCount: boolean;
+};
+
 export const prefillExerciseFromHistory = async (
     exerciseId: string,
-    exercise: Exercise
+    exercise: Exercise,
+    options: PrefillExerciseOptions
 ): Promise<Exercise> => {
     const history = await fetchExerciseSetsFromCompletedWorkouts(
         [exerciseId],
         1
     );
     const latestSets = history[exerciseId]?.[0]?.sets;
-    return applyPrefill(exercise, latestSets);
+    return applyPrefill(exercise, latestSets, options);
 };
 
-const applyPrefill = (exercise: Exercise, historySets?: Set[]): Exercise => {
+export const applyPrefill = (
+    exercise: Exercise,
+    historySets: Set[] | undefined,
+    options: PrefillExerciseOptions
+): Exercise => {
     if (!historySets || historySets.length === 0) {
         return exercise;
     }
 
-    const nextSets: Set[] = exercise.sets.map((set, idx) => {
-        const historySet = historySets[idx];
-        if (!historySet) {
-            return set;
-        }
-        return createSetFromHistory(historySet);
-    });
+    const nextSets: Set[] = options.matchHistorySetCount
+        ? historySets.map(createSetFromHistory)
+        : exercise.sets.map((set, idx) => {
+              const historySet = historySets[idx];
+              if (!historySet) {
+                  return set;
+              }
+              return createSetFromHistory(historySet);
+          });
 
     return {
         ...exercise,

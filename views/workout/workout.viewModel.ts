@@ -188,9 +188,17 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         async (_exerciseId: string, exercise: Exercise) => exercise,
         []
     );
-    const prefillExercise = isTemplateMode
-        ? noopPrefill
-        : prefillExerciseFromHistory;
+    const prefillExercise = useCallback(
+        async (exerciseId: string, exercise: Exercise) => {
+            if (isTemplateMode) {
+                return noopPrefill(exerciseId, exercise);
+            }
+            return prefillExerciseFromHistory(exerciseId, exercise, {
+                matchHistorySetCount: true,
+            });
+        },
+        [isTemplateMode, noopPrefill]
+    );
 
     const workoutCore = useMemo(
         () =>
