@@ -101,6 +101,7 @@ const RunView = (props: Props) => {
                         colour="success"
                         onPress={vm.onFinishRun}
                         disabled={!vm.canFinish}
+                        loading={vm.isFinishing}
                         style={styles.footerButton}
                     />
                     <Button

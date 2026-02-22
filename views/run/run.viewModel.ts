@@ -19,6 +19,7 @@ interface ViewModel {
     speedInput: string;
     durationSeconds: number;
     canFinish: boolean;
+    isFinishing: boolean;
     hasStarted: boolean;
     isRunning: boolean;
     isPaused: boolean;
@@ -78,6 +79,7 @@ export const useRunViewModel = (props: Props): ViewModel => {
     const [startTimestamp, setStartTimestamp] = useState<number>(
         props.initialRun.startTimestamp
     );
+    const [isFinishing, setIsFinishing] = useState(false);
 
     const { completeWorkout } = useDatabaseWriter();
 
@@ -179,61 +181,67 @@ export const useRunViewModel = (props: Props): ViewModel => {
     }, [run, distanceKm, startTimestamp]);
 
     const onFinishRun = useCallback(async () => {
-        if (!canFinish) {
+        if (!canFinish || isFinishing) {
             return;
         }
 
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         withWarning(
             async () => {
-                pauseTimer();
+                setIsFinishing(true);
 
-                const finalElapsedSeconds = getElapsedSeconds();
-                const finalDistanceKm = computeDistance(
-                    finalElapsedSeconds,
-                    speedKmh
-                );
-                distanceKmRef.current = finalDistanceKm;
+                try {
+                    pauseTimer();
 
-                const endTimestamp =
-                    startTimestamp + finalElapsedSeconds * 1000;
-                const endDate = new Date(endTimestamp);
+                    const finalElapsedSeconds = getElapsedSeconds();
+                    const finalDistanceKm = computeDistance(
+                        finalElapsedSeconds,
+                        speedKmh
+                    );
+                    distanceKmRef.current = finalDistanceKm;
 
-                const completedRun: CompletedWorkout = {
-                    ...run,
-                    id: generateGuid(),
-                    startTimestamp,
-                    endTimestamp,
-                    distance: finalDistanceKm,
-                };
+                    const endTimestamp =
+                        startTimestamp + finalElapsedSeconds * 1000;
+                    const endDate = new Date(endTimestamp);
 
-                const isStravaLoggingEnabled = getStravaLoggingEnabled();
-                const stravaActivityId = isStravaLoggingEnabled
-                    ? await logStravaWorkout(completedRun)
-                    : null;
-
-                if (stravaActivityId != null) {
-                    completedRun.metadata = {
-                        ...completedRun.metadata,
-                        stravaActivityId,
+                    const completedRun: CompletedWorkout = {
+                        ...run,
+                        id: generateGuid(),
+                        startTimestamp,
+                        endTimestamp,
+                        distance: finalDistanceKm,
                     };
+
+                    const isStravaLoggingEnabled = getStravaLoggingEnabled();
+                    const stravaActivityId = isStravaLoggingEnabled
+                        ? await logStravaWorkout(completedRun)
+                        : null;
+
+                    if (stravaActivityId != null) {
+                        completedRun.metadata = {
+                            ...completedRun.metadata,
+                            stravaActivityId,
+                        };
+                    }
+
+                    await completeWorkout(completedRun);
+                    await onFinish();
+
+                    if (!isStravaLoggingEnabled) {
+                        await logAppleHealthWorkout({
+                            startDate: new Date(startTimestamp),
+                            endDate: endDate,
+                            calories: 0, // Rely on Apple Health to track
+                            workoutType: "run",
+                        });
+                    }
+
+                    Haptics.notificationAsync(
+                        Haptics.NotificationFeedbackType.Success
+                    );
+                } finally {
+                    setIsFinishing(false);
                 }
-
-                await completeWorkout(completedRun);
-                await onFinish();
-
-                if (!isStravaLoggingEnabled) {
-                    await logAppleHealthWorkout({
-                        startDate: new Date(startTimestamp),
-                        endDate: endDate,
-                        calories: 0, // Rely on Apple Health to track
-                        workoutType: "run",
-                    });
-                }
-
-                Haptics.notificationAsync(
-                    Haptics.NotificationFeedbackType.Success
-                );
             },
             { title: "Finish Run", message: "Are you sure?" }
         );
@@ -245,6 +253,7 @@ export const useRunViewModel = (props: Props): ViewModel => {
         run,
         speedKmh,
         startTimestamp,
+        isFinishing,
         getElapsedSeconds,
         pauseTimer,
     ]);
@@ -269,6 +278,7 @@ export const useRunViewModel = (props: Props): ViewModel => {
         speedInput,
         durationSeconds: elapsedSeconds,
         canFinish,
+        isFinishing,
         canToggleRun,
         hasStarted,
         isRunning,

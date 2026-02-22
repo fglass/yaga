@@ -1,4 +1,5 @@
 import {
+    ActivityIndicator,
     StyleProp,
     StyleSheet,
     Text,
@@ -13,6 +14,7 @@ interface Props {
     label: string;
     onPress?: (event: GestureResponderEvent) => void;
     disabled?: boolean;
+    loading?: boolean;
     colour?: Colour;
     style?: StyleProp<ViewStyle>;
 }
@@ -24,7 +26,7 @@ const Button = (props: Props) => {
         buttonStyle.push(styles[props.colour]);
     }
 
-    if (props.disabled) {
+    if (props.disabled || props.loading) {
         buttonStyle.push({ opacity: 0.5 });
     }
 
@@ -32,9 +34,13 @@ const Button = (props: Props) => {
         <TouchableOpacity
             style={buttonStyle}
             onPress={props.onPress}
-            disabled={props.disabled}
+            disabled={props.disabled || props.loading}
         >
-            <Text style={styles.label}>{props.label}</Text>
+            {props.loading ? (
+                <ActivityIndicator color='white' />
+            ) : (
+                <Text style={styles.label}>{props.label}</Text>
+            )}
         </TouchableOpacity>
     );
 };
