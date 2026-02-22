@@ -37,7 +37,9 @@ export const usePlanViewModel = ({
         }));
         const exercises = await Promise.all(
             baseExercises.map((exercise) =>
-                prefillExerciseFromHistory(exercise.exerciseId, exercise)
+                prefillExerciseFromHistory(exercise.exerciseId, exercise, {
+                    matchHistorySetCount: false,
+                })
             )
         );
 
