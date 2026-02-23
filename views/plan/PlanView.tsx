@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useActiveWorkout } from "../../model/database";
 import { Workout, WorkoutTemplate } from "../../model/types";
+import BlurFadeBackdrop from "../../components/BlurFadeBackdrop";
 import Deletable from "../../components/Deletable";
 import { usePlanViewModel } from "./plan.viewModel";
 
@@ -22,6 +23,9 @@ const MINI_BAR_CLEARANCE_GAP = 8;
 const HEADER_BOTTOM_GAP = 18;
 const FALLBACK_HEADER_HEIGHT = 66;
 const SCRIM_FADE_HEIGHT = 24;
+const SCRIM_FADE_START_OFFSET = 32;
+const SCRIM_LOW_FADE_TOP_OFFSET = 8;
+const SCRIM_LOW_FADE_HEIGHT = 14;
 
 type Props = {
     onCreateTemplate: (workout: Workout) => void;
@@ -145,6 +149,30 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
         }
     };
 
+    const renderHeaderBackdrop = () => {
+        const blurHeight = Math.max(
+            listTopPadding +
+                (SCRIM_LOW_FADE_HEIGHT - SCRIM_LOW_FADE_TOP_OFFSET),
+            0
+        );
+        if (blurHeight <= 0) {
+            return null;
+        }
+
+        const fadeStartPx = Math.max(
+            listTopPadding - SCRIM_FADE_HEIGHT - SCRIM_FADE_START_OFFSET,
+            0
+        );
+
+        return (
+            <BlurFadeBackdrop
+                height={blurHeight}
+                fadeStartPx={fadeStartPx}
+                style={[styles.underHeaderBlur, { height: blurHeight }]}
+            />
+        );
+    };
+
     return (
         <View style={styles.container}>
             <FlatList
@@ -174,31 +202,7 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
                         styles.emptyListContent,
                 ]}
             />
-            <View
-                pointerEvents="none"
-                style={[
-                    styles.underHeaderScrim,
-                    {
-                        height: Math.max(listTopPadding - SCRIM_FADE_HEIGHT, 0),
-                    },
-                ]}
-            />
-            <View
-                pointerEvents="none"
-                style={[
-                    styles.underHeaderFadeMid,
-                    {
-                        top: Math.max(listTopPadding - SCRIM_FADE_HEIGHT, 0),
-                    },
-                ]}
-            />
-            <View
-                pointerEvents="none"
-                style={[
-                    styles.underHeaderFadeLow,
-                    { top: Math.max(listTopPadding - 8, 0) },
-                ]}
-            />
+            {renderHeaderBackdrop()}
             <View
                 style={[styles.header, { top: insets.top }]}
                 onLayout={onHeaderLayout}
@@ -224,28 +228,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    underHeaderScrim: {
+    underHeaderBlur: {
         position: "absolute",
         top: 0,
         left: 0,
         right: 0,
-        backgroundColor: "rgba(42, 49, 53, 0.36)",
-        zIndex: 1,
-    },
-    underHeaderFadeMid: {
-        position: "absolute",
-        left: 0,
-        right: 0,
-        height: SCRIM_FADE_HEIGHT,
-        backgroundColor: "rgba(42, 49, 53, 0.18)",
-        zIndex: 1,
-    },
-    underHeaderFadeLow: {
-        position: "absolute",
-        left: 0,
-        right: 0,
-        height: 14,
-        backgroundColor: "rgba(42, 49, 53, 0.08)",
         zIndex: 1,
     },
     header: {

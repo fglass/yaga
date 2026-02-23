@@ -22,6 +22,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ExerciseListModal from "./ExerciseListModal";
 import ExerciseHistoryModal from "./exerciseHistory/ExerciseHistoryModal";
 import AdjustableNumberInput from "./AdjustableNumberInput";
+import BlurFadeBackdrop from "../../components/BlurFadeBackdrop";
 import Button from "../../components/Button";
 import CountdownTimer from "../../components/CountdownTimer";
 import Deletable from "../../components/Deletable";
@@ -71,6 +72,8 @@ const MINIMIZE_VELOCITY_PX = 240;
 const MINI_BAR_HEIGHT_PX = 42;
 const MINI_BAR_GAP_PX = 8;
 const HISTORY_MINI_BAR_CLEARANCE_PX = 12;
+const STATUS_BAR_BLUR_EXTENSION_PX = 6;
+const STATUS_BAR_BLUR_FADE_START_OFFSET_PX = 20;
 
 const WorkoutView = (props: Props) => {
     const vm = useWorkoutViewModel(props);
@@ -664,48 +667,78 @@ const WorkoutView = (props: Props) => {
         );
     };
 
-    return vm.isLoading ? (
-        <SafeAreaView style={styles.container} edges={["right", "left"]}>
-            <ActivityIndicator
-                style={styles.loading}
-                color="white"
-                size="large"
+    const renderStatusBarScrim = () => {
+        const topInset = Math.max(insets.top, 0);
+
+        if (topInset <= 0) {
+            return null;
+        }
+
+        const blurHeight = topInset + STATUS_BAR_BLUR_EXTENSION_PX;
+        const fadeStartPx = Math.max(
+            topInset - STATUS_BAR_BLUR_FADE_START_OFFSET_PX,
+            0
+        );
+
+        return (
+            <BlurFadeBackdrop
+                height={blurHeight}
+                fadeStartPx={fadeStartPx}
+                solidStopMin={0.28}
+                solidStopMax={0.72}
+                style={[styles.statusBarBlur, { height: blurHeight }]}
             />
-        </SafeAreaView>
+        );
+    };
+
+    return vm.isLoading ? (
+        <View style={styles.screen}>
+            <SafeAreaView style={styles.container} edges={["right", "left"]}>
+                <ActivityIndicator
+                    style={styles.loading}
+                    color="white"
+                    size="large"
+                />
+            </SafeAreaView>
+            {renderStatusBarScrim()}
+        </View>
     ) : (
-        <SafeAreaView style={styles.container} edges={["right", "left"]}>
-            {renderModals()}
-            <GestureDetector gesture={scrollNativeGesture}>
-                <ScrollView
-                    ref={scrollRef}
-                    style={styles.content}
-                    // Disable iOS auto-insets because this screen handles top/bottom spacing explicitly
-                    contentInsetAdjustmentBehavior="never"
-                    automaticallyAdjustContentInsets={false}
-                    automaticallyAdjustsScrollIndicatorInsets={false}
-                    contentContainerStyle={[
-                        styles.contentContainer,
-                        {
-                            paddingTop: contentTopPadding,
-                            paddingBottom: contentBottomPadding,
-                        },
-                    ]}
-                    showsVerticalScrollIndicator={false}
-                    onContentSizeChange={() => {
-                        if (isLastExerciseInputFocused) {
-                            scrollToBottom();
-                        }
-                    }}
-                >
-                    {renderHeader()}
-                    {vm.workout.exercises.length > 0
-                        ? vm.workout.exercises.map(renderExercise)
-                        : renderEmptyContainer()}
-                    {renderFooter()}
-                </ScrollView>
-            </GestureDetector>
-            {renderRestTimer()}
-        </SafeAreaView>
+        <View style={styles.screen}>
+            <SafeAreaView style={styles.container} edges={["right", "left"]}>
+                {renderModals()}
+                <GestureDetector gesture={scrollNativeGesture}>
+                    <ScrollView
+                        ref={scrollRef}
+                        style={styles.content}
+                        // Disable iOS auto-insets because this screen handles top/bottom spacing explicitly
+                        contentInsetAdjustmentBehavior="never"
+                        automaticallyAdjustContentInsets={false}
+                        automaticallyAdjustsScrollIndicatorInsets={false}
+                        contentContainerStyle={[
+                            styles.contentContainer,
+                            {
+                                paddingTop: contentTopPadding,
+                                paddingBottom: contentBottomPadding,
+                            },
+                        ]}
+                        showsVerticalScrollIndicator={false}
+                        onContentSizeChange={() => {
+                            if (isLastExerciseInputFocused) {
+                                scrollToBottom();
+                            }
+                        }}
+                    >
+                        {renderHeader()}
+                        {vm.workout.exercises.length > 0
+                            ? vm.workout.exercises.map(renderExercise)
+                            : renderEmptyContainer()}
+                        {renderFooter()}
+                    </ScrollView>
+                </GestureDetector>
+                {renderRestTimer()}
+            </SafeAreaView>
+            {renderStatusBarScrim()}
+        </View>
     );
 };
 
