@@ -96,7 +96,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟢 Drag to reorder exercises
 -   [ ] 🟡 Active workout minimise
 -   [ ] 🟡 Bug: Workout timer resets on app reopen
--   [ ] 🟢 Exercise history graph
+-   [ ] 🟢 Exercise history graph (delta + time gap)
 -   [ ] 🟡 Jump to historical workout
 -   [ ] 🟢 Exercise variations?
 -   [ ] 🟡 Bug: Calories move goal
@@ -117,7 +117,6 @@ Target: **Mar 1** 🎯
 
 -   [ ] 🔴 Check: timer accuracy
 -   [ ] 🟢 Display heart rate
--   [ ] 🟢 Strava shoe setting
 
 ### Plan View
 
@@ -126,7 +125,7 @@ Target: **Mar 1** 🎯
 
 ### History View
 
--   [ ]
+-   [ ] 🟢 Strava reconcilliaton (outdoor)
 
 ### Import View
 
@@ -172,3 +171,7 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 -   Require API key
 -   Category inferring
 -   Template creation
+
+---
+
+Status bar blur

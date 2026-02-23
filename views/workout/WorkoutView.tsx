@@ -37,7 +37,10 @@ import { formatTime } from "../../utils/util";
 import { useWorkoutViewModel } from "./workout.viewModel";
 import { styles } from "./workout.styles";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { UNKNOWN_EXERCISE_DEF_ID, useActiveWorkout } from "../../model/database";
+import {
+    UNKNOWN_EXERCISE_DEF_ID,
+    useActiveWorkout,
+} from "../../model/database";
 
 type ActiveProps = {
     mode: "active";
@@ -210,23 +213,13 @@ const WorkoutView = (props: Props) => {
                 ) : null}
                 <View style={styles.headerText}>
                     {vm.isTemplateMode ? (
-                        <View style={styles.templateTitleRow}>
-                            <TextInput
-                                style={styles.templateTitleInput}
-                                value={vm.workout.name}
-                                onChangeText={vm.onChangeWorkoutName}
-                                placeholder="Template"
-                                placeholderTextColor="rgba(255, 255, 255, 0.4)"
-                                autoCorrect={false}
-                                spellCheck={false}
-                                selectTextOnFocus
-                            />
-                            <Ionicons
-                                name="pencil"
-                                color="rgba(255, 255, 255, 0.6)"
-                                size={18}
-                            />
-                        </View>
+                        <TextInput
+                            style={styles.templateTitleInput}
+                            value={vm.workout.name}
+                            onChangeText={vm.onChangeWorkoutName}
+                            placeholder="Template"
+                            placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                        />
                     ) : (
                         <Text style={styles.title}>{vm.workout.name}</Text>
                     )}
