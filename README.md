@@ -171,7 +171,3 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 -   Require API key
 -   Category inferring
 -   Template creation
-
----
-
-Status bar blur

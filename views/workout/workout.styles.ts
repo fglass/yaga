@@ -1,10 +1,21 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
+    screen: {
+        flex: 1,
+        backgroundColor: '#2A3135',
+    },
     container: {
         flex: 1,
-        backgroundColor: "#2A3135",
+        backgroundColor: '#2A3135',
         paddingHorizontal: 16,
+    },
+    statusBarBlur: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1,
     },
     content: {
         flex: 1,
