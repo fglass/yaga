@@ -171,5 +171,3 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 -   Require API key
 -   Category inferring
 -   Template creation
-
-Gray same workout text
