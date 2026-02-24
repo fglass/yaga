@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
         letterSpacing: 0.2,
     },
     sessionTitleCurrent: {
-        color: "#4DA3FF",
+        color: "rgba(255, 255, 255, 0.5)",
     },
     row: {
         flexDirection: "row",
