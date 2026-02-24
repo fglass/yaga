@@ -223,6 +223,37 @@ const WorkoutView = (props: Props) => {
                             placeholder="Template"
                             placeholderTextColor="rgba(255, 255, 255, 0.4)"
                         />
+                    ) : isActiveMode && vm.canOpenTemplateHistory ? (
+                        <TouchableOpacity
+                            activeOpacity={0.75}
+                            disabled={vm.isOpeningTemplateHistory}
+                            onPress={() => {
+                                void vm.onOpenTemplateHistory();
+                            }}
+                            accessibilityRole="button"
+                            accessibilityLabel="Open history filtered to this template"
+                        >
+                            <View
+                                style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    gap: 8,
+                                    opacity: vm.isOpeningTemplateHistory
+                                        ? 0.75
+                                        : 1,
+                                }}
+                            >
+                                <Text style={styles.title}>
+                                    {vm.workout.name}
+                                </Text>
+                                {vm.isOpeningTemplateHistory ? (
+                                    <ActivityIndicator
+                                        size="small"
+                                        color="white"
+                                    />
+                                ) : null}
+                            </View>
+                        </TouchableOpacity>
                     ) : (
                         <Text style={styles.title}>{vm.workout.name}</Text>
                     )}

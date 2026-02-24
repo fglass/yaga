@@ -37,12 +37,12 @@ Target: **Mar 1** 🎯
 -   [ ] RPE / RIR
 -   [ ] ~~Advanced progressive overload calcs~~
 
-### Milestone 3: Home + Plan + History clarity (Feb 9 → Feb 15)
+### ✅ Milestone 3: Home + Plan + History clarity (Feb 9 → Feb 15)
 
 -   [x] Tap for run count
 -   [x] History view bug fixes
 -   [x] Active workout minimise
--   [ ] Jump to historical workout (via workout title or exercise history)
+-   [x] Jump to historical workout
 -   [ ] ~~Shake to undo~~
 
 ### Milestone 4: Data management (Feb 16 → Feb 22)

@@ -17,6 +17,7 @@ import {
 import {
     getStravaActivityId,
     isLocalWorkoutSelectable,
+    matchesWorkoutTemplateId,
 } from "./history.viewModel.helpers";
 
 export type HistoryItem =
@@ -25,6 +26,7 @@ export type HistoryItem =
 
 interface Props {
     onSelectLocalWorkout: (workout: CompletedWorkout) => void;
+    templateFilterId?: string | null;
 }
 
 interface ViewModel {
@@ -43,6 +45,7 @@ export const useHistoryViewModel = (props: Props): ViewModel => {
     const { deleteCompletedWorkout, completeWorkout } = useDatabaseWriter();
 
     const combinedHistory = React.useMemo<HistoryItem[]>(() => {
+        const normalizedTemplateFilterId = props.templateFilterId?.trim() ?? "";
         const items = [
             ...completedWorkouts.map<HistoryItem>((workout) => ({
                 type: "local",
@@ -57,6 +60,17 @@ export const useHistoryViewModel = (props: Props): ViewModel => {
         ];
 
         const dedupedItems = dedupeWorkoutsByStart(items);
+        const filteredItems =
+            normalizedTemplateFilterId.length > 0
+                ? dedupedItems.filter(
+                      (item) =>
+                          item.type === "local" &&
+                          matchesWorkoutTemplateId(
+                              item.workout,
+                              normalizedTemplateFilterId
+                          )
+                  )
+                : dedupedItems;
 
         const sortByDate = (item: HistoryItem): number => {
             if (item.type === "local") {
@@ -67,8 +81,8 @@ export const useHistoryViewModel = (props: Props): ViewModel => {
             return item.workout.startDate.getTime();
         };
 
-        return dedupedItems.sort((a, b) => sortByDate(b) - sortByDate(a));
-    }, [completedWorkouts, appleHealthWorkouts]);
+        return filteredItems.sort((a, b) => sortByDate(b) - sortByDate(a));
+    }, [appleHealthWorkouts, completedWorkouts, props.templateFilterId]);
 
     const onDeleteLocalWorkout = React.useCallback(
         (workout: CompletedWorkout) => {

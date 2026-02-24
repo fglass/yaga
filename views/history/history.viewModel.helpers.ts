@@ -19,6 +19,34 @@ export const getStravaActivityId = (
     return normalized;
 };
 
+export const getWorkoutTemplateId = (
+    workout: CompletedWorkout
+): string | null => {
+    const raw = workout.metadata?.templateId;
+    if (typeof raw !== "string") {
+        return null;
+    }
+
+    const normalized = raw.trim();
+    if (normalized.length === 0) {
+        return null;
+    }
+
+    return normalized;
+};
+
+export const matchesWorkoutTemplateId = (
+    workout: CompletedWorkout,
+    templateId: string
+): boolean => {
+    const normalizedTemplateId = templateId.trim();
+    if (normalizedTemplateId.length === 0) {
+        return false;
+    }
+
+    return getWorkoutTemplateId(workout) === normalizedTemplateId;
+};
+
 export const isLocalWorkoutSelectable = (
     workout: CompletedWorkout,
     options?: { isStravaLoggingEnabled?: boolean }

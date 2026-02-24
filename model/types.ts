@@ -19,6 +19,7 @@ export type WorkoutMetadataValue = string | number | boolean | null;
 export interface WorkoutMetadata {
     importedBy?: string;
     stravaActivityId?: string;
+    templateId?: string;
     [key: string]: WorkoutMetadataValue | undefined;
 }
 

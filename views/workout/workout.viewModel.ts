@@ -86,6 +86,8 @@ interface ViewModel {
     isHistoryMode: boolean;
     isTemplateMode: boolean;
     canSaveWorkout: boolean;
+    canOpenTemplateHistory: boolean;
+    isOpeningTemplateHistory: boolean;
     onChangeWorkoutName: (name: string) => void;
     setActiveModal: (modalType: ModalType) => void;
     isModalActive: (modalType: ModalType) => boolean;
@@ -149,6 +151,7 @@ interface ViewModel {
     onShowExerciseHistory: (exerciseId: string) => void;
     onCloseExerciseHistory: () => void;
     onSelectExerciseHistoryWorkout: (workoutId: string) => Promise<void>;
+    onOpenTemplateHistory: () => Promise<void>;
 }
 
 const CALORIES_PER_HOUR = 300;
@@ -183,6 +186,8 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const [expandedNotes, setExpandedNotes] = useState<
         Record<string, boolean | undefined>
     >({});
+    const [isOpeningTemplateHistory, setIsOpeningTemplateHistory] =
+        useState(false);
 
     const restNotificationIdRef = useRef<string | null>(null);
     const restScheduleTokenRef = useRef(0);
@@ -310,10 +315,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     );
 
     const noop = useCallback(() => {}, []);
-    const {
-        workoutStartTime,
-        workoutDurationS,
-    } = useWorkoutDuration({
+    const { workoutStartTime, workoutDurationS } = useWorkoutDuration({
         initialStartTimeMs: workout.startTimestamp,
         isEnabled: isActiveMode,
     });
@@ -625,22 +627,25 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         [workout]
     );
 
-    const onAddSet = useCallback((exerciseIdx: number) => {
-        const exercise = workout.exercises[exerciseIdx];
-        if (!exercise) {
-            return;
-        }
+    const onAddSet = useCallback(
+        (exerciseIdx: number) => {
+            const exercise = workout.exercises[exerciseIdx];
+            if (!exercise) {
+                return;
+            }
 
-        const prefillSet = isTemplateMode
-            ? undefined
-            : getNextSetPrefill(
-                  exercise.sets,
-                  previousSetsByExerciseId[exercise.exerciseId]
-              );
+            const prefillSet = isTemplateMode
+                ? undefined
+                : getNextSetPrefill(
+                      exercise.sets,
+                      previousSetsByExerciseId[exercise.exerciseId]
+                  );
 
-        dispatch({ type: ActionType.AddSet, exerciseIdx, prefillSet });
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }, [isTemplateMode, previousSetsByExerciseId, workout.exercises]);
+            dispatch({ type: ActionType.AddSet, exerciseIdx, prefillSet });
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        },
+        [isTemplateMode, previousSetsByExerciseId, workout.exercises]
+    );
 
     const copyToCurrentSet = useCallback(
         (exerciseIdx: number, setIdx: number) => {
@@ -873,6 +878,52 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         !isTemplateMode ||
         (workout.name.trim().length > 0 && workout.exercises.length > 0);
 
+    const canOpenTemplateHistory =
+        isActiveMode &&
+        typeof workout.metadata?.templateId === "string" &&
+        workout.metadata.templateId.trim().length > 0;
+
+    const onOpenTemplateHistory = useCallback(async () => {
+        if (!isActiveMode || isOpeningTemplateHistory) {
+            return;
+        }
+
+        const templateId =
+            typeof workout.metadata?.templateId === "string"
+                ? workout.metadata.templateId.trim()
+                : "";
+        if (templateId.length === 0) {
+            return;
+        }
+
+        setIsOpeningTemplateHistory(true);
+        try {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+            await new Promise<void>((resolve) => {
+                requestAnimationFrame(() => resolve());
+            });
+
+            await persistActiveWorkout();
+            minimizeActiveWorkout();
+
+            router.replace({
+                pathname: "/(tabs)/history",
+                params: { templateId },
+            });
+        } catch (error) {
+            console.error(error);
+            setIsOpeningTemplateHistory(false);
+        }
+    }, [
+        isActiveMode,
+        isOpeningTemplateHistory,
+        minimizeActiveWorkout,
+        persistActiveWorkout,
+        router,
+        workout.metadata?.templateId,
+    ]);
+
     return {
         isLoading,
         workout,
@@ -886,6 +937,8 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         isHistoryMode,
         isTemplateMode,
         canSaveWorkout,
+        canOpenTemplateHistory,
+        isOpeningTemplateHistory,
         onChangeWorkoutName,
         setActiveModal,
         isModalActive,
@@ -933,5 +986,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onShowExerciseHistory,
         onCloseExerciseHistory,
         onSelectExerciseHistoryWorkout,
+        onOpenTemplateHistory,
     };
 };
