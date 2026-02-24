@@ -44,6 +44,28 @@ export const applyPrefill = (
     };
 };
 
+export const getNextSetPrefill = (
+    currentSets: Set[],
+    historySets: Set[] | undefined
+): Set | undefined => {
+    if (!historySets || historySets.length === 0) {
+        return undefined;
+    }
+
+    const nextNonWarmupSetIdx = currentSets.filter(
+        (set) => set.type !== "warmup"
+    ).length;
+    const historyMatchingSet = historySets.filter(
+        (set) => set.type !== "warmup"
+    )[nextNonWarmupSetIdx];
+
+    if (!historyMatchingSet) {
+        return undefined;
+    }
+
+    return historyMatchingSet;
+};
+
 const createSetFromHistory = (historySet: Set): Set => ({
     id: generateGuid(),
     weight: historySet.weight,
