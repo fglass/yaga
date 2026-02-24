@@ -31,7 +31,10 @@ import { useWorkoutNav } from "../../model/context/WorkoutNavContext";
 import { withWarning } from "../../utils/util";
 import { ensureNotificationPermission } from "../../utils/notifications";
 import { generateGuid } from "../../utils/guid";
-import { prefillExerciseFromHistory } from "../../utils/exercisePrefill";
+import {
+    getNextSetPrefill,
+    prefillExerciseFromHistory,
+} from "../../utils/exercisePrefill";
 import * as Haptics from "expo-haptics";
 import { useRestTimer } from "../../model/context/RestTimerContext";
 import {
@@ -255,7 +258,6 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         }
         return next;
     }, [historySets]);
-
     const cancelScheduledRestNotification = useCallback(async () => {
         if (restNotificationIdRef.current == null) {
             return;
@@ -624,9 +626,21 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     );
 
     const onAddSet = useCallback((exerciseIdx: number) => {
-        dispatch({ type: ActionType.AddSet, exerciseIdx });
+        const exercise = workout.exercises[exerciseIdx];
+        if (!exercise) {
+            return;
+        }
+
+        const prefillSet = isTemplateMode
+            ? undefined
+            : getNextSetPrefill(
+                  exercise.sets,
+                  previousSetsByExerciseId[exercise.exerciseId]
+              );
+
+        dispatch({ type: ActionType.AddSet, exerciseIdx, prefillSet });
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }, []);
+    }, [isTemplateMode, previousSetsByExerciseId, workout.exercises]);
 
     const copyToCurrentSet = useCallback(
         (exerciseIdx: number, setIdx: number) => {

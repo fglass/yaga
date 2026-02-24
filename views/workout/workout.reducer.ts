@@ -92,9 +92,14 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
                     draft.exercises[action.exerciseIdx].sets.length - 1
                 ];
 
-            if (lastSet !== undefined) {
+            if (action.prefillSet != null) {
+                newSet.weight = action.prefillSet.weight;
+                newSet.reps = action.prefillSet.reps;
+                newSet.type = action.prefillSet.type;
+            } else if (lastSet !== undefined) {
                 newSet.weight = lastSet.weight;
                 newSet.reps = lastSet.reps;
+                newSet.type = lastSet.type;
             }
 
             draft.exercises[action.exerciseIdx].sets.push(newSet);
