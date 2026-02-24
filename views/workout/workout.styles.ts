@@ -44,7 +44,7 @@ export const styles = StyleSheet.create({
         top: 0,
         left: 0,
         right: 0,
-        height: 80,
+        height: 28,
         alignItems: "center",
         justifyContent: "flex-start",
         paddingTop: 10,

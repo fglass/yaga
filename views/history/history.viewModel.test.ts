@@ -1,7 +1,9 @@
 import { CompletedWorkout } from "../../model/types";
 import {
     getStravaActivityId,
+    getWorkoutTemplateId,
     isLocalWorkoutSelectable,
+    matchesWorkoutTemplateId,
 } from "./history.viewModel.helpers";
 
 const workoutFactory = (
@@ -111,5 +113,34 @@ describe("history.viewModel.helpers", () => {
         });
 
         expect(getStravaActivityId(workout)).toBeNull();
+    });
+
+    it("gets template ID from workout metadata", () => {
+        const workout = workoutFactory({
+            metadata: { templateId: "template-123" },
+        });
+
+        expect(getWorkoutTemplateId(workout)).toBe("template-123");
+    });
+
+    it("gets null when template ID is missing or blank", () => {
+        expect(getWorkoutTemplateId(workoutFactory({ metadata: {} }))).toBeNull();
+        expect(
+            getWorkoutTemplateId(
+                workoutFactory({
+                    metadata: { templateId: "   " },
+                })
+            )
+        ).toBeNull();
+    });
+
+    it("matches workout template IDs using trimmed values", () => {
+        const workout = workoutFactory({
+            metadata: { templateId: " template-123 " },
+        });
+
+        expect(matchesWorkoutTemplateId(workout, "template-123")).toBe(true);
+        expect(matchesWorkoutTemplateId(workout, " template-123 ")).toBe(true);
+        expect(matchesWorkoutTemplateId(workout, "template-456")).toBe(false);
     });
 });

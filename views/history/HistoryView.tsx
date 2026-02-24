@@ -24,6 +24,7 @@ import { isAppleHealthImportedWorkout } from "../../model/health";
 
 interface Props {
     onSelectWorkout: (workout: CompletedWorkout) => void;
+    templateFilterId?: string | null;
 }
 
 const TAB_BAR_OVERLAY_HEIGHT = 56;
@@ -39,6 +40,9 @@ const SCRIM_LOW_FADE_TOP_OFFSET = 8;
 const SCRIM_LOW_FADE_HEIGHT = 14;
 
 const HistoryView = (props: Props) => {
+    const isTemplateFilterActive =
+        typeof props.templateFilterId === "string" &&
+        props.templateFilterId.trim().length > 0;
     const {
         combinedHistory,
         onDeleteLocalWorkout,
@@ -47,6 +51,7 @@ const HistoryView = (props: Props) => {
         formatWorkoutDate,
     } = useHistoryViewModel({
         onSelectLocalWorkout: props.onSelectWorkout,
+        templateFilterId: props.templateFilterId,
     });
 
     const { activeWorkout, isMinimized } = useActiveWorkout();
@@ -241,6 +246,18 @@ const HistoryView = (props: Props) => {
         );
     };
 
+    const renderFilteredEmptyState = () => {
+        if (!isTemplateFilterActive || combinedHistory.length > 0) {
+            return null;
+        }
+
+        return (
+            <View style={styles.emptyCard}>
+                <Text style={styles.emptySubtitle}>No history found</Text>
+            </View>
+        );
+    };
+
     return (
         <View style={styles.container}>
             <FlatList
@@ -258,6 +275,7 @@ const HistoryView = (props: Props) => {
                 ListFooterComponent={() => (
                     <View style={styles.listFooterSpacing} />
                 )}
+                ListEmptyComponent={renderFilteredEmptyState}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
                 contentContainerStyle={[
                     styles.listContent,
@@ -275,7 +293,11 @@ const HistoryView = (props: Props) => {
             >
                 <View>
                     <Text style={styles.title}>History</Text>
-                    <Text style={styles.subtitle}>Every workout counted</Text>
+                    <Text style={styles.subtitle}>
+                        {isTemplateFilterActive
+                            ? "Filtered by template"
+                            : "Every workout counted"}
+                    </Text>
                 </View>
             </View>
         </View>
@@ -386,11 +408,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
     },
-    emptyTitle: {
-        color: "white",
-        fontWeight: "600",
-        fontSize: 18,
-        marginBottom: 8,
+    emptySubtitle: {
+        color: "rgba(255, 255, 255, 0.7)",
+        textAlign: "center",
     },
 });
 

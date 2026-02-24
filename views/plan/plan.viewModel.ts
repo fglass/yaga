@@ -48,7 +48,9 @@ export const usePlanViewModel = ({
             id: generateGuid(),
             startTimestamp,
             exercises,
-            metadata: {},
+            metadata: {
+                templateId: workout.id,
+            },
         };
 
         await saveActiveWorkout(nextWorkout);
