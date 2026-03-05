@@ -4,7 +4,6 @@ import { usePathname } from "expo-router";
 import * as Haptics from "expo-haptics";
 
 const NativeTabs = NativeTabsModule.NativeTabs;
-const NativeTabTrigger = NativeTabsModule.NativeTabTrigger;
 
 const TAB_ROUTE_NAMES = new Set(["index", "plan", "history"]);
 
@@ -36,30 +35,26 @@ const TabLayout = () => {
             tintColor="#58A5F9"
             iconColor="rgba(255, 255, 255, 0.65)"
         >
-            <NativeTabTrigger
-                name="index"
-                options={{
-                    title: "",
-                    icon: { sf: "house" },
-                    selectedIcon: { sf: "house.fill" },
-                }}
-            />
-            <NativeTabTrigger
-                name="plan"
-                options={{
-                    title: "",
-                    icon: { sf: "list.bullet" },
-                    selectedIcon: { sf: "list.bullet" },
-                }}
-            />
-            <NativeTabTrigger
-                name="history"
-                options={{
-                    title: "",
-                    icon: { sf: "clock" },
-                    selectedIcon: { sf: "clock.fill" },
-                }}
-            />
+            <NativeTabs.Trigger name="index">
+                <NativeTabs.Trigger.Icon
+                    sf={{ default: "house", selected: "house.fill" }}
+                />
+                <NativeTabs.Trigger.Label hidden>Home</NativeTabs.Trigger.Label>
+            </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="plan">
+                <NativeTabs.Trigger.Icon
+                    sf={{ default: "list.bullet", selected: "list.bullet" }}
+                />
+                <NativeTabs.Trigger.Label hidden>Plan</NativeTabs.Trigger.Label>
+            </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="history">
+                <NativeTabs.Trigger.Icon
+                    sf={{ default: "clock", selected: "clock.fill" }}
+                />
+                <NativeTabs.Trigger.Label hidden>
+                    History
+                </NativeTabs.Trigger.Label>
+            </NativeTabs.Trigger>
         </NativeTabs>
     );
 };

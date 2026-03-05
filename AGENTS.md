@@ -15,6 +15,14 @@ Use dependency injection (functional core, imperative shell) in view models. Sug
 -   Keep side effects (haptics, alerts, analytics) in the hook wrapper, not in the core.
 -   In tests, build the core with a lightweight state harness so behavior can be exercised without React.
 
+The `ios/` directory is treated as Expo-generated output. It is acceptable to regenerate it with `npx expo prebuild --platform ios --clean` when SDK or native module changes require it.
+
+For Expo SDK or native module upgrades, always try a clean native regeneration first:
+
+`npx expo prebuild --clean --platform ios` then `npx expo run:ios`
+
+Only investigate or patch native/generated files after this flow has been attempted.
+
 ## UI Preferences
 
 -   Always use haptics on confirmed user actions (e.g., save/delete), but not on every intermediate tap.

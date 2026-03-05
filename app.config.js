@@ -70,10 +70,12 @@ module.exports = ({ config }) => {
                     NSHealthUpdateUsageDescription: "Yaga needs write access.",
                 },
             ],
+            "expo-asset",
             "expo-font",
             "expo-notifications",
             "expo-sqlite",
             "expo-router",
+            "expo-secure-store",
             "./plugins/withLastWorkoutIntent",
         ],
     };
