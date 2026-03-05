@@ -97,7 +97,6 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Active workout minimise
 -   [ ] 🟡 Bug: Workout timer resets on app reopen
 -   [ ] 🟢 Exercise history graph (delta + time gap)
--   [ ] 🟡 Jump to historical workout
 -   [ ] 🟢 Exercise variations?
 -   [ ] 🟡 Bug: Calories move goal
 -   [ ] 🟢 Finish confetti/fireworks
@@ -171,3 +170,7 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 -   Require API key
 -   Category inferring
 -   Template creation
+
+---
+
+55 SDK bottom bar

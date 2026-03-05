@@ -17,6 +17,7 @@ web-build/
 *.env
 ios/
 !plugins/ios/
+app-state-*
 
 # macOS
 .DS_Store
