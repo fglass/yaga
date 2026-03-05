@@ -40,6 +40,8 @@ Always set an explicit timeout for outbound requests.
 
 -   Use the `ios-simulator-skill` to verify UI changes on the iOS simulator.
     -   For simulator launch/automation, use the iOS `bundleIdentifier` (`com.expench.yaga.development`).
+    -   If a helper script reports that no simulator is booted or that the app is not installed, verify with direct `xcrun simctl` commands against the explicit booted UDID before concluding that the app is unavailable.
+    -   If sandboxed simulator checks fail with `CoreSimulatorService` or similar connection errors, rerun the required `xcrun simctl` checks with escalation instead of treating the result as authoritative.
 -   Always run `npm run lint` after making any change.
 
 ### Testing
