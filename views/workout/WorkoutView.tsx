@@ -537,7 +537,8 @@ const WorkoutView = (props: Props) => {
                         </GestureDetector>
                         <AdjustableNumberInput
                             value={set.weight}
-                            step={0.5}
+                            horizontalStep={1}
+                            verticalStep={0.25}
                             onAdjust={(delta) =>
                                 vm.onAdjustWeight(exerciseIdx, setIdx, delta)
                             }
@@ -554,7 +555,7 @@ const WorkoutView = (props: Props) => {
                         />
                         <AdjustableNumberInput
                             value={set.reps}
-                            step={1}
+                            horizontalStep={1}
                             onAdjust={(delta) =>
                                 vm.onAdjustReps(exerciseIdx, setIdx, delta)
                             }
