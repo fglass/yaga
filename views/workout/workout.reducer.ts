@@ -120,6 +120,8 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
                     sourceSet.weight;
                 draft.exercises[action.exerciseIdx].sets[currentSetIdx].reps =
                     sourceSet.reps;
+                draft.exercises[action.exerciseIdx].sets[currentSetIdx].type =
+                    sourceSet.type;
             }
 
             break;
