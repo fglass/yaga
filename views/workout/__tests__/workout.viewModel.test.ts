@@ -4,6 +4,7 @@ import {
     createWorkoutViewModelCore,
     createWorkoutViewModelState,
 } from "../workout.viewModel.core";
+import { ActionType, workoutProducer } from "../workout.reducer";
 import { createLatestTaskQueue } from "../workout.saveQueue";
 
 type Overrides = Partial<{
@@ -195,5 +196,53 @@ describe("workout latest save queue", () => {
         resolvers.get("third")?.();
         await queue.flush();
         expect(finished).toEqual(["first", "third"]);
+    });
+});
+
+describe("workout reducer", () => {
+    it("copies the source set type onto the current set", () => {
+        const workout: Workout = {
+            id: "workout-1",
+            name: "Workout",
+            exercises: [
+                {
+                    id: "exercise-1",
+                    exerciseId: "exercise-def-1",
+                    notes: [],
+                    sets: [
+                        {
+                            id: "set-1",
+                            weight: "100",
+                            reps: "8",
+                            type: "drop",
+                            finishTime: 1,
+                        },
+                        {
+                            id: "set-2",
+                            weight: "",
+                            reps: "",
+                            type: "default",
+                            finishTime: undefined,
+                        },
+                    ],
+                },
+            ],
+            notes: "",
+            type: "strength",
+            metadata: {},
+            startTimestamp: 0,
+        };
+
+        const nextWorkout = workoutProducer(workout, {
+            type: ActionType.CopyToCurrentSet,
+            exerciseIdx: 0,
+            setIdx: 0,
+        });
+
+        expect(nextWorkout.exercises[0].sets[1]).toMatchObject({
+            weight: "100",
+            reps: "8",
+            type: "drop",
+        });
     });
 });
