@@ -56,6 +56,7 @@ export const ensureHealthKit = async (): Promise<boolean> => {
             const available = await isHealthDataAvailableAsync();
             if (!available) {
                 console.warn("Apple Health not available on this device");
+                initPromise = null;
                 return false;
             }
 
@@ -69,6 +70,7 @@ export const ensureHealthKit = async (): Promise<boolean> => {
             return true;
         } catch (error) {
             console.warn("HealthKit authorization failed", error);
+            initPromise = null;
             return false;
         }
     })();
