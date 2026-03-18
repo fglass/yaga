@@ -78,6 +78,7 @@ interface ViewModel {
     workout: Workout;
     startDateLabel: string;
     workoutDurationS: number;
+    hasActiveRestTimer: boolean;
     remainingRestTimeS: number;
     totalRestDurationS: number;
     exerciseDefs: Record<string, ExerciseDef>;
@@ -320,6 +321,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         isEnabled: isActiveMode,
     });
     const {
+        hasActiveRestTimer,
         remainingRestTimeS,
         totalRestDurationS,
         adjustRestTimer,
@@ -929,6 +931,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         workout,
         startDateLabel,
         workoutDurationS,
+        hasActiveRestTimer,
         remainingRestTimeS,
         totalRestDurationS,
         exerciseDefs,

@@ -23,9 +23,6 @@ type RestTimerContextValue = {
 
 const RestTimerContext = createContext<RestTimerContextValue | null>(null);
 
-const clamp = (value: number, min: number, max: number) =>
-    Math.min(max, Math.max(min, value));
-
 const getDefaultState = (): RestTimerState => ({
     endTimeMs: null,
     totalDurationS: DEFAULT_REST_DURATION_S,
@@ -37,7 +34,7 @@ const getRemainingRestTimeS = (state: RestTimerState, nowMs: number) => {
     }
 
     const remainingRestSeconds = Math.floor((state.endTimeMs - nowMs) / 1000);
-    return clamp(remainingRestSeconds, -1, state.totalDurationS);
+    return Math.min(remainingRestSeconds, state.totalDurationS);
 };
 
 export const RestTimerProvider = ({ children }: { children: React.ReactNode }) => {
@@ -114,6 +111,7 @@ export const useRestTimer = (params: {
 
     const remainingRestTimeS = getRemainingRestTimeS(timerState, nowMs);
     const totalRestDurationS = timerState.totalDurationS;
+    const hasActiveRestTimer = timerState.endTimeMs != null;
 
     const adjustRestTimer = useCallback(
         (deltaS: number) => {
@@ -163,6 +161,7 @@ export const useRestTimer = (params: {
     }, [clearTimerState, isEnabled, onRestCancel, workoutId]);
 
     return {
+        hasActiveRestTimer,
         remainingRestTimeS,
         totalRestDurationS,
         adjustRestTimer,

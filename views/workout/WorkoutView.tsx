@@ -135,7 +135,7 @@ const WorkoutView = (props: Props) => {
     };
 
     const isRestTimerVisible =
-        !vm.isHistoryMode && !vm.isTemplateMode && vm.remainingRestTimeS >= 0;
+        !vm.isHistoryMode && !vm.isTemplateMode && vm.hasActiveRestTimer;
     const showSetCompletionColumns = !vm.isTemplateMode;
 
     const contentBottomPadding = useMemo(() => {
@@ -666,6 +666,8 @@ const WorkoutView = (props: Props) => {
             return null;
         }
 
+        const isRestTimerOvertime = vm.remainingRestTimeS < 0;
+
         return (
             <View
                 style={[
@@ -676,7 +678,11 @@ const WorkoutView = (props: Props) => {
             >
                 <View style={styles.restTimerRow}>
                     <TouchableOpacity
-                        style={styles.restAdjustButton}
+                        style={[
+                            styles.restAdjustButton,
+                            isRestTimerOvertime && styles.restAdjustButtonDisabled,
+                        ]}
+                        disabled={isRestTimerOvertime}
                         onPress={() => vm.onAdjustRestTimer(-30)}
                     >
                         <Text style={styles.restAdjustText}>-</Text>
@@ -684,12 +690,17 @@ const WorkoutView = (props: Props) => {
                     <CountdownTimer
                         containerStyle={styles.restTimer}
                         barStyle={styles.restTimerFill}
+                        overtimeBarStyle={styles.restTimerOvertimeFill}
                         labelStyle={styles.restTimerLabel}
                         remainingTime={vm.remainingRestTimeS}
                         totalTime={vm.totalRestDurationS}
                     />
                     <TouchableOpacity
-                        style={styles.restAdjustButton}
+                        style={[
+                            styles.restAdjustButton,
+                            isRestTimerOvertime && styles.restAdjustButtonDisabled,
+                        ]}
+                        disabled={isRestTimerOvertime}
                         onPress={() => vm.onAdjustRestTimer(30)}
                     >
                         <Text style={styles.restAdjustText}>+</Text>

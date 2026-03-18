@@ -12,6 +12,7 @@ import { formatTime } from "../utils/util";
 interface Props {
     containerStyle?: StyleProp<ViewStyle>;
     barStyle?: StyleProp<ViewStyle>;
+    overtimeBarStyle?: StyleProp<ViewStyle>;
     labelStyle?: StyleProp<TextStyle>;
     remainingTime: number;
     totalTime: number;
@@ -20,18 +21,21 @@ interface Props {
 const CountdownTimer = ({
     containerStyle,
     barStyle,
+    overtimeBarStyle,
     labelStyle,
     remainingTime,
     totalTime,
 }: Props) => {
-    if (remainingTime < 0) {
-        return null;
-    }
+    const isOvertime = remainingTime < 0;
+    const displayTime = Math.abs(remainingTime);
+    const displayLabel = isOvertime
+        ? `-${formatTime(displayTime)}`
+        : formatTime(displayTime);
 
-    const progress = Math.max(
-        0,
-        Math.min(1, remainingTime / Math.max(1, totalTime))
-    );
+    const progress = isOvertime
+        ? 1
+        : Math.max(0, Math.min(1, remainingTime / Math.max(1, totalTime)));
+    const fillStyle = isOvertime ? overtimeBarStyle : barStyle;
 
     return (
         <View style={[styles.container, containerStyle]}>
@@ -39,12 +43,12 @@ const CountdownTimer = ({
                 <View
                     style={[
                         styles.fill,
-                        barStyle,
+                        fillStyle,
                         { width: `${progress * 100}%` },
                     ]}
                 />
                 <Text style={[styles.label, labelStyle]}>
-                    {formatTime(remainingTime)}
+                    {displayLabel}
                 </Text>
             </View>
         </View>
