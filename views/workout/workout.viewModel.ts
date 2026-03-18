@@ -118,7 +118,8 @@ interface ViewModel {
     ) => void;
     onRemoveSet: (exerciseIdx: number, setIdx: number) => void;
     onAddSet: (exerciseIdx: number) => void;
-    copyToCurrentSet: (exerciseIdx: number, setIdx: number) => void;
+    onCopyToCurrentSet: (exerciseIdx: number, setIdx: number) => void;
+    onCopyPreviousSet: (exerciseIdx: number, setIdx: number) => void;
     onRemoveExerciseNote: (exerciseIdx: number, noteIdx: number) => void;
     onAddExerciseNote: (exerciseIdx: number) => void;
     isNotesExpanded: (exercise: Exercise) => boolean;
@@ -649,7 +650,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         [isTemplateMode, previousSetsByExerciseId, workout.exercises]
     );
 
-    const copyToCurrentSet = useCallback(
+    const onCopyToCurrentSet = useCallback(
         (exerciseIdx: number, setIdx: number) => {
             const sourceSet = workout.exercises[exerciseIdx]?.sets[setIdx];
             if (sourceSet?.finishTime === undefined) {
@@ -666,6 +667,24 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
             dispatch({
                 type: ActionType.CopyToCurrentSet,
+                exerciseIdx,
+                setIdx,
+            });
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        },
+        [workout.exercises]
+    );
+
+    const onCopyPreviousSet = useCallback(
+        (exerciseIdx: number, setIdx: number) => {
+            const sourceSet = workout.exercises[exerciseIdx]?.sets[setIdx - 1];
+            const targetSet = workout.exercises[exerciseIdx]?.sets[setIdx];
+            if (sourceSet == null || targetSet == null) {
+                return;
+            }
+
+            dispatch({
+                type: ActionType.CopyPreviousSet,
                 exerciseIdx,
                 setIdx,
             });
@@ -955,7 +974,8 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onFinishSet,
         onRemoveSet,
         onAddSet,
-        copyToCurrentSet,
+        onCopyToCurrentSet,
+        onCopyPreviousSet,
         onRemoveExerciseNote,
         onAddExerciseNote,
         isNotesExpanded,

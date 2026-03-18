@@ -78,7 +78,8 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 App log file
 -   [ ] 🟡 Button haptics
 -   [ ] 🟡 Toasts
--   [ ] 🟢 Dynamic island
+-   [ ] 🟢 Dynamic island (`expo-widgets`)
+-   [ ] 🟡 55 SDK bottom bar
 
 ### Home View
 
@@ -91,8 +92,7 @@ Target: **Mar 1** 🎯
 ### Workout View
 
 -   [ ] 🟢 Rest timer noise
--   [ ] 🟡 Exercise completion timer
--   [ ] 🟡 Set timer
+-   [ ] 🟢 Exercise completion time
 -   [ ] 🟢 Drag to reorder exercises
 -   [ ] 🟡 Active workout minimise
 -   [ ] 🟡 Bug: Workout timer resets on app reopen
@@ -170,7 +170,3 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 -   Require API key
 -   Category inferring
 -   Template creation
-
----
-
-55 SDK bottom bar
