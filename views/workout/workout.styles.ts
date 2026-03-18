@@ -297,6 +297,9 @@ export const styles = StyleSheet.create({
     restTimerFill: {
         backgroundColor: "rgba(77, 166, 255, 0.65)",
     },
+    restTimerOvertimeFill: {
+        backgroundColor: "rgba(235, 87, 87, 0.78)",
+    },
     restTimerLabel: {
         fontSize: 14,
         fontWeight: "700",
@@ -312,6 +315,9 @@ export const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         marginHorizontal: 6,
+    },
+    restAdjustButtonDisabled: {
+        opacity: 0.4,
     },
     restAdjustText: {
         color: "white",
