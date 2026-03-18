@@ -492,21 +492,20 @@ const WorkoutView = (props: Props) => {
                       .join("")
                       .slice(0, 2);
 
-        const setLabelGesture = isFinished
-            ? Gesture.Exclusive(
-                  Gesture.Tap()
-                      .numberOfTaps(2)
-                      .runOnJS(true)
-                      .onStart(() => vm.copyToCurrentSet(exerciseIdx, setIdx)),
-                  Gesture.Tap()
-                      .numberOfTaps(1)
-                      .runOnJS(true)
-                      .onStart(() => vm.onCycleSetType(exerciseIdx, setIdx))
-              )
-            : Gesture.Tap()
-                  .numberOfTaps(1)
-                  .runOnJS(true)
-                  .onStart(() => vm.onCycleSetType(exerciseIdx, setIdx));
+        const setLabelGesture = Gesture.Exclusive(
+            Gesture.Tap()
+                .numberOfTaps(2)
+                .runOnJS(true)
+                .onStart(() =>
+                    isFinished
+                        ? vm.onCopyToCurrentSet(exerciseIdx, setIdx)
+                        : vm.onCopyPreviousSet(exerciseIdx, setIdx)
+                ),
+            Gesture.Tap()
+                .numberOfTaps(1)
+                .runOnJS(true)
+                .onStart(() => vm.onCycleSetType(exerciseIdx, setIdx))
+        );
 
         return (
             <View style={styles.setSwipeContainer} key={set.id}>

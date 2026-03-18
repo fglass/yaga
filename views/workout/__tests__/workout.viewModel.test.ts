@@ -200,7 +200,7 @@ describe("workout latest save queue", () => {
 });
 
 describe("workout reducer", () => {
-    it("copies the source set type onto the current set", () => {
+    it("copies a finished set onto the current unfinished set", () => {
         const workout: Workout = {
             id: "workout-1",
             name: "Workout",
@@ -244,5 +244,95 @@ describe("workout reducer", () => {
             reps: "8",
             type: "drop",
         });
+    });
+
+    it("copies the previous set onto the tapped set", () => {
+        const workout: Workout = {
+            id: "workout-1",
+            name: "Workout",
+            exercises: [
+                {
+                    id: "exercise-1",
+                    exerciseId: "exercise-def-1",
+                    notes: [],
+                    sets: [
+                        {
+                            id: "set-1",
+                            weight: "100",
+                            reps: "8",
+                            type: "drop",
+                            finishTime: 1,
+                        },
+                        {
+                            id: "set-2",
+                            weight: "",
+                            reps: "",
+                            type: "default",
+                            finishTime: undefined,
+                        },
+                        {
+                            id: "set-3",
+                            weight: "70",
+                            reps: "12",
+                            type: "warmup",
+                            finishTime: 2,
+                        },
+                    ],
+                },
+            ],
+            notes: "",
+            type: "strength",
+            metadata: {},
+            startTimestamp: 0,
+        };
+
+        const nextWorkout = workoutProducer(workout, {
+            type: ActionType.CopyPreviousSet,
+            exerciseIdx: 0,
+            setIdx: 2,
+        });
+
+        expect(nextWorkout.exercises[0].sets[2]).toMatchObject({
+            id: "set-3",
+            weight: "",
+            reps: "",
+            type: "default",
+            finishTime: 2,
+        });
+    });
+
+    it("does nothing when there is no previous set", () => {
+        const workout: Workout = {
+            id: "workout-1",
+            name: "Workout",
+            exercises: [
+                {
+                    id: "exercise-1",
+                    exerciseId: "exercise-def-1",
+                    notes: [],
+                    sets: [
+                        {
+                            id: "set-1",
+                            weight: "100",
+                            reps: "8",
+                            type: "drop",
+                            finishTime: 1,
+                        },
+                    ],
+                },
+            ],
+            notes: "",
+            type: "strength",
+            metadata: {},
+            startTimestamp: 0,
+        };
+
+        const nextWorkout = workoutProducer(workout, {
+            type: ActionType.CopyPreviousSet,
+            exerciseIdx: 0,
+            setIdx: 0,
+        });
+
+        expect(nextWorkout).toEqual(workout);
     });
 });

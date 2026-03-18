@@ -20,6 +20,7 @@ export enum ActionType {
     RemoveSet = "remove-set",
     AddSet = "add-set",
     CopyToCurrentSet = "copy-to-current-set",
+    CopyPreviousSet = "copy-previous-set",
     RemoveExerciseNote = "remove-exercise-note",
     AddExerciseNote = "add-exercise-note",
     AddExercise = "add-exercise",
@@ -113,6 +114,7 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
             ].sets.findIndex((set) => set.finishTime === undefined);
 
             if (
+                sourceSet != null &&
                 currentSetIdx >= 0 &&
                 currentSetIdx < draft.exercises[action.exerciseIdx].sets.length
             ) {
@@ -122,6 +124,20 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
                     sourceSet.reps;
                 draft.exercises[action.exerciseIdx].sets[currentSetIdx].type =
                     sourceSet.type;
+            }
+
+            break;
+        }
+        case ActionType.CopyPreviousSet: {
+            const targetSet =
+                draft.exercises[action.exerciseIdx].sets[action.setIdx];
+            const sourceSet =
+                draft.exercises[action.exerciseIdx].sets[action.setIdx - 1];
+
+            if (targetSet != null && sourceSet != null) {
+                targetSet.weight = sourceSet.weight;
+                targetSet.reps = sourceSet.reps;
+                targetSet.type = sourceSet.type;
             }
 
             break;
