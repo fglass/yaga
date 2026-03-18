@@ -28,9 +28,7 @@ const CountdownTimer = ({
 }: Props) => {
     const isOvertime = remainingTime < 0;
     const displayTime = Math.abs(remainingTime);
-    const displayLabel = isOvertime
-        ? `-${formatTime(displayTime)}`
-        : formatTime(displayTime);
+    const displayLabel = formatTime(displayTime);
 
     const progress = isOvertime
         ? 1
