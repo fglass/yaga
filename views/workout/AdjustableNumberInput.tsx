@@ -25,7 +25,6 @@ const DRAG_START_THRESHOLD_PX = 8;
 interface AdjustableNumberInputProps {
     value: string;
     horizontalStep: number;
-    verticalStep?: number;
     onChangeText: (text: string) => void;
     onAdjust: (delta: number) => void;
     inputMode?: TextInputProps["inputMode"];
@@ -39,7 +38,6 @@ interface AdjustableNumberInputProps {
 const AdjustableNumberInput = ({
     value,
     horizontalStep,
-    verticalStep,
     onAdjust,
     onChangeText,
     inputMode,
@@ -55,7 +53,6 @@ const AdjustableNumberInput = ({
     const isAdjustingRef = useRef(false);
     const [isFocused, setIsFocused] = useState(false);
     const lastStepRef = useRef(0);
-    const adjustmentAxisRef = useRef<"horizontal" | "vertical" | null>(null);
 
     const shake = useSharedValue(0);
     const errorFill = useSharedValue(0);
@@ -93,7 +90,6 @@ const AdjustableNumberInput = ({
 
     const resetAdjustment = () => {
         lastStepRef.current = 0;
-        adjustmentAxisRef.current = null;
         setIsAdjusting(false);
         isAdjustingRef.current = false;
     };
@@ -117,54 +113,31 @@ const AdjustableNumberInput = ({
         .runOnJS(true)
         .onBegin(() => {
             lastStepRef.current = 0;
-            adjustmentAxisRef.current = null;
         })
         .onChange((event) => {
             const horizontalDistance = Math.abs(event.translationX);
-            const verticalDistance = Math.abs(event.translationY);
 
             if (!isAdjustingRef.current) {
-                const canStartHorizontal =
-                    horizontalDistance >= DRAG_START_THRESHOLD_PX;
-                const canStartVertical =
-                    verticalStep !== undefined &&
-                    verticalDistance >= DRAG_START_THRESHOLD_PX;
-
-                if (!canStartHorizontal && !canStartVertical) {
+                if (horizontalDistance < DRAG_START_THRESHOLD_PX) {
                     return;
                 }
 
-                adjustmentAxisRef.current =
-                    canStartVertical && verticalDistance > horizontalDistance
-                        ? "vertical"
-                        : "horizontal";
                 setAllowSoftInputValue(false);
                 setIsAdjusting(true);
                 isAdjustingRef.current = true;
                 setIsFocused(false);
                 inputRef.current?.blur();
                 lastStepRef.current = Math.trunc(
-                    (adjustmentAxisRef.current === "vertical"
-                        ? -event.translationY
-                        : event.translationX) / DRAG_DISTANCE_PER_STEP_PX
+                    event.translationX / DRAG_DISTANCE_PER_STEP_PX
                 );
                 return;
             }
 
-            const axis = adjustmentAxisRef.current ?? "horizontal";
-            const translation =
-                axis === "vertical" ? -event.translationY : event.translationX;
-            const axisStep =
-                axis === 'vertical'
-                    ? verticalStep ?? horizontalStep
-                    : horizontalStep;
-            const steps = Math.trunc(
-                translation / DRAG_DISTANCE_PER_STEP_PX
-            );
+            const steps = Math.trunc(event.translationX / DRAG_DISTANCE_PER_STEP_PX);
             if (steps !== lastStepRef.current) {
                 const deltaSteps = steps - lastStepRef.current;
                 lastStepRef.current = steps;
-                onAdjust(deltaSteps * axisStep);
+                onAdjust(deltaSteps * horizontalStep);
             }
         })
         .onFinalize(() => {

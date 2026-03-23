@@ -157,6 +157,7 @@ Target: **Mar 1** 🎯
 ---
 
 https://github.com/cameroncooke/XcodeBuildMCP
+https://github.com/emilkowalski/skill/blob/main/skills/emil-design-eng/SKILL.md
 
 ---
 
@@ -170,3 +171,5 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 -   Require API key
 -   Category inferring
 -   Template creation
+
+---
