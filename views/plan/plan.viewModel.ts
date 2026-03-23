@@ -135,7 +135,8 @@ export const usePlanViewModel = ({
     const onTemplateActions = (template: WorkoutTemplate) => {
         ActionSheetIOS.showActionSheetWithOptions(
             {
-                options: ["Cancel", "Edit Template"],
+                title: template.name,
+                options: ["Cancel", "Edit"],
                 cancelButtonIndex: 0,
             },
             (selectedIndex) => {
