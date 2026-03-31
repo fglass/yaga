@@ -58,7 +58,7 @@ export const logStravaWorkout = async (
         name: "Indoor Run",
         type: "Run",
         sport_type: "Run",
-        start_date_local: new Date(workout.startTimestamp).toISOString(),
+        start_date_local: formatStravaLocalTimestamp(workout.startTimestamp),
         elapsed_time: Math.max(1, durationSeconds),
         description: "Logged by Yaga 💨",
         distance: distanceMeters,
@@ -284,6 +284,15 @@ const requestStravaToken = async (
         console.warn("Strava token exchange failed", error);
         return null;
     }
+};
+
+const formatStravaLocalTimestamp = (timestamp: number): string => {
+    const date = new Date(timestamp);
+    const offsetMs = date.getTimezoneOffset() * 60_000;
+
+    return new Date(timestamp - offsetMs)
+        .toISOString()
+        .replace(/\.\d{3}Z$/, "Z");
 };
 
 const isTokenValid = (token: StravaToken | null): boolean => {
