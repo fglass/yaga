@@ -115,6 +115,7 @@ Target: **Mar 1** 🎯
 
 -   [ ] 🔴 Check: timer accuracy
 -   [ ] 🟢 Display heart rate
+-   [ ] 🟢 Prefill pace from last run
 
 ### Plan View
 
@@ -170,8 +171,3 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 -   Require API key
 -   Category inferring
 -   Template creation
-
----
-
-Prefill pace from last run
-Export with timestamp
