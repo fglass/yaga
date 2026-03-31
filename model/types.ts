@@ -78,6 +78,8 @@ export interface Set {
     id: string;
     weight: string;
     reps: string;
+    effortValue: string;
+    effortUnit: "rpe";
     type: SetType;
     finishTime: number | undefined;
 }

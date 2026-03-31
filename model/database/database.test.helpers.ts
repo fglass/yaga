@@ -70,12 +70,15 @@ export const setFactory = (params: {
     id: string;
     weight?: string;
     reps?: string;
+    effortValue?: string;
     type?: SetType;
     finishTime?: number;
 }): WorkoutSet => ({
     id: params.id,
     weight: params.weight ?? "",
     reps: params.reps ?? "",
+    effortValue: params.effortValue ?? "",
+    effortUnit: "rpe",
     type: params.type ?? "default",
     finishTime: params.finishTime,
 });
@@ -239,12 +242,14 @@ const insertExercises = async (
         for (let setIdx = 0; setIdx < exercise.sets.length; setIdx += 1) {
             const set = exercise.sets[setIdx];
             await db.runAsync(
-                "INSERT OR REPLACE INTO sets (id, exercise_id, position, weight, reps, type, finished_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                "INSERT OR REPLACE INTO sets (id, exercise_id, position, weight, reps, effort_value, effort_unit, type, finished_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 set.id,
                 exercise.id,
                 setIdx,
                 set.weight,
                 set.reps,
+                set.effortValue,
+                set.effortUnit,
                 set.type,
                 set.finishTime ?? null
             );

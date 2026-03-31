@@ -4,6 +4,8 @@ const setFactory = (weight: string, reps: string) => ({
     id: `set-${weight}-${reps}`,
     weight,
     reps,
+    effortValue: "",
+    effortUnit: "rpe" as const,
     type: "default" as const,
     finishTime: undefined,
 });

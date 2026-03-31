@@ -252,13 +252,15 @@ const insertExercises = async (
             const set = exercise.sets[setIdx];
             await db.runAsync(
                 `INSERT OR REPLACE INTO sets
-                 (id, exercise_id, position, weight, reps, type, finished_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                 (id, exercise_id, position, weight, reps, effort_value, effort_unit, type, finished_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 set.id,
                 exercise.id,
                 setIdx,
                 set.weight,
                 set.reps,
+                set.effortValue,
+                set.effortUnit,
                 set.type,
                 set.finishTime ?? null
             );
@@ -591,10 +593,12 @@ const fetchExercisesForWorkout = async (
                 position: number;
                 weight: string;
                 reps: string;
+                effort_value: string;
+                effort_unit: "rpe";
                 type: SetType;
                 finished_at: number | null;
             }>(
-                "SELECT id, position, weight, reps, type, finished_at FROM sets WHERE exercise_id = ? ORDER BY position",
+                "SELECT id, position, weight, reps, effort_value, effort_unit, type, finished_at FROM sets WHERE exercise_id = ? ORDER BY position",
                 exerciseRow.id
             );
 
@@ -604,6 +608,8 @@ const fetchExercisesForWorkout = async (
                         id: setRow.id,
                         weight: setRow.weight,
                         reps: setRow.reps,
+                        effortValue: setRow.effort_value,
+                        effortUnit: setRow.effort_unit,
                         type: setRow.type,
                         finishTime: setRow.finished_at ?? undefined,
                     } as Set)
@@ -645,6 +651,8 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
         set_position: number | null;
         set_weight: string | null;
         set_reps: string | null;
+        set_effort_value: string | null;
+        set_effort_unit: "rpe" | null;
         set_type: SetType;
         set_finished_at: number | null;
     }>(
@@ -664,6 +672,8 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
                 sets.position as set_position,
                 sets.weight as set_weight,
                 sets.reps as set_reps,
+                sets.effort_value as set_effort_value,
+                sets.effort_unit as set_effort_unit,
                 sets.type as set_type,
                 sets.finished_at as set_finished_at
          FROM workouts
@@ -717,6 +727,8 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
             id: row.set_id,
             weight: row.set_weight ?? "",
             reps: row.set_reps ?? "",
+            effortValue: row.set_effort_value ?? "",
+            effortUnit: row.set_effort_unit ?? "rpe",
             type: row.set_type,
             finishTime: row.set_finished_at ?? undefined,
         } as Set);
@@ -763,6 +775,8 @@ export const fetchExerciseSetsFromCompletedWorkouts = async (
                 sets.position as position,
                 sets.weight as weight,
                 sets.reps as reps,
+                sets.effort_value as effort_value,
+                sets.effort_unit as effort_unit,
                 sets.type as type,
                 sets.finished_at as set_finished_at
          FROM exercises
@@ -809,6 +823,8 @@ type ExerciseSetsRow = {
     position: number | null;
     weight: string | null;
     reps: string | null;
+    effort_value: string | null;
+    effort_unit: "rpe" | null;
     type: SetType;
     set_finished_at: number | null;
 };
@@ -855,6 +871,8 @@ const buildExerciseSetsFromRows = (
             id: row.set_id,
             weight: row.weight ?? "",
             reps: row.reps ?? "",
+            effortValue: row.effort_value ?? "",
+            effortUnit: row.effort_unit ?? "rpe",
             type: row.type,
             finishTime: row.set_finished_at ?? undefined,
         });
@@ -921,6 +939,8 @@ const normalizeSetFromDefinition = (set: unknown): Set => {
         id?: string;
         weight?: string;
         reps?: string;
+        effortValue?: string;
+        effortUnit?: "rpe";
         type?: SetType;
         setType?: SetType;
         finishTime?: number;
@@ -930,6 +950,8 @@ const normalizeSetFromDefinition = (set: unknown): Set => {
         id: parsed.id ?? generateGuid(),
         weight: parsed.weight ?? "",
         reps: parsed.reps ?? "",
+        effortValue: parsed.effortValue ?? "",
+        effortUnit: parsed.effortUnit ?? "rpe",
         type:
             parsedType === "warmup" ||
             parsedType === "default" ||

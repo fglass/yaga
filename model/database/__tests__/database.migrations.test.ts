@@ -155,9 +155,16 @@ describe("database migrations", () => {
             const migratedDb = await sqlite.getDatabase();
             const row = await migratedDb.getFirstAsync<{
                 type: string;
-            }>("SELECT type FROM sets WHERE id = ?", "legacy-set");
+                effort_value: string;
+                effort_unit: string;
+            }>(
+                "SELECT type, effort_value, effort_unit FROM sets WHERE id = ?",
+                "legacy-set"
+            );
 
             expect(row?.type).toBe("default");
+            expect(row?.effort_value).toBe("");
+            expect(row?.effort_unit).toBe("rpe");
         });
     });
 });
