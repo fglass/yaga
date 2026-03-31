@@ -137,6 +137,8 @@ const WorkoutView = (props: Props) => {
     const isRestTimerVisible =
         !vm.isHistoryMode && !vm.isTemplateMode && vm.hasActiveRestTimer;
     const showSetCompletionColumns = !vm.isTemplateMode;
+    const visibleSetMetricLabel =
+        vm.visibleSetMetric === "effort" ? "RPE" : "Time";
 
     const contentBottomPadding = useMemo(() => {
         if (isLastExerciseInputFocused) {
@@ -427,14 +429,35 @@ const WorkoutView = (props: Props) => {
                 )}
                 <View>
                     <View style={styles.thead}>
-                        <Text style={[styles.th, styles.narrow]}>Set</Text>
-                        <Text style={styles.th}>Weight</Text>
-                        <Text style={styles.th}>Reps</Text>
+                        <View style={[styles.thCell, styles.narrow]}>
+                            <Text style={styles.th}>Set</Text>
+                        </View>
+                        <View style={styles.thCell}>
+                            <Text style={styles.th}>Weight</Text>
+                        </View>
+                        <View style={styles.thCell}>
+                            <Text style={styles.th}>Reps</Text>
+                        </View>
                         {showSetCompletionColumns && (
-                            <Text style={styles.th}>Time</Text>
+                            <View style={styles.thCell}>
+                                <TouchableOpacity
+                                    style={styles.thButton}
+                                    accessibilityRole="button"
+                                    accessibilityLabel={`Show ${
+                                        vm.visibleSetMetric === "effort"
+                                            ? "time"
+                                            : "RPE"
+                                    } column`}
+                                    onPress={vm.onCycleVisibleSetMetric}
+                                >
+                                    <Text style={styles.th}>
+                                        {visibleSetMetricLabel}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
                         )}
                         {showSetCompletionColumns && (
-                            <Text style={[styles.th, styles.narrow]} />
+                            <View style={styles.thActionSpacer} />
                         )}
                     </View>
                     <View style={styles.trs}>
@@ -568,17 +591,49 @@ const WorkoutView = (props: Props) => {
                                 shakeErrors[`${exerciseIdx}-${setIdx}-reps`]
                             }
                         />
-                        {showSetCompletionColumns && (
-                            <TextInput
-                                style={[
-                                    styles.td,
-                                    styles.tdReadOnly,
-                                    isFinished && styles.tdFinished,
-                                ]}
-                                value={duration ?? ""}
-                                editable={false}
-                            />
-                        )}
+                        {showSetCompletionColumns &&
+                            (vm.visibleSetMetric === "effort" ? (
+                                <AdjustableNumberInput
+                                    value={set.effortValue}
+                                    horizontalStep={1}
+                                    onAdjust={(delta) =>
+                                        vm.onAdjustEffortValue(
+                                            exerciseIdx,
+                                            setIdx,
+                                            delta
+                                        )
+                                    }
+                                    onChangeText={(text: string) =>
+                                        vm.onChangeEffortValue(
+                                            exerciseIdx,
+                                            setIdx,
+                                            text
+                                        )
+                                    }
+                                    onFocus={() =>
+                                        handleSetInputFocus(exerciseIdx)
+                                    }
+                                    onBlur={handleSetInputBlur}
+                                    inputMode="decimal"
+                                    isFinished={isFinished}
+                                />
+                            ) : (
+                                <View style={styles.adjustableInput}>
+                                    <View
+                                        style={[
+                                            styles.td,
+                                            styles.adjustableInputField,
+                                            styles.tdReadOnly,
+                                            styles.tdStatic,
+                                            isFinished && styles.tdFinished,
+                                        ]}
+                                    >
+                                        <Text style={styles.tdStaticText}>
+                                            {duration ?? ""}
+                                        </Text>
+                                    </View>
+                                </View>
+                            ))}
                         {showSetCompletionColumns && (
                             <TouchableOpacity
                                 style={styles.tdBtn}

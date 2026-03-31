@@ -56,6 +56,8 @@ export const createWorkoutViewModelCore = (params: {
                     id: deps.generateGuid(),
                     weight: "",
                     reps: "",
+                    effortValue: "",
+                    effortUnit: "rpe",
                     type: "default",
                     finishTime: undefined,
                 },

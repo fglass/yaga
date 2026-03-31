@@ -80,4 +80,11 @@ export const MIGRATIONS: string[] = [
     ALTER TABLE sets
     ADD COLUMN type TEXT NOT NULL DEFAULT 'default';
     `,
+    `
+    ALTER TABLE sets
+    ADD COLUMN effort_value TEXT NOT NULL DEFAULT '';
+
+    ALTER TABLE sets
+    ADD COLUMN effort_unit TEXT NOT NULL DEFAULT 'rpe';
+    `,
 ];

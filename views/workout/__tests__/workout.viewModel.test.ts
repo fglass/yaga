@@ -70,6 +70,8 @@ describe("workout view model", () => {
         expect(workout.exercises[0].exerciseId).toBe("exercise-def-1");
         expect(workout.exercises[0].sets[0].id).toBe("set-1");
         expect(workout.exercises[0].sets[0].type).toBe("default");
+        expect(workout.exercises[0].sets[0].effortValue).toBe("");
+        expect(workout.exercises[0].sets[0].effortUnit).toBe("rpe");
     });
 
     it("updates exercise definitions", async () => {
@@ -200,6 +202,87 @@ describe("workout latest save queue", () => {
 });
 
 describe("workout reducer", () => {
+    it("updates effort value for a set", () => {
+        const workout: Workout = {
+            id: "workout-1",
+            name: "Workout",
+            exercises: [
+                {
+                    id: "exercise-1",
+                    exerciseId: "exercise-def-1",
+                    notes: [],
+                    sets: [
+                        {
+                            id: "set-1",
+                            weight: "100",
+                            reps: "8",
+                            effortValue: "",
+                            effortUnit: "rpe",
+                            type: "default",
+                            finishTime: undefined,
+                        },
+                    ],
+                },
+            ],
+            notes: "",
+            type: "strength",
+            metadata: {},
+            startTimestamp: 0,
+        };
+
+        const nextWorkout = workoutProducer(workout, {
+            type: ActionType.ChangeEffortValue,
+            exerciseIdx: 0,
+            setIdx: 0,
+            effortValue: "8.5",
+        });
+
+        expect(nextWorkout.exercises[0].sets[0].effortValue).toBe("8.5");
+        expect(nextWorkout.exercises[0].sets[0].effortUnit).toBe("rpe");
+    });
+
+    it("prefills added sets with effort values", () => {
+        const workout: Workout = {
+            id: "workout-1",
+            name: "Workout",
+            exercises: [
+                {
+                    id: "exercise-1",
+                    exerciseId: "exercise-def-1",
+                    notes: [],
+                    sets: [
+                        {
+                            id: "set-1",
+                            weight: "100",
+                            reps: "8",
+                            effortValue: "9",
+                            effortUnit: "rpe",
+                            type: "default",
+                            finishTime: 1,
+                        },
+                    ],
+                },
+            ],
+            notes: "",
+            type: "strength",
+            metadata: {},
+            startTimestamp: 0,
+        };
+
+        const nextWorkout = workoutProducer(workout, {
+            type: ActionType.AddSet,
+            exerciseIdx: 0,
+        });
+
+        expect(nextWorkout.exercises[0].sets[1]).toMatchObject({
+            weight: "100",
+            reps: "8",
+            effortValue: "9",
+            effortUnit: "rpe",
+            type: "default",
+        });
+    });
+
     it("copies a finished set onto the current unfinished set", () => {
         const workout: Workout = {
             id: "workout-1",
@@ -214,6 +297,8 @@ describe("workout reducer", () => {
                             id: "set-1",
                             weight: "100",
                             reps: "8",
+                            effortValue: "9",
+                            effortUnit: "rpe",
                             type: "drop",
                             finishTime: 1,
                         },
@@ -221,6 +306,8 @@ describe("workout reducer", () => {
                             id: "set-2",
                             weight: "",
                             reps: "",
+                            effortValue: "",
+                            effortUnit: "rpe",
                             type: "default",
                             finishTime: undefined,
                         },
@@ -242,6 +329,8 @@ describe("workout reducer", () => {
         expect(nextWorkout.exercises[0].sets[1]).toMatchObject({
             weight: "100",
             reps: "8",
+            effortValue: "9",
+            effortUnit: "rpe",
             type: "drop",
         });
     });
@@ -260,6 +349,8 @@ describe("workout reducer", () => {
                             id: "set-1",
                             weight: "100",
                             reps: "8",
+                            effortValue: "9",
+                            effortUnit: "rpe",
                             type: "drop",
                             finishTime: 1,
                         },
@@ -267,6 +358,8 @@ describe("workout reducer", () => {
                             id: "set-2",
                             weight: "",
                             reps: "",
+                            effortValue: "",
+                            effortUnit: "rpe",
                             type: "default",
                             finishTime: undefined,
                         },
@@ -274,6 +367,8 @@ describe("workout reducer", () => {
                             id: "set-3",
                             weight: "70",
                             reps: "12",
+                            effortValue: "7",
+                            effortUnit: "rpe",
                             type: "warmup",
                             finishTime: 2,
                         },
@@ -296,6 +391,8 @@ describe("workout reducer", () => {
             id: "set-3",
             weight: "",
             reps: "",
+            effortValue: "",
+            effortUnit: "rpe",
             type: "default",
             finishTime: 2,
         });
@@ -315,6 +412,8 @@ describe("workout reducer", () => {
                             id: "set-1",
                             weight: "100",
                             reps: "8",
+                            effortValue: "9",
+                            effortUnit: "rpe",
                             type: "drop",
                             finishTime: 1,
                         },

@@ -155,11 +155,24 @@ export const styles = StyleSheet.create({
         marginTop: 12,
         paddingBottom: 4,
     },
-    th: {
+    thCell: {
         flex: 1,
+        marginHorizontal: 4,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    th: {
         textAlign: "center",
         fontWeight: "600",
         color: "rgba(255, 255, 255, 0.6)",
+    },
+    thButton: {
+        width: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    thActionSpacer: {
+        width: 32,
     },
     trs: {
         marginTop: 6,
@@ -185,6 +198,8 @@ export const styles = StyleSheet.create({
         paddingVertical: 6,
         borderRadius: 8,
         marginHorizontal: 4,
+        borderWidth: 1,
+        borderColor: "transparent",
     },
     adjustableInput: {
         flex: 1,
@@ -195,18 +210,23 @@ export const styles = StyleSheet.create({
         marginHorizontal: 0,
         paddingHorizontal: 8,
     },
+    tdStatic: {
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    tdStaticText: {
+        color: "rgba(255, 255, 255, 0.65)",
+        textAlign: "center",
+    },
     tdFocused: {
-        borderWidth: 1,
         borderColor: "rgba(77, 166, 255, 0.8)",
     },
     tdFocusedFinished: {
-        borderWidth: 1,
         borderColor: "rgba(101, 202, 121, 0.9)",
     },
     tdReadOnly: {
         backgroundColor: "#23282D",
         color: "rgba(255, 255, 255, 0.65)",
-        borderWidth: 1,
         borderColor: "rgba(255, 255, 255, 0.08)",
     },
     tdImproved: {

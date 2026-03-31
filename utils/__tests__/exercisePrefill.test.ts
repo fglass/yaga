@@ -9,6 +9,8 @@ const setFactory = (
     id: `${weight}-${reps}-${type}`,
     weight,
     reps,
+    effortValue: "",
+    effortUnit: "rpe",
     type,
     finishTime: undefined,
 });

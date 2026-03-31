@@ -73,6 +73,8 @@ type TemplateProps = {
 
 type Props = ActiveProps | HistoryProps | TemplateProps;
 
+export type VisibleSetMetric = "effort" | "time";
+
 interface ViewModel {
     isLoading: boolean;
     workout: Workout;
@@ -82,6 +84,7 @@ interface ViewModel {
     remainingRestTimeS: number;
     totalRestDurationS: number;
     exerciseDefs: Record<string, ExerciseDef>;
+    visibleSetMetric: VisibleSetMetric;
     historyExerciseId: string | null;
     activeModal: ModalType;
     isHistoryMode: boolean;
@@ -104,13 +107,24 @@ interface ViewModel {
         weight: string
     ) => void;
     onChangeRep: (exerciseIdx: number, setIdx: number, reps: string) => void;
+    onChangeEffortValue: (
+        exerciseIdx: number,
+        setIdx: number,
+        effortValue: string
+    ) => void;
     onCycleSetType: (exerciseIdx: number, setIdx: number) => void;
+    onCycleVisibleSetMetric: () => void;
     onAdjustWeight: (
         exerciseIdx: number,
         setIdx: number,
         delta: number
     ) => void;
     onAdjustReps: (exerciseIdx: number, setIdx: number, delta: number) => void;
+    onAdjustEffortValue: (
+        exerciseIdx: number,
+        setIdx: number,
+        delta: number
+    ) => void;
     onFinishSet: (
         exerciseIdx: number,
         setIdx: number,
@@ -185,6 +199,8 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
     const [historyExerciseId, setHistoryExerciseId] = useState<string | null>(
         null
     );
+    const [visibleSetMetric, setVisibleSetMetric] =
+        useState<VisibleSetMetric>("effort");
     const [expandedNotes, setExpandedNotes] = useState<
         Record<string, boolean | undefined>
     >({});
@@ -511,6 +527,24 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         []
     );
 
+    const onChangeEffortValue = useCallback(
+        (exerciseIdx: number, setIdx: number, effortValue: string) =>
+            dispatch({
+                type: ActionType.ChangeEffortValue,
+                exerciseIdx,
+                setIdx,
+                effortValue,
+            }),
+        []
+    );
+
+    const onCycleVisibleSetMetric = useCallback(() => {
+        setVisibleSetMetric((current) =>
+            current === "effort" ? "time" : "effort"
+        );
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }, []);
+
     const onCycleSetType = useCallback(
         (exerciseIdx: number, setIdx: number) => {
             const set = workout.exercises[exerciseIdx]?.sets[setIdx];
@@ -582,6 +616,39 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                 setIdx,
                 reps: `${nextReps}`,
             });
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        },
+        [workout.exercises]
+    );
+
+    const onAdjustEffortValue = useCallback(
+        (exerciseIdx: number, setIdx: number, delta: number) => {
+            const set = workout.exercises[exerciseIdx]?.sets[setIdx];
+            if (!set) {
+                return;
+            }
+
+            const currentEffortValue = Number.parseFloat(set.effortValue);
+            const baseEffortValue = Number.isNaN(currentEffortValue)
+                ? 0
+                : currentEffortValue;
+            const nextEffortValue = Math.max(0, baseEffortValue + delta);
+
+            if (nextEffortValue === baseEffortValue) {
+                return;
+            }
+
+            const formattedEffortValue = Number(
+                nextEffortValue.toFixed(2)
+            ).toString();
+
+            dispatch({
+                type: ActionType.ChangeEffortValue,
+                exerciseIdx,
+                setIdx,
+                effortValue: formattedEffortValue,
+            });
+            
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
         [workout.exercises]
@@ -954,6 +1021,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         remainingRestTimeS,
         totalRestDurationS,
         exerciseDefs,
+        visibleSetMetric,
         historyExerciseId,
         activeModal,
         isHistoryMode,
@@ -968,9 +1036,12 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
         onChangeExerciseNotes,
         onChangeWeight,
         onChangeRep,
+        onChangeEffortValue,
         onCycleSetType,
+        onCycleVisibleSetMetric,
         onAdjustWeight,
         onAdjustReps,
+        onAdjustEffortValue,
         onFinishSet,
         onRemoveSet,
         onAddSet,

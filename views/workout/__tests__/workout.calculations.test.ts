@@ -14,6 +14,8 @@ const setFactory = (
     id: "set-1",
     weight,
     reps,
+    effortValue: "",
+    effortUnit: "rpe",
     type,
     finishTime: undefined,
 });
@@ -35,6 +37,8 @@ const workoutFactory = (
             id: `set-${exerciseIdx}-${setIdx}`,
             weight: "",
             reps: "",
+            effortValue: "",
+            effortUnit: "rpe" as const,
             type: "default" as const,
             finishTime,
         })),

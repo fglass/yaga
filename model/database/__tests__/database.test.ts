@@ -261,6 +261,7 @@ describe("database exercise sets", () => {
                                         id: "set-default",
                                         weight: "100",
                                         reps: "5",
+                                        effortValue: "8",
                                         type: "default",
                                         finishTime: 1,
                                     }),
@@ -268,6 +269,7 @@ describe("database exercise sets", () => {
                                         id: "set-warmup",
                                         weight: "60",
                                         reps: "8",
+                                        effortValue: "6",
                                         type: "warmup",
                                         finishTime: 2,
                                     }),
@@ -278,13 +280,18 @@ describe("database exercise sets", () => {
                 ],
             });
 
-            const result = await database.fetchExerciseSetsFromCompletedWorkouts(
-                [defA.id],
-                1
-            );
+            const result =
+                await database.fetchExerciseSetsFromCompletedWorkouts(
+                    [defA.id],
+                    1
+                );
 
             expect(result[defA.id][0].sets[0].type).toBe("default");
             expect(result[defA.id][0].sets[1].type).toBe("warmup");
+            expect(result[defA.id][0].sets[0].effortValue).toBe("8");
+            expect(result[defA.id][0].sets[0].effortUnit).toBe("rpe");
+            expect(result[defA.id][0].sets[1].effortValue).toBe("6");
+            expect(result[defA.id][0].sets[1].effortUnit).toBe("rpe");
         });
     });
 
@@ -327,10 +334,11 @@ describe("database exercise sets", () => {
                 ],
             });
 
-            const result = await database.fetchExerciseSetsFromCompletedWorkouts(
-                [defA.id],
-                1
-            );
+            const result =
+                await database.fetchExerciseSetsFromCompletedWorkouts(
+                    [defA.id],
+                    1
+                );
 
             expect(result[defA.id]).toHaveLength(1);
             expect(result[defA.id][0].workoutId).toBe("workout-older");
@@ -419,10 +427,11 @@ describe("database exercise sets", () => {
                 ],
             });
 
-            const result = await database.fetchExerciseSetsFromCompletedWorkouts(
-                [defA.id],
-                1
-            );
+            const result =
+                await database.fetchExerciseSetsFromCompletedWorkouts(
+                    [defA.id],
+                    1
+                );
 
             expect(result[defA.id]).toHaveLength(1);
             expect(result[defA.id][0].workoutId).toBe("workout-older");

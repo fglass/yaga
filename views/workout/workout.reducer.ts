@@ -14,6 +14,7 @@ export enum ActionType {
     ChangeExerciseNote = "change-exercise-note",
     ChangeWeight = "change-weight",
     ChangeReps = "change-reps",
+    ChangeEffortValue = "change-effort-value",
     ChangeSetType = "change-set-type",
     DecrementReps = "decrement-reps",
     FinishSet = "finish-set",
@@ -48,6 +49,10 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
         case ActionType.ChangeReps:
             draft.exercises[action.exerciseIdx].sets[action.setIdx].reps =
                 action.reps;
+            break;
+        case ActionType.ChangeEffortValue:
+            draft.exercises[action.exerciseIdx].sets[action.setIdx].effortValue =
+                action.effortValue;
             break;
         case ActionType.ChangeSetType:
             draft.exercises[action.exerciseIdx].sets[action.setIdx].type =
@@ -96,10 +101,14 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
             if (action.prefillSet != null) {
                 newSet.weight = action.prefillSet.weight;
                 newSet.reps = action.prefillSet.reps;
+                newSet.effortValue = action.prefillSet.effortValue;
+                newSet.effortUnit = action.prefillSet.effortUnit;
                 newSet.type = action.prefillSet.type;
             } else if (lastSet !== undefined) {
                 newSet.weight = lastSet.weight;
                 newSet.reps = lastSet.reps;
+                newSet.effortValue = lastSet.effortValue;
+                newSet.effortUnit = lastSet.effortUnit;
                 newSet.type = lastSet.type;
             }
 
@@ -122,6 +131,12 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
                     sourceSet.weight;
                 draft.exercises[action.exerciseIdx].sets[currentSetIdx].reps =
                     sourceSet.reps;
+                draft.exercises[action.exerciseIdx].sets[
+                    currentSetIdx
+                ].effortValue = sourceSet.effortValue;
+                draft.exercises[action.exerciseIdx].sets[
+                    currentSetIdx
+                ].effortUnit = sourceSet.effortUnit;
                 draft.exercises[action.exerciseIdx].sets[currentSetIdx].type =
                     sourceSet.type;
             }
@@ -137,6 +152,8 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
             if (targetSet != null && sourceSet != null) {
                 targetSet.weight = sourceSet.weight;
                 targetSet.reps = sourceSet.reps;
+                targetSet.effortValue = sourceSet.effortValue;
+                targetSet.effortUnit = sourceSet.effortUnit;
                 targetSet.type = sourceSet.type;
             }
 
@@ -164,6 +181,8 @@ const createNewSet = (): Set => ({
     id: generateGuid(),
     weight: "",
     reps: "",
+    effortValue: "",
+    effortUnit: "rpe",
     type: "default",
     finishTime: undefined,
 });

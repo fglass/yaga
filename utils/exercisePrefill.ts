@@ -70,6 +70,8 @@ const createSetFromHistory = (historySet: Set): Set => ({
     id: generateGuid(),
     weight: historySet.weight,
     reps: historySet.reps,
+    effortValue: historySet.effortValue,
+    effortUnit: historySet.effortUnit,
     type: historySet.type,
     finishTime: undefined,
 });

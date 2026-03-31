@@ -70,6 +70,8 @@ export const importWorkouts = async (
                 id: generateGuid(),
                 weight: set.weight ?? "",
                 reps: set.reps ?? "",
+                effortValue: "",
+                effortUnit: "rpe",
                 type: "default",
                 finishTime: workout.finishedAt,
             }));

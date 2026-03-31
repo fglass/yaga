@@ -34,7 +34,7 @@ Target: **Mar 1** 🎯
 -   [x] Set types
 -   [ ] ~~Rest timer noise~~
 -   [ ] Rework exercise notes
--   [ ] RPE / RIR
+-   [x] RPE / RIR
 -   [ ] ~~Advanced progressive overload calcs~~
 
 ### ✅ Milestone 3: Home + Plan + History clarity (Feb 9 → Feb 15)
@@ -102,7 +102,6 @@ Target: **Mar 1** 🎯
 -   [ ] 🟢 Finish confetti/fireworks
 -   [ ] 🟡 Seed from [exercise list](https://exrx.net/Lists/Directory)/similar
 -   [ ] 🟡 Advanced progressive overload calcs
--   [ ] 🟡 RIR
 -   [ ] 🟢 Cardio exercise?
 -   [ ] 🟢 Shake to undo
 -   [ ] 🟡 Touch workout title to see history
@@ -173,3 +172,6 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 -   Template creation
 
 ---
+
+Prefill pace from last run
+Export with timestamp
