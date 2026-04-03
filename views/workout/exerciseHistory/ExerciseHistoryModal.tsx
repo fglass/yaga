@@ -114,6 +114,7 @@ const ExerciseHistoryModal = (props: Props) => {
                             <View style={styles.session}>
                                 <View style={styles.sessionHeader}>
                                     <TouchableOpacity
+                                        style={styles.sessionTitleButton}
                                         activeOpacity={0.7}
                                         onPress={onSelectWorkout}
                                         disabled={isCurrentWorkout}
@@ -128,8 +129,17 @@ const ExerciseHistoryModal = (props: Props) => {
                                             {formatDate(item.finishedAt)}
                                         </Text>
                                     </TouchableOpacity>
+                                    {item.note ? (
+                                        <Text
+                                            style={styles.sessionNote}
+                                            numberOfLines={1}
+                                            ellipsizeMode="tail"
+                                        >
+                                            {item.note}
+                                        </Text>
+                                    ) : null}
                                 </View>
-                                {item.sets.map((set, setIdx) => {
+                                {item.sets.map((set: Set, setIdx: number) => {
                                     const progress = getSetProgress(
                                         previousEntry?.sets,
                                         item.sets,
@@ -223,7 +233,6 @@ const styles = StyleSheet.create({
     },
     sessionHeader: {
         flexDirection: "row",
-        justifyContent: "flex-start",
         alignItems: "center",
         marginBottom: 4,
     },
@@ -270,8 +279,19 @@ const styles = StyleSheet.create({
         fontSize: 12,
         letterSpacing: 0.2,
     },
+    sessionTitleButton: {
+        flexShrink: 0,
+    },
     sessionTitleCurrent: {
         color: "rgba(255, 255, 255, 0.5)",
+    },
+    sessionNote: {
+        flex: 1,
+        minWidth: 0,
+        marginLeft: 10,
+        color: "rgba(255, 255, 255, 0.55)",
+        textAlign: "right",
+        fontSize: 11,
     },
     row: {
         flexDirection: "row",

@@ -60,6 +60,7 @@ Target: **Mar 1** 🎯
 
 -   [ ] Bug bash
 -   [ ] Settings view
+-   [ ] Feedback form
 -   [ ] CI/CD + EAS config sanity
 -   [ ] Full test pass + lint clean
 -   [ ] Release build + App Store prep
@@ -80,6 +81,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Toasts
 -   [ ] 🟢 Dynamic island (`expo-widgets`)
 -   [ ] 🟡 55 SDK bottom bar
+-   [ ] 🟡 Feedback form
 
 ### Home View
 
@@ -142,6 +144,7 @@ Target: **Mar 1** 🎯
 -   [ ] 🟢 Infer set types
 -   [ ] 🔴 Bug: Lat pulldown missing?
 -   [ ] 🔴 Remove exercise inferring?
+-   [ ] Database export suffix
 
 ## Incubator
 

@@ -35,7 +35,12 @@ export const useWorkoutDuration = ({
     };
 };
 
-type ExerciseSetsEntry = { workoutId: string; finishedAt: number; sets: Set[] };
+export type ExerciseSetsEntry = {
+    workoutId: string;
+    finishedAt: number;
+    note: string | null;
+    sets: Set[];
+};
 
 type ExerciseSetsFromCompletedWorkoutsParams = {
     exerciseIds: string[];
