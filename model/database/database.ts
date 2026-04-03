@@ -747,7 +747,10 @@ export const fetchExerciseSetsFromCompletedWorkouts = async (
     nWorkouts: number,
     beforeTimestamp?: number
 ): Promise<
-    Record<string, { workoutId: string; finishedAt: number; sets: Set[] }[]>
+    Record<
+        string,
+        { workoutId: string; finishedAt: number; note: string | null; sets: Set[] }[]
+    >
 > => {
     const startTime = Date.now();
     await ensureDatabase();
@@ -771,6 +774,7 @@ export const fetchExerciseSetsFromCompletedWorkouts = async (
                 exercises.exercise_def_id as exercise_def_id,
                 workouts.id as workout_id,
                 workouts.finished_at as workout_finished_at,
+                exercises.notes_json as exercise_notes_json,
                 sets.id as set_id,
                 sets.position as position,
                 sets.weight as weight,
@@ -819,6 +823,7 @@ type ExerciseSetsRow = {
     exercise_def_id: string;
     workout_id: string;
     workout_finished_at: number | null;
+    exercise_notes_json: string;
     set_id: string | null;
     position: number | null;
     weight: string | null;
@@ -835,11 +840,11 @@ const buildExerciseSetsFromRows = (
 ) => {
     const result: Record<
         string,
-        { workoutId: string; finishedAt: number; sets: Set[] }[]
+        { workoutId: string; finishedAt: number; note: string | null; sets: Set[] }[]
     > = {};
     const entriesByExercise = new Map<
         string,
-        { workoutId: string; finishedAt: number; sets: Set[] }
+        { workoutId: string; finishedAt: number; note: string | null; sets: Set[] }
     >();
 
     for (const row of rows) {
@@ -861,6 +866,7 @@ const buildExerciseSetsFromRows = (
             entry = {
                 workoutId: row.workout_id,
                 finishedAt: row.workout_finished_at ?? 0,
+                note: getPrimaryExerciseNote(row.exercise_notes_json),
                 sets: [],
             };
             result[exerciseDefId].push(entry);
@@ -879,6 +885,17 @@ const buildExerciseSetsFromRows = (
     }
 
     return result;
+};
+
+const getPrimaryExerciseNote = (raw: string): string | null => {
+    const notes = parseNotesJson(raw);
+    for (const note of notes) {
+        const trimmed = note?.value?.trim();
+        if (trimmed) {
+            return trimmed;
+        }
+    }
+    return null;
 };
 
 const parseNotesJson = (raw: string): Note[] => {

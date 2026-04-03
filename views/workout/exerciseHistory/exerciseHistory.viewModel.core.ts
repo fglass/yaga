@@ -3,6 +3,7 @@ import type { Set } from "../../../model/types";
 export type ExerciseHistoryEntry = {
     workoutId: string;
     finishedAt: number;
+    note?: string | null;
     sets: Set[];
 };
 

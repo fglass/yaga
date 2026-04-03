@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useExerciseSetsFromCompletedWorkouts } from "../workout.hooks";
+import {
+    useExerciseSetsFromCompletedWorkouts,
+    type ExerciseSetsEntry,
+} from "../workout.hooks";
 import {
     buildExerciseHistoryState,
-    ExerciseHistoryEntry,
+    type ExerciseHistoryEntry,
 } from "./exerciseHistory.viewModel.core";
 
 const DEFAULT_PAGE_SIZE = 5;
@@ -44,7 +47,7 @@ export const useExerciseHistoryViewModel = ({
         if (!exerciseId) {
             return [];
         }
-        return (historySets[exerciseId] ?? []) as ExerciseHistoryEntry[];
+        return (historySets[exerciseId] ?? []) as ExerciseSetsEntry[];
     }, [exerciseId, historySets]);
 
     const { displayHistorySets, comparisonHistorySets, hasMore } = useMemo(
