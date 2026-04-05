@@ -1,66 +1,14 @@
 import React from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    ActionSheetIOS,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import Constants from "expo-constants";
-import {
-    exportDatabase,
-    importDatabase,
-    resetDatabase,
-} from "../../model/database";
-import ImportView from "../import/ImportView";
+import { useRouter } from "expo-router";
 import { useHomeViewModel } from "./home.viewModel";
 
 const HomeView = () => {
     const vm = useHomeViewModel();
+    const router = useRouter();
 
     const isDevBuild = process.env.EXPO_PUBLIC_APP_VARIANT === "development";
-    const gitCommit = Constants.expoConfig?.extra?.gitCommit ?? "unknown";
-
-    const onAdminSettings = () =>
-        ActionSheetIOS.showActionSheetWithOptions(
-            {
-                title: `Version: ${gitCommit}`,
-                options: [
-                    "Cancel",
-                    vm.isHealthLoggingEnabled
-                        ? "Disable Health Logging"
-                        : "Enable Health Logging",
-                    vm.isStravaLoggingEnabled
-                        ? "Disable Strava Logging"
-                        : "Enable Strava Logging",
-                    "Auth Strava",
-                    "Import Strong App",
-                    "Export Database",
-                    "Import Database",
-                    "Reset Database",
-                ],
-                cancelButtonIndex: 0,
-                destructiveButtonIndex: [6, 7],
-            },
-            (btnIdx) => {
-                if (btnIdx === 1) {
-                    vm.toggleHealthLogging();
-                } else if (btnIdx === 2) {
-                    vm.toggleStravaLogging();
-                } else if (btnIdx === 3) {
-                    void vm.authStrava();
-                } else if (btnIdx === 4) {
-                    void vm.openImportFromStrong();
-                } else if (btnIdx === 5) {
-                    exportDatabase();
-                } else if (btnIdx === 6) {
-                    importDatabase();
-                } else if (btnIdx === 7) {
-                    resetDatabase();
-                }
-            }
-        );
 
     const statCards = [
         {
@@ -156,7 +104,7 @@ const HomeView = () => {
                 <View style={styles.headerActions}>
                     <TouchableOpacity
                         style={styles.adminButton}
-                        onPress={onAdminSettings}
+                        onPress={() => router.push("/(tabs)/(home)/settings")}
                     >
                         <Ionicons
                             name="settings-sharp"
@@ -233,14 +181,6 @@ const HomeView = () => {
                     );
                 })}
             </View>
-            {vm.isImportVisible && (
-                <ImportView
-                    isVisible={vm.isImportVisible}
-                    onClose={vm.closeImportFromStrong}
-                    fileUri={vm.importFileUri}
-                    fileName={vm.importFileName}
-                />
-            )}
         </View>
     );
 };

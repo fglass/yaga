@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import HomeView from "../../views/home/HomeView";
+import HomeView from "../../../views/home/HomeView";
 
 const HomeScreen = () => {
     const insets = useSafeAreaInsets();

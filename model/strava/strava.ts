@@ -182,7 +182,7 @@ const authenticateStrava = async (
     const canOpenApp = await Linking.canOpenURL(appAuthUrl);
 
     if (!canOpenApp) {
-        alert("Strava is not installed");
+        console.warn("Strava is not installed");
         return null;
     }
 

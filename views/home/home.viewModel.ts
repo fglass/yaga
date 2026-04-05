@@ -1,30 +1,13 @@
 import React from "react";
 import * as Haptics from "expo-haptics";
-import * as DocumentPicker from "expo-document-picker";
 import { useCompletedWorkouts } from "../../model/database";
 import { useAppleHealthWorkouts } from "../../model/health/health.hooks";
-import {
-    getHealthLoggingEnabled,
-    setHealthLoggingEnabled,
-} from "../../model/health";
-import {
-    getStravaLoggingEnabled,
-    setStravaLoggingEnabled,
-    getAccessToken,
-} from "../../model/strava";
 import { dedupeWorkoutsByStart, parseWorkoutTimestamp } from "../../utils/util";
 
 export const useHomeViewModel = () => {
-    const [isHealthLoggingEnabled, setHealthLoggingEnabledState] = React.useState(
-        getHealthLoggingEnabled()
-    );
-    const [isStravaLoggingEnabled, setStravaLoggingEnabledState] = React.useState(
-        getStravaLoggingEnabled()
-    );
-    const [runCardMode, setRunCardMode] = React.useState<"distance" | "count">("distance");
-    const [isImportVisible, setImportVisible] = React.useState(false);
-    const [importFileUri, setImportFileUri] = React.useState<string | null>(null);
-    const [importFileName, setImportFileName] = React.useState<string | null>(null);
+    const [runCardMode, setRunCardMode] = React.useState<
+        "distance" | "count"
+    >("distance");
 
     const completedWorkouts = useCompletedWorkouts();
     const { workouts: appleHealthWorkouts, isLoading: isAppleHealthLoading } =
@@ -99,51 +82,6 @@ export const useHomeViewModel = () => {
         setRunCardMode((prev) => (prev === "distance" ? "count" : "distance"));
     };
 
-    const toggleHealthLogging = () => {
-        const next = !isHealthLoggingEnabled;
-        setHealthLoggingEnabledState(next);
-        setHealthLoggingEnabled(next);
-        alert(`Apple Health logging ${next ? "enabled" : "disabled"}`);
-    };
-
-    const toggleStravaLogging = () => {
-        const next = !isStravaLoggingEnabled;
-        setStravaLoggingEnabledState(next);
-        setStravaLoggingEnabled(next);
-        alert(`Strava logging ${next ? "enabled" : "disabled"}`);
-    };
-
-    const authStrava = async () => {
-        const token = await getAccessToken();
-        alert(token ? "Strava auth successful" : "Strava auth failed");
-    };
-
-    const openImportFromStrong = async () => {
-        const result = await DocumentPicker.getDocumentAsync({
-            copyToCacheDirectory: true,
-            type: "*/*",
-        });
-
-        if (result.canceled) {
-            return;
-        }
-
-        const file = result.assets?.[0];
-        if (!file?.uri) {
-            return;
-        }
-
-        setImportFileUri(file.uri);
-        setImportFileName(file.name ?? null);
-        setImportVisible(true);
-    };
-
-    const closeImportFromStrong = () => {
-        setImportVisible(false);
-        setImportFileUri(null);
-        setImportFileName(null);
-    };
-
     return {
         workoutsThisWeek: stats.week.current,
         workoutsLastWeek: stats.week.previous,
@@ -172,16 +110,6 @@ export const useHomeViewModel = () => {
         runCardMode,
         toggleRunCardMode,
         isLoading: isAppleHealthLoading,
-        isHealthLoggingEnabled,
-        isStravaLoggingEnabled,
-        toggleHealthLogging,
-        toggleStravaLogging,
-        authStrava,
-        isImportVisible,
-        importFileUri,
-        importFileName,
-        openImportFromStrong,
-        closeImportFromStrong,
     };
 };
 

@@ -5,7 +5,7 @@ import * as Haptics from "expo-haptics";
 
 const NativeTabs = NativeTabsModule.NativeTabs;
 
-const TAB_ROUTE_NAMES = new Set(["index", "plan", "history"]);
+const TAB_ROUTE_NAMES = new Set(["(home)", "plan", "history"]);
 
 const TabLayout = () => {
     const pathname = usePathname();
@@ -13,7 +13,7 @@ const TabLayout = () => {
 
     React.useEffect(() => {
         const routeSegment = pathname.replace(/^\/+/, "").split("/")[0] ?? "";
-        const currentTabName = routeSegment === "" ? "index" : routeSegment;
+        const currentTabName = routeSegment === "" ? "(home)" : routeSegment;
 
         if (!TAB_ROUTE_NAMES.has(currentTabName)) {
             return;
@@ -35,7 +35,7 @@ const TabLayout = () => {
             tintColor="#58A5F9"
             iconColor="rgba(255, 255, 255, 0.65)"
         >
-            <NativeTabs.Trigger name="index">
+            <NativeTabs.Trigger name="(home)">
                 <NativeTabs.Trigger.Icon
                     sf={{ default: "house", selected: "house.fill" }}
                 />
