@@ -59,7 +59,7 @@ Target: **Mar 1** 🎯
 ### Milestone 5: Ship (Feb 23 → Mar 1)
 
 -   [ ] Bug bash
--   [ ] Settings view
+-   [x] Settings view
 -   [ ] Feedback form
 -   [ ] CI/CD + EAS config sanity
 -   [ ] Full test pass + lint clean
@@ -75,7 +75,6 @@ Target: **Mar 1** 🎯
 -   [ ] 🟢 Native port?
 -   [ ] 🟢 Goals: if X in Y then ✅
 -   [ ] 🟡 Export CSV
--   [ ] 🟡 Settings view
 -   [ ] 🟡 App log file
 -   [ ] 🟡 Button haptics
 -   [ ] 🟡 Toasts
@@ -174,3 +173,10 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 -   Require API key
 -   Category inferring
 -   Template creation
+
+---
+
+Expo doctor
+Exercise search
+Onboarding, gesture tutorial
+RPE default = 10?
