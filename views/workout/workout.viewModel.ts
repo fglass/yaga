@@ -75,6 +75,8 @@ type Props = ActiveProps | HistoryProps | TemplateProps;
 
 export type VisibleSetMetric = "effort" | "time";
 
+const DEFAULT_EFFORT_INIT_VALUE = 5;
+
 interface ViewModel {
     isLoading: boolean;
     workout: Workout;
@@ -630,7 +632,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
 
             const currentEffortValue = Number.parseFloat(set.effortValue);
             const baseEffortValue = Number.isNaN(currentEffortValue)
-                ? 0
+                ? DEFAULT_EFFORT_INIT_VALUE
                 : currentEffortValue;
             const nextEffortValue = Math.max(0, baseEffortValue + delta);
 
@@ -648,7 +650,7 @@ export const useWorkoutViewModel = (props: Props): ViewModel => {
                 setIdx,
                 effortValue: formattedEffortValue,
             });
-            
+
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
         [workout.exercises]
