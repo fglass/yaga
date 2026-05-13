@@ -23,19 +23,11 @@ import ExerciseListModal from "./ExerciseListModal";
 import ExerciseHistoryModal from "./exerciseHistory/ExerciseHistoryModal";
 import AdjustableNumberInput from "./AdjustableNumberInput";
 import BlurFadeBackdrop from "../../components/BlurFadeBackdrop";
-import Button from "../../components/Button";
 import CountdownTimer from "../../components/CountdownTimer";
 import Deletable from "../../components/Deletable";
-import {
-    CompletedWorkout,
-    Exercise,
-    ModalType,
-    Note,
-    Set,
-    Workout,
-} from "../../model/types";
+import { Exercise, ModalType, Note, Set } from "../../model/types";
 import { formatTime } from "../../utils/util";
-import { useWorkoutViewModel } from "./workout.viewModel";
+import { WorkoutViewModel } from "./workout.viewModel";
 import { styles } from "./workout.styles";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import {
@@ -43,29 +35,10 @@ import {
     useActiveWorkout,
 } from "../../model/database";
 
-type ActiveProps = {
-    mode: "active";
-    initialWorkout: Workout;
-    onFinish: () => Promise<void>;
-    onCancel: () => Promise<void>;
-    onMinimize: () => Promise<void>;
+type Props = {
+    vm: WorkoutViewModel;
+    onMinimize?: () => Promise<void>;
 };
-
-type TemplateProps = {
-    mode: "template";
-    initialWorkout: Workout;
-    onFinish: () => void;
-    onCancel: () => void;
-};
-
-type HistoryProps = {
-    mode: "history";
-    initialWorkout: CompletedWorkout;
-    onFinish: () => void;
-    onCancel: () => void;
-};
-
-type Props = ActiveProps | TemplateProps | HistoryProps;
 
 const MINIMIZE_DISTANCE_PX = 36;
 const MINIMIZE_VELOCITY_PX = 240;
@@ -74,10 +47,13 @@ const MINI_BAR_GAP_PX = 8;
 const HISTORY_MINI_BAR_CLEARANCE_PX = 12;
 const STATUS_BAR_BLUR_EXTENSION_PX = 6;
 const STATUS_BAR_BLUR_FADE_START_OFFSET_PX = 20;
+const TOOLBAR_CLEARANCE_PX = 50;
+const REST_TIMER_HEIGHT_PX = 48;
+const REST_TIMER_TOOLBAR_GAP_PX = 0;
 
 const WorkoutView = (props: Props) => {
-    const vm = useWorkoutViewModel(props);
-    const isActiveMode = props.mode === "active";
+    const { vm } = props;
+    const isActiveMode = !vm.isHistoryMode && !vm.isTemplateMode;
     const { activeWorkout, isMinimized } = useActiveWorkout();
 
     const insets = useSafeAreaInsets();
@@ -139,6 +115,8 @@ const WorkoutView = (props: Props) => {
     const showSetCompletionColumns = !vm.isTemplateMode;
     const visibleSetMetricLabel =
         vm.visibleSetMetric === "effort" ? "RPE" : "Time";
+    const restTimerBottomOffset =
+        TOOLBAR_CLEARANCE_PX + insets.bottom + REST_TIMER_TOOLBAR_GAP_PX;
 
     const contentBottomPadding = useMemo(() => {
         if (isLastExerciseInputFocused) {
@@ -154,8 +132,16 @@ const WorkoutView = (props: Props) => {
                   HISTORY_MINI_BAR_CLEARANCE_PX
                 : 0;
         const bottom = Math.max(baseBottom, minibarPadding);
+        const toolbarPadding = TOOLBAR_CLEARANCE_PX + insets.bottom;
+        const restTimerPadding = isRestTimerVisible
+            ? REST_TIMER_HEIGHT_PX + REST_TIMER_TOOLBAR_GAP_PX
+            : 0;
+        const contentPadding = Math.max(
+            bottom,
+            toolbarPadding + restTimerPadding
+        );
 
-        return isRestTimerVisible ? 48 + bottom : bottom;
+        return contentPadding;
     }, [
         activeWorkout,
         isLastExerciseInputFocused,
@@ -684,36 +670,6 @@ const WorkoutView = (props: Props) => {
         </View>
     );
 
-    const renderFooter = () => (
-        <View style={[styles.card, styles.footerCard]}>
-            <View style={styles.footerButtons}>
-                <Button
-                    label="Add"
-                    colour="info"
-                    onPress={vm.onOpenExerciseList}
-                    style={[styles.footerButton, styles.footerButtonSpacing]}
-                />
-                <Button
-                    label={
-                        vm.isHistoryMode || vm.isTemplateMode
-                            ? "Save"
-                            : "Finish"
-                    }
-                    colour="success"
-                    onPress={vm.onFinishWorkout}
-                    disabled={!vm.canSaveWorkout}
-                    style={[styles.footerButton, styles.footerButtonSpacing]}
-                />
-                <Button
-                    label="Cancel"
-                    colour="error"
-                    onPress={vm.onCancelWorkout}
-                    style={styles.footerButton}
-                />
-            </View>
-        </View>
-    );
-
     const renderRestTimer = () => {
         if (!isRestTimerVisible) {
             return null;
@@ -725,39 +681,51 @@ const WorkoutView = (props: Props) => {
             <View
                 style={[
                     styles.restTimerContainer,
-                    { bottom: Math.max(16, insets.bottom) },
+                    {
+                        bottom: restTimerBottomOffset,
+                    },
                 ]}
                 pointerEvents="box-none"
             >
                 <View style={styles.restTimerRow}>
-                    <TouchableOpacity
-                        style={[
-                            styles.restAdjustButton,
-                            isRestTimerOvertime && styles.restAdjustButtonDisabled,
-                        ]}
-                        disabled={isRestTimerOvertime}
-                        onPress={() => vm.onAdjustRestTimer(-30)}
-                    >
-                        <Text style={styles.restAdjustText}>-</Text>
-                    </TouchableOpacity>
-                    <CountdownTimer
-                        containerStyle={styles.restTimer}
-                        barStyle={styles.restTimerFill}
-                        overtimeBarStyle={styles.restTimerOvertimeFill}
-                        labelStyle={styles.restTimerLabel}
-                        remainingTime={vm.remainingRestTimeS}
-                        totalTime={vm.totalRestDurationS}
-                    />
-                    <TouchableOpacity
-                        style={[
-                            styles.restAdjustButton,
-                            isRestTimerOvertime && styles.restAdjustButtonDisabled,
-                        ]}
-                        disabled={isRestTimerOvertime}
-                        onPress={() => vm.onAdjustRestTimer(30)}
-                    >
-                        <Text style={styles.restAdjustText}>+</Text>
-                    </TouchableOpacity>
+                    <View pointerEvents="none">
+                        <CountdownTimer
+                            containerStyle={styles.restTimer}
+                            barStyle={styles.restTimerFill}
+                            overtimeBarStyle={styles.restTimerOvertimeFill}
+                            labelStyle={styles.restTimerLabel}
+                            remainingTime={vm.remainingRestTimeS}
+                            totalTime={vm.totalRestDurationS}
+                        />
+                    </View>
+                    {!isRestTimerOvertime && (
+                        <>
+                            <TouchableOpacity
+                                style={[
+                                    styles.restAdjustEdge,
+                                    styles.restAdjustEdgeLeft,
+                                ]}
+                                onPress={() => vm.onAdjustRestTimer(-30)}
+                                activeOpacity={0.6}
+                                accessibilityRole="button"
+                                accessibilityLabel="Subtract 30 seconds from rest timer"
+                            >
+                                <Text style={styles.restAdjustText}>-</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[
+                                    styles.restAdjustEdge,
+                                    styles.restAdjustEdgeRight,
+                                ]}
+                                onPress={() => vm.onAdjustRestTimer(30)}
+                                activeOpacity={0.6}
+                                accessibilityRole="button"
+                                accessibilityLabel="Add 30 seconds to rest timer"
+                            >
+                                <Text style={styles.restAdjustText}>+</Text>
+                            </TouchableOpacity>
+                        </>
+                    )}
                 </View>
             </View>
         );
@@ -828,7 +796,6 @@ const WorkoutView = (props: Props) => {
                         {vm.workout.exercises.length > 0
                             ? vm.workout.exercises.map(renderExercise)
                             : renderEmptyContainer()}
-                        {renderFooter()}
                     </ScrollView>
                 </GestureDetector>
                 {renderRestTimer()}

@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo } from "react";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { Stack, useRouter, useLocalSearchParams } from "expo-router";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import WorkoutView from "../views/workout/WorkoutView";
+import { useWorkoutViewModel } from "../views/workout/workout.viewModel";
 import {
     useActiveWorkout,
     useDatabaseWriter,
@@ -13,6 +14,208 @@ import { CompletedWorkout, Workout } from "../model/types";
 
 type WorkoutMode = "active" | "history" | "template";
 
+const WorkoutBottomToolbar = ({
+    canSaveWorkout,
+    primaryActionLabel,
+    onAddExercise,
+    onCancel,
+    onFinish,
+}: {
+    canSaveWorkout: boolean;
+    primaryActionLabel: "Finish" | "Save";
+    onAddExercise: () => void;
+    onCancel: () => void | Promise<void>;
+    onFinish: () => void | Promise<void>;
+}) => {
+    return (
+        <Stack.Toolbar>
+            <Stack.Toolbar.Button
+                icon="xmark"
+                accessibilityLabel="Cancel workout"
+                onPress={() => {
+                    void onCancel();
+                }}
+            >
+                Cancel
+            </Stack.Toolbar.Button>
+            <Stack.Toolbar.Spacer />
+            <Stack.Toolbar.Button
+                icon="plus"
+                accessibilityLabel="Add exercise"
+                onPress={onAddExercise}
+            >
+                Add
+            </Stack.Toolbar.Button>
+            <Stack.Toolbar.Button
+                icon={
+                    primaryActionLabel === "Finish"
+                        ? "checkmark.circle.fill"
+                        : "square.and.arrow.down"
+                }
+                variant="prominent"
+                disabled={!canSaveWorkout}
+                accessibilityLabel={primaryActionLabel}
+                onPress={() => {
+                    void onFinish();
+                }}
+            >
+                {primaryActionLabel}
+            </Stack.Toolbar.Button>
+        </Stack.Toolbar>
+    );
+};
+
+const ActiveWorkoutRoute = ({
+    activeWorkout,
+    onNavigateToPlan,
+}: {
+    activeWorkout: Workout;
+    onNavigateToPlan: () => void;
+}) => {
+    const router = useRouter();
+    const { minimize: minimizeActiveWorkout } = useActiveWorkout();
+    const { saveActiveWorkout } = useDatabaseWriter();
+
+    const onFinish = async () => {
+        router.replace("/(tabs)/history");
+        await saveActiveWorkout(null);
+    };
+
+    const navigateAfterActiveExit = () => {
+        if (router.canGoBack()) {
+            router.back();
+            return;
+        }
+
+        onNavigateToPlan();
+    };
+
+    const onCancel = async () => {
+        navigateAfterActiveExit();
+        await saveActiveWorkout(null);
+    };
+
+    const onMinimize = async () => {
+        minimizeActiveWorkout();
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        navigateAfterActiveExit();
+    };
+
+    const vm = useWorkoutViewModel({
+        mode: "active",
+        initialWorkout: activeWorkout,
+        onFinish,
+        onCancel,
+    });
+
+    return (
+        <>
+            <WorkoutBottomToolbar
+                canSaveWorkout={vm.canSaveWorkout}
+                primaryActionLabel="Finish"
+                onAddExercise={vm.onOpenExerciseList}
+                onCancel={vm.onCancelWorkout}
+                onFinish={vm.onFinishWorkout}
+            />
+            <WorkoutView vm={vm} onMinimize={onMinimize} />
+        </>
+    );
+};
+
+const HistoryWorkoutRoute = ({
+    workout,
+    onNavigateToHistory,
+}: {
+    workout: CompletedWorkout;
+    onNavigateToHistory: () => void;
+}) => {
+    const router = useRouter();
+    const onFinish = () => {
+        if (router.canGoBack()) {
+            router.back();
+            return;
+        }
+
+        onNavigateToHistory();
+    };
+
+    const onCancel = () => {
+        if (router.canGoBack()) {
+            router.back();
+            return;
+        }
+
+        onNavigateToHistory();
+    };
+
+    const vm = useWorkoutViewModel({
+        mode: "history",
+        initialWorkout: workout,
+        onFinish,
+        onCancel,
+    });
+
+    return (
+        <>
+            <WorkoutBottomToolbar
+                canSaveWorkout={vm.canSaveWorkout}
+                primaryActionLabel="Save"
+                onAddExercise={vm.onOpenExerciseList}
+                onCancel={vm.onCancelWorkout}
+                onFinish={vm.onFinishWorkout}
+            />
+            <WorkoutView vm={vm} />
+        </>
+    );
+};
+
+const TemplateWorkoutRoute = ({
+    workout,
+    onNavigateToPlan,
+}: {
+    workout: Workout;
+    onNavigateToPlan: () => void;
+}) => {
+    const router = useRouter();
+    const onFinish = () => {
+        if (router.canGoBack()) {
+            router.back();
+            return;
+        }
+
+        onNavigateToPlan();
+    };
+
+    const onCancel = () => {
+        if (router.canGoBack()) {
+            router.back();
+            return;
+        }
+
+        onNavigateToPlan();
+    };
+
+    const vm = useWorkoutViewModel({
+        mode: "template",
+        initialWorkout: workout,
+        onFinish,
+        onCancel,
+    });
+
+    return (
+        <>
+            <WorkoutBottomToolbar
+                canSaveWorkout={vm.canSaveWorkout}
+                primaryActionLabel="Save"
+                onAddExercise={vm.onOpenExerciseList}
+                onCancel={vm.onCancelWorkout}
+                onFinish={vm.onFinishWorkout}
+            />
+            <WorkoutView vm={vm} />
+        </>
+    );
+};
+
 const WorkoutScreen = () => {
     const router = useRouter();
 
@@ -21,10 +224,8 @@ const WorkoutScreen = () => {
     const {
         activeWorkout,
         isLoading: isActiveWorkoutLoading,
-        minimize: minimizeActiveWorkout,
         restore: restoreActiveWorkout,
     } = useActiveWorkout();
-    const { saveActiveWorkout } = useDatabaseWriter();
 
     const navigateToTab = (href: "/(tabs)/plan" | "/(tabs)/history") => {
         if (router.canGoBack()) {
@@ -55,37 +256,10 @@ const WorkoutScreen = () => {
             return <LoadingScreen />;
         }
 
-        const onFinish = async () => {
-            router.replace("/(tabs)/history");
-            await saveActiveWorkout(null);
-        };
-
-        const navigateAfterActiveExit = () => {
-            if (router.canGoBack()) {
-                router.back();
-                return;
-            }
-            navigateToTab("/(tabs)/plan");
-        };
-
-        const onCancel = async () => {
-            navigateAfterActiveExit();
-            await saveActiveWorkout(null);
-        };
-
-        const onMinimize = async () => {
-            minimizeActiveWorkout();
-            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            navigateAfterActiveExit();
-        };
-
         return (
-            <WorkoutView
-                mode="active"
-                initialWorkout={activeWorkout}
-                onFinish={onFinish}
-                onCancel={onCancel}
-                onMinimize={onMinimize}
+            <ActiveWorkoutRoute
+                activeWorkout={activeWorkout}
+                onNavigateToPlan={() => navigateToTab("/(tabs)/plan")}
             />
         );
     }
@@ -94,28 +268,10 @@ const WorkoutScreen = () => {
         if (!navWorkout) return <LoadingScreen />;
         const historyWorkout = navWorkout as CompletedWorkout;
 
-        const onFinish = () => {
-            if (router.canGoBack()) {
-                router.back();
-                return;
-            }
-            navigateToTab("/(tabs)/history");
-        };
-
-        const onCancel = () => {
-            if (router.canGoBack()) {
-                router.back();
-                return;
-            }
-            navigateToTab("/(tabs)/history");
-        };
-
         return (
-            <WorkoutView
-                mode="history"
-                initialWorkout={historyWorkout}
-                onFinish={onFinish}
-                onCancel={onCancel}
+            <HistoryWorkoutRoute
+                workout={historyWorkout}
+                onNavigateToHistory={() => navigateToTab("/(tabs)/history")}
             />
         );
     }
@@ -124,28 +280,10 @@ const WorkoutScreen = () => {
         if (!navWorkout) return <LoadingScreen />;
         const templateWorkout = navWorkout as Workout;
 
-        const onFinish = () => {
-            if (router.canGoBack()) {
-                router.back();
-                return;
-            }
-            navigateToTab("/(tabs)/plan");
-        };
-
-        const onCancel = () => {
-            if (router.canGoBack()) {
-                router.back();
-                return;
-            }
-            navigateToTab("/(tabs)/plan");
-        };
-
         return (
-            <WorkoutView
-                mode="template"
-                initialWorkout={templateWorkout}
-                onFinish={onFinish}
-                onCancel={onCancel}
+            <TemplateWorkoutRoute
+                workout={templateWorkout}
+                onNavigateToPlan={() => navigateToTab("/(tabs)/plan")}
             />
         );
     }
