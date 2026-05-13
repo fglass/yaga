@@ -277,48 +277,37 @@ export const styles = StyleSheet.create({
         textAlign: "center",
         lineHeight: 20,
     },
-    footerCard: {
-        marginBottom: 0,
-    },
-    footerButtons: {
-        flexDirection: "row",
-        alignItems: "stretch",
-    },
-    footerButton: {
-        flex: 1,
-        marginHorizontal: 0,
-        marginBottom: 0,
-    },
-    footerButtonSpacing: {
-        marginRight: 8,
-    },
     loading: {
         flex: 1,
         backgroundColor: "#2A3135",
     },
     restTimerContainer: {
         position: "absolute",
-        left: 10,
-        right: 10,
+        left: 0,
+        right: 0,
         bottom: 16,
+        paddingHorizontal: 28,
     },
     restTimerRow: {
-        flexDirection: "row",
-        alignItems: "center",
+        width: "100%",
+        position: "relative",
     },
     restTimer: {
-        backgroundColor: "rgba(255, 255, 255, 0.08)",
-        borderRadius: 10,
-        padding: 2,
+        backgroundColor: "rgba(255, 255, 255, 0.06)",
+        minHeight: 48,
+        borderRadius: 999,
+        padding: 3,
         borderWidth: 1,
-        borderColor: "rgba(255, 255, 255, 0.08)",
-        flex: 1,
+        borderColor: "rgba(255, 255, 255, 0.12)",
+        width: "100%",
     },
     restTimerFill: {
         backgroundColor: "rgba(77, 166, 255, 0.65)",
+        borderRadius: 999,
     },
     restTimerOvertimeFill: {
         backgroundColor: "rgba(235, 87, 87, 0.78)",
+        borderRadius: 999,
     },
     restTimerLabel: {
         fontSize: 14,
@@ -326,15 +315,28 @@ export const styles = StyleSheet.create({
         letterSpacing: 0.2,
     },
     restAdjustButton: {
+        width: 0,
+        height: 0,
+        marginHorizontal: 0,
+        opacity: 0,
+    },
+    restAdjustEdge: {
+        position: "absolute",
+        top: 0,
         width: 44,
-        height: 32,
-        borderRadius: 6,
-        borderWidth: 1,
-        borderColor: "rgba(255, 255, 255, 0.2)",
-        backgroundColor: "rgba(255, 255, 255, 0.08)",
+        height: 48,
         alignItems: "center",
         justifyContent: "center",
-        marginHorizontal: 6,
+        zIndex: 2,
+    },
+    restAdjustEdgeLeft: {
+        left: 0,
+    },
+    restAdjustEdgeRight: {
+        right: 0,
+    },
+    restAdjustEdgeHidden: {
+        opacity: 0,
     },
     restAdjustButtonDisabled: {
         opacity: 0.4,

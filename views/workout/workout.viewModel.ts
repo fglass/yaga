@@ -77,7 +77,7 @@ export type VisibleSetMetric = "effort" | "time";
 
 const DEFAULT_EFFORT_INIT_VALUE = 5;
 
-interface ViewModel {
+export interface WorkoutViewModel {
     isLoading: boolean;
     workout: Workout;
     startDateLabel: string;
@@ -174,7 +174,7 @@ interface ViewModel {
 
 const CALORIES_PER_HOUR = 300;
 
-export const useWorkoutViewModel = (props: Props): ViewModel => {
+export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
     const router = useRouter();
     const { setWorkout } = useWorkoutNav();
     const isTemplateMode = props.mode === "template";

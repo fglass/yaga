@@ -20,20 +20,20 @@ eas build --platform ios --profile preview
 
 Target: **Mar 1** 🎯
 
-### Milestone 1: Define scope + stabilize core (Jan 26 → Feb 1)
+### ✅ Milestone 1: Define scope + stabilize core (Jan 26 → Feb 1)
 
 -   [x] Lock MVP scope
 -   [x] Exercise def management (delete/merge/rename)
 -   [x] History view bug fixes
--   [ ] Native UI refresh
+-   [x] Native UI refresh
 
-### Milestone 2: Workout loop polish (Feb 2 → Feb 8)
+### ✅ Milestone 2: Workout loop polish (Feb 2 → Feb 8)
 
 -   [x] Bugs (see 🔴)
 -   [x] Template execise setting
 -   [x] Set types
 -   [ ] ~~Rest timer noise~~
--   [ ] Rework exercise notes
+-   [ ] ~~Rework exercise notes~~
 -   [x] RPE / RIR
 -   [ ] ~~Advanced progressive overload calcs~~
 
@@ -59,6 +59,7 @@ Target: **Mar 1** 🎯
 ### Milestone 5: Ship (Feb 23 → Mar 1)
 
 -   [ ] Bug bash
+-   [ ] Onboarding e.g. gesture tutorial
 -   [x] Settings view
 -   [ ] Feedback form
 -   [ ] CI/CD + EAS config sanity
@@ -79,7 +80,6 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Button haptics
 -   [ ] 🟡 Toasts
 -   [ ] 🟢 Dynamic island (`expo-widgets`)
--   [ ] 🟡 55 SDK bottom bar
 -   [ ] 🟡 Feedback form
 
 ### Home View
@@ -170,13 +170,24 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 
 ✨ AI
 
--   Require API key
+-   Require API key / Codex App Server
 -   Category inferring
 -   Template creation
 
 ---
 
-Expo doctor
-Exercise search
-Onboarding, gesture tutorial
-RPE default = 10?
+Multi select addition order
+Export workouts to Strava
+RPE to exercise history?
+Bottom fade to exercise history?
+View layout shift first load
+
+https://docs.expo.dev/versions/latest/sdk/storereview/
+
+---
+
+YAGA timer pos
+Match workout and other timers/bars
+Cancel warning if >60s
+Add RPE to historical?
+Template save icon

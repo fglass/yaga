@@ -58,10 +58,11 @@ const styles = StyleSheet.create({
         width: "100%",
     },
     track: {
-        height: 32,
-        borderRadius: 8,
+        height: "100%",
+        minHeight: 32,
+        borderRadius: 999,
         overflow: "hidden",
-        backgroundColor: "rgba(255, 255, 255, 0.12)",
+        backgroundColor: "transparent",
         justifyContent: "center",
     },
     fill: {
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
         top: 0,
         bottom: 0,
         left: 0,
-        borderRadius: 8,
+        borderRadius: 999,
         backgroundColor: "rgba(77, 166, 255, 0.65)",
     },
     label: {
