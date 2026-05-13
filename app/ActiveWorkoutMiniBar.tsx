@@ -9,10 +9,9 @@ import { QueryKey, useActiveWorkout } from "../model/database";
 import { useRestTimer } from "../model/context/RestTimerContext";
 import { formatTime } from "../utils/util";
 
-const HISTORY_WORKOUT_BOTTOM_MIN_PX = 12;
-const HISTORY_WORKOUT_BOTTOM_EXTRA_PX = 4;
-const DEFAULT_BOTTOM_MIN_PX = 72;
-const DEFAULT_BOTTOM_EXTRA_PX = 60;
+const REST_TIMER_BOTTOM_OFFSET_PX = 50;
+const NON_WORKOUT_BOTTOM_LIFT_PX = 10;
+const REST_TIMER_HORIZONTAL_INSET_PX = 28;
 
 export const shouldShowActiveWorkoutMiniBar = (params: {
     isMinimized: boolean;
@@ -37,25 +36,13 @@ export const shouldShowActiveWorkoutMiniBar = (params: {
 };
 
 const getActiveWorkoutMiniBarBottomOffset = (params: {
-    pathname: string;
-    workoutMode?: string;
     bottomInset: number;
+    pathname: string;
 }) => {
-    const { pathname, workoutMode, bottomInset } = params;
-    const isHistoryWorkoutScreen =
-        pathname === "/workout" && workoutMode === "history";
+    const { bottomInset, pathname } = params;
+    const routeLift = pathname === "/workout" ? 0 : NON_WORKOUT_BOTTOM_LIFT_PX;
 
-    if (isHistoryWorkoutScreen) {
-        return Math.max(
-            HISTORY_WORKOUT_BOTTOM_MIN_PX,
-            bottomInset + HISTORY_WORKOUT_BOTTOM_EXTRA_PX
-        );
-    }
-
-    return Math.max(
-        DEFAULT_BOTTOM_MIN_PX,
-        bottomInset + DEFAULT_BOTTOM_EXTRA_PX
-    );
+    return bottomInset + REST_TIMER_BOTTOM_OFFSET_PX + routeLift;
 };
 
 const ActiveWorkoutMiniBar = () => {
@@ -74,19 +61,22 @@ const ActiveWorkoutMiniBar = () => {
     const onRestCancel = useCallback(() => {}, []);
     const isRestTimerEnabled =
         activeWorkout?.type !== "run" && activeWorkout?.id != null;
-    const { remainingRestTimeS, totalRestDurationS } = useRestTimer({
-        workoutId: activeWorkout?.id ?? "inactive-workout",
-        isEnabled: isRestTimerEnabled,
-        onRestStart,
-        onRestCancel,
-    });
-    const isRestTimerActive = isRestTimerEnabled && remainingRestTimeS >= 0;
-    const restProgress = isRestTimerActive
+    const { hasActiveRestTimer, remainingRestTimeS, totalRestDurationS } =
+        useRestTimer({
+            workoutId: activeWorkout?.id ?? "inactive-workout",
+            isEnabled: isRestTimerEnabled,
+            onRestStart,
+            onRestCancel,
+        });
+    const isRestTimerOvertime =
+        isRestTimerEnabled && hasActiveRestTimer && remainingRestTimeS < 0;
+    const showRestTimer = isRestTimerEnabled && hasActiveRestTimer;
+    const barProgress = showRestTimer && !isRestTimerOvertime
         ? Math.max(
               0,
               Math.min(1, remainingRestTimeS / Math.max(1, totalRestDurationS))
           )
-        : 0;
+        : 1;
 
     // If there is no active workout, clear any stale minimized flag
     useEffect(() => {
@@ -136,38 +126,41 @@ const ActiveWorkoutMiniBar = () => {
                 styles.container,
                 {
                     bottom: getActiveWorkoutMiniBarBottomOffset({
-                        pathname,
-                        workoutMode: mode,
                         bottomInset: insets.bottom,
+                        pathname,
                     }),
+                    paddingHorizontal: REST_TIMER_HORIZONTAL_INSET_PX,
                 },
             ]}
         >
             <TouchableOpacity
                 style={[
                     styles.bar,
-                    isRestTimerActive ? styles.restTimerBar : undefined,
+                    isRestTimerOvertime ? styles.overtimeBar : undefined,
                 ]}
                 onPress={() => {
                     void onResumeWorkout();
                 }}
                 activeOpacity={0.85}
             >
-                {isRestTimerActive ? (
+                <View style={styles.barTrack} pointerEvents="none">
                     <View
                         style={[
-                            styles.restTimerFill,
-                            { width: `${restProgress * 100}%` },
+                            styles.barFill,
+                            isRestTimerOvertime
+                                ? styles.overtimeFill
+                                : undefined,
+                            { width: `${barProgress * 100}%` },
                         ]}
                     />
-                ) : null}
+                </View>
                 <View style={styles.content}>
                     <Text style={styles.title} numberOfLines={1}>
                         {activeWorkout?.name ?? "Workout"}
                     </Text>
-                    {isRestTimerActive ? (
+                    {showRestTimer ? (
                         <Text style={styles.restTimerText}>
-                            {formatTime(remainingRestTimeS)}
+                            {formatTime(Math.abs(remainingRestTimeS))}
                         </Text>
                     ) : (
                         <Ionicons name="play" size={16} color="white" />
@@ -181,39 +174,50 @@ const ActiveWorkoutMiniBar = () => {
 const styles = StyleSheet.create({
     container: {
         position: "absolute",
-        left: 20,
-        right: 20,
+        left: 0,
+        right: 0,
     },
     bar: {
-        backgroundColor: "rgba(88, 165, 249, 0.65)",
-        borderRadius: 14,
+        height: 48,
+        backgroundColor: "rgba(255, 255, 255, 0.06)",
+        borderRadius: 999,
         borderWidth: 1,
-        borderColor: "rgba(88, 165, 249, 0.65)",
-        paddingHorizontal: 14,
-        paddingVertical: 12,
+        borderColor: "rgba(255, 255, 255, 0.12)",
+        padding: 3,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
         overflow: "hidden",
         position: "relative",
     },
-    restTimerBar: {
-        backgroundColor: "rgba(255, 255, 255, 0.12)",
-        borderColor: "rgba(255, 255, 255, 0.2)",
+    overtimeBar: {
+        borderColor: "rgba(255, 255, 255, 0.16)",
     },
-    restTimerFill: {
+    barTrack: {
         position: "absolute",
-        top: 0,
-        left: 0,
-        bottom: 0,
-        borderRadius: 14,
+        borderRadius: 999,
+        top: 3,
+        right: 3,
+        bottom: 3,
+        left: 3,
+        overflow: "hidden",
+    },
+    barFill: {
+        height: "100%",
+        borderRadius: 999,
         backgroundColor: "rgba(77, 166, 255, 0.65)",
+    },
+    overtimeFill: {
+        backgroundColor: "rgba(235, 87, 87, 0.78)",
     },
     content: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
         width: "100%",
+        minHeight: 40,
+        paddingHorizontal: 13,
+        zIndex: 1,
     },
     title: {
         color: "white",
