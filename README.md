@@ -186,8 +186,6 @@ https://docs.expo.dev/versions/latest/sdk/storereview/
 
 ---
 
-YAGA timer pos
-Match workout and other timers/bars
 Cancel warning if >60s
 Add RPE to historical?
 Template save icon
