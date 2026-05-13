@@ -42,9 +42,8 @@ type Props = {
 
 const MINIMIZE_DISTANCE_PX = 36;
 const MINIMIZE_VELOCITY_PX = 240;
-const MINI_BAR_HEIGHT_PX = 42;
+const MINI_BAR_HEIGHT_PX = 48;
 const MINI_BAR_GAP_PX = 8;
-const HISTORY_MINI_BAR_CLEARANCE_PX = 12;
 const STATUS_BAR_BLUR_EXTENSION_PX = 6;
 const STATUS_BAR_BLUR_FADE_START_OFFSET_PX = 20;
 const TOOLBAR_CLEARANCE_PX = 50;
@@ -126,10 +125,10 @@ const WorkoutView = (props: Props) => {
         const baseBottom = Math.max(16, insets.bottom);
         const minibarPadding =
             vm.isHistoryMode && isMinimized && activeWorkout != null
-                ? insets.bottom +
-                  MINI_BAR_GAP_PX +
+                ? TOOLBAR_CLEARANCE_PX +
+                  insets.bottom +
                   MINI_BAR_HEIGHT_PX +
-                  HISTORY_MINI_BAR_CLEARANCE_PX
+                  MINI_BAR_GAP_PX
                 : 0;
         const bottom = Math.max(baseBottom, minibarPadding);
         const toolbarPadding = TOOLBAR_CLEARANCE_PX + insets.bottom;

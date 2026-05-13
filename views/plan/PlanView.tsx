@@ -16,9 +16,9 @@ import Deletable from "../../components/Deletable";
 import { usePlanViewModel } from "./plan.viewModel";
 
 const TAB_BAR_OVERLAY_HEIGHT = 56;
-const MINI_BAR_MIN_BOTTOM_OFFSET = 72;
-const MINI_BAR_BOTTOM_OFFSET = 60;
-const MINI_BAR_HEIGHT = 42;
+const MINI_BAR_BOTTOM_OFFSET = 50;
+const MINI_BAR_NON_WORKOUT_LIFT = 10;
+const MINI_BAR_HEIGHT = 48;
 const MINI_BAR_CLEARANCE_GAP = 8;
 const HEADER_BOTTOM_GAP = 18;
 const FALLBACK_HEADER_HEIGHT = 66;
@@ -131,10 +131,9 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
     const baseBottomPadding = TAB_BAR_OVERLAY_HEIGHT + insets.bottom + 10;
     const isMiniBarVisible = isMinimized && activeWorkout != null;
     const miniBarTopInset =
-        Math.max(
-            MINI_BAR_MIN_BOTTOM_OFFSET,
-            insets.bottom + MINI_BAR_BOTTOM_OFFSET
-        ) +
+        insets.bottom +
+        MINI_BAR_BOTTOM_OFFSET +
+        MINI_BAR_NON_WORKOUT_LIFT +
         MINI_BAR_HEIGHT +
         MINI_BAR_CLEARANCE_GAP;
     const listBottomPadding = isMiniBarVisible
