@@ -202,6 +202,145 @@ describe("workout latest save queue", () => {
 });
 
 describe("workout reducer", () => {
+    it("adds exercises first when no exercise has been finished", () => {
+        const workout: Workout = {
+            id: "workout-1",
+            name: "Workout",
+            exercises: [
+                {
+                    id: "exercise-1",
+                    exerciseId: "exercise-def-1",
+                    notes: [],
+                    sets: [
+                        {
+                            id: "set-1",
+                            weight: "",
+                            reps: "",
+                            effortValue: "",
+                            effortUnit: "rpe",
+                            type: "default",
+                            finishTime: undefined,
+                        },
+                    ],
+                },
+                {
+                    id: "exercise-2",
+                    exerciseId: "exercise-def-2",
+                    notes: [],
+                    sets: [
+                        {
+                            id: "set-2",
+                            weight: "",
+                            reps: "",
+                            effortValue: "",
+                            effortUnit: "rpe",
+                            type: "default",
+                            finishTime: undefined,
+                        },
+                    ],
+                },
+            ],
+            notes: "",
+            type: "strength",
+            metadata: {},
+            startTimestamp: 0,
+        };
+
+        const nextWorkout = workoutProducer(workout, {
+            type: ActionType.AddExercise,
+            exercise: {
+                id: "new-exercise",
+                exerciseId: "new-exercise-def",
+                notes: [],
+                sets: [],
+            },
+        });
+
+        expect(nextWorkout.exercises.map((exercise) => exercise.id)).toEqual([
+            "new-exercise",
+            "exercise-1",
+            "exercise-2",
+        ]);
+    });
+
+    it("adds exercises after the most recently finished exercise", () => {
+        const workout: Workout = {
+            id: "workout-1",
+            name: "Workout",
+            exercises: [
+                {
+                    id: "exercise-1",
+                    exerciseId: "exercise-def-1",
+                    notes: [],
+                    sets: [
+                        {
+                            id: "set-1",
+                            weight: "",
+                            reps: "",
+                            effortValue: "",
+                            effortUnit: "rpe",
+                            type: "default",
+                            finishTime: 100,
+                        },
+                    ],
+                },
+                {
+                    id: "exercise-2",
+                    exerciseId: "exercise-def-2",
+                    notes: [],
+                    sets: [
+                        {
+                            id: "set-2",
+                            weight: "",
+                            reps: "",
+                            effortValue: "",
+                            effortUnit: "rpe",
+                            type: "default",
+                            finishTime: undefined,
+                        },
+                    ],
+                },
+                {
+                    id: "exercise-3",
+                    exerciseId: "exercise-def-3",
+                    notes: [],
+                    sets: [
+                        {
+                            id: "set-3",
+                            weight: "",
+                            reps: "",
+                            effortValue: "",
+                            effortUnit: "rpe",
+                            type: "default",
+                            finishTime: 200,
+                        },
+                    ],
+                },
+            ],
+            notes: "",
+            type: "strength",
+            metadata: {},
+            startTimestamp: 0,
+        };
+
+        const nextWorkout = workoutProducer(workout, {
+            type: ActionType.AddExercise,
+            exercise: {
+                id: "new-exercise",
+                exerciseId: "new-exercise-def",
+                notes: [],
+                sets: [],
+            },
+        });
+
+        expect(nextWorkout.exercises.map((exercise) => exercise.id)).toEqual([
+            "exercise-1",
+            "exercise-2",
+            "exercise-3",
+            "new-exercise",
+        ]);
+    });
+
     it("updates effort value for a set", () => {
         const workout: Workout = {
             id: "workout-1",
