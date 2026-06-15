@@ -43,7 +43,7 @@ Target: **Mar 1** 🎯
 -   [x] History view bug fixes
 -   [x] Active workout minimise
 -   [x] Jump to historical workout
--   [ ] ~~Shake to undo~~
+-   [x] Shake to undo
 
 ### Milestone 4: Data management (Feb 16 → Feb 22)
 
@@ -52,7 +52,7 @@ Target: **Mar 1** 🎯
 -   [ ] CSV export
 -   [ ] SQLite tests
 -   [ ] SQLite import to new flow
--   [ ] Refine import flow
+-   [ ] Update import flow
 -   [ ] Sanity check SQLite + migrations
 -   [ ] iCloud sync (defer if risky)
 
@@ -104,7 +104,6 @@ Target: **Mar 1** 🎯
 -   [ ] 🟡 Seed from [exercise list](https://exrx.net/Lists/Directory)/similar
 -   [ ] 🟡 Advanced progressive overload calcs
 -   [ ] 🟢 Cardio exercise?
--   [ ] 🟢 Shake to undo
 -   [ ] 🟡 Touch workout title to see history
 -   [ ] 🟡 Sticky exercise note
 -   [ ] 🟡 Global-only exercise notes?
@@ -178,7 +177,6 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 
 Multi select addition order
 Export workouts to Strava
-RPE to exercise history?
 Bottom fade to exercise history?
 View layout shift first load
 
@@ -186,6 +184,16 @@ https://docs.expo.dev/versions/latest/sdk/storereview/
 
 ---
 
-Cancel warning if >60s
-Add RPE to historical?
-Template save icon
+Exercise history charts
+Miles <-> km
+Pull in Strava runs
+
+Chart max 1RM
+Pin workout time
+Widen action bar?
+
+Increase/decrease signal for next session
+
+Shake to undo -> request shake permission earlier?
+
+https://github.com/callstack/agent-device

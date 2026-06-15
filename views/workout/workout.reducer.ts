@@ -51,8 +51,9 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
                 action.reps;
             break;
         case ActionType.ChangeEffortValue:
-            draft.exercises[action.exerciseIdx].sets[action.setIdx].effortValue =
-                action.effortValue;
+            draft.exercises[action.exerciseIdx].sets[
+                action.setIdx
+            ].effortValue = action.effortValue;
             break;
         case ActionType.ChangeSetType:
             draft.exercises[action.exerciseIdx].sets[action.setIdx].type =
@@ -162,9 +163,11 @@ export const workoutProducer = produce((draft: Workout, action: Action) => {
         case ActionType.AddExerciseNote:
             draft.exercises[action.exerciseIdx].notes.push(createNewNote());
             break;
-        case ActionType.AddExercise:
-            draft.exercises.push(action.exercise);
+        case ActionType.AddExercise: {
+            const insertIdx = getAddExerciseIndex(draft);
+            draft.exercises.splice(insertIdx, 0, action.exercise);
             break;
+        }
         case ActionType.RemoveExercise:
             draft.exercises.splice(action.exerciseIdx, 1);
             break;
@@ -191,3 +194,24 @@ const createNewNote = (): Note => ({
     id: generateGuid(),
     value: "",
 });
+
+const getAddExerciseIndex = (workout: Workout) => {
+    let latestFinishedExerciseIdx = -1;
+    let latestFinishTime = -Infinity;
+
+    // Insert after first exercise with a finished set
+    workout.exercises.forEach((exercise, exerciseIdx) => {
+        exercise.sets.forEach((set) => {
+            if (
+                set.finishTime !== undefined &&
+                set.finishTime > latestFinishTime
+            ) {
+                latestFinishTime = set.finishTime;
+                latestFinishedExerciseIdx = exerciseIdx;
+            }
+        });
+    });
+
+    // If no exercises have finished sets, insert at the beginning
+    return latestFinishedExerciseIdx === -1 ? 0 : latestFinishedExerciseIdx + 1;
+};
