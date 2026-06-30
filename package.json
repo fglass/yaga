@@ -4,6 +4,7 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
+    "tunnel": "expo start --tunnel --dev-client --scheme yaga-go",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest",

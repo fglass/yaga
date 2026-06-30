@@ -77,8 +77,8 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
         </TouchableOpacity>
     );
 
-    const renderFooterCards = () => (
-        <View style={styles.footerCards}>
+    const renderQuickStartCards = () => (
+        <View style={styles.quickStartCards}>
             {renderNewWorkoutCard()}
             {renderNewRunCard()}
         </View>
@@ -185,10 +185,10 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
                 ListEmptyComponent={
                     vm.isTemplatesLoading ? null : renderEmptyState
                 }
-                ListFooterComponent={
-                    vm.isTemplatesLoading ? null : renderFooterCards
+                ListHeaderComponent={
+                    vm.isTemplatesLoading ? null : renderQuickStartCards
                 }
-                ListFooterComponentStyle={styles.footerSpacing}
+                ListHeaderComponentStyle={styles.quickStartSpacing}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={[
@@ -314,9 +314,9 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         overflow: "hidden",
     },
-    footerCards: {},
-    footerSpacing: {
-        marginTop: 8,
+    quickStartCards: {},
+    quickStartSpacing: {
+        marginBottom: 8,
     },
     emptyState: {
         alignItems: "center",

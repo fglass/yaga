@@ -40,6 +40,8 @@ Always set an explicit timeout for outbound requests.
 ## Build, Test, and Development Commands
 
 -   `npm start`: Launches Metro via `expo start` for rapid local iteration.
+-   `npm run tunnel`: Starts Metro in tunnel mode for the development build.
+-   When starting Metro for the user, run `npm run tunnel` by default, keep it running in the background, and provide the clickable dev-build link after startup.
 -   `npm run lint`: Runs ESLint across the TypeScript codebase.
 -   `npm test`: Runs the Jest unit test suite.
 -   `npx expo-doctor`: Runs the Expo doctor.
