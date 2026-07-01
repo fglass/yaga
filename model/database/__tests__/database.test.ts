@@ -164,6 +164,44 @@ describe("database templates", () => {
     });
 });
 
+describe("database runs", () => {
+    it("fetches the latest completed run", async () => {
+        await createTestDb(async (database, sqlite) => {
+            // GIVEN
+            const db = await sqlite.getDatabase();
+            await seedDatabase(db, {
+                completedWorkouts: [
+                    completedWorkoutFactory({
+                        id: "older-run",
+                        type: "run",
+                        endTimestamp: 10,
+                        metadata: { runLastSpeedKmh: 9.5 },
+                    }),
+                    completedWorkoutFactory({
+                        id: "latest-strength",
+                        type: "strength",
+                        endTimestamp: 30,
+                        metadata: { runLastSpeedKmh: 13 },
+                    }),
+                    completedWorkoutFactory({
+                        id: "latest-run",
+                        type: "run",
+                        endTimestamp: 20,
+                        metadata: { runLastSpeedKmh: 11.8 },
+                    }),
+                ],
+            });
+
+            // WHEN
+            const workout = await database.fetchLatestCompletedRun();
+
+            // THEN
+            expect(workout?.id).toBe("latest-run");
+            expect(workout?.metadata.runLastSpeedKmh).toBe(11.8);
+        });
+    });
+});
+
 describe("database exercise sets", () => {
     it("fetches exercise sets before a specific timestamp", async () => {
         await createTestDb(async (database, sqlite) => {

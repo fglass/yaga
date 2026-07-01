@@ -572,6 +572,59 @@ export const fetchActiveWorkout = async (): Promise<Workout | null> => {
     };
 };
 
+export const fetchLatestCompletedRun =
+    async (): Promise<CompletedWorkout | null> => {
+        const startTime = Date.now();
+        await ensureDatabase();
+
+        const db = await getDatabase();
+        const row = await db.getFirstAsync<{
+            id: string;
+            name: string;
+            notes: string;
+            type: WorkoutType;
+            distance: number | null;
+            started_at: number;
+            finished_at: number | null;
+            metadata_json: string;
+        }>(
+            `SELECT id, name, notes, type, distance, started_at, finished_at, metadata_json
+         FROM workouts
+         WHERE status = 'completed'
+         AND type = 'run'
+         ORDER BY finished_at DESC
+         LIMIT 1`
+        );
+
+        if (!row) {
+            console.log(
+                `[database] Latest completed run fetched in ${
+                    Date.now() - startTime
+                }ms`
+            );
+            return null;
+        }
+
+        const exercises = await fetchExercisesForWorkout(db, row.id);
+
+        console.log(
+            `[database] Latest completed run fetched in ${
+                Date.now() - startTime
+            }ms`
+        );
+        return {
+            id: row.id,
+            name: row.name,
+            notes: row.notes,
+            type: row.type,
+            exercises,
+            distance: row.distance ?? undefined,
+            metadata: parseMetadataJson(row.metadata_json),
+            startTimestamp: row.started_at,
+            endTimestamp: row.finished_at ?? 0,
+        };
+    };
+
 const fetchExercisesForWorkout = async (
     db: Awaited<ReturnType<typeof getDatabase>>,
     workoutId: string

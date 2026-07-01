@@ -47,11 +47,10 @@ const DEFAULT_SPEED_KMH = 11;
 
 export const useRunViewModel = (props: Props): ViewModel => {
     const { onFinish, onCancel } = props;
+    const initialSpeedKmh = getInitialSpeedKmh(props.initialRun);
 
-    const [speedKmh, setSpeedKmh] = useState<number>(DEFAULT_SPEED_KMH);
-    const [speedInput, setSpeedInput] = useState(
-        formatSpeed(DEFAULT_SPEED_KMH)
-    );
+    const [speedKmh, setSpeedKmh] = useState<number>(initialSpeedKmh);
+    const [speedInput, setSpeedInput] = useState(formatSpeed(initialSpeedKmh));
 
     const initialDistanceKm = props.initialRun.distance ?? 0;
     const distanceOffsetKmRef = useRef(initialDistanceKm);
@@ -177,8 +176,12 @@ export const useRunViewModel = (props: Props): ViewModel => {
             ...run,
             startTimestamp,
             distance: distanceKm,
+            metadata: {
+                ...run.metadata,
+                runLastSpeedKmh: speedKmh,
+            },
         });
-    }, [run, distanceKm, startTimestamp]);
+    }, [run, distanceKm, startTimestamp, speedKmh]);
 
     const onFinishRun = useCallback(async () => {
         if (!canFinish || isFinishing) {
@@ -210,6 +213,10 @@ export const useRunViewModel = (props: Props): ViewModel => {
                         startTimestamp,
                         endTimestamp,
                         distance: finalDistanceKm,
+                        metadata: {
+                            ...run.metadata,
+                            runLastSpeedKmh: speedKmh,
+                        },
                     };
 
                     const isStravaLoggingEnabled = getStravaLoggingEnabled();
@@ -290,6 +297,19 @@ export const useRunViewModel = (props: Props): ViewModel => {
         onFinishRun,
         onCancelRun,
     };
+};
+
+const getInitialSpeedKmh = (run: Workout): number => {
+    const { runLastSpeedKmh } = run.metadata;
+    if (
+        typeof runLastSpeedKmh !== "number" ||
+        !Number.isFinite(runLastSpeedKmh) ||
+        runLastSpeedKmh <= 0
+    ) {
+        return DEFAULT_SPEED_KMH;
+    }
+
+    return runLastSpeedKmh;
 };
 
 const useRunTimer = (): RunTimer => {

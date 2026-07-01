@@ -15,6 +15,7 @@ export {
     fetchCompletedWorkoutIds,
     fetchCompletedWorkoutKeys,
     fetchExerciseSetsFromCompletedWorkouts,
+    fetchLatestCompletedRun,
 } from "./database";
 
 export { UNKNOWN_EXERCISE_DEF_ID } from "./database.data";

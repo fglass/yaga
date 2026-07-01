@@ -2,6 +2,7 @@ import {
     useWorkoutTemplates,
     useDatabaseWriter,
     useActiveWorkout,
+    fetchLatestCompletedRun,
 } from "../../model/database";
 import * as Haptics from "expo-haptics";
 import { ActionSheetIOS } from "react-native";
@@ -94,13 +95,21 @@ export const usePlanViewModel = ({
     };
 
     const startRun = async () => {
+        const latestCompletedRun = await fetchLatestCompletedRun();
+        const runLastSpeedKmh = getRunLastSpeedKmh(latestCompletedRun);
+
         await saveActiveWorkout({
             id: generateGuid(),
             name: "Treadmill",
             exercises: [],
             notes: "",
             type: "run",
-            metadata: {},
+            metadata:
+                runLastSpeedKmh == null
+                    ? {}
+                    : {
+                          runLastSpeedKmh,
+                      },
             startTimestamp: Date.now(),
             distance: 0,
         });
@@ -169,4 +178,17 @@ export const usePlanViewModel = ({
         onDeleteTemplate,
         startRun,
     };
+};
+
+const getRunLastSpeedKmh = (workout: Workout | null): number | null => {
+    const runLastSpeedKmh = workout?.metadata.runLastSpeedKmh;
+    if (
+        typeof runLastSpeedKmh !== "number" ||
+        !Number.isFinite(runLastSpeedKmh) ||
+        runLastSpeedKmh <= 0
+    ) {
+        return null;
+    }
+
+    return runLastSpeedKmh;
 };
