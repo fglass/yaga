@@ -6,6 +6,7 @@ import {
 } from "../workout.viewModel.core";
 import { ActionType, workoutProducer } from "../workout.reducer";
 import { createLatestTaskQueue } from "../workout.saveQueue";
+import { createWorkoutUndoStore } from "../workout.undo";
 
 type Overrides = Partial<{
     baseWorkout: Workout;
@@ -55,6 +56,36 @@ const createTestViewModel = (overrides?: Overrides) => {
 
     return { state, vm };
 };
+
+const workoutWithSet = (
+    overrides: Partial<Workout["exercises"][number]["sets"][number]> = {}
+): Workout => ({
+    id: "workout-1",
+    name: "Workout",
+    exercises: [
+        {
+            id: "exercise-1",
+            exerciseId: "exercise-def-1",
+            notes: [],
+            sets: [
+                {
+                    id: "set-1",
+                    weight: "100",
+                    reps: "8",
+                    effortValue: "7",
+                    effortUnit: "rpe",
+                    type: "default",
+                    finishTime: undefined,
+                    ...overrides,
+                },
+            ],
+        },
+    ],
+    notes: "",
+    type: "strength",
+    metadata: {},
+    startTimestamp: 0,
+});
 
 describe("workout view model", () => {
     it("adds exercise to the workout", async () => {
@@ -198,6 +229,107 @@ describe("workout latest save queue", () => {
         resolvers.get("third")?.();
         await queue.flush();
         expect(finished).toEqual(["first", "third"]);
+    });
+});
+
+describe("workout undo", () => {
+    it("groups repeated edits to the same weight field", () => {
+        const store = createWorkoutUndoStore({
+            groupTimeoutMs: 0,
+        });
+        const workout = workoutWithSet();
+
+        store.recordEdit(
+            { exerciseIdx: 0, setIdx: 0, field: "weight" },
+            workout
+        );
+        const firstEdit = workoutProducer(workout, {
+            type: ActionType.ChangeWeight,
+            exerciseIdx: 0,
+            setIdx: 0,
+            weight: "105",
+        });
+        store.recordEdit(
+            { exerciseIdx: 0, setIdx: 0, field: "weight" },
+            firstEdit
+        );
+        store.finalizeCurrentGroup();
+
+        const undoWorkout = store.popUndoWorkout();
+
+        expect(undoWorkout?.exercises[0].sets[0].weight).toBe("100");
+        expect(store.canUndo()).toBe(false);
+    });
+
+    it("creates separate undo entries for weight then reps", () => {
+        const store = createWorkoutUndoStore({
+            groupTimeoutMs: 0,
+        });
+        const workout = workoutWithSet();
+
+        store.recordEdit(
+            { exerciseIdx: 0, setIdx: 0, field: "weight" },
+            workout
+        );
+        const weightEdit = workoutProducer(workout, {
+            type: ActionType.ChangeWeight,
+            exerciseIdx: 0,
+            setIdx: 0,
+            weight: "105",
+        });
+        store.recordEdit(
+            { exerciseIdx: 0, setIdx: 0, field: "reps" },
+            weightEdit
+        );
+        store.finalizeCurrentGroup();
+
+        expect(store.popUndoWorkout()?.exercises[0].sets[0]).toMatchObject({
+            weight: "105",
+            reps: "8",
+        });
+        expect(store.popUndoWorkout()?.exercises[0].sets[0]).toMatchObject({
+            weight: "100",
+            reps: "8",
+        });
+    });
+
+    it("tracks effort value edits", () => {
+        const store = createWorkoutUndoStore({
+            groupTimeoutMs: 0,
+        });
+        const workout = workoutWithSet({ effortValue: "6" });
+
+        store.recordEdit(
+            { exerciseIdx: 0, setIdx: 0, field: "effortValue" },
+            workout
+        );
+        store.finalizeCurrentGroup();
+
+        expect(store.popUndoWorkout()?.exercises[0].sets[0].effortValue).toBe(
+            "6"
+        );
+    });
+
+    it("does not create undo entries for unsupported actions", () => {
+        const store = createWorkoutUndoStore({
+            groupTimeoutMs: 0,
+        });
+        const workout = workoutWithSet();
+
+        workoutProducer(workout, {
+            type: ActionType.AddSet,
+            exerciseIdx: 0,
+        });
+
+        expect(store.canUndo()).toBe(false);
+    });
+
+    it("returns null when undo history is empty", () => {
+        const store = createWorkoutUndoStore({
+            groupTimeoutMs: 0,
+        });
+
+        expect(store.popUndoWorkout()).toBeNull();
     });
 });
 

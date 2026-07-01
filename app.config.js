@@ -76,6 +76,18 @@ module.exports = ({ config }) => {
             "expo-sqlite",
             "expo-router",
             "expo-secure-store",
+            [
+                "expo-dev-client",
+                {
+                    launchMode: "launcher",
+                },
+            ],
+            [
+                "expo-sensors",
+                {
+                    motionPermission: "Allow Yaga to detect shake gestures.",
+                },
+            ],
             "./plugins/withLastWorkoutIntent",
         ],
     };

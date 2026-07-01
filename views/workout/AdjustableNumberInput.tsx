@@ -1,10 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-    StyleProp,
-    TextInput,
-    TextInputProps,
-    TextStyle,
-} from "react-native";
+import { StyleProp, TextInput, TextInputProps, TextStyle } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
     interpolateColor,
@@ -30,6 +25,8 @@ interface AdjustableNumberInputProps {
     inputMode?: TextInputProps["inputMode"];
     onFocus?: () => void;
     onBlur?: () => void;
+    onEditStart?: () => void;
+    onEditEnd?: () => void;
     isFinished?: boolean;
     inputStyle?: StyleProp<TextStyle>;
     shakeKey?: number;
@@ -43,6 +40,8 @@ const AdjustableNumberInput = ({
     inputMode,
     onFocus,
     onBlur,
+    onEditStart,
+    onEditEnd,
     isFinished,
     inputStyle,
     shakeKey,
@@ -104,6 +103,7 @@ const AdjustableNumberInput = ({
             setAllowSoftInputValue(true);
             requestAnimationFrame(() => {
                 inputRef.current?.focus();
+                onEditStart?.();
                 onFocus?.();
             });
         });
@@ -112,6 +112,7 @@ const AdjustableNumberInput = ({
         .minDistance(4)
         .runOnJS(true)
         .onBegin(() => {
+            onEditStart?.();
             lastStepRef.current = 0;
         })
         .onChange((event) => {
@@ -133,7 +134,9 @@ const AdjustableNumberInput = ({
                 return;
             }
 
-            const steps = Math.trunc(event.translationX / DRAG_DISTANCE_PER_STEP_PX);
+            const steps = Math.trunc(
+                event.translationX / DRAG_DISTANCE_PER_STEP_PX
+            );
             if (steps !== lastStepRef.current) {
                 const deltaSteps = steps - lastStepRef.current;
                 lastStepRef.current = steps;
@@ -144,6 +147,7 @@ const AdjustableNumberInput = ({
             if (isAdjustingRef.current) {
                 resetAdjustment();
             }
+            onEditEnd?.();
         });
 
     const gesture = Gesture.Race(panGesture, tapGesture);
@@ -179,6 +183,7 @@ const AdjustableNumberInput = ({
                             return;
                         }
                         setIsFocused(true);
+                        onEditStart?.();
                         onFocus?.();
                     }}
                     onBlur={() => {
@@ -188,6 +193,7 @@ const AdjustableNumberInput = ({
                             resetAdjustment();
                         }
                         onBlur?.();
+                        onEditEnd?.();
                     }}
                 />
             </Animated.View>

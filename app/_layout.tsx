@@ -1,3 +1,4 @@
+import "expo-dev-client";
 import React, { useEffect, useRef } from "react";
 import { StyleSheet } from "react-native";
 import { Stack, useRouter } from "expo-router";

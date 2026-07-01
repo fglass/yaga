@@ -2,7 +2,7 @@ import produce from "immer";
 import { Note, Set, SetType, Workout } from "../../model/types";
 import { generateGuid } from "../../utils/guid";
 
-type Action = {
+export type Action = {
     type: ActionType;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;

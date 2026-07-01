@@ -49,6 +49,12 @@ import {
     getSetProgress as getSetProgressForSets,
     SetProgression,
 } from "./workout.calculations";
+import {
+    createWorkoutUndoStore,
+    WorkoutUndoField,
+    WorkoutUndoKey,
+} from "./workout.undo";
+import type { Action } from "./workout.reducer";
 
 type ActiveProps = {
     mode?: "active";
@@ -94,6 +100,7 @@ export interface WorkoutViewModel {
     canSaveWorkout: boolean;
     canOpenTemplateHistory: boolean;
     isOpeningTemplateHistory: boolean;
+    canUndoWorkoutEdit: boolean;
     onChangeWorkoutName: (name: string) => void;
     setActiveModal: (modalType: ModalType) => void;
     isModalActive: (modalType: ModalType) => boolean;
@@ -170,6 +177,13 @@ export interface WorkoutViewModel {
     onCloseExerciseHistory: () => void;
     onSelectExerciseHistoryWorkout: (workoutId: string) => Promise<void>;
     onOpenTemplateHistory: () => Promise<void>;
+    onStartWorkoutEdit: (
+        exerciseIdx: number,
+        setIdx: number,
+        field: WorkoutUndoField
+    ) => void;
+    onEndWorkoutEdit: () => void;
+    onRequestUndoWorkoutEdit: () => void;
 }
 
 const CALORIES_PER_HOUR = 300;
@@ -208,9 +222,64 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
     >({});
     const [isOpeningTemplateHistory, setIsOpeningTemplateHistory] =
         useState(false);
+    const [canUndoWorkoutEdit, setCanUndoWorkoutEdit] = useState(false);
 
     const restNotificationIdRef = useRef<string | null>(null);
     const restScheduleTokenRef = useRef(0);
+    const undoStoreRef = useRef<ReturnType<
+        typeof createWorkoutUndoStore
+    > | null>(null);
+    if (undoStoreRef.current == null) {
+        undoStoreRef.current = createWorkoutUndoStore({
+            onCanUndoChange: setCanUndoWorkoutEdit,
+        });
+    }
+    const undoStore = undoStoreRef.current;
+
+    const dispatchWorkoutAction = useCallback((action: Action) => {
+        dispatch(action);
+    }, []);
+
+    const dispatchNonUndoableWorkoutAction = useCallback(
+        (action: Action) => {
+            undoStore.clear();
+            dispatchWorkoutAction(action);
+        },
+        [dispatchWorkoutAction, undoStore]
+    );
+
+    const dispatchUndoableWorkoutAction = useCallback(
+        (key: WorkoutUndoKey, action: Action) => {
+            undoStore.recordEdit(key, workoutRef.current);
+            workoutRef.current = workoutProducer(workoutRef.current, action);
+            dispatch(action);
+        },
+        [undoStore]
+    );
+
+    const onStartWorkoutEdit = useCallback(() => {
+        undoStore.finalizeCurrentGroup();
+    }, [undoStore]);
+
+    const onEndWorkoutEdit = useCallback(() => {
+        undoStore.finalizeCurrentGroup();
+    }, [undoStore]);
+
+    const onRequestUndoWorkoutEdit = useCallback(() => {
+        const previousWorkout = undoStore.popUndoWorkout();
+        if (previousWorkout == null) {
+            return;
+        }
+
+        workoutRef.current = previousWorkout;
+        dispatch({
+            type: ActionType.SyncWorkout,
+            workout: previousWorkout,
+        });
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }, [undoStore]);
+
+    useEffect(() => () => undoStore.clear(), [undoStore]);
 
     const noopPrefill = useCallback(
         async (_exerciseId: string, exercise: Exercise) => exercise,
@@ -235,6 +304,7 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
                     // Sync core-updated workout into reducer state
                     const next = updater({ workout: workoutRef.current });
                     if (next.workout !== workoutRef.current) {
+                        undoStore.clear();
                         workoutRef.current = next.workout;
                         dispatch({
                             type: ActionType.SyncWorkout,
@@ -254,6 +324,7 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
             deleteExerciseDef,
             mergeExerciseDefs,
             prefillExercise,
+            undoStore,
             updateExerciseDef,
         ]
     );
@@ -486,58 +557,73 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
 
     const onChangeWorkoutName = useCallback(
         (name: string) =>
-            dispatch({ type: ActionType.ChangeWorkoutName, name }),
-        []
+            dispatchNonUndoableWorkoutAction({
+                type: ActionType.ChangeWorkoutName,
+                name,
+            }),
+        [dispatchNonUndoableWorkoutAction]
     );
 
     const onChangeWorkoutNotes = useCallback(
         (notes: string) =>
-            dispatch({ type: ActionType.ChangeWorkoutNotes, notes }),
-        []
+            dispatchNonUndoableWorkoutAction({
+                type: ActionType.ChangeWorkoutNotes,
+                notes,
+            }),
+        [dispatchNonUndoableWorkoutAction]
     );
 
     const onChangeExerciseNotes = useCallback(
         (exerciseIdx: number, noteIdx: number, notes: string) =>
-            dispatch({
+            dispatchNonUndoableWorkoutAction({
                 type: ActionType.ChangeExerciseNote,
                 exerciseIdx,
                 noteIdx,
                 notes,
             }),
-        []
+        [dispatchNonUndoableWorkoutAction]
     );
 
     const onChangeWeight = useCallback(
         (exerciseIdx: number, setIdx: number, weight: string) =>
-            dispatch({
-                type: ActionType.ChangeWeight,
-                exerciseIdx,
-                setIdx,
-                weight,
-            }),
-        []
+            dispatchUndoableWorkoutAction(
+                { exerciseIdx, setIdx, field: "weight" },
+                {
+                    type: ActionType.ChangeWeight,
+                    exerciseIdx,
+                    setIdx,
+                    weight,
+                }
+            ),
+        [dispatchUndoableWorkoutAction]
     );
 
     const onChangeRep = useCallback(
         (exerciseIdx: number, setIdx: number, reps: string) =>
-            dispatch({
-                type: ActionType.ChangeReps,
-                exerciseIdx,
-                setIdx,
-                reps,
-            }),
-        []
+            dispatchUndoableWorkoutAction(
+                { exerciseIdx, setIdx, field: "reps" },
+                {
+                    type: ActionType.ChangeReps,
+                    exerciseIdx,
+                    setIdx,
+                    reps,
+                }
+            ),
+        [dispatchUndoableWorkoutAction]
     );
 
     const onChangeEffortValue = useCallback(
         (exerciseIdx: number, setIdx: number, effortValue: string) =>
-            dispatch({
-                type: ActionType.ChangeEffortValue,
-                exerciseIdx,
-                setIdx,
-                effortValue,
-            }),
-        []
+            dispatchUndoableWorkoutAction(
+                { exerciseIdx, setIdx, field: "effortValue" },
+                {
+                    type: ActionType.ChangeEffortValue,
+                    exerciseIdx,
+                    setIdx,
+                    effortValue,
+                }
+            ),
+        [dispatchUndoableWorkoutAction]
     );
 
     const onCycleVisibleSetMetric = useCallback(() => {
@@ -559,7 +645,7 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
                 SET_TYPES[(currentTypeIdx + 1) % SET_TYPES.length] ??
                 SET_TYPES[0];
 
-            dispatch({
+            dispatchNonUndoableWorkoutAction({
                 type: ActionType.ChangeSetType,
                 exerciseIdx,
                 setIdx,
@@ -567,7 +653,7 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
             });
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         },
-        [workout.exercises]
+        [dispatchNonUndoableWorkoutAction, workout.exercises]
     );
 
     const onAdjustWeight = useCallback(
@@ -586,15 +672,18 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
             }
 
             const formattedWeight = Number(nextWeight.toFixed(2)).toString();
-            dispatch({
-                type: ActionType.ChangeWeight,
-                exerciseIdx,
-                setIdx,
-                weight: formattedWeight,
-            });
+            dispatchUndoableWorkoutAction(
+                { exerciseIdx, setIdx, field: "weight" },
+                {
+                    type: ActionType.ChangeWeight,
+                    exerciseIdx,
+                    setIdx,
+                    weight: formattedWeight,
+                }
+            );
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
-        [workout.exercises]
+        [dispatchUndoableWorkoutAction, workout.exercises]
     );
 
     const onAdjustReps = useCallback(
@@ -612,15 +701,18 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
                 return;
             }
 
-            dispatch({
-                type: ActionType.ChangeReps,
-                exerciseIdx,
-                setIdx,
-                reps: `${nextReps}`,
-            });
+            dispatchUndoableWorkoutAction(
+                { exerciseIdx, setIdx, field: "reps" },
+                {
+                    type: ActionType.ChangeReps,
+                    exerciseIdx,
+                    setIdx,
+                    reps: `${nextReps}`,
+                }
+            );
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
-        [workout.exercises]
+        [dispatchUndoableWorkoutAction, workout.exercises]
     );
 
     const onAdjustEffortValue = useCallback(
@@ -644,21 +736,24 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
                 nextEffortValue.toFixed(2)
             ).toString();
 
-            dispatch({
-                type: ActionType.ChangeEffortValue,
-                exerciseIdx,
-                setIdx,
-                effortValue: formattedEffortValue,
-            });
+            dispatchUndoableWorkoutAction(
+                { exerciseIdx, setIdx, field: "effortValue" },
+                {
+                    type: ActionType.ChangeEffortValue,
+                    exerciseIdx,
+                    setIdx,
+                    effortValue: formattedEffortValue,
+                }
+            );
 
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
-        [workout.exercises]
+        [dispatchUndoableWorkoutAction, workout.exercises]
     );
 
     const onFinishSet = useCallback(
         (exerciseIdx: number, setIdx: number, isFinished: boolean) => {
-            dispatch({
+            dispatchNonUndoableWorkoutAction({
                 type: ActionType.FinishSet,
                 exerciseIdx,
                 setIdx,
@@ -669,7 +764,7 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
             }
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         },
-        [isActiveMode, resetRestTimer]
+        [dispatchNonUndoableWorkoutAction, isActiveMode, resetRestTimer]
     );
 
     const onRemoveSet = useCallback(
@@ -680,7 +775,7 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
 
             withWarning(
                 () => {
-                    dispatch({
+                    dispatchNonUndoableWorkoutAction({
                         type: ActionType.RemoveSet,
                         exerciseIdx,
                         setIdx,
@@ -696,7 +791,7 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
                 }
             );
         },
-        [workout]
+        [dispatchNonUndoableWorkoutAction, workout]
     );
 
     const onAddSet = useCallback(
@@ -713,10 +808,19 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
                       previousSetsByExerciseId[exercise.exerciseId]
                   );
 
-            dispatch({ type: ActionType.AddSet, exerciseIdx, prefillSet });
+            dispatchNonUndoableWorkoutAction({
+                type: ActionType.AddSet,
+                exerciseIdx,
+                prefillSet,
+            });
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         },
-        [isTemplateMode, previousSetsByExerciseId, workout.exercises]
+        [
+            dispatchNonUndoableWorkoutAction,
+            isTemplateMode,
+            previousSetsByExerciseId,
+            workout.exercises,
+        ]
     );
 
     const onCopyToCurrentSet = useCallback(
@@ -734,14 +838,14 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
                 return;
             }
 
-            dispatch({
+            dispatchNonUndoableWorkoutAction({
                 type: ActionType.CopyToCurrentSet,
                 exerciseIdx,
                 setIdx,
             });
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         },
-        [workout.exercises]
+        [dispatchNonUndoableWorkoutAction, workout.exercises]
     );
 
     const onCopyPreviousSet = useCallback(
@@ -752,19 +856,19 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
                 return;
             }
 
-            dispatch({
+            dispatchNonUndoableWorkoutAction({
                 type: ActionType.CopyPreviousSet,
                 exerciseIdx,
                 setIdx,
             });
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         },
-        [workout.exercises]
+        [dispatchNonUndoableWorkoutAction, workout.exercises]
     );
 
     const onRemoveExerciseNote = useCallback(
         (exerciseIdx: number, noteIdx: number) => {
-            dispatch({
+            dispatchNonUndoableWorkoutAction({
                 type: ActionType.RemoveExerciseNote,
                 exerciseIdx,
                 noteIdx,
@@ -776,13 +880,19 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
                 return next;
             });
         },
-        [workout.exercises]
+        [dispatchNonUndoableWorkoutAction, workout.exercises]
     );
 
-    const onAddExerciseNote = useCallback((exerciseIdx: number) => {
-        dispatch({ type: ActionType.AddExerciseNote, exerciseIdx });
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }, []);
+    const onAddExerciseNote = useCallback(
+        (exerciseIdx: number) => {
+            dispatchNonUndoableWorkoutAction({
+                type: ActionType.AddExerciseNote,
+                exerciseIdx,
+            });
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        },
+        [dispatchNonUndoableWorkoutAction]
+    );
 
     const isNotesExpanded = (exercise: Exercise) => {
         const stored = expandedNotes[exercise.id];
@@ -818,7 +928,7 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
 
             withWarning(
                 () => {
-                    dispatch({
+                    dispatchNonUndoableWorkoutAction({
                         type: ActionType.RemoveExercise,
                         exerciseIdx,
                     });
@@ -833,13 +943,20 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
                 }
             );
         },
-        [workout.exercises]
+        [dispatchNonUndoableWorkoutAction, workout.exercises]
     );
 
-    const onMoveExercise = useCallback((exerciseIdx: number, delta: number) => {
-        dispatch({ type: ActionType.MoveExercise, exerciseIdx, delta });
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }, []);
+    const onMoveExercise = useCallback(
+        (exerciseIdx: number, delta: number) => {
+            dispatchNonUndoableWorkoutAction({
+                type: ActionType.MoveExercise,
+                exerciseIdx,
+                delta,
+            });
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        },
+        [dispatchNonUndoableWorkoutAction]
+    );
 
     const onAdjustRestTimer = useCallback(
         (deltaS: number) => {
@@ -1031,6 +1148,7 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
         canSaveWorkout,
         canOpenTemplateHistory,
         isOpeningTemplateHistory,
+        canUndoWorkoutEdit,
         onChangeWorkoutName,
         setActiveModal,
         isModalActive,
@@ -1083,5 +1201,8 @@ export const useWorkoutViewModel = (props: Props): WorkoutViewModel => {
         onCloseExerciseHistory,
         onSelectExerciseHistoryWorkout,
         onOpenTemplateHistory,
+        onStartWorkoutEdit,
+        onEndWorkoutEdit,
+        onRequestUndoWorkoutEdit,
     };
 };

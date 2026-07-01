@@ -9,7 +9,7 @@ npm start
 npm test
 
 npx expo prebuild --clean --platform ios
-npx expo run:ios (dev client rebuild)
+npx expo run:ios # dev client rebuild
 
 eas update
 eas build --platform ios --profile development
@@ -194,6 +194,6 @@ Widen action bar?
 
 Increase/decrease signal for next session
 
-Shake to undo -> request shake permission earlier?
-
 https://github.com/callstack/agent-device
+
+Run import fix

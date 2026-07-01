@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import {
     ActivityIndicator,
+    Alert,
     Keyboard,
     ScrollView,
     Text,
@@ -34,6 +35,7 @@ import {
     UNKNOWN_EXERCISE_DEF_ID,
     useActiveWorkout,
 } from "../../model/database";
+import { useShakeToUndo } from "./useShakeToUndo";
 
 type Props = {
     vm: WorkoutViewModel;
@@ -63,6 +65,7 @@ const WorkoutView = (props: Props) => {
     const [shakeErrors, setShakeErrors] = useState<Record<string, number>>({});
 
     const isMinimizeInFlight = useRef(false);
+    const isUndoAlertVisible = useRef(false);
     const minimizeHandler = isActiveMode ? props.onMinimize : null;
     const persistActiveWorkout = vm.persistActiveWorkout;
 
@@ -168,6 +171,36 @@ const WorkoutView = (props: Props) => {
     }, [minimizeHandler, persistActiveWorkout]);
 
     const scrollNativeGesture = useMemo(() => Gesture.Native(), []);
+
+    const onShakeToUndo = useCallback(() => {
+        if (!vm.canUndoWorkoutEdit || isUndoAlertVisible.current) {
+            return;
+        }
+
+        isUndoAlertVisible.current = true;
+        Alert.alert("Undo?", "This action is irreversible", [
+            {
+                text: "Cancel",
+                style: "cancel",
+                onPress: () => {
+                    isUndoAlertVisible.current = false;
+                },
+            },
+            {
+                text: "Undo",
+                style: "default",
+                onPress: () => {
+                    isUndoAlertVisible.current = false;
+                    vm.onRequestUndoWorkoutEdit();
+                },
+            },
+        ]);
+    }, [vm]);
+
+    useShakeToUndo({
+        enabled: vm.canUndoWorkoutEdit,
+        onShake: onShakeToUndo,
+    });
 
     const minimizeGesture = useMemo(() => {
         return Gesture.Pan()
@@ -553,6 +586,14 @@ const WorkoutView = (props: Props) => {
                             }
                             onFocus={() => handleSetInputFocus(exerciseIdx)}
                             onBlur={handleSetInputBlur}
+                            onEditStart={() =>
+                                vm.onStartWorkoutEdit(
+                                    exerciseIdx,
+                                    setIdx,
+                                    "weight"
+                                )
+                            }
+                            onEditEnd={vm.onEndWorkoutEdit}
                             inputMode="decimal"
                             isFinished={isFinished}
                             shakeKey={
@@ -570,6 +611,14 @@ const WorkoutView = (props: Props) => {
                             }
                             onFocus={() => handleSetInputFocus(exerciseIdx)}
                             onBlur={handleSetInputBlur}
+                            onEditStart={() =>
+                                vm.onStartWorkoutEdit(
+                                    exerciseIdx,
+                                    setIdx,
+                                    "reps"
+                                )
+                            }
+                            onEditEnd={vm.onEndWorkoutEdit}
                             inputMode="decimal"
                             isFinished={isFinished}
                             shakeKey={
@@ -599,6 +648,14 @@ const WorkoutView = (props: Props) => {
                                         handleSetInputFocus(exerciseIdx)
                                     }
                                     onBlur={handleSetInputBlur}
+                                    onEditStart={() =>
+                                        vm.onStartWorkoutEdit(
+                                            exerciseIdx,
+                                            setIdx,
+                                            "effortValue"
+                                        )
+                                    }
+                                    onEditEnd={vm.onEndWorkoutEdit}
                                     inputMode="decimal"
                                     isFinished={isFinished}
                                 />
