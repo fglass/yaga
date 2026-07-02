@@ -34,11 +34,8 @@ export const useShakeToUndo = ({ enabled, onShake }: UseShakeToUndoParams) => {
                     return;
                 }
 
-                let permission = await DeviceMotion.getPermissionsAsync();
-                if (!permission.granted && permission.canAskAgain) {
-                    permission = await DeviceMotion.requestPermissionsAsync();
-                }
-                if (!isSubscribed || !permission.granted) {
+                await requestDeviceMotionPermission();
+                if (!isSubscribed) {
                     return;
                 }
 
@@ -69,6 +66,26 @@ export const useShakeToUndo = ({ enabled, onShake }: UseShakeToUndoParams) => {
             subscription?.remove();
         };
     }, [enabled]);
+};
+
+type DeviceMotionPermissionApi = Pick<
+    typeof DeviceMotion,
+    "getPermissionsAsync" | "requestPermissionsAsync"
+>;
+
+export const requestDeviceMotionPermission = async (
+    deviceMotion: DeviceMotionPermissionApi = DeviceMotion
+) => {
+    try {
+        const permission = await deviceMotion.getPermissionsAsync();
+        if (permission.granted || !permission.canAskAgain) {
+            return;
+        }
+
+        await deviceMotion.requestPermissionsAsync();
+    } catch {
+        return;
+    }
 };
 
 export const isShakeMotion = (
