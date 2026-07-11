@@ -20,6 +20,7 @@ import {
     useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useKeepAwake } from "expo-keep-awake";
 import ExerciseListModal from "./ExerciseListModal";
 import ExerciseHistoryModal from "./exerciseHistory/ExerciseHistoryModal";
 import AdjustableNumberInput from "./AdjustableNumberInput";
@@ -56,6 +57,8 @@ const WorkoutView = (props: Props) => {
     const { vm } = props;
     const isActiveMode = !vm.isHistoryMode && !vm.isTemplateMode;
     const { activeWorkout, isMinimized } = useActiveWorkout();
+
+    useKeepAwake();
 
     const insets = useSafeAreaInsets();
     const scrollRef = useRef<ScrollView>(null);
