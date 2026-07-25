@@ -1,6 +1,14 @@
-import { buildExerciseHistoryState } from "../exerciseHistory/exerciseHistory.viewModel.core";
+import {
+    buildExerciseHistoryChartPoints,
+    buildExerciseHistoryState,
+} from "../exerciseHistory/exerciseHistory.viewModel.core";
+import type { Set } from "../../../model/types";
 
-const setFactory = (weight: string, reps: string, effortValue = "") => ({
+const setFactory = (
+    weight: string,
+    reps: string,
+    effortValue = ""
+): Set => ({
     id: `set-${weight}-${reps}`,
     weight,
     reps,
@@ -109,5 +117,109 @@ describe("buildExerciseHistoryState", () => {
 
         expect(result.displayHistorySets).toHaveLength(5);
         expect(result.hasMore).toBe(true);
+    });
+});
+
+describe("buildExerciseHistoryChartPoints", () => {
+    it("plots every workout from the last six months in chronological order", () => {
+        const now = Date.UTC(2026, 6, 25);
+        const entries = Array.from({ length: 7 }, (_, index) => ({
+            workoutId: `workout-${index + 1}`,
+            finishedAt: Date.UTC(2026, 6 - index, 25),
+            sets: [
+                setFactory(`${50 + index}`, "10"),
+                setFactory(`${60 + index}`, "5"),
+            ],
+        }));
+        entries.push({
+            workoutId: "workout-old",
+            finishedAt: Date.UTC(2026, 0, 24),
+            sets: [setFactory("100", "5")],
+        });
+
+        const points = buildExerciseHistoryChartPoints(entries, now);
+
+        expect(points).toHaveLength(7);
+        expect(points.map((point) => point.workoutId)).toEqual([
+            "workout-7",
+            "workout-6",
+            "workout-5",
+            "workout-4",
+            "workout-3",
+            "workout-2",
+            "workout-1",
+        ]);
+        expect(points.at(-1)?.estimatedOneRepMax).toBeCloseTo(70);
+    });
+
+    it("includes drop sets but ignores warmups and invalid estimates", () => {
+        const entry = exerciseSetsEntryFactory(
+            "workout-1",
+            1,
+            "80",
+            "5"
+        );
+        entry.sets = [
+            setFactory("", "5"),
+            { ...setFactory("100", "3"), type: "drop" },
+            { ...setFactory("200", "10"), type: "warmup" },
+        ];
+
+        const points = buildExerciseHistoryChartPoints([entry], 1);
+
+        expect(points[0].estimatedOneRepMax).toBeCloseTo(110);
+    });
+
+    it("includes the last valid day when the six-month boundary month is shorter", () => {
+        const now = Date.UTC(2026, 7, 31);
+        const entries = [
+            exerciseSetsEntryFactory(
+                "workout-boundary",
+                Date.UTC(2026, 1, 28),
+                "100",
+                "5"
+            ),
+            exerciseSetsEntryFactory(
+                "workout-too-old",
+                Date.UTC(2026, 1, 27),
+                "100",
+                "5"
+            ),
+        ];
+
+        const points = buildExerciseHistoryChartPoints(entries, now);
+
+        expect(points.map((point) => point.workoutId)).toEqual([
+            "workout-boundary",
+        ]);
+    });
+
+    it("combines repeated exercise entries from the same workout", () => {
+        const now = Date.UTC(2026, 6, 25);
+        const finishedAt = Date.UTC(2026, 6, 20);
+        const entries = [
+            exerciseSetsEntryFactory(
+                "workout-1",
+                finishedAt,
+                "100",
+                "3"
+            ),
+            exerciseSetsEntryFactory(
+                "workout-1",
+                finishedAt,
+                "120",
+                "2"
+            ),
+        ];
+
+        const points = buildExerciseHistoryChartPoints(entries, now);
+
+        expect(points).toEqual([
+            {
+                workoutId: "workout-1",
+                finishedAt,
+                estimatedOneRepMax: 128,
+            },
+        ]);
     });
 });

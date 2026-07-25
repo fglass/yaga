@@ -97,7 +97,6 @@ Target: **Mar 1** 🎯
 -   [ ] 🟢 Drag to reorder exercises
 -   [ ] 🟡 Active workout minimise
 -   [ ] 🟡 Bug: Workout timer resets on app reopen
--   [ ] 🟢 Exercise history graph (delta + time gap)
 -   [ ] 🟢 Exercise variations?
 -   [ ] 🟡 Bug: Calories move goal
 -   [ ] 🟢 Finish confetti/fireworks
@@ -187,19 +186,16 @@ https://docs.expo.dev/versions/latest/sdk/storereview/
 
 ---
 
-Exercise history charts
 Miles <-> km
 Pull in Strava runs
 
-Chart max 1RM
 Pin workout time
 Widen action bar?
 
 Increase/decrease signal for next session
 
-https://github.com/callstack/agent-device
-
 Run import fix
-
 Weekly number targets
 Align bottom nav bar to workout view width
+
+https://github.com/callstack/agent-device

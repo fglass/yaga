@@ -11,6 +11,7 @@ import ModalDialog from "../../../components/ModalDialog";
 import { getSetProgress } from "../workout.calculations";
 import { formatNumber } from "../../../utils/util";
 import { useExerciseHistoryViewModel } from "./exerciseHistory.viewModel";
+import ExerciseHistoryChart from "./ExerciseHistoryChart";
 import type { Set } from "../../../model/types";
 
 interface Props {
@@ -24,9 +25,9 @@ interface Props {
 const ExerciseHistoryModal = (props: Props) => {
     const {
         isLoading,
-        isLoadingMore,
         displayHistorySets,
         comparisonHistorySets,
+        chartPoints,
         hasMore,
         loadMore,
     } = useExerciseHistoryViewModel({
@@ -41,19 +42,18 @@ const ExerciseHistoryModal = (props: Props) => {
             year: "numeric",
         });
 
-    const handleEndReached = () => {
-        if (!hasMore) {
-            return;
-        }
-        loadMore();
-    };
-
-    const renderHeader = () => (
-        <View style={styles.tableHeader}>
-            <Text style={styles.headerSetCell}>Set</Text>
-            <Text style={styles.headerWeightCell}>Weight</Text>
-            <Text style={styles.headerRepsCell}>Reps</Text>
-            <Text style={styles.headerRpeCell}>RPE</Text>
+    const listHeader = (
+        <View>
+            <ExerciseHistoryChart
+                key={`${props.exerciseId}-${props.isVisible}`}
+                points={chartPoints}
+            />
+            <View style={styles.tableHeader}>
+                <Text style={styles.headerSetCell}>Set</Text>
+                <Text style={styles.headerWeightCell}>Weight</Text>
+                <Text style={styles.headerRepsCell}>Reps</Text>
+                <Text style={styles.headerRpeCell}>RPE</Text>
+            </View>
         </View>
     );
 
@@ -78,7 +78,7 @@ const ExerciseHistoryModal = (props: Props) => {
             title="History"
             isVisible={props.isVisible}
             onClose={props.onClose}
-            maxHeight="45%"
+            maxHeight="60%"
         >
             {isLoading && displayHistorySets.length === 0 ? (
                 <ActivityIndicator style={styles.loading} color="white" />
@@ -92,16 +92,8 @@ const ExerciseHistoryModal = (props: Props) => {
                     keyExtractor={(entry, index) =>
                         `history-${entry.finishedAt}-${index}`
                     }
-                    ListHeaderComponent={renderHeader}
-                    ListFooterComponent={
-                        isLoadingMore ? (
-                            <ActivityIndicator
-                                style={styles.footerLoading}
-                                color="white"
-                            />
-                        ) : null
-                    }
-                    onEndReached={handleEndReached}
+                    ListHeaderComponent={listHeader}
+                    onEndReached={hasMore ? loadMore : undefined}
                     onEndReachedThreshold={0.3}
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item, index }) => {
@@ -212,9 +204,6 @@ const ExerciseHistoryModal = (props: Props) => {
 
 const styles = StyleSheet.create({
     loading: {
-        paddingVertical: 12,
-    },
-    footerLoading: {
         paddingVertical: 12,
     },
     emptyText: {

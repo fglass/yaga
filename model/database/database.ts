@@ -797,7 +797,7 @@ export const fetchCompletedWorkouts = async (): Promise<CompletedWorkout[]> => {
 
 export const fetchExerciseSetsFromCompletedWorkouts = async (
     exerciseIds: string[],
-    nWorkouts: number,
+    nWorkouts?: number,
     beforeTimestamp?: number
 ): Promise<
     Record<
@@ -808,7 +808,10 @@ export const fetchExerciseSetsFromCompletedWorkouts = async (
     const startTime = Date.now();
     await ensureDatabase();
 
-    if (exerciseIds.length === 0 || nWorkouts <= 0) {
+    if (
+        exerciseIds.length === 0 ||
+        (nWorkouts != null && nWorkouts <= 0)
+    ) {
         console.warn(
             `[database] No exercise sets fetched in ${Date.now() - startTime}ms`
         );
@@ -854,9 +857,7 @@ export const fetchExerciseSetsFromCompletedWorkouts = async (
 
     if (rows.length === 0) {
         console.log(
-            `[database] Exercise sets fetched from ${nWorkouts} workouts in ${
-                Date.now() - startTime
-            }ms`
+            `[database] Exercise sets fetched in ${Date.now() - startTime}ms`
         );
         return {};
     }
@@ -864,9 +865,7 @@ export const fetchExerciseSetsFromCompletedWorkouts = async (
     const setsByExercise = buildExerciseSetsFromRows(rows, nWorkouts);
 
     console.log(
-        `[database] Exercise sets fetched from ${nWorkouts} workouts in ${
-            Date.now() - startTime
-        }ms`
+        `[database] Exercise sets fetched in ${Date.now() - startTime}ms`
     );
     return setsByExercise;
 };
@@ -889,7 +888,7 @@ type ExerciseSetsRow = {
 
 const buildExerciseSetsFromRows = (
     rows: ExerciseSetsRow[],
-    nWorkouts: number
+    nWorkouts?: number
 ) => {
     const result: Record<
         string,
@@ -913,7 +912,10 @@ const buildExerciseSetsFromRows = (
             if (!result[exerciseDefId]) {
                 result[exerciseDefId] = [];
             }
-            if (result[exerciseDefId].length >= nWorkouts) {
+            if (
+                nWorkouts != null &&
+                result[exerciseDefId].length >= nWorkouts
+            ) {
                 continue;
             }
             entry = {

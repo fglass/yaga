@@ -203,7 +203,7 @@ describe("database runs", () => {
 });
 
 describe("database exercise sets", () => {
-    it("fetches exercise sets before a specific timestamp", async () => {
+    it("fetches limited or complete exercise history before a timestamp", async () => {
         await createTestDb(async (database, sqlite) => {
             const defA = { id: "def-a", def: exerciseDefFactory("Exercise A") };
             const db = await sqlite.getDatabase();
@@ -277,6 +277,17 @@ describe("database exercise sets", () => {
             expect(result[defA.id]).toHaveLength(1);
             expect(result[defA.id][0].finishedAt).toBe(20);
             expect(result[defA.id][0].sets[0].weight).toBe("110");
+
+            const completeResult =
+                await database.fetchExerciseSetsFromCompletedWorkouts(
+                    [defA.id],
+                    undefined,
+                    25
+                );
+
+            expect(
+                completeResult[defA.id].map((entry) => entry.workoutId)
+            ).toEqual(["workout-2", "workout-1"]);
         });
     });
 

@@ -44,14 +44,14 @@ export type ExerciseSetsEntry = {
 
 type ExerciseSetsFromCompletedWorkoutsParams = {
     exerciseIds: string[];
-    nWorkouts: number;
+    nWorkouts?: number;
     isEnabled?: boolean;
     beforeTimestamp?: number;
 };
 
 // Shared by:
 //  - workout.viewModel for last-session set comparison
-//  - exerciseHistory.viewModel for paged history rows
+//  - exerciseHistory.viewModel for complete history
 export const useExerciseSetsFromCompletedWorkouts = ({
     exerciseIds,
     nWorkouts,
@@ -72,7 +72,11 @@ export const useExerciseSetsFromCompletedWorkouts = ({
     useEffect(() => {
         let isActive = true;
 
-        if (!isEnabled || exerciseIdsKey.length === 0 || nWorkouts <= 0) {
+        if (
+            !isEnabled ||
+            exerciseIdsKey.length === 0 ||
+            (nWorkouts != null && nWorkouts <= 0)
+        ) {
             setIsLoading(false);
             return () => {
                 isActive = false;

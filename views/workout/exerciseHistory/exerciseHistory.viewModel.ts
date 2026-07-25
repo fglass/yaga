@@ -4,7 +4,9 @@ import {
     type ExerciseSetsEntry,
 } from "../workout.hooks";
 import {
+    buildExerciseHistoryChartPoints,
     buildExerciseHistoryState,
+    type ExerciseHistoryChartPoint,
     type ExerciseHistoryEntry,
 } from "./exerciseHistory.viewModel.core";
 
@@ -18,9 +20,9 @@ type Props = {
 
 type ViewModel = {
     isLoading: boolean;
-    isLoadingMore: boolean;
     displayHistorySets: ExerciseHistoryEntry[];
     comparisonHistorySets: ExerciseHistoryEntry[];
+    chartPoints: ExerciseHistoryChartPoint[];
     hasMore: boolean;
     loadMore: () => void;
 };
@@ -39,7 +41,6 @@ export const useExerciseHistoryViewModel = ({
     const displayLimit = pageSize * pageCount;
     const { isLoading, historySets } = useExerciseSetsFromCompletedWorkouts({
         exerciseIds: exerciseId ? [exerciseId] : [],
-        nWorkouts: displayLimit + 1,
         isEnabled: isVisible && exerciseId != null,
     });
 
@@ -54,19 +55,23 @@ export const useExerciseHistoryViewModel = ({
         () => buildExerciseHistoryState(rawEntries, displayLimit),
         [rawEntries, displayLimit]
     );
+    const chartPoints = useMemo(
+        () => buildExerciseHistoryChartPoints(rawEntries),
+        [rawEntries]
+    );
 
     const loadMore = useCallback(() => {
-        if (!hasMore || isLoading) {
+        if (!hasMore) {
             return;
         }
         setPageCount((prevCount) => prevCount + 1);
-    }, [hasMore, isLoading]);
+    }, [hasMore]);
 
     return {
         isLoading,
-        isLoadingMore: isLoading && displayHistorySets.length > 0,
         displayHistorySets,
         comparisonHistorySets,
+        chartPoints,
         hasMore,
         loadMore,
     };
