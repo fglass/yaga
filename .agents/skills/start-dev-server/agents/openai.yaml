@@ -1,0 +1,4 @@
+interface:
+  display_name: "Start Dev Server"
+  short_description: "Run the remote tunnel server with safe cleanup"
+  default_prompt: "Use $start-dev-server to start Yaga's remote development server."
