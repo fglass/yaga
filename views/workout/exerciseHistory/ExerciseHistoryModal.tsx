@@ -53,6 +53,7 @@ const ExerciseHistoryModal = (props: Props) => {
             <Text style={styles.headerSetCell}>Set</Text>
             <Text style={styles.headerWeightCell}>Weight</Text>
             <Text style={styles.headerRepsCell}>Reps</Text>
+            <Text style={styles.headerRpeCell}>RPE</Text>
         </View>
     );
 
@@ -194,6 +195,9 @@ const ExerciseHistoryModal = (props: Props) => {
                                             <Text style={styles.repsCell}>
                                                 {formatNumber(set.reps)}
                                             </Text>
+                                            <Text style={styles.rpeCell}>
+                                                {formatNumber(set.effortValue)}
+                                            </Text>
                                         </View>
                                     );
                                 })}
@@ -273,6 +277,13 @@ const styles = StyleSheet.create({
         fontSize: 11,
         fontWeight: "600",
     },
+    headerRpeCell: {
+        flex: 1,
+        textAlign: "center",
+        color: "rgba(255, 255, 255, 0.6)",
+        fontSize: 11,
+        fontWeight: "600",
+    },
     sessionTitle: {
         color: "white",
         fontWeight: "600",
@@ -335,6 +346,12 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     repsCell: {
+        flex: 1,
+        textAlign: "center",
+        color: "white",
+        fontSize: 12,
+    },
+    rpeCell: {
         flex: 1,
         textAlign: "center",
         color: "white",

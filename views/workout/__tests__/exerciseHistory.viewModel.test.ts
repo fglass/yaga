@@ -1,10 +1,10 @@
 import { buildExerciseHistoryState } from "../exerciseHistory/exerciseHistory.viewModel.core";
 
-const setFactory = (weight: string, reps: string) => ({
+const setFactory = (weight: string, reps: string, effortValue = "") => ({
     id: `set-${weight}-${reps}`,
     weight,
     reps,
-    effortValue: "",
+    effortValue,
     effortUnit: "rpe" as const,
     type: "default" as const,
     finishTime: undefined,
@@ -14,11 +14,12 @@ const exerciseSetsEntryFactory = (
     workoutId: string,
     finishedAt: number,
     weight: string,
-    reps: string
+    reps: string,
+    effortValue = ""
 ) => ({
     workoutId,
     finishedAt,
-    sets: [setFactory(weight, reps)],
+    sets: [setFactory(weight, reps, effortValue)],
 });
 
 describe("buildExerciseHistoryState", () => {
@@ -33,6 +34,16 @@ describe("buildExerciseHistoryState", () => {
         expect(result.displayHistorySets).toHaveLength(2);
         expect(result.displayHistorySets[0].sets[0].weight).toBe("0");
         expect(result.displayHistorySets[1].sets[0].weight).toBe("10");
+    });
+
+    it("keeps RPE values on displayed history sets", () => {
+        const entries = [
+            exerciseSetsEntryFactory("workout-1", 1, "80", "5", "8.5"),
+        ];
+
+        const result = buildExerciseHistoryState(entries, 5);
+
+        expect(result.displayHistorySets[0].sets[0].effortValue).toBe("8.5");
     });
 
     it("exposes comparison sets and hasMore when over the limit", () => {
