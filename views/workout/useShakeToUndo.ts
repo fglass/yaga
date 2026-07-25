@@ -1,4 +1,6 @@
 import { useEffect, useRef } from "react";
+import { AppState } from "react-native";
+import type { AppStateStatus } from "react-native";
 import { DeviceMotion } from "expo-sensors";
 import type { DeviceMotionMeasurement } from "expo-sensors";
 
@@ -24,18 +26,34 @@ export const useShakeToUndo = ({ enabled, onShake }: UseShakeToUndoParams) => {
             return;
         }
 
-        let isSubscribed = true;
+        let subscriptionGeneration = 0;
         let subscription: { remove: () => void } | null = null;
 
+        const unsubscribe = () => {
+            subscriptionGeneration += 1;
+            subscription?.remove();
+            subscription = null;
+        };
+
         const subscribe = async () => {
+            unsubscribe();
+            const generation = subscriptionGeneration;
+
             try {
                 const isAvailable = await DeviceMotion.isAvailableAsync();
-                if (!isSubscribed || !isAvailable) {
+                if (
+                    generation !== subscriptionGeneration ||
+                    AppState.currentState !== "active" ||
+                    !isAvailable
+                ) {
                     return;
                 }
 
                 await requestDeviceMotionPermission();
-                if (!isSubscribed) {
+                if (
+                    generation !== subscriptionGeneration ||
+                    AppState.currentState !== "active"
+                ) {
                     return;
                 }
 
@@ -43,11 +61,12 @@ export const useShakeToUndo = ({ enabled, onShake }: UseShakeToUndoParams) => {
                     DEVICE_MOTION_UPDATE_INTERVAL_MS
                 );
                 subscription = DeviceMotion.addListener((measurement) => {
-                    const now = Date.now();
-                    if (now - lastShakeAtRef.current < SHAKE_THROTTLE_MS) {
+                    if (!shouldHandleShake(AppState.currentState, measurement)) {
                         return;
                     }
-                    if (!isShakeMotion(measurement)) {
+
+                    const now = Date.now();
+                    if (now - lastShakeAtRef.current < SHAKE_THROTTLE_MS) {
                         return;
                     }
 
@@ -59,11 +78,25 @@ export const useShakeToUndo = ({ enabled, onShake }: UseShakeToUndoParams) => {
             }
         };
 
-        void subscribe();
+        const appStateSubscription = AppState.addEventListener(
+            "change",
+            (nextAppState) => {
+                if (nextAppState === "active") {
+                    void subscribe();
+                    return;
+                }
+
+                unsubscribe();
+            }
+        );
+
+        if (AppState.currentState === "active") {
+            void subscribe();
+        }
 
         return () => {
-            isSubscribed = false;
-            subscription?.remove();
+            appStateSubscription.remove();
+            unsubscribe();
         };
     }, [enabled]);
 };
@@ -102,3 +135,8 @@ export const isShakeMotion = (
 
     return magnitude >= SHAKE_ACCELERATION_THRESHOLD;
 };
+
+export const shouldHandleShake = (
+    appState: AppStateStatus,
+    measurement: DeviceMotionMeasurement
+): boolean => appState === "active" && isShakeMotion(measurement);

@@ -1,6 +1,9 @@
 import { PermissionStatus } from "expo-modules-core";
 
-import { requestDeviceMotionPermission } from "../useShakeToUndo";
+import {
+    requestDeviceMotionPermission,
+    shouldHandleShake,
+} from "../useShakeToUndo";
 
 describe("requestDeviceMotionPermission", () => {
     it("does not request permission when permission cannot be asked again", async () => {
@@ -52,4 +55,21 @@ describe("requestDeviceMotionPermission", () => {
             requestDeviceMotionPermission(deviceMotion)
         ).resolves.toBeUndefined();
     });
+});
+
+describe("shouldHandleShake", () => {
+    const shakeMeasurement = {
+        accelerationIncludingGravity: { x: 25, y: 0, z: 0 },
+    } as Parameters<typeof shouldHandleShake>[1];
+
+    it("handles a shake while the app is active", () => {
+        expect(shouldHandleShake("active", shakeMeasurement)).toBe(true);
+    });
+
+    it.each(["background", "inactive"] as const)(
+        "ignores a shake while the app is %s",
+        (appState) => {
+            expect(shouldHandleShake(appState, shakeMeasurement)).toBe(false);
+        }
+    );
 });

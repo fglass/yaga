@@ -173,6 +173,9 @@ https://docs.expo.dev/versions/latest/sdk/glass-effect/
 -   Category inferring
 -   Template creation
 
+Foundation model framework #todo iOS 27
+https://developer.apple.com/documentation/naturallanguage
+
 ---
 
 Multi select addition order
@@ -197,3 +200,6 @@ Increase/decrease signal for next session
 https://github.com/callstack/agent-device
 
 Run import fix
+
+Weekly number targets
+Align bottom nav bar to workout view width
