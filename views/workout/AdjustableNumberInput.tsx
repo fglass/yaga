@@ -151,7 +151,7 @@ const AdjustableNumberInput = ({
         });
 
     const gesture = Gesture.Race(panGesture, tapGesture);
-    const displayValue = formatNumber(value);
+    const displayValue = isFocused ? value : formatNumber(value);
 
     return (
         <GestureDetector gesture={gesture}>

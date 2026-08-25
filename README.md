@@ -198,4 +198,12 @@ Run import fix
 Weekly number targets
 Align bottom nav bar to workout view width
 
+1w/1m/6m/1y exercise history
+
+Exercise variants
+
+Top set <-> 1RM
+
 https://github.com/callstack/agent-device
+
+Notis disappearing
