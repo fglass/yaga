@@ -10,10 +10,12 @@ export type ExerciseHistoryEntry = {
     sets: Set[];
 };
 
+export type ExerciseHistoryMetric = "top" | "1rm";
+
 export type ExerciseHistoryChartPoint = {
     workoutId: string;
     finishedAt: number;
-    estimatedOneRepMax: number;
+    value: number;
 };
 
 type ExerciseHistoryState = {
@@ -40,7 +42,8 @@ export const buildExerciseHistoryState = (
 
 export const buildExerciseHistoryChartPoints = (
     entries: ExerciseHistoryEntry[],
-    now = Date.now()
+    now = Date.now(),
+    metric: ExerciseHistoryMetric = "top"
 ): ExerciseHistoryChartPoint[] => {
     const rangeStart = subtractUtcMonthsClamped(now, CHART_RANGE_MONTHS);
     const pointsByWorkout = new Map<string, ExerciseHistoryChartPoint>();
@@ -50,23 +53,20 @@ export const buildExerciseHistoryChartPoints = (
             continue;
         }
 
-        const estimatedOneRepMax = getEstimated1RM(entry.sets);
-        if (estimatedOneRepMax == null) {
+        const value = getMaximumSetValue(entry.sets, metric);
+        if (value == null) {
             continue;
         }
 
         const existingPoint = pointsByWorkout.get(entry.workoutId);
-        if (
-            existingPoint != null &&
-            existingPoint.estimatedOneRepMax >= estimatedOneRepMax
-        ) {
+        if (existingPoint != null && existingPoint.value >= value) {
             continue;
         }
 
         pointsByWorkout.set(entry.workoutId, {
             workoutId: entry.workoutId,
             finishedAt: entry.finishedAt,
-            estimatedOneRepMax,
+            value,
         });
     }
 
@@ -75,14 +75,17 @@ export const buildExerciseHistoryChartPoints = (
     );
 };
 
-const getEstimated1RM = (sets: Set[]) =>
+const getMaximumSetValue = (sets: Set[], metric: ExerciseHistoryMetric) =>
     sets.reduce<number | null>((maximum, set) => {
         if (set.type === "warmup") {
             return maximum;
         }
 
-        const estimate = calculateEpley1RM(set.weight, set.reps);
-        if (estimate == null) {
+        const estimate =
+            metric === "1rm"
+                ? calculateEpley1RM(set.weight, set.reps)
+                : Number.parseFloat(set.weight);
+        if (estimate == null || !Number.isFinite(estimate) || estimate < 0) {
             return maximum;
         }
 

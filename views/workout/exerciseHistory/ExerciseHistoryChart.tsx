@@ -7,7 +7,11 @@ import {
     Text,
     View,
 } from "react-native";
-import type { ExerciseHistoryChartPoint } from "./exerciseHistory.viewModel.core";
+import { Ionicons } from "@expo/vector-icons";
+import type {
+    ExerciseHistoryMetric,
+    ExerciseHistoryChartPoint,
+} from "./exerciseHistory.viewModel.core";
 
 const CHART_HEIGHT = 138;
 const PLOT_LEFT = 38;
@@ -19,6 +23,8 @@ const TOOLTIP_WIDTH = 108;
 
 type Props = {
     points: ExerciseHistoryChartPoint[];
+    metric: ExerciseHistoryMetric;
+    onToggleMetric: () => void;
 };
 
 type PositionedPoint = ExerciseHistoryChartPoint & {
@@ -26,7 +32,7 @@ type PositionedPoint = ExerciseHistoryChartPoint & {
     y: number;
 };
 
-const ExerciseHistoryChart = ({ points }: Props) => {
+const ExerciseHistoryChart = ({ points, metric, onToggleMetric }: Props) => {
     const [width, setWidth] = useState(0);
     const [selectedWorkoutId, setSelectedWorkoutId] = useState<string | null>(
         null
@@ -52,11 +58,9 @@ const ExerciseHistoryChart = ({ points }: Props) => {
                 }
 
                 const pointDistance =
-                    (point.x - locationX) ** 2 +
-                    (point.y - locationY) ** 2;
+                    (point.x - locationX) ** 2 + (point.y - locationY) ** 2;
                 const nearestDistance =
-                    (nearest.x - locationX) ** 2 +
-                    (nearest.y - locationY) ** 2;
+                    (nearest.x - locationX) ** 2 + (nearest.y - locationY) ** 2;
                 return pointDistance < nearestDistance ? point : nearest;
             }, undefined);
 
@@ -70,119 +74,157 @@ const ExerciseHistoryChart = ({ points }: Props) => {
         (point) => point.workoutId === selectedWorkoutId
     );
 
-    if (points.length === 0) {
-        return null;
-    }
-
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>1RM</Text>
-            <View style={styles.card}>
-                <View style={styles.chart} onLayout={handleLayout}>
-                {geometry.ticks.map((tick) => (
-                    <React.Fragment key={tick.value}>
-                        <Text style={[styles.yLabel, { top: tick.y - 7 }]}>
-                            {formatAxisValue(tick.value)}
-                        </Text>
-                        <View style={[styles.gridline, { top: tick.y }]} />
-                    </React.Fragment>
-                ))}
-                {geometry.xTicks.map((tick) => (
-                    <Text
-                        key={tick.timestamp}
-                        style={[
-                            styles.xLabel,
-                            {
-                                left: Math.max(
-                                    0,
-                                    Math.min(width - 52, tick.x - 26)
-                                ),
-                            },
-                        ]}
-                    >
-                        {formatShortDate(tick.timestamp)}
-                    </Text>
-                ))}
-                {geometry.points.slice(1).map((point, index) => {
-                    const previousPoint = geometry.points[index];
-                    const dx = point.x - previousPoint.x;
-                    const dy = point.y - previousPoint.y;
-                    const length = Math.sqrt(dx * dx + dy * dy);
-                    const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-
-                    return (
-                        <View
-                            key={`${previousPoint.workoutId}-${point.workoutId}`}
-                            style={[
-                                styles.line,
-                                {
-                                    width: length,
-                                    left: (previousPoint.x + point.x) / 2 - length / 2,
-                                    top: (previousPoint.y + point.y) / 2 - 1,
-                                    transform: [{ rotate: `${angle}deg` }],
-                                },
-                            ]}
-                        />
-                    );
-                })}
+            <View style={styles.heading}>
+                <Text style={styles.title}>
+                    {metric === "top" ? "Top" : "1RM"}
+                </Text>
                 <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel="Select the nearest chart point"
-                    style={styles.interactionLayer}
-                    onPress={handleChartPress}
-                />
-                {geometry.points.map((point) => (
-                    <View
-                        key={point.workoutId}
-                        accessible
-                        pointerEvents="none"
-                        accessibilityLabel={`${formatAccessibleDate(
-                            point.finishedAt
-                        )}, estimated one rep max ${formatChartValue(
-                            point.estimatedOneRepMax
-                        )}`}
-                        style={[
-                            styles.dot,
-                            point.workoutId === selectedWorkoutId &&
-                                styles.selectedDot,
-                            {
-                                left: point.x - 5,
-                                top: point.y - 5,
-                            },
-                        ]}
+                    accessibilityLabel={
+                        metric === "top"
+                            ? "Show estimated one rep max"
+                            : "Show top weight"
+                    }
+                    onPress={onToggleMetric}
+                    style={styles.metricToggle}
+                    hitSlop={8}
+                >
+                    <Ionicons
+                        name="swap-horizontal"
+                        size={16}
+                        color="rgba(255, 255, 255, 0.7)"
                     />
-                ))}
-                {selectedPoint ? (
-                    <View
-                        pointerEvents="none"
-                        style={[
-                            styles.tooltip,
-                            {
-                                left: Math.max(
-                                    0,
-                                    Math.min(
-                                        width - TOOLTIP_WIDTH,
-                                        selectedPoint.x - TOOLTIP_WIDTH / 2
-                                    )
-                                ),
-                                top:
-                                    selectedPoint.y > 50
-                                        ? selectedPoint.y - 44
-                                        : selectedPoint.y + 14,
-                            },
-                        ]}
-                    >
-                        <Text style={styles.tooltipValue}>
-                            {formatChartValue(
-                                selectedPoint.estimatedOneRepMax
-                            )}
-                        </Text>
-                        <Text style={styles.tooltipDate}>
-                            {formatAccessibleDate(selectedPoint.finishedAt)}
-                        </Text>
+                </Pressable>
+            </View>
+            <View style={styles.card}>
+                {points.length === 0 ? (
+                    <Text style={styles.emptyText}>
+                        No data for this metric
+                    </Text>
+                ) : (
+                    <View style={styles.chart} onLayout={handleLayout}>
+                        {geometry.ticks.map((tick) => (
+                            <React.Fragment key={tick.value}>
+                                <Text
+                                    style={[styles.yLabel, { top: tick.y - 7 }]}
+                                >
+                                    {formatAxisValue(tick.value)}
+                                </Text>
+                                <View
+                                    style={[styles.gridline, { top: tick.y }]}
+                                />
+                            </React.Fragment>
+                        ))}
+                        {geometry.xTicks.map((tick) => (
+                            <Text
+                                key={tick.timestamp}
+                                style={[
+                                    styles.xLabel,
+                                    {
+                                        left: Math.max(
+                                            0,
+                                            Math.min(width - 52, tick.x - 26)
+                                        ),
+                                    },
+                                ]}
+                            >
+                                {formatShortDate(tick.timestamp)}
+                            </Text>
+                        ))}
+                        {geometry.points.slice(1).map((point, index) => {
+                            const previousPoint = geometry.points[index];
+                            const dx = point.x - previousPoint.x;
+                            const dy = point.y - previousPoint.y;
+                            const length = Math.sqrt(dx * dx + dy * dy);
+                            const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+
+                            return (
+                                <View
+                                    key={`${previousPoint.workoutId}-${point.workoutId}`}
+                                    style={[
+                                        styles.line,
+                                        {
+                                            width: length,
+                                            left:
+                                                (previousPoint.x + point.x) /
+                                                    2 -
+                                                length / 2,
+                                            top:
+                                                (previousPoint.y + point.y) /
+                                                    2 -
+                                                1,
+                                            transform: [
+                                                { rotate: `${angle}deg` },
+                                            ],
+                                        },
+                                    ]}
+                                />
+                            );
+                        })}
+                        <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel="Select the nearest chart point"
+                            style={styles.interactionLayer}
+                            onPress={handleChartPress}
+                        />
+                        {geometry.points.map((point) => (
+                            <View
+                                key={point.workoutId}
+                                accessible
+                                pointerEvents="none"
+                                accessibilityLabel={`${formatAccessibleDate(
+                                    point.finishedAt
+                                )}, ${
+                                    metric === "top"
+                                        ? "top weight"
+                                        : "estimated one rep max"
+                                } ${formatChartValue(point.value)}`}
+                                style={[
+                                    styles.dot,
+                                    point.workoutId === selectedWorkoutId &&
+                                        styles.selectedDot,
+                                    {
+                                        left: point.x - 5,
+                                        top: point.y - 5,
+                                    },
+                                ]}
+                            />
+                        ))}
+                        {selectedPoint ? (
+                            <View
+                                pointerEvents="none"
+                                style={[
+                                    styles.tooltip,
+                                    {
+                                        left: Math.max(
+                                            0,
+                                            Math.min(
+                                                width - TOOLTIP_WIDTH,
+                                                selectedPoint.x -
+                                                    TOOLTIP_WIDTH / 2
+                                            )
+                                        ),
+                                        top:
+                                            selectedPoint.y > 50
+                                                ? selectedPoint.y - 44
+                                                : selectedPoint.y + 14,
+                                    },
+                                ]}
+                            >
+                                <Text style={styles.tooltipValue}>
+                                    {formatChartValue(selectedPoint.value)}
+                                </Text>
+                                <Text style={styles.tooltipDate}>
+                                    {formatAccessibleDate(
+                                        selectedPoint.finishedAt
+                                    )}
+                                </Text>
+                            </View>
+                        ) : null}
                     </View>
-                ) : null}
-                </View>
+                )}
             </View>
         </View>
     );
@@ -200,7 +242,7 @@ const buildChartGeometry = (
         return { points: [], ticks: [], xTicks: [] };
     }
 
-    const values = points.map((point) => point.estimatedOneRepMax);
+    const values = points.map((point) => point.value);
     const dataMin = Math.min(...values);
     const dataMax = Math.max(...values);
     const range = dataMax - dataMin;
@@ -214,12 +256,8 @@ const buildChartGeometry = (
     const valueToY = (value: number) =>
         PLOT_TOP + ((max - value) / (max - min)) * plotHeight;
 
-    const firstTimestamp = Math.min(
-        ...points.map((point) => point.finishedAt)
-    );
-    const lastTimestamp = Math.max(
-        ...points.map((point) => point.finishedAt)
-    );
+    const firstTimestamp = Math.min(...points.map((point) => point.finishedAt));
+    const lastTimestamp = Math.max(...points.map((point) => point.finishedAt));
     const timestampRange = lastTimestamp - firstTimestamp;
 
     const timestampToX = (timestamp: number) =>
@@ -243,7 +281,7 @@ const buildChartGeometry = (
         points: points.map((point) => ({
             ...point,
             x: timestampToX(point.finishedAt),
-            y: valueToY(point.estimatedOneRepMax),
+            y: valueToY(point.value),
         })),
         ticks: tickValues.map((value) => ({
             value,
@@ -287,9 +325,24 @@ const styles = StyleSheet.create({
         borderColor: "rgba(255, 255, 255, 0.08)",
         backgroundColor: "rgba(255, 255, 255, 0.035)",
     },
+    emptyText: {
+        color: "rgba(255, 255, 255, 0.65)",
+        fontSize: 12,
+        paddingVertical: 20,
+        textAlign: "center",
+    },
+    heading: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginBottom: 6,
+    },
+    metricToggle: {
+        alignItems: "center",
+        justifyContent: "center",
+    },
     title: {
         marginLeft: 2,
-        marginBottom: 6,
         color: "white",
         fontSize: 13,
         fontWeight: "600",

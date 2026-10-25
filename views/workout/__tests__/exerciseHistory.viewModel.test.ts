@@ -137,7 +137,7 @@ describe("buildExerciseHistoryChartPoints", () => {
             sets: [setFactory("100", "5")],
         });
 
-        const points = buildExerciseHistoryChartPoints(entries, now);
+        const points = buildExerciseHistoryChartPoints(entries, now, "1rm");
 
         expect(points).toHaveLength(7);
         expect(points.map((point) => point.workoutId)).toEqual([
@@ -149,7 +149,7 @@ describe("buildExerciseHistoryChartPoints", () => {
             "workout-2",
             "workout-1",
         ]);
-        expect(points.at(-1)?.estimatedOneRepMax).toBeCloseTo(70);
+        expect(points.at(-1)?.value).toBeCloseTo(70);
     });
 
     it("includes drop sets but ignores warmups and invalid estimates", () => {
@@ -165,9 +165,9 @@ describe("buildExerciseHistoryChartPoints", () => {
             { ...setFactory("200", "10"), type: "warmup" },
         ];
 
-        const points = buildExerciseHistoryChartPoints([entry], 1);
+        const points = buildExerciseHistoryChartPoints([entry], 1, "1rm");
 
-        expect(points[0].estimatedOneRepMax).toBeCloseTo(110);
+        expect(points[0].value).toBeCloseTo(110);
     });
 
     it("includes the last valid day when the six-month boundary month is shorter", () => {
@@ -187,7 +187,7 @@ describe("buildExerciseHistoryChartPoints", () => {
             ),
         ];
 
-        const points = buildExerciseHistoryChartPoints(entries, now);
+        const points = buildExerciseHistoryChartPoints(entries, now, "1rm");
 
         expect(points.map((point) => point.workoutId)).toEqual([
             "workout-boundary",
@@ -212,14 +212,75 @@ describe("buildExerciseHistoryChartPoints", () => {
             ),
         ];
 
-        const points = buildExerciseHistoryChartPoints(entries, now);
+        const points = buildExerciseHistoryChartPoints(entries, now, "1rm");
 
         expect(points).toEqual([
             {
                 workoutId: "workout-1",
                 finishedAt,
-                estimatedOneRepMax: 128,
+                value: 128,
             },
+        ]);
+    });
+});
+
+describe("top weight history chart", () => {
+    it("defaults to the heaviest weight rather than the best estimated 1RM", () => {
+        const entry = {
+            workoutId: "workout-1",
+            finishedAt: 1,
+            sets: [setFactory("80", "15"), setFactory("100", "2")],
+        };
+
+        const top = buildExerciseHistoryChartPoints([entry], 1);
+        const oneRepMax = buildExerciseHistoryChartPoints([entry], 1, "1rm");
+
+        expect(top[0].value).toBe(100);
+        expect(oneRepMax[0].value).toBe(120);
+    });
+
+    it("includes drop sets and ignores warmups and invalid weights", () => {
+        const entry = {
+            workoutId: "workout-1",
+            finishedAt: 1,
+            sets: [
+                setFactory("", "5"),
+                setFactory("Infinity", "5"),
+                setFactory("-10", "5"),
+                setFactory("80", "5"),
+                { ...setFactory("100.5", "3"), type: "drop" as const },
+                { ...setFactory("200", "5"), type: "warmup" as const },
+            ],
+        };
+
+        const points = buildExerciseHistoryChartPoints([entry], 1);
+
+        expect(points[0].value).toBe(100.5);
+    });
+
+    it("preserves zero weight and does not require reps for top weight", () => {
+        const entry = exerciseSetsEntryFactory("workout-1", 1, "0", "");
+
+        const points = buildExerciseHistoryChartPoints([entry], 1);
+
+        expect(points[0].value).toBe(0);
+        expect(buildExerciseHistoryChartPoints([entry], 1, "1rm")).toEqual([]);
+    });
+
+    it("omits workouts with no valid working weights", () => {
+        const entry = exerciseSetsEntryFactory("workout-1", 1, "", "5");
+
+        expect(buildExerciseHistoryChartPoints([entry], 1)).toEqual([]);
+    });
+
+    it("uses the heaviest weight across repeated entries in a workout", () => {
+        const entries = [
+            exerciseSetsEntryFactory("workout-1", 1, "100", "2"),
+            exerciseSetsEntryFactory("workout-1", 1, "80", "15"),
+        ];
+
+        expect(buildExerciseHistoryChartPoints(entries, 1)).toEqual([
+            { workoutId: "workout-1", finishedAt: 1, value: 100 },
         ]);
     });
 });

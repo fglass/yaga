@@ -8,6 +8,7 @@ import {
     buildExerciseHistoryState,
     type ExerciseHistoryChartPoint,
     type ExerciseHistoryEntry,
+    type ExerciseHistoryMetric,
 } from "./exerciseHistory.viewModel.core";
 
 const DEFAULT_PAGE_SIZE = 5;
@@ -23,6 +24,8 @@ type ViewModel = {
     displayHistorySets: ExerciseHistoryEntry[];
     comparisonHistorySets: ExerciseHistoryEntry[];
     chartPoints: ExerciseHistoryChartPoint[];
+    chartMetric: ExerciseHistoryMetric;
+    toggleChartMetric: () => void;
     hasMore: boolean;
     loadMore: () => void;
 };
@@ -32,10 +35,16 @@ export const useExerciseHistoryViewModel = ({
     isVisible,
     pageSize = DEFAULT_PAGE_SIZE,
 }: Props): ViewModel => {
+    const [chartMetric, setChartMetric] =
+        useState<ExerciseHistoryMetric>("top");
+    const toggleChartMetric = useCallback(() => {
+        setChartMetric((metric) => (metric === "top" ? "1rm" : "top"));
+    }, []);
     const [pageCount, setPageCount] = useState(1);
 
     useEffect(() => {
         setPageCount(1);
+        setChartMetric("top");
     }, [exerciseId, isVisible]);
 
     const displayLimit = pageSize * pageCount;
@@ -56,8 +65,13 @@ export const useExerciseHistoryViewModel = ({
         [rawEntries, displayLimit]
     );
     const chartPoints = useMemo(
-        () => buildExerciseHistoryChartPoints(rawEntries),
-        [rawEntries]
+        () =>
+            buildExerciseHistoryChartPoints(
+                rawEntries,
+                Date.now(),
+                chartMetric
+            ),
+        [rawEntries, chartMetric]
     );
 
     const loadMore = useCallback(() => {
@@ -72,6 +86,8 @@ export const useExerciseHistoryViewModel = ({
         displayHistorySets,
         comparisonHistorySets,
         chartPoints,
+        chartMetric,
+        toggleChartMetric,
         hasMore,
         loadMore,
     };

@@ -202,8 +202,11 @@ Align bottom nav bar to workout view width
 
 Exercise variants
 
-Top set <-> 1RM
+Weight overlay
+Chart min items shown
 
 https://github.com/callstack/agent-device
 
 Notis disappearing
+
+Auto-select after add custom exercise

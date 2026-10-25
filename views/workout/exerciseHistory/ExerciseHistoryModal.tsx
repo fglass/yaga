@@ -28,6 +28,8 @@ const ExerciseHistoryModal = (props: Props) => {
         displayHistorySets,
         comparisonHistorySets,
         chartPoints,
+        chartMetric,
+        toggleChartMetric,
         hasMore,
         loadMore,
     } = useExerciseHistoryViewModel({
@@ -47,6 +49,8 @@ const ExerciseHistoryModal = (props: Props) => {
             <ExerciseHistoryChart
                 key={`${props.exerciseId}-${props.isVisible}`}
                 points={chartPoints}
+                metric={chartMetric}
+                onToggleMetric={toggleChartMetric}
             />
             <View style={styles.tableHeader}>
                 <Text style={styles.headerSetCell}>Set</Text>
