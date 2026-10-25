@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import * as Haptics from "expo-haptics";
 import {
     useExerciseSetsFromCompletedWorkouts,
     type ExerciseSetsEntry,
@@ -39,6 +40,7 @@ export const useExerciseHistoryViewModel = ({
         useState<ExerciseHistoryMetric>("top");
     const toggleChartMetric = useCallback(() => {
         setChartMetric((metric) => (metric === "top" ? "1rm" : "top"));
+        void Haptics.selectionAsync();
     }, []);
     const [pageCount, setPageCount] = useState(1);
 

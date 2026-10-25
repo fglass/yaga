@@ -26,6 +26,7 @@ Only investigate or patch native/generated files after this flow has been attemp
 ## UI Preferences
 
 -   Always use haptics on confirmed user actions (e.g., save/delete), but not on every intermediate tap.
+-   Follow existing haptic patterns when adding interactions: use `expo-haptics` `selectionAsync()` for selection changes and toggles, and match nearby impact/notification feedback for confirmed actions. Trigger feedback once in the view-model event handler, not in render, effects, or state updater functions.
 
 ## Coding Style & Naming Conventions
 
