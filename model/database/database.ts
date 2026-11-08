@@ -55,55 +55,67 @@ export const exportDatabase = async () => {
 };
 
 export const importDatabase = () => {
-    withWarning(async () => {
-        const result = await DocumentPicker.getDocumentAsync({
-            copyToCacheDirectory: true,
-        });
+    withWarning(
+        async () => {
+            const result = await DocumentPicker.getDocumentAsync({
+                copyToCacheDirectory: true,
+            });
 
-        if (result.canceled) {
-            return;
+            if (result.canceled) {
+                return;
+            }
+
+            const file = result.assets?.[0];
+            if (!file?.uri) {
+                return;
+            }
+
+            const db = await getDatabase();
+            const destUri = db.databasePath.startsWith("file://")
+                ? db.databasePath
+                : `file://${db.databasePath}`;
+
+            await resetDatabaseConnection();
+            const sourceFile = new ExpoFile(file.uri);
+            const destFile = new ExpoFile(destUri);
+
+            const sourceStream = sourceFile.readableStream();
+            const destStream = destFile.writableStream();
+            await sourceStream.pipeTo(destStream);
+
+            await ensureDatabase();
+
+            console.log(`[database] Database imported from ${file.name}`);
+            alert("Database import successful");
+        },
+        {
+            message:
+                "This will permanently delete all data. This action cannot be undone.",
         }
-
-        const file = result.assets?.[0];
-        if (!file?.uri) {
-            return;
-        }
-
-        const db = await getDatabase();
-        const destUri = db.databasePath.startsWith("file://")
-            ? db.databasePath
-            : `file://${db.databasePath}`;
-
-        await resetDatabaseConnection();
-        const sourceFile = new ExpoFile(file.uri);
-        const destFile = new ExpoFile(destUri);
-
-        const sourceStream = sourceFile.readableStream();
-        const destStream = destFile.writableStream();
-        await sourceStream.pipeTo(destStream);
-
-        await ensureDatabase();
-
-        console.log(`[database] Database imported from ${file.name}`);
-        alert("Database import successful");
-    });
+    );
 };
 
 export const resetDatabase = () => {
-    withWarning(async () => {
-        await runInTransaction(async (db) => {
-            await db.runAsync("DELETE FROM sets");
-            await db.runAsync("DELETE FROM exercises");
-            await db.runAsync("DELETE FROM workouts");
-            await db.runAsync("DELETE FROM templates");
-            await db.runAsync("DELETE FROM exercise_defs");
-        });
+    withWarning(
+        async () => {
+            await runInTransaction(async (db) => {
+                await db.runAsync("DELETE FROM sets");
+                await db.runAsync("DELETE FROM exercises");
+                await db.runAsync("DELETE FROM workouts");
+                await db.runAsync("DELETE FROM templates");
+                await db.runAsync("DELETE FROM exercise_defs");
+            });
 
-        await seedInitialData();
+            await seedInitialData();
 
-        console.warn("[database] Database reset");
-        alert("Database reset successful");
-    });
+            console.warn("[database] Database reset");
+            alert("Database reset successful");
+        },
+        {
+            message:
+                "This will permanently delete all data. This action cannot be undone.",
+        }
+    );
 };
 
 /* Write functions */
