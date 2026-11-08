@@ -47,11 +47,7 @@ const WorkoutBottomToolbar = ({
                 Add
             </Stack.Toolbar.Button>
             <Stack.Toolbar.Button
-                icon={
-                    primaryActionLabel === "Finish"
-                        ? "checkmark.circle.fill"
-                        : "square.and.arrow.down"
-                }
+                icon="checkmark.circle.fill"
                 variant="prominent"
                 disabled={!canSaveWorkout}
                 accessibilityLabel={primaryActionLabel}
