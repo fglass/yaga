@@ -15,6 +15,7 @@ web-build/
 *.db
 *.csv
 *.env*
+!.env.example
 ios/
 !plugins/ios/
 app-state-*

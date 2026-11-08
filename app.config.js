@@ -54,7 +54,7 @@ module.exports = ({ config }) => {
                 projectId: "572100b8-fd56-4bbd-8d90-8e3b754b4d98",
             },
             stravaClientId: "192280",
-            stravaClientSecret: "REMOVED_STRAVA_CLIENT_SECRET",
+            stravaClientSecret: process.env.STRAVA_CLIENT_SECRET ?? "",
             stravaRedirectScheme: "yaga",
         },
         owner: "expench",
