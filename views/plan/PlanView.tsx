@@ -125,9 +125,6 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
         </View>
     );
 
-    const hasTemplates = vm.templates.length > 0;
-    const isTemplatesEmpty = !vm.isTemplatesLoading && !hasTemplates;
-
     const baseBottomPadding = TAB_BAR_OVERLAY_HEIGHT + insets.bottom + 10;
     const isMiniBarVisible = isMinimized && activeWorkout != null;
     const miniBarTopInset =
@@ -197,8 +194,6 @@ const PlanView = ({ onCreateTemplate, onStartWorkout, onStartRun }: Props) => {
                         paddingTop: listTopPadding,
                         paddingBottom: listBottomPadding,
                     },
-                    (isTemplatesEmpty || vm.isTemplatesLoading) &&
-                        styles.emptyListContent,
                 ]}
             />
             {renderHeaderBackdrop()}
@@ -269,10 +264,6 @@ const styles = StyleSheet.create({
     listContent: {
         paddingHorizontal: 20,
         paddingBottom: 0,
-    },
-    emptyListContent: {
-        flexGrow: 1,
-        justifyContent: "center",
     },
     workoutCard: {
         paddingVertical: 10,
