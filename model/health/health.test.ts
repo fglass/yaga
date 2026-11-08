@@ -1,4 +1,5 @@
 import { fetchAppleHealthWorkouts, syncAppleHealthRunsToDatabase } from "./health";
+import type { AppleHealthWorkout, CompletedWorkout } from "../types";
 import {
     queryWorkoutSamples,
     WorkoutActivityType,
@@ -252,10 +253,7 @@ const createSignal = () => {
 
 describe("syncAppleHealthRunsToDatabase", () => {
     it("inserts only missing runs with stable IDs", async () => {
-        const completeWorkout = jest.fn().mockResolvedValue(undefined);
-        const fetchCompletedWorkoutIds = jest
-            .fn()
-            .mockResolvedValue(["apple-health:run-1"]);
+        const savedWorkouts: CompletedWorkout[] = [];
 
         const inserted = await syncAppleHealthRunsToDatabase(
             [
@@ -281,19 +279,89 @@ describe("syncAppleHealthRunsToDatabase", () => {
                 },
             ],
             {
-                completeWorkout,
-                fetchCompletedWorkoutIds,
+                completeWorkouts: async (workouts) => {
+                    savedWorkouts.push(...workouts);
+                },
+                fetchCompletedWorkoutIds: async () => ["apple-health:run-1"],
             }
         );
 
         expect(inserted).toBe(1);
-        expect(completeWorkout).toHaveBeenCalledTimes(1);
-        expect(completeWorkout).toHaveBeenCalledWith(
-            expect.objectContaining({
-                id: "apple-health:run-2",
-                type: "run",
-                distance: 12,
-            })
+        expect(savedWorkouts).toHaveLength(1);
+        expect(savedWorkouts[0]).toMatchObject({
+            id: "apple-health:run-2",
+            type: "run",
+            distance: 12,
+        });
+    });
+
+    it("imports multiple missing runs once and excludes strength workouts", async () => {
+        const savedBatches: CompletedWorkout[][] = [];
+        const run = healthRunFactory("run-1");
+
+        const inserted = await syncAppleHealthRunsToDatabase(
+            [
+                run,
+                run,
+                healthRunFactory("run-2"),
+                { ...run, id: "strength-1", workoutType: "strength" },
+            ],
+            {
+                completeWorkouts: async (workouts) => {
+                    savedBatches.push(workouts);
+                },
+                fetchCompletedWorkoutIds: async () => [],
+            }
         );
+
+        expect(inserted).toBe(2);
+        expect(savedBatches).toHaveLength(1);
+        expect(savedBatches[0].map((workout) => workout.id)).toEqual([
+            "apple-health:run-1",
+            "apple-health:run-2",
+        ]);
+    });
+
+    it.each([
+        { name: "empty history", workouts: [] },
+        { name: "already imported history", workouts: [healthRunFactory("run-1")] },
+    ])(
+        "does not write a batch for $name",
+        async ({ workouts }) => {
+            const inserted = await syncAppleHealthRunsToDatabase(workouts, {
+                fetchCompletedWorkoutIds: async () => ["apple-health:run-1"],
+                completeWorkouts: async () => {
+                    throw new Error("No batch should be written");
+                },
+            });
+
+            expect(inserted).toBe(0);
+        }
+    );
+
+    it("propagates a failed batch save", async () => {
+        const error = new Error("Unable to save imported runs");
+
+        const sync = syncAppleHealthRunsToDatabase([healthRunFactory("run-1")], {
+            fetchCompletedWorkoutIds: async () => [],
+            completeWorkouts: async () => {
+                throw error;
+            },
+        });
+
+        await expect(sync).rejects.toBe(error);
     });
 });
+
+function healthRunFactory(id: string): AppleHealthWorkout {
+    return {
+        id,
+        name: "Run",
+        startDate: new Date("2024-02-01T10:00:00.000Z"),
+        endDate: new Date("2024-02-01T11:00:00.000Z"),
+        durationSeconds: 3600,
+        activityType: WorkoutActivityType.running,
+        workoutType: "run",
+        distance: 10,
+    };
+}

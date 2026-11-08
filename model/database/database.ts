@@ -288,6 +288,18 @@ export const completeWorkout = async (workout: CompletedWorkout) => {
     console.log(`[database] Workout completed in ${Date.now() - startTime}ms`);
 };
 
+export const completeWorkouts = async (workouts: CompletedWorkout[]) => {
+    if (workouts.length === 0) {
+        return;
+    }
+
+    await runInTransaction(async (db) => {
+        for (const workout of workouts) {
+            await insertCompletedWorkout(db, workout);
+        }
+    });
+};
+
 export const replaceDatabaseWithWorkouts = async (
     exerciseDefs: Record<string, ExerciseDef>,
     workouts: CompletedWorkout[]

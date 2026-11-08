@@ -11,6 +11,71 @@ import {
     workoutTemplateFactory,
 } from "../database.test.helpers";
 
+describe("database batch completion", () => {
+    it("saves multiple completed runs without changing existing workouts", async () => {
+        await createTestDb(async (database) => {
+            const existing = completedWorkoutFactory({ id: "existing" });
+            await database.completeWorkout(existing);
+            const runs = [
+                completedWorkoutFactory({
+                    id: "run-1",
+                    type: "run",
+                    distance: 5,
+                    endTimestamp: 10,
+                    metadata: { importedBy: "apple-health" },
+                }),
+                completedWorkoutFactory({
+                    id: "run-2",
+                    type: "run",
+                    distance: 8,
+                    endTimestamp: 20,
+                    metadata: { importedBy: "apple-health" },
+                }),
+            ];
+
+            await database.completeWorkouts(runs);
+
+            const saved = await database.fetchCompletedWorkouts();
+            expect(saved).toEqual([runs[1], runs[0], existing]);
+        });
+    });
+
+    it("rolls back the batch when a later workout fails and allows retry", async () => {
+        await createTestDb(async (database) => {
+            const existing = completedWorkoutFactory({ id: "existing" });
+            await database.completeWorkout(existing);
+            const run = completedWorkoutFactory({ id: "run-1", type: "run" });
+            const invalid = completedWorkoutFactory({
+                id: "invalid",
+                exerciseIds: ["missing-exercise-definition"],
+            });
+
+            await expect(
+                database.completeWorkouts([run, invalid])
+            ).rejects.toThrow();
+
+            expect(await database.fetchCompletedWorkouts()).toEqual([existing]);
+
+            await database.completeWorkouts([run]);
+
+            expect(await database.fetchCompletedWorkoutIds()).toEqual(
+                expect.arrayContaining([existing.id, run.id])
+            );
+        });
+    });
+
+    it("leaves completed workouts unchanged for an empty batch", async () => {
+        await createTestDb(async (database) => {
+            const existing = completedWorkoutFactory({ id: "existing" });
+            await database.completeWorkout(existing);
+
+            await database.completeWorkouts([]);
+
+            expect(await database.fetchCompletedWorkouts()).toEqual([existing]);
+        });
+    });
+});
+
 describe("database exercise defs", () => {
     it("deleteExerciseDef reassigns exercises and removes from templates", async () => {
         await createTestDb(async (database, sqlite) => {
