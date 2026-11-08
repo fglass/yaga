@@ -119,6 +119,19 @@ export const setHealthLoggingEnabled = (enabled: boolean) => {
     isHealthLoggingEnabled = enabled;
 };
 
+/**
+ * Reads runs and traditional strength workouts from Apple Health in query order,
+ * excluding workouts logged by Yaga and samples missing start or end dates.
+ * Keeps the first workout for each matching start time and duration in seconds.
+ *
+ * Run distances are in kilometers, with at most four lookups in flight per call.
+ * A missing or failed distance lookup leaves the workout's distance undefined.
+ * Query or processing failures return an empty array, as does an empty history.
+ *
+ * @param options.since - Optional HealthKit start-date filter
+ * @param options.limit - Maximum samples queried before filtering and deduplication;
+ * defaults to 10,000
+ */
 export const fetchAppleHealthWorkouts = async (
     options?: FetchAppleHealthWorkoutsOptions
 ): Promise<AppleHealthWorkout[]> => {
