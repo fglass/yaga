@@ -59,6 +59,95 @@ jest.mock("@kingstinct/react-native-healthkit", () => {
 });
 
 describe("fetchAppleHealthWorkouts", () => {
+    it("keeps four lookups in flight while preserving workout order", async () => {
+        const proxies = mockWorkoutSamples(
+            Array.from({ length: 5 }, (_, index) => ({
+                uuid: `run-${index}`,
+                workoutActivityType: WorkoutActivityType.running,
+                startDate: new Date(Date.UTC(2024, 0, index + 1, 10)).toISOString(),
+                endDate: new Date(Date.UTC(2024, 0, index + 1, 11)).toISOString(),
+            }))
+        );
+        const releases = proxies.map(() => createSignal());
+        const firstFourStarted = createSignal();
+        const fifthStarted = createSignal();
+        let inFlight = 0;
+        let peakInFlight = 0;
+
+        proxies.forEach((proxy, index) => {
+            proxy.getStatistic.mockImplementation(async () => {
+                inFlight += 1;
+                peakInFlight = Math.max(peakInFlight, inFlight);
+                if (index === 3) {
+                    firstFourStarted.resolve();
+                }
+                if (index === 4) {
+                    fifthStarted.resolve();
+                }
+                await releases[index].promise;
+                inFlight -= 1;
+                return { sumQuantity: { quantity: index + 1 } };
+            });
+        });
+
+        const pendingWorkouts = fetchAppleHealthWorkouts();
+        await firstFourStarted.promise;
+        expect(inFlight).toBe(4);
+
+        releases[3].resolve();
+        await fifthStarted.promise;
+        expect(inFlight).toBe(4);
+
+        releases.forEach((release) => release.resolve());
+        const workouts = await pendingWorkouts;
+
+        expect(peakInFlight).toBe(4);
+        expect(workouts.map((workout) => workout.id)).toEqual([
+            "run-0",
+            "run-1",
+            "run-2",
+            "run-3",
+            "run-4",
+        ]);
+        expect(workouts.map((workout) => workout.distance)).toEqual([
+            1, 2, 3, 4, 5,
+        ]);
+    });
+
+    it("keeps workouts when one distance lookup fails", async () => {
+        const proxies = mockWorkoutSamples([
+            {
+                uuid: "run-failed-distance",
+                workoutActivityType: WorkoutActivityType.running,
+                startDate: "2024-01-01T10:00:00.000Z",
+                endDate: "2024-01-01T11:00:00.000Z",
+            },
+            {
+                uuid: "run-with-distance",
+                workoutActivityType: WorkoutActivityType.running,
+                startDate: "2024-01-02T10:00:00.000Z",
+                endDate: "2024-01-02T11:00:00.000Z",
+                distance: 5,
+            },
+        ]);
+        proxies[0].getStatistic.mockRejectedValue(new Error("Health read failed"));
+
+        const workouts = await fetchAppleHealthWorkouts();
+
+        expect(workouts).toHaveLength(2);
+        expect(workouts[0].id).toBe("run-failed-distance");
+        expect(workouts[0].distance).toBeUndefined();
+        expect(workouts[1].distance).toBe(5);
+    });
+
+    it("returns no workouts for an empty Health history", async () => {
+        mockWorkoutSamples([]);
+
+        const workouts = await fetchAppleHealthWorkouts();
+
+        expect(workouts).toEqual([]);
+    });
+
     it("keeps supported workouts when unsupported types are present", async () => {
         const runningSample = {
             uuid: "run-1",
@@ -152,6 +241,14 @@ describe("fetchAppleHealthWorkouts", () => {
         expect(workouts[0].id).toBe("run-other");
     });
 });
+
+const createSignal = () => {
+    let resolve!: () => void;
+    const promise = new Promise<void>((complete) => {
+        resolve = complete;
+    });
+    return { promise, resolve };
+};
 
 describe("syncAppleHealthRunsToDatabase", () => {
     it("inserts only missing runs with stable IDs", async () => {
