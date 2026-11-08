@@ -41,6 +41,7 @@ type WorkoutProxyItem = Awaited<ReturnType<typeof queryWorkoutSamples>>[number];
 const APPLE_HEALTH_IMPORTED_BY = "apple-health";
 const APPLE_HEALTH_WORKOUT_ID_PREFIX = `${APPLE_HEALTH_IMPORTED_BY}:`;
 const APP_BUNDLE_IDENTIFIER_PREFIX = "com.expench.yaga";
+const MAX_CONCURRENT_DISTANCE_LOOKUPS = 4;
 
 export const ensureHealthKit = async (): Promise<boolean> => {
     if (Platform.OS !== "ios") {
@@ -132,24 +133,40 @@ export const fetchAppleHealthWorkouts = async (
             ...workoutQueryOptions,
         });
 
-        const workouts: AppleHealthWorkout[] = [];
-        for (const proxy of workoutProxies) {
-            const sample = proxy.toJSON();
-            if (isWorkoutLoggedByYaga(sample)) {
-                continue;
-            }
+        const workouts: (AppleHealthWorkout | null)[] = new Array(
+            workoutProxies.length
+        ).fill(null);
+        let nextIndex = 0;
+        await Promise.all(
+            Array.from(
+                {
+                    length: Math.min(
+                        MAX_CONCURRENT_DISTANCE_LOOKUPS,
+                        workoutProxies.length
+                    ),
+                },
+                async () => {
+                    while (nextIndex < workoutProxies.length) {
+                        const index = nextIndex++;
+                        const proxy = workoutProxies[index];
+                        const sample = proxy.toJSON();
+                        if (isWorkoutLoggedByYaga(sample)) {
+                            continue;
+                        }
 
-            const distance = await getRunDistance(
-                proxy,
-                sample.workoutActivityType
-            );
-            const workout = asHealthWorkout(sample, distance);
-            if (workout != null) {
-                workouts.push(workout);
-            }
-        }
+                        const distance = await getRunDistance(
+                            proxy,
+                            sample.workoutActivityType
+                        );
+                        workouts[index] = asHealthWorkout(sample, distance);
+                    }
+                }
+            )
+        );
 
-        const result = workouts.filter(dedupe());
+        const result = workouts
+            .filter((workout): workout is AppleHealthWorkout => workout != null)
+            .filter(dedupe());
         console.log(
             `Apple Health workouts fetched in ${Date.now() - startTime}ms`
         );
