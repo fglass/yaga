@@ -245,14 +245,16 @@ const HistoryView = (props: Props) => {
         );
     };
 
-    const renderFilteredEmptyState = () => {
-        if (!isTemplateFilterActive || combinedHistory.length > 0) {
-            return null;
-        }
-
+    const renderEmptyState = () => {
         return (
             <View style={styles.emptyCard}>
-                <Text style={styles.emptySubtitle}>No history found</Text>
+                <Ionicons
+                    name="barbell-outline"
+                    color="white"
+                    size={34}
+                    style={styles.emptyIcon}
+                />
+                <Text style={styles.emptyTitle}>No workouts yet</Text>
             </View>
         );
     };
@@ -274,7 +276,7 @@ const HistoryView = (props: Props) => {
                 ListFooterComponent={() => (
                     <View style={styles.listFooterSpacing} />
                 )}
-                ListEmptyComponent={renderFilteredEmptyState}
+                ListEmptyComponent={renderEmptyState}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
                 contentContainerStyle={[
                     styles.listContent,
@@ -399,17 +401,22 @@ const styles = StyleSheet.create({
         height: 8,
     },
     emptyCard: {
-        padding: 24,
-        borderRadius: 14,
+        alignItems: "center",
+        paddingVertical: 32,
+        paddingHorizontal: 20,
+        borderRadius: 18,
         backgroundColor: "#353C42",
         borderWidth: 1,
         borderColor: "rgba(255, 255, 255, 0.05)",
-        alignItems: "center",
-        justifyContent: "center",
     },
-    emptySubtitle: {
-        color: "rgba(255, 255, 255, 0.7)",
-        textAlign: "center",
+    emptyIcon: {
+        marginBottom: 12,
+    },
+    emptyTitle: {
+        color: "white",
+        fontSize: 18,
+        fontWeight: "600",
+        marginBottom: 6,
     },
 });
 
