@@ -13,7 +13,7 @@ import type {
     QuantityTypeIdentifier,
     QueryStatisticsResponse,
 } from "@kingstinct/react-native-healthkit";
-import { completeWorkout, fetchCompletedWorkoutIds } from "../database";
+import { completeWorkouts, fetchCompletedWorkoutIds } from "../database";
 import { AppleHealthWorkout, CompletedWorkout, WorkoutType } from "../types";
 
 export interface HealthWorkoutPayload {
@@ -29,7 +29,7 @@ export interface FetchAppleHealthWorkoutsOptions {
 }
 
 interface SyncAppleHealthRunsDeps {
-    completeWorkout: (workout: CompletedWorkout) => Promise<void>;
+    completeWorkouts: (workouts: CompletedWorkout[]) => Promise<void>;
     fetchCompletedWorkoutIds: () => Promise<string[]>;
 }
 
@@ -180,7 +180,7 @@ export const fetchAppleHealthWorkouts = async (
 export const syncAppleHealthRunsToDatabase = async (
     workouts: AppleHealthWorkout[],
     deps: SyncAppleHealthRunsDeps = {
-        completeWorkout,
+        completeWorkouts,
         fetchCompletedWorkoutIds,
     }
 ): Promise<number> => {
@@ -193,7 +193,7 @@ export const syncAppleHealthRunsToDatabase = async (
     }
 
     const existingIds = new Set(await deps.fetchCompletedWorkoutIds());
-    let insertedCount = 0;
+    const missingRuns: CompletedWorkout[] = [];
 
     for (const workout of runWorkouts) {
         const completedWorkout = asCompletedRunWorkout(workout);
@@ -201,14 +201,17 @@ export const syncAppleHealthRunsToDatabase = async (
             continue;
         }
 
-        await deps.completeWorkout(completedWorkout);
+        missingRuns.push(completedWorkout);
         existingIds.add(completedWorkout.id);
-        insertedCount += 1;
     }
 
-    console.log(`Apple Health inserted ${insertedCount} runs`);
+    if (missingRuns.length > 0) {
+        await deps.completeWorkouts(missingRuns);
+    }
 
-    return insertedCount;
+    console.log(`Apple Health inserted ${missingRuns.length} runs`);
+
+    return missingRuns.length;
 };
 
 export const isAppleHealthImportedWorkout = (
