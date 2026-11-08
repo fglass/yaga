@@ -272,28 +272,58 @@ export const completeWorkout = async (workout: CompletedWorkout) => {
     const startTime = Date.now();
     await ensureDatabase();
 
+    await runInTransaction((db) => insertCompletedWorkout(db, workout));
+    console.log(`[database] Workout completed in ${Date.now() - startTime}ms`);
+};
+
+export const replaceDatabaseWithWorkouts = async (
+    exerciseDefs: Record<string, ExerciseDef>,
+    workouts: CompletedWorkout[]
+) => {
     await runInTransaction(async (db) => {
-        await db.runAsync(
-            `INSERT OR REPLACE INTO workouts
+        for (const table of [
+            "sets",
+            "exercises",
+            "workouts",
+            "templates",
+            "exercise_defs",
+        ]) {
+            await db.runAsync(`DELETE FROM ${table}`);
+        }
+        for (const [id, def] of Object.entries(exerciseDefs)) {
+            await db.runAsync(
+                "INSERT INTO exercise_defs (id, name, category) VALUES (?, ?, ?)",
+                id,
+                def.name,
+                def.category
+            );
+        }
+        for (const workout of workouts) {
+            await insertCompletedWorkout(db, workout);
+        }
+    });
+};
+
+const insertCompletedWorkout = async (
+    db: SQLite.SQLiteDatabase,
+    workout: CompletedWorkout
+) => {
+    await db.runAsync(
+        `INSERT OR REPLACE INTO workouts
              (id, name, notes, type, status, started_at, finished_at, distance, metadata_json)
              VALUES (?, ?, ?, ?, 'completed', ?, ?, ?, ?)`,
-            workout.id,
-            workout.name,
-            workout.notes,
-            workout.type,
-            workout.startTimestamp,
-            workout.endTimestamp,
-            workout.distance ?? null,
-            JSON.stringify(workout.metadata)
-        );
+        workout.id,
+        workout.name,
+        workout.notes,
+        workout.type,
+        workout.startTimestamp,
+        workout.endTimestamp,
+        workout.distance ?? null,
+        JSON.stringify(workout.metadata)
+    );
 
-        await db.runAsync(
-            "DELETE FROM exercises WHERE workout_id = ?",
-            workout.id
-        );
-        await insertExercises(db, workout.id, workout.exercises);
-    });
-    console.log(`[database] Workout completed in ${Date.now() - startTime}ms`);
+    await db.runAsync("DELETE FROM exercises WHERE workout_id = ?", workout.id);
+    await insertExercises(db, workout.id, workout.exercises);
 };
 
 export const deleteCompletedWorkout = async (workoutId: string) => {

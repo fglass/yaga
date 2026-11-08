@@ -1,12 +1,5 @@
-import {
-    buildImportData,
-    parseStrongCsv,
-} from "../importStrongCsv";
-import {
-    matchExerciseName,
-    normalizeExerciseName,
-} from "../import.helpers";
-import { ExerciseCategory } from "../../types";
+import { buildImportData, parseStrongCsv } from "../importStrongCsv";
+import { normalizeExerciseName } from "../import.helpers";
 
 const SAMPLE_CSV = `Date,Workout Name,Duration,Exercise Name,Set Order,Weight,Reps,Distance,Seconds,Notes,Workout Notes,RPE
 2022-12-30 11:34:35,Legs,33m,Single Leg Extension,1,66.0,14.0,0,0.0,,First workout,
@@ -90,65 +83,5 @@ describe("importStrongCsv", () => {
         ["Tricep Extension.", "tricep extension"],
     ])("normalizes exercise names for %s", (input, expected) => {
         expect(normalizeExerciseName(input)).toBe(expected);
-    });
-
-    it.each([
-        [
-            "pull up",
-            {
-                pullUp: {
-                    name: "Pull Up",
-                    category: "Back" as ExerciseCategory,
-                },
-            },
-            "pullUp",
-        ],
-        [
-            "Romanian Deadlift",
-            {
-                rdl: {
-                    name: "Romanian Deadlift",
-                    category: "Legs" as ExerciseCategory,
-                },
-            },
-            "rdl",
-        ],
-        [
-            "Seated Row",
-            {
-                seatedRow: {
-                    name: "Seated Row",
-                    category: "Back" as ExerciseCategory,
-                },
-            },
-            "seatedRow",
-        ],
-    ])("matches exercise names for %s", (query, defs, expected) => {
-        expect(matchExerciseName(query, defs)).toBe(expected);
-    });
-
-    it.each([
-        [
-            "Cable Crossover (Low)",
-            {
-                cableCrossoverLow: {
-                    name: "Cable Crossover (Low)",
-                    category: "Chest" as ExerciseCategory,
-                },
-            },
-            "cableCrossoverLow",
-        ],
-        [
-            "Cable Crossover (Low)",
-            {
-                cableCrossover: {
-                    name: "Cable Crossover",
-                    category: "Chest" as ExerciseCategory,
-                },
-            },
-            null,
-        ],
-    ])("matches exact names for %s", (query, defs, expected) => {
-        expect(matchExerciseName(query, defs)).toBe(expected);
     });
 });

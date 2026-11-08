@@ -122,11 +122,13 @@ const SettingsView = () => {
                     <View style={styles.divider} />
                     <SettingsRow
                         title="Import Strong App"
+                        isDestructive
                         onPress={() => void vm.openImportFromStrong()}
                     />
                     <View style={styles.divider} />
                     <SettingsRow
                         title="Import Database"
+                        isDestructive
                         onPress={() => void vm.importDatabase()}
                     />
                     <View style={styles.divider} />
@@ -139,10 +141,8 @@ const SettingsView = () => {
             </ScrollView>
             {vm.isImportVisible ? (
                 <ImportView
-                    isVisible={vm.isImportVisible}
                     onClose={vm.closeImportFromStrong}
                     fileUri={vm.importFileUri}
-                    fileName={vm.importFileName}
                 />
             ) : null}
         </View>

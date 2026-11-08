@@ -1,6 +1,7 @@
 import React from "react";
 import * as DocumentPicker from "expo-document-picker";
 import Constants from "expo-constants";
+import { withWarning } from "../../utils/util";
 import {
     exportDatabase,
     importDatabase,
@@ -25,9 +26,6 @@ export const useSettingsViewModel = () => {
     const [importFileUri, setImportFileUri] = React.useState<string | null>(
         null
     );
-    const [importFileName, setImportFileName] = React.useState<string | null>(
-        null
-    );
 
     const isDevBuild = process.env.EXPO_PUBLIC_APP_VARIANT === "development";
     const gitCommit = Constants.expoConfig?.extra?.gitCommit ?? "unknown";
@@ -49,31 +47,37 @@ export const useSettingsViewModel = () => {
         alert(token ? "Strava auth successful" : "Strava auth failed");
     };
 
-    const openImportFromStrong = async () => {
-        const result = await DocumentPicker.getDocumentAsync({
-            copyToCacheDirectory: true,
-            type: "*/*",
-        });
+    const openImportFromStrong = () => {
+        withWarning(
+            async () => {
+                const result = await DocumentPicker.getDocumentAsync({
+                    copyToCacheDirectory: true,
+                    type: "*/*",
+                });
 
-        if (result.canceled) {
-            return;
-        }
+                if (result.canceled) {
+                    return;
+                }
 
-        const file = result.assets?.[0];
-        if (!file?.uri) {
-            return;
-        }
+                const file = result.assets?.[0];
+                if (!file?.uri) {
+                    return;
+                }
 
-        setImportFileUri(file.uri);
-        setImportFileName(file.name ?? null);
-        setImportVisible(true);
+                setImportFileUri(file.uri);
+                setImportVisible(true);
+            },
+            {
+                message:
+                    "This will permanently delete all data. This action cannot be undone.",
+            }
+        );
     };
 
-    const closeImportFromStrong = () => {
+    const closeImportFromStrong = React.useCallback(() => {
         setImportVisible(false);
         setImportFileUri(null);
-        setImportFileName(null);
-    };
+    }, []);
 
     return {
         isDevBuild,
@@ -89,7 +93,6 @@ export const useSettingsViewModel = () => {
         resetDatabase,
         isImportVisible,
         importFileUri,
-        importFileName,
         closeImportFromStrong,
     };
 };

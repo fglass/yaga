@@ -1,5 +1,3 @@
-import { ExerciseDef } from "../types";
-
 export const normalizeExerciseName = (name: string): string => {
     const sanitized = name
         .replace(/[()]/g, " ")
@@ -8,53 +6,6 @@ export const normalizeExerciseName = (name: string): string => {
         .toLowerCase()
         .trim();
     return sanitized.replace(/\s+/g, " ");
-};
-
-export const matchExerciseName = (
-    exerciseName: string,
-    exerciseDefs: Record<string, ExerciseDef>
-): string | null => {
-    const normalized = normalizeForMatch(exerciseName);
-    const entries = Object.entries(exerciseDefs);
-
-    for (const [id, def] of entries) {
-        if (normalizeForMatch(def.name) === normalized) {
-            return id;
-        }
-    }
-
-    return null;
-};
-
-export const suggestExerciseMatches = (
-    exerciseName: string,
-    exerciseDefs: Record<string, ExerciseDef>
-): Array<{ id: string; name: string }> => {
-    const targetTokens = tokenizeExercise(exerciseName);
-    if (targetTokens.size === 0) {
-        return [];
-    }
-
-    const scored = Object.entries(exerciseDefs)
-        .map(([id, def]) => {
-            const candidateTokens = tokenizeExercise(def.name);
-            const score = jaccard(targetTokens, candidateTokens);
-            return {
-                id,
-                name: def.name,
-                score,
-                overlap: intersectCount(targetTokens, candidateTokens),
-            };
-        })
-        .filter((entry) => {
-            const exact =
-                normalizeForMatch(entry.name) === normalizeForMatch(exerciseName);
-            return exact || entry.overlap >= 1;
-        })
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 2);
-
-    return scored.map(({ id, name }) => ({ id, name }));
 };
 
 export const parseCsv = (text: string): string[][] => {
@@ -113,9 +64,7 @@ export const parseCsv = (text: string): string[][] => {
     return rows;
 };
 
-export const buildHeaderMap = (
-    header: string[]
-): Record<string, number> => {
+export const buildHeaderMap = (header: string[]): Record<string, number> => {
     return header.reduce<Record<string, number>>((acc, value, index) => {
         acc[value.trim()] = index;
         return acc;
@@ -180,45 +129,4 @@ export const parseNumberOrNull = (value: string): number | null => {
 
     const parsed = Number(value);
     return Number.isNaN(parsed) ? null : parsed;
-};
-
-const tokenizeExercise = (name: string): Set<string> => {
-    const tokens = normalizeExerciseName(name)
-        .split(" ")
-        .filter(Boolean);
-    return new Set(tokens);
-};
-
-const normalizeForMatch = (name: string): string => {
-    const normalized = normalizeExerciseName(name);
-    const tokens = normalized
-        .split(" ")
-        .filter(Boolean);
-    return tokens.join(" ");
-};
-
-const jaccard = (a: Set<string>, b: Set<string>): number => {
-    if (a.size === 0 || b.size === 0) {
-        return 0;
-    }
-
-    let intersection = 0;
-    a.forEach((token) => {
-        if (b.has(token)) {
-            intersection += 1;
-        }
-    });
-
-    const union = a.size + b.size - intersection;
-    return union === 0 ? 0 : intersection / union;
-};
-
-const intersectCount = (a: Set<string>, b: Set<string>): number => {
-    let count = 0;
-    a.forEach((token) => {
-        if (b.has(token)) {
-            count += 1;
-        }
-    });
-    return count;
 };

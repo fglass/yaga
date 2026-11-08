@@ -1,5 +1,3 @@
-import { ExerciseCategory } from "../types";
-
 export interface ImportRow {
     date: Date;
     workoutName: string;
@@ -44,22 +42,7 @@ export interface ImportData {
     workoutCount: number;
 }
 
-export type ExerciseMapping =
-    | {
-          type: "existing";
-          exerciseDefId: string;
-      }
-    | {
-          type: "create";
-          name: string;
-          category: ExerciseCategory;
-      }
-    | {
-          type: "skip";
-      };
-
 export interface ImportSummary {
     workoutsAdded: number;
-    workoutsSkipped: number;
     newExerciseDefs: number;
 }

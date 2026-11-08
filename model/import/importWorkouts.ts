@@ -1,110 +1,153 @@
 import { generateGuid } from "../../utils/guid";
+import { replaceDatabaseWithWorkouts } from "../database";
+import { CompletedWorkout, ExerciseCategory, ExerciseDef } from "../types";
 import { normalizeExerciseName } from "./import.helpers";
-import {
-    ExerciseMapping,
-    ImportData,
-    ImportSummary,
-} from "./import.types";
-import {
-    completeWorkout,
-    createExerciseDef,
-    fetchCompletedWorkoutKeys,
-} from "../database";
-import { CompletedWorkout, Exercise, Set as WorkoutSet } from "../types";
+import { ImportData, ImportSummary } from "./import.types";
 
 export const importWorkouts = async (
-    data: ImportData,
-    mapping: Record<string, ExerciseMapping>,
-    importedBy: string
+    data: ImportData
 ): Promise<ImportSummary> => {
-    const startTime = Date.now();
-    
-    const existingWorkoutKeys = new Set(
-        await fetchCompletedWorkoutKeys()
-    );
-
-    const createdExerciseDefs = new Map<string, string>();
-
-    let workoutsAdded = 0;
-    let workoutsSkipped = 0;
-    let newExerciseDefs = 0;
-
-    const importStamp = `${importedBy}@${new Date().toISOString()}`;
-
-    for (const workout of data.workouts) {
-        if (existingWorkoutKeys.has(workout.key)) {
-            workoutsSkipped += 1;
-            continue;
-        }
-
-        const exercises: Exercise[] = [];
-        for (const exercise of workout.exercises) {
-            const exerciseMapping = mapping[exercise.name];
-            if (!exerciseMapping || exerciseMapping.type === "skip") {
-                continue;
-            }
-
-            let exerciseDefId: string | null = null;
-            if (exerciseMapping.type === "existing") {
-                exerciseDefId = exerciseMapping.exerciseDefId;
-            } else if (exerciseMapping.type === "create") {
-                const cacheKey = normalizeExerciseName(exerciseMapping.name);
-                const existingId = createdExerciseDefs.get(cacheKey);
-                if (existingId) {
-                    exerciseDefId = existingId;
-                } else {
-                    exerciseDefId = await createExerciseDef({
-                        name: exerciseMapping.name,
-                        category: exerciseMapping.category,
-                    });
-                    createdExerciseDefs.set(cacheKey, exerciseDefId);
-                    newExerciseDefs += 1;
-                }
-            }
-
-            if (!exerciseDefId) {
-                continue;
-            }
-
-            const sets: WorkoutSet[] = exercise.sets.map((set) => ({
-                id: generateGuid(),
-                weight: set.weight ?? "",
-                reps: set.reps ?? "",
-                effortValue: "",
-                effortUnit: "rpe",
-                type: "default",
-                finishTime: workout.finishedAt,
-            }));
-
-            exercises.push({
-                id: generateGuid(),
-                exerciseId: exerciseDefId,
-                notes: [],
-                sets,
-            });
-        }
-
-        const completedWorkout: CompletedWorkout = {
-            id: generateGuid(),
-            name: workout.name,
-            notes: workout.workoutNotes ?? "",
-            type: "strength",
-            metadata: {
-                importedBy: importStamp,
-            },
-            startTimestamp: workout.startedAt,
-            endTimestamp: workout.finishedAt,
-            exercises,
-        };
-
-        await completeWorkout(completedWorkout);
-        workoutsAdded += 1;
+    if (data.workouts.length === 0) {
+        throw new Error("The CSV contains no workouts.");
     }
 
-    console.log(`Workouts imported in ${Date.now() - startTime}ms`);
+    const exerciseDefs: Record<string, ExerciseDef> = {};
+    const exerciseIds = new Map<string, string>();
+    for (const name of data.exerciseNames) {
+        const id = generateGuid();
+        exerciseIds.set(name, id);
+        exerciseDefs[id] = {
+            name,
+            category: inferExerciseCategory(name) ?? "Other",
+        };
+    }
+
+    const importedBy = `strong-csv@${new Date().toISOString()}`;
+    const workouts: CompletedWorkout[] = data.workouts.map((workout) => ({
+        id: generateGuid(),
+        name: workout.name,
+        notes: workout.workoutNotes,
+        type: "strength",
+        metadata: { importedBy },
+        startTimestamp: workout.startedAt,
+        endTimestamp: workout.finishedAt,
+        exercises: workout.exercises.map((exercise) => {
+            const exerciseId = exerciseIds.get(exercise.name);
+            if (!exerciseId) {
+                throw new Error(`Missing exercise: ${exercise.name}`);
+            }
+            return {
+                id: generateGuid(),
+                exerciseId,
+                notes: [],
+                sets: exercise.sets.map((set) => ({
+                    id: generateGuid(),
+                    weight: set.weight,
+                    reps: set.reps,
+                    effortValue: "",
+                    effortUnit: "rpe",
+                    type: "default",
+                    finishTime: workout.finishedAt,
+                })),
+            };
+        }),
+    }));
+
+    await replaceDatabaseWithWorkouts(exerciseDefs, workouts);
     return {
-        workoutsAdded,
-        workoutsSkipped,
-        newExerciseDefs,
+        workoutsAdded: workouts.length,
+        newExerciseDefs: exerciseIds.size,
     };
 };
+
+const inferExerciseCategory = (
+    exerciseName: string
+): ExerciseCategory | null => {
+    const normalized = normalizeExerciseName(exerciseName);
+    for (const rule of CATEGORY_RULES) {
+        for (const keyword of rule.keywords) {
+            if (normalized.includes(keyword)) {
+                return rule.category;
+            }
+        }
+    }
+    return null;
+};
+
+const CATEGORY_RULES: Array<{
+    category: ExerciseCategory;
+    keywords: string[];
+}> = [
+    {
+        category: "Neck",
+        keywords: ["neck"],
+    },
+    {
+        category: "Chest",
+        keywords: ["bench", "chest", "pec", "fly", "flye", "push up", "pushup"],
+    },
+    {
+        category: "Back",
+        keywords: [
+            "row",
+            "pull up",
+            "pullup",
+            "lat",
+            "pulldown",
+            "deadlift",
+            "rdl",
+        ],
+    },
+    {
+        category: "Shoulders",
+        keywords: [
+            "shoulder",
+            "overhead press",
+            "ohp",
+            "military press",
+            "arnold press",
+            "lateral raise",
+            "front raise",
+            "rear delt",
+        ],
+    },
+    {
+        category: "Biceps",
+        keywords: ["bicep", "biceps", "curl", "hammer", "preacher"],
+    },
+    {
+        category: "Triceps",
+        keywords: [
+            "tricep",
+            "triceps",
+            "skullcrusher",
+            "pushdown",
+            "pressdown",
+        ],
+    },
+    {
+        category: "Legs",
+        keywords: [
+            "squat",
+            "lunge",
+            "leg",
+            "calf",
+            "hip",
+            "glute",
+            "hamstring",
+            "quad",
+        ],
+    },
+    {
+        category: "Core",
+        keywords: [
+            "plank",
+            "crunch",
+            "sit up",
+            "situp",
+            "leg raise",
+            "ab",
+            "core",
+        ],
+    },
+];

@@ -1,149 +1,162 @@
-import { ExerciseDef } from "../../../model/types";
-import { ImportParseResult } from "../../../model/import/import.types";
+import type { AlertButton } from "react-native";
 import {
     createImportViewModelCore,
-    createImportViewModelState,
-    createInitialImportViewModelState,
+    ImportViewModelDeps,
 } from "../import.viewModel.core";
-import { inferExerciseCategory } from "../import.viewModel.helpers";
+import { importWorkouts } from "../../../model/import/importWorkouts";
+// Test-only database harness for exercising the view model against SQLite
+// eslint-disable-next-line no-restricted-imports
+import {
+    createTestDb,
+    completedWorkoutFactory,
+} from "../../../model/database/database.test.helpers";
 
-const createTestViewModel = () => {
-    const exerciseDefs: Record<string, ExerciseDef> = {
-        benchPressId: { name: "Bench Press", category: "Chest" },
-        pushUpId: { name: "Push Up", category: "Chest" },
-        bicepCurlId: { name: "Bicep Curl", category: "Other" },
+const HEADER =
+    "Date,Workout Name,Duration,Exercise Name,Set Order,Weight,Reps,Distance,Seconds,Notes,Workout Notes,RPE";
+const CSV = `${HEADER}\n2022-12-30 11:34:35,Legs,33m,Single Leg Extension,1,66,14,0,0,,Workout notes,\n2022-12-31 11:34:35,Legs,33m,Single Leg Extension,1,67,12,0,0,,,`;
+
+const createHarness = (overrides: Partial<ImportViewModelDeps> = {}) => {
+    const state = {
+        closed: false,
+        importing: false,
+        refreshed: false,
+        success: false,
+        imports: 0,
     };
-
-    const { getState, setState } = createImportViewModelState({
-        ...createInitialImportViewModelState(),
-        stage: "mapping",
-        importData: {
-            rows: [],
-            workouts: [],
-            exerciseNames: ["Bench Press"],
-            workoutCount: 1,
+    const alerts: Array<{
+        title: string;
+        message?: string;
+        buttons?: AlertButton[];
+    }> = [];
+    const vm = createImportViewModelCore({
+        onClose: () => {
+            state.closed = true;
         },
-        summary: {
-            totalRows: 1,
-            workoutCount: 1,
-            knownExercises: 1,
-            unknownExercises: 0,
-            skippedExercises: 0,
+        setImporting: (value) => {
+            state.importing = value;
         },
-        unknownExercises: [],
-        knownExercises: ["Bench Press"],
-        knownMatches: { "Bench Press": "benchPressId" },
-        mapping: {},
-        exerciseDefs,
+        deps: {
+            readFileText: async () => CSV,
+            importWorkouts: async () => {
+                state.imports += 1;
+                return { workoutsAdded: 2, newExerciseDefs: 1 };
+            },
+            alert: (title, message, buttons) => {
+                alerts.push({ title, message, buttons });
+            },
+            refreshDatabase: async () => {
+                state.refreshed = true;
+            },
+            onSuccess: () => {
+                state.success = true;
+            },
+            ...overrides,
+        },
     });
-
-    const deps = {
-        fetchExerciseDefs: async () => exerciseDefs,
-        readFileText: async () => "",
-        requiredColumns: ["col"],
-        parseStrongCsv: (): ImportParseResult => ({
-            rows: [],
-            errors: [],
-            totalRows: 0,
-        }),
-        buildImportData: () => ({
-            rows: [],
-            workouts: [],
-            exerciseNames: [],
-            workoutCount: 0,
-        }),
-        matchExerciseName: () => null,
-        suggestExerciseMatches: () => [],
-        importedBy: "strong-csv",
-        importWorkouts: async () => ({
-            workoutsAdded: 0,
-            workoutsSkipped: 0,
-            newExerciseDefs: 0,
-        }),
-        inferExerciseCategory: () => null,
-        alert: jest.fn(),
-        invalidateQueries: jest.fn(),
-        queryKeys: {
-            completedWorkouts: ["CompletedWorkouts"],
-            exerciseDefs: ["ExerciseDefs"],
-        },
-    };
-
-    return {
-        getState,
-        vm: createImportViewModelCore({
-            getState,
-            setState,
-            deps,
-            onClose: jest.fn(),
-        }),
-    };
+    return { vm, state, alerts };
 };
 
-describe("importViewModel", () => {
-    it("maps to new exercise", () => {
-        const { vm, getState } = createTestViewModel();
-        const newExerciseId = "pushUpId";
-        
-        vm.setExerciseToExisting("Bench Press", newExerciseId);
-
-        const state = getState();
-        expect(state.mapping["Bench Press"]).toEqual({
-            type: "existing",
-            exerciseDefId: newExerciseId,
+it.each([
+    "invalid",
+    HEADER,
+    `${HEADER}\nnot-a-date,Legs,33m,Squat,1,60,8,,,,,`,
+])(
+    "rejects invalid or empty CSV without offering replacement",
+    async (text) => {
+        const { vm, state, alerts } = createHarness({
+            readFileText: async () => text,
         });
-        expect(vm.getKnownLabel("Bench Press")).toBe("Push Up");
-        expect(vm.getKnownCategory("Bench Press")).toBe("Chest");
+        await vm.loadCsv("file.csv");
+        expect(alerts[0].title).toBe("Import failed");
+        expect(alerts[0].buttons).toBeUndefined();
+        expect(state.imports).toBe(0);
+        expect(state.closed).toBe(true);
+    }
+);
+
+it("handles unreadable files without replacing data", async () => {
+    const { vm, state, alerts } = createHarness({
+        readFileText: async () => {
+            throw new Error("Unreadable file");
+        },
     });
+    await vm.loadCsv("file.csv");
+    expect(alerts[0].message).toBe("Unreadable file");
+    expect(state.imports).toBe(0);
+});
 
-    it("sets new with new name", () => {
-        const { vm, getState } = createTestViewModel();
+it("imports once, refreshes database state and reports success", async () => {
+    const { vm, state, alerts } = createHarness();
+    await vm.loadCsv("file.csv");
+    await vm.loadCsv("file.csv");
+    expect(state.imports).toBe(1);
+    expect(state.importing).toBe(true);
+    expect(state.refreshed).toBe(true);
+    expect(state.success).toBe(true);
+    expect(alerts[0].title).toBe("Import Complete");
+    alerts[0].buttons?.[0].onPress?.();
+    expect(state.closed).toBe(true);
+});
 
-        vm.setExerciseAsNew("Bench Press", "New Name",);
-
-        const state = getState();
-        expect(state.mapping["Bench Press"]).toEqual({
-            type: "create",
-            name: "New Name",
-            category: "Other",
+it("replaces the database with only the CSV exercises and workouts", async () => {
+    await createTestDb(async (database, sqlite) => {
+        await database.completeWorkout(
+            completedWorkoutFactory({ id: "old-workout" })
+        );
+        await database.saveActiveWorkout({
+            id: "active",
+            name: "Active",
+            notes: "",
+            metadata: {},
+            startTimestamp: 1,
+            type: "strength",
+            exercises: [],
         });
-        expect(vm.getMappedLabel("Bench Press")).toBe("New Name");
-        expect(vm.getMappedCategory("Bench Press")).toBe("Other");
+        const { vm, alerts } = createHarness({ importWorkouts });
+        await vm.loadCsv("file.csv");
+        const defs = await database.fetchExerciseDefs();
+        expect(Object.values(defs)).toEqual([
+            { name: "Single Leg Extension", category: "Legs" },
+        ]);
+        expect(await database.fetchCompletedWorkoutIds()).toHaveLength(2);
+        const db = await sqlite.getDatabase();
+        expect(await db.getAllAsync("SELECT * FROM templates")).toEqual([]);
+        expect(
+            await db.getAllAsync(
+                "SELECT * FROM workouts WHERE status = 'active'"
+            )
+        ).toEqual([]);
+        const sets = await db.getAllAsync(
+            "SELECT weight, reps FROM sets ORDER BY weight"
+        );
+        expect(sets).toEqual([
+            { weight: "66", reps: "14" },
+            { weight: "67", reps: "12" },
+        ]);
+        expect(alerts[0].title).toBe("Import Complete");
     });
+});
 
-    it("sets new with new category", () => {
-        const { vm, getState } = createTestViewModel();
-
-        vm.setExerciseAsNew("Bench Press", undefined, "Legs");
-
-        const state = getState();
-        expect(state.mapping["Bench Press"]).toEqual({
-            type: "create",
-            name: "Bench Press",
-            category: "Legs",
+it("preserves existing data when saving the replacement fails", async () => {
+    await createTestDb(async (database, sqlite) => {
+        await database.completeWorkout(
+            completedWorkoutFactory({ id: "old-workout" })
+        );
+        const before = await database.fetchExerciseDefs();
+        const db = await sqlite.getDatabase();
+        await db.execAsync(
+            "CREATE TRIGGER reject_import BEFORE INSERT ON workouts BEGIN SELECT RAISE(ABORT, 'Disk write failure'); END;"
+        );
+        const { vm, alerts, state } = createHarness({
+            importWorkouts,
         });
-        expect(vm.getMappedCategory("Bench Press")).toBe("Legs");
-    });
-
-    it("skips exercise", () => {
-        const { vm, getState } = createTestViewModel();
-
-        vm.skipExercise("Bench Press");
-
-        const state = getState();
-        expect(state.mapping["Bench Press"]).toEqual({ type: "skip" });
-        expect(vm.getMappedLabel("Bench Press")).toBe("Skip");
-        expect(state.knownExercises).not.toContain("Bench Press");
-        expect(state.unknownExercises[0]).toBe("Bench Press");
-    });
-
-    it.each([
-        ["Pull Up", "Back"],
-        ["Bench Press", "Chest"],
-        ["Goblet Squat", "Legs"],
-        ["Cable Crunch", "Core"],
-        ["Mystery Move", null],
-    ])("infers exercise category for %s", (name, expected) => {
-        expect(inferExerciseCategory(name)).toBe(expected);
+        await vm.loadCsv("file.csv");
+        expect(await database.fetchExerciseDefs()).toEqual(before);
+        expect(await database.fetchCompletedWorkoutIds()).toEqual([
+            "old-workout",
+        ]);
+        expect(alerts[0].title).toBe("Import failed");
+        expect(state.success).toBe(false);
+        expect(state.closed).toBe(true);
     });
 });

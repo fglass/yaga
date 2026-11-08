@@ -10,6 +10,7 @@ export {
     mergeExerciseDefs,
     deleteWorkoutTemplate,
     completeWorkout,
+    replaceDatabaseWithWorkouts,
     saveActiveWorkout,
     fetchExerciseDefs,
     fetchCompletedWorkoutIds,
